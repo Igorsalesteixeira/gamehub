@@ -147,36 +147,47 @@ function renderWaste() {
   if (state.waste.length === 0) return;
 
   const dims = getCardDims();
-  const topCard = state.waste[state.waste.length - 1];
+  // Empilha 2 cartas: a anterior fica escondida atrás da do topo
+  const show = state.waste.slice(-2);
 
-  // Renderiza só a carta do topo
-  const el = makeFaceUpCard(topCard);
-  el.style.position = 'absolute';
-  el.style.top = '0';
-  el.style.left = '0';
-  el.style.zIndex = 2;
+  show.forEach((card, i) => {
+    const isTop = i === show.length - 1;
+    const el = makeFaceUpCard(card);
+    el.style.position = 'absolute';
+    el.style.top = '0';
+    el.style.left = '0';
+    el.style.zIndex = i + 1;
 
-  el.addEventListener('click', () => handleWasteClick());
-  el.addEventListener('dblclick', () => {
-    if (topCard) tryAutoMove(topCard, 'waste');
+    if (!isTop) {
+      el.style.pointerEvents = 'none';
+      wasteEl.appendChild(el);
+      return;
+    }
+
+    // Eventos só na carta de cima
+    el.addEventListener('click', () => handleWasteClick());
+    el.addEventListener('dblclick', () => {
+      const top = state.waste[state.waste.length - 1];
+      if (top) tryAutoMove(top, 'waste');
+    });
+    if (selected && selected.source === 'waste') el.classList.add('selected');
+
+    const topCard = state.waste[state.waste.length - 1];
+    initTouchDrag(
+      el,
+      { source: 'waste' },
+      () => handleWasteClick(),
+      () => { if (topCard) tryAutoMove(topCard, 'waste'); }
+    );
+    el.draggable = true;
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
+      setTimeout(() => el.classList.add('dragging'), 0);
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    wasteEl.appendChild(el);
   });
-  if (selected && selected.source === 'waste') el.classList.add('selected');
 
-  // Drag
-  initTouchDrag(
-    el,
-    { source: 'waste' },
-    () => handleWasteClick(),
-    () => { if (topCard) tryAutoMove(topCard, 'waste'); }
-  );
-  el.draggable = true;
-  el.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-    setTimeout(() => el.classList.add('dragging'), 0);
-  });
-  el.addEventListener('dragend', () => el.classList.remove('dragging'));
-
-  wasteEl.appendChild(el);
   wasteEl.style.width = dims.w + 'px';
 }
 
