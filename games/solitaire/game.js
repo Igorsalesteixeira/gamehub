@@ -419,7 +419,7 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
       const allCards = Array.from(colDiv.querySelectorAll('.card'));
       allCards.slice(actualData.cardIndex).forEach(c => { c.style.opacity = '0.25'; stackEls.push(c); });
     } else {
-      el.style.opacity = '0.25';
+      el.style.visibility = 'hidden';
       stackEls.push(el);
     }
 
@@ -453,7 +453,11 @@ document.addEventListener('touchend', e => {
   const tapKey = data.source + (data.colIndex ?? '') + (data.cardIndex ?? '');
   touchDrag = null;
   ghost.remove();
-  stackEls.forEach(el => { if (el.isConnected) el.style.opacity = ''; });
+  stackEls.forEach(el => {
+    if (!el.isConnected) return;
+    el.style.opacity = '';
+    el.style.visibility = '';
+  });
 
   if (!moved) {
     const now = Date.now();
