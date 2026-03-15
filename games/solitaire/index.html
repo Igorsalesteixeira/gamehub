@@ -10,28 +10,26 @@
 </head>
 <body>
 
-  <!-- TOP BAR -->
+  <!-- SINGLE TOP BAR -->
   <header class="topbar">
     <a href="../../index.html" class="btn-back">← Voltar</a>
-    <h1 class="game-title">🃏 Paciência</h1>
-    <div class="stats">
-      <span id="moves-display">Movimentos: 0</span>
-      <span id="time-display">⏱ 00:00</span>
+    <div class="topbar-actions">
+      <button id="btn-new" class="btn btn-orange">Novo<span class="hide-mobile"> Jogo</span></button>
+      <button id="btn-undo" class="btn btn-gray" disabled>↩<span class="hide-mobile"> Desfazer</span></button>
     </div>
-  </header>
-
-  <!-- CONTROLS -->
-  <div class="controls">
-    <button id="btn-new" class="btn btn-orange">Novo Jogo</button>
-    <button id="btn-undo" class="btn btn-gray" disabled>↩ Desfazer</button>
+    <h1 class="game-title">🃏 Paciência</h1>
     <div class="draw-selector">
-      <label for="draw-count">Virar:</label>
+      <label for="draw-count" class="hide-mobile">Virar:</label>
       <select id="draw-count">
         <option value="1" selected>1 carta (Fácil)</option>
         <option value="3">3 cartas (Difícil)</option>
       </select>
     </div>
-  </div>
+    <div class="stats">
+      <span><span class="hide-mobile">Movimentos: </span><span id="moves-display">0</span></span>
+      <span id="time-display">⏱ 00:00</span>
+    </div>
+  </header>
 
   <!-- GAME BOARD -->
   <div class="board">

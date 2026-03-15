@@ -11,66 +11,68 @@ body {
   flex-direction: column;
   color: #fff;
   user-select: none;
-  touch-action: none; /* evita scroll acidental no iOS */
+  touch-action: none;
 }
 
-/* ===== TOP BAR ===== */
+/* ===== TOP BAR (single row) ===== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 1.2rem;
+  padding: 0.5rem 1rem;
   background: rgba(0,0,0,0.25);
   backdrop-filter: blur(4px);
-  flex-wrap: wrap;
   gap: 0.5rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-back {
   color: #fff;
   text-decoration: none;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   background: rgba(255,255,255,0.15);
-  padding: 0.35rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 .btn-back:hover { background: rgba(255,255,255,0.3); }
 
+.topbar-actions {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
 .game-title {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .stats {
   display: flex;
-  gap: 1rem;
-  font-size: 0.85rem;
+  gap: 0.5rem;
+  font-size: 0.8rem;
   font-weight: 700;
   opacity: 0.9;
+  white-space: nowrap;
 }
 
-/* ===== CONTROLS ===== */
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.6rem 1.2rem;
-  background: rgba(0,0,0,0.15);
-  flex-wrap: wrap;
-}
-
+/* ===== BUTTONS ===== */
 .btn {
-  padding: 0.45rem 1.1rem;
+  padding: 0.35rem 0.9rem;
   border: none;
   border-radius: 999px;
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
 }
 .btn:active { transform: scale(0.96); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -82,20 +84,19 @@ body {
 .draw-selector {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 0.4rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  margin-left: auto;
 }
 .draw-selector select {
   background: rgba(255,255,255,0.15);
   color: #fff;
   border: 1px solid rgba(255,255,255,0.3);
   border-radius: 8px;
-  padding: 0.3rem 0.6rem;
+  padding: 0.25rem 0.4rem;
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 .draw-selector select option { background: #1a6b3c; }
@@ -105,7 +106,7 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.6rem 0.5rem;
+  padding: 0.5rem 0.4rem;
   max-width: 780px;
   width: 100%;
   margin: 0 auto;
@@ -117,14 +118,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+  gap: 0.4rem;
 }
 
 .top-left {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   align-items: flex-start;
 }
 
@@ -168,7 +168,7 @@ body {
 /* ===== FOUNDATIONS ===== */
 .foundations-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .foundation {
@@ -213,7 +213,7 @@ body {
 
 .column {
   position: relative;
-  min-height: 110px;
+  min-height: 100px;
 }
 
 .column.empty-slot {
@@ -255,7 +255,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 4px 6px;
+  padding: 4px 5px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   transition: box-shadow 0.12s;
 }
@@ -321,27 +321,68 @@ body {
 .modal p     { font-size: 0.95rem; color: #666; margin-bottom: 0.4rem; }
 .modal .btn  { margin-top: 1rem; padding: 0.7rem 2rem; font-size: 1rem; }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 580px) {
-  .card, .stock-pile, .waste-pile, .foundation {
-    width: 46px;
-    height: 66px;
-  }
-  .card-center { font-size: 1rem; }
-  .card-tl, .card-br { font-size: 0.6rem; }
-  .tableau { gap: 2px; }
-  .top-row { gap: 0.3rem; margin-bottom: 0.5rem; }
-  .foundations-row { gap: 2px; }
-  .topbar { padding: 0.4rem 0.8rem; }
-  .controls { padding: 0.3rem 0.8rem; }
-  .board { padding: 0.4rem 0.3rem; }
-}
+/* ===== RESPONSIVE HELPERS ===== */
+.hide-mobile { display: inline; }
 
-@media (max-width: 420px) {
+/* ===== PORTRAIT MOBILE (≤580px) ===== */
+@media (max-width: 580px) {
+  .hide-mobile { display: none; }
+  .game-title  { display: none; }
+
   .card, .stock-pile, .waste-pile, .foundation {
-    width: 42px;
+    width: 44px;
     height: 60px;
   }
-  .card-center { font-size: 0.9rem; }
-  .game-title { display: none; }
+  .card-center { font-size: 1.3rem; }
+  .card-tl, .card-br { font-size: 0.6rem; }
+  .card.face-up { padding: 2px 3px; border-radius: 7px; }
+
+  .tableau { gap: 3px; }
+  .foundations-row { gap: 3px; }
+  .top-row { gap: 0.25rem; margin-bottom: 0.4rem; }
+  .topbar  { padding: 0.3rem 0.5rem; gap: 0.25rem; }
+  .board   { padding: 0.3rem 0.2rem; }
+  .btn     { padding: 0.28rem 0.55rem; font-size: 0.76rem; }
+  .draw-selector select { font-size: 0.74rem; padding: 0.2rem 0.3rem; }
+  .stats   { font-size: 0.74rem; gap: 0.3rem; }
+}
+
+/* ===== NARROW PORTRAIT (≤380px) ===== */
+@media (max-width: 380px) {
+  .card, .stock-pile, .waste-pile, .foundation {
+    width: 40px;
+    height: 54px;
+  }
+  .card-center { font-size: 1.1rem; }
+  .card-tl, .card-br { font-size: 0.55rem; }
+  .tableau { gap: 2px; }
+  .foundations-row { gap: 2px; }
+  .btn { padding: 0.25rem 0.45rem; font-size: 0.72rem; }
+}
+
+/* ===== LANDSCAPE MOBILE (tela deitada) ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .card, .stock-pile, .waste-pile, .foundation {
+    width: 46px;
+    height: 54px;
+  }
+  .card-center { font-size: 1.2rem; }
+  .card-tl, .card-br { font-size: 0.6rem; }
+  .card.face-up { padding: 2px 3px; border-radius: 7px; }
+
+  .hide-mobile { display: none; }
+  .game-title  { display: none; }
+
+  .topbar  { padding: 0.25rem 0.5rem; gap: 0.25rem; }
+  .board   { padding: 0.25rem 0.25rem; }
+  .top-row { margin-bottom: 0.3rem; gap: 0.2rem; }
+  .tableau { gap: 3px; }
+  .foundations-row { gap: 3px; }
+  .btn     { padding: 0.22rem 0.5rem; font-size: 0.75rem; }
+  .draw-selector select { font-size: 0.72rem; padding: 0.18rem 0.28rem; }
+  .stats   { font-size: 0.72rem; gap: 0.25rem; }
+
+  .stock-pile::before { font-size: 1.4rem; }
+  .stock-pile.empty::before { font-size: 1.3rem; }
+  .foundation { font-size: 1.2rem; }
 }

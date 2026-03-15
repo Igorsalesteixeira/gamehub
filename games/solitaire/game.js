@@ -128,7 +128,7 @@ function render() {
   renderWaste();
   renderFoundations();
   renderTableau();
-  movesDisplay.textContent = `Movimentos: ${state.moves}`;
+  movesDisplay.textContent = state.moves;
   document.getElementById('btn-undo').disabled = state.history.length === 0;
 }
 
@@ -151,12 +151,13 @@ function renderWaste() {
     ? state.waste.slice(-3)
     : [state.waste[state.waste.length - 1]];
 
+  const dims = getCardDims();
   show.forEach((card, i) => {
     const isTop = i === show.length - 1;
     const el = makeFaceUpCard(card);
     el.style.position = 'absolute';
     el.style.top = '0';
-    el.style.left = (i * 18) + 'px';
+    el.style.left = (i * dims.fanOff) + 'px';
     el.style.zIndex = i + 1;
     if (isTop) {
       el.addEventListener('click', () => handleWasteClick());
@@ -188,7 +189,7 @@ function renderWaste() {
   });
 
   // Adjust waste width for fanned view
-  wasteEl.style.width = (72 + (show.length - 1) * 18) + 'px';
+  wasteEl.style.width = (dims.w + (show.length - 1) * dims.fanOff) + 'px';
 }
 
 // ---- Foundations ----
@@ -226,17 +227,18 @@ function renderTableau() {
     colEl.innerHTML = '';
     const col = state.tableau[c];
 
+    const dims = getCardDims();
+
     if (col.length === 0) {
       colEl.classList.add('empty-slot');
-      colEl.style.height = '100px';
-      return;
+      colEl.style.height = dims.h + 'px';
+      continue;
     } else {
       colEl.classList.remove('empty-slot');
     }
 
-    const isMobile    = window.innerWidth <= 580;
-    const OFFSET_DOWN = isMobile ? 14 : 20;
-    const OFFSET_UP   = isMobile ? 18 : 24;
+    const OFFSET_DOWN = dims.offsetDown;
+    const OFFSET_UP   = dims.offsetUp;
     let topPx = 0;
 
     col.forEach((card, i) => {
@@ -293,7 +295,7 @@ function renderTableau() {
       if (!isLast) topPx += card.faceUp ? OFFSET_UP : OFFSET_DOWN;
     });
 
-    colEl.style.height = (topPx + 100) + 'px';
+    colEl.style.height = (topPx + dims.h) + 'px';
   }
 }
 
@@ -340,7 +342,16 @@ for (const suit of SUITS) {
 // =============================================
 let touchDrag  = null;
 const tapTimes = {};
-const CARD_OFFSET = () => window.innerWidth <= 580 ? 18 : 24;
+function getCardDims() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  if (h < 500) return { w: 46, h: 54, fanOff: 13, offsetUp: 12, offsetDown: 8 }; // landscape
+  if (w <= 380) return { w: 40, h: 54, fanOff: 12, offsetUp: 12, offsetDown: 9 };
+  if (w <= 580) return { w: 44, h: 60, fanOff: 14, offsetUp: 14, offsetDown: 10 };
+  return { w: 72, h: 100, fanOff: 18, offsetUp: 24, offsetDown: 20 };
+}
+
+const CARD_OFFSET = () => getCardDims().offsetUp;
 
 function buildStackGhost(dragData, rect) {
   if (dragData.source !== 'tableau') {
@@ -476,8 +487,6 @@ function makeFaceUpCard(card) {
   const el = document.createElement('div');
   const isRed = RED_SUITS.has(card.suit);
   el.className = `card face-up ${isRed ? 'red' : 'black'}`;
-  el.style.width  = '72px';
-  el.style.height = '100px';
   const r = RANKS[card.rank];
   el.innerHTML = `
     <div class="card-tl">${r}</div>
