@@ -217,7 +217,7 @@ body {
 }
 
 .column.empty-slot {
-  border: 2px dashed rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.04);
   border-radius: 10px;
   height: 100px;
 }
@@ -330,18 +330,18 @@ body {
   .game-title  { display: none; }
 
   .card, .stock-pile, .waste-pile, .foundation {
-    width: 44px;
-    height: 60px;
+    width: 50px;
+    height: 70px;
   }
-  .card-center { font-size: 1.3rem; }
-  .card-tl, .card-br { font-size: 0.6rem; }
-  .card.face-up { padding: 2px 3px; border-radius: 7px; }
+  .card-center { font-size: 1.5rem; }
+  .card-tl, .card-br { font-size: 0.65rem; }
+  .card.face-up { padding: 3px 4px; border-radius: 8px; }
 
   .tableau { gap: 3px; }
   .foundations-row { gap: 3px; }
   .top-row { gap: 0.25rem; margin-bottom: 0.4rem; }
-  .topbar  { padding: 0.3rem 0.5rem; gap: 0.25rem; }
-  .board   { padding: 0.3rem 0.2rem; }
+  .topbar  { padding: 0.35rem 0.5rem; gap: 0.3rem; }
+  .board   { padding: 0.35rem 0.25rem; }
   .btn     { padding: 0.28rem 0.55rem; font-size: 0.76rem; }
   .draw-selector select { font-size: 0.74rem; padding: 0.2rem 0.3rem; }
   .stats   { font-size: 0.74rem; gap: 0.3rem; }
@@ -350,11 +350,11 @@ body {
 /* ===== NARROW PORTRAIT (≤380px) ===== */
 @media (max-width: 380px) {
   .card, .stock-pile, .waste-pile, .foundation {
-    width: 40px;
-    height: 54px;
+    width: 44px;
+    height: 62px;
   }
-  .card-center { font-size: 1.1rem; }
-  .card-tl, .card-br { font-size: 0.55rem; }
+  .card-center { font-size: 1.3rem; }
+  .card-tl, .card-br { font-size: 0.58rem; }
   .tableau { gap: 2px; }
   .foundations-row { gap: 2px; }
   .btn { padding: 0.25rem 0.45rem; font-size: 0.72rem; }
@@ -363,10 +363,10 @@ body {
 /* ===== LANDSCAPE MOBILE (tela deitada) ===== */
 @media (max-height: 500px) and (orientation: landscape) {
   .card, .stock-pile, .waste-pile, .foundation {
-    width: 46px;
-    height: 54px;
+    width: 50px;
+    height: 60px;
   }
-  .card-center { font-size: 1.2rem; }
+  .card-center { font-size: 1.3rem; }
   .card-tl, .card-br { font-size: 0.6rem; }
   .card.face-up { padding: 2px 3px; border-radius: 7px; }
 

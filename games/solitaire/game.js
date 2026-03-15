@@ -146,10 +146,8 @@ function renderWaste() {
   wasteEl.innerHTML = '';
   if (state.waste.length === 0) return;
 
-  // Show up to 3 fanned cards when draw=3, else just top
-  const show = state.drawCount === 3
-    ? state.waste.slice(-3)
-    : [state.waste[state.waste.length - 1]];
+  // Mostra a carta de cima e a de baixo (2 cartas em leque)
+  const show = state.waste.slice(-2);
 
   const dims = getCardDims();
   show.forEach((card, i) => {
@@ -163,7 +161,7 @@ function renderWaste() {
       el.addEventListener('click', () => handleWasteClick());
       el.addEventListener('dblclick', () => {
         const top = state.waste[state.waste.length - 1];
-        if (top) tryAutoToFoundation(top, 'waste');
+        if (top) tryAutoMove(top, 'waste');
       });
       if (selected && selected.source === 'waste') el.classList.add('selected');
     } else {
@@ -176,7 +174,7 @@ function renderWaste() {
         el,
         { source: 'waste' },
         () => handleWasteClick(),
-        () => { if (topCard) tryAutoToFoundation(topCard, 'waste'); }
+        () => { if (topCard) tryAutoMove(topCard, 'waste'); }
       );
       el.draggable = true;
       el.addEventListener('dragstart', e => {
@@ -232,9 +230,11 @@ function renderTableau() {
     if (col.length === 0) {
       colEl.classList.add('empty-slot');
       colEl.style.height = dims.h + 'px';
+      colEl.style.minHeight = dims.h + 'px';
       continue;
     } else {
       colEl.classList.remove('empty-slot');
+      colEl.style.minHeight = '';
     }
 
     const OFFSET_DOWN = dims.offsetDown;
@@ -266,7 +266,7 @@ function renderTableau() {
         });
         el.addEventListener('dblclick', e => {
           e.stopPropagation();
-          if (isLast) tryAutoToFoundation(col[i], 'tableau', c);
+          tryAutoMove(col[i], 'tableau', c, i);
         });
 
         // Touch drag (iOS) com duplo toque
@@ -274,7 +274,7 @@ function renderTableau() {
           el,
           { source: 'tableau', colIndex: c, cardIndex: i },
           () => handleTableauCardClick(c, i),
-          () => { if (isLast) tryAutoToFoundation(col[i], 'tableau', c); }
+          () => tryAutoMove(col[i], 'tableau', c, i)
         );
 
         // Mouse drag (desktop)
@@ -345,9 +345,9 @@ const tapTimes = {};
 function getCardDims() {
   const w = window.innerWidth;
   const h = window.innerHeight;
-  if (h < 500) return { w: 46, h: 54, fanOff: 13, offsetUp: 12, offsetDown: 8 }; // landscape
-  if (w <= 380) return { w: 40, h: 54, fanOff: 12, offsetUp: 12, offsetDown: 9 };
-  if (w <= 580) return { w: 44, h: 60, fanOff: 14, offsetUp: 14, offsetDown: 10 };
+  if (h < 500) return { w: 50, h: 60, fanOff: 14, offsetUp: 14, offsetDown: 10 }; // landscape
+  if (w <= 380) return { w: 44, h: 62, fanOff: 13, offsetUp: 15, offsetDown: 10 };
+  if (w <= 580) return { w: 50, h: 70, fanOff: 16, offsetUp: 18, offsetDown: 12 };
   return { w: 72, h: 100, fanOff: 18, offsetUp: 24, offsetDown: 20 };
 }
 
@@ -584,24 +584,92 @@ function handleFoundationClick(suit) {
 }
 
 // =============================================
-//  AUTO MOVE TO FOUNDATION
+//  AUTO MOVE (duplo clique/toque)
+//  Tenta: 1) fundação, 2) coluna do tableau
 // =============================================
-function tryAutoToFoundation(card, source, colIndex) {
-  const pile = state.foundations[card.suit];
-  if (!canPlaceOnFoundation(card, card.suit)) return false;
-  saveHistory();
-  pile.push({ ...card });
-  if (source === 'waste') {
-    state.waste.pop();
-  } else if (source === 'tableau') {
-    state.tableau[colIndex].pop();
-    flipTopCard(colIndex);
+function tryAutoMove(card, source, colIndex, cardIndex) {
+  // 1) Tenta fundação (só carta do topo)
+  const isTop = source === 'waste' ||
+    (source === 'tableau' && cardIndex === state.tableau[colIndex].length - 1);
+  if (isTop && canPlaceOnFoundation(card, card.suit)) {
+    saveHistory();
+    state.foundations[card.suit].push({ ...card });
+    if (source === 'waste') {
+      state.waste.pop();
+    } else if (source === 'tableau') {
+      state.tableau[colIndex].pop();
+      flipTopCard(colIndex);
+    }
+    state.moves++;
+    selected = null;
+    render();
+    if (checkWin()) showWin();
+    return true;
   }
-  state.moves++;
-  selected = null;
-  render();
-  if (checkWin()) showWin();
-  return true;
+
+  // 2) Tenta mover para uma coluna válida do tableau
+  if (source === 'tableau') {
+    // Pega a sequência inteira a partir do cardIndex
+    const startIdx = cardIndex !== undefined ? cardIndex : state.tableau[colIndex].length - 1;
+    const cards = state.tableau[colIndex].slice(startIdx);
+    const topCard = cards[0];
+    if (!canPickFromTableau(colIndex, startIdx)) return false;
+
+    // Prioriza colunas com cartas (não vazias) para não desperdiçar espaços
+    const targets = [];
+    for (let c = 0; c < 7; c++) {
+      if (c === colIndex) continue;
+      if (canPlaceOnTableau(topCard, c)) {
+        targets.push({ col: c, hasCards: state.tableau[c].length > 0 });
+      }
+    }
+    // Ordena: colunas com cartas primeiro
+    targets.sort((a, b) => (b.hasCards ? 1 : 0) - (a.hasCards ? 1 : 0));
+
+    if (targets.length > 0) {
+      saveHistory();
+      state.tableau[colIndex].splice(startIdx);
+      flipTopCard(colIndex);
+      state.tableau[targets[0].col].push(...cards.map(c => ({ ...c, faceUp: true })));
+      state.moves++;
+      selected = null;
+      render();
+      return true;
+    }
+  } else if (source === 'waste') {
+    // Tenta mover a carta do descarte para alguma coluna
+    const wasteCard = state.waste[state.waste.length - 1];
+    for (let c = 0; c < 7; c++) {
+      if (canPlaceOnTableau(wasteCard, c) && state.tableau[c].length > 0) {
+        saveHistory();
+        state.waste.pop();
+        state.tableau[c].push({ ...wasteCard, faceUp: true });
+        state.moves++;
+        selected = null;
+        render();
+        return true;
+      }
+    }
+    // Se só tem colunas vazias e é um Rei
+    for (let c = 0; c < 7; c++) {
+      if (canPlaceOnTableau(wasteCard, c)) {
+        saveHistory();
+        state.waste.pop();
+        state.tableau[c].push({ ...wasteCard, faceUp: true });
+        state.moves++;
+        selected = null;
+        render();
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// Mantém compatibilidade — alias antigo
+function tryAutoToFoundation(card, source, colIndex) {
+  return tryAutoMove(card, source, colIndex);
 }
 
 // =============================================
