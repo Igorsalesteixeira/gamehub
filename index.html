@@ -77,9 +77,15 @@
     const authEl = document.getElementById('header-auth');
 
     const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'auth.html';
+    }
     renderAuth(session);
 
-    supabase.auth.onAuthStateChange((_event, session) => renderAuth(session));
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) window.location.href = 'auth.html';
+      renderAuth(session);
+    });
 
     function renderAuth(session) {
       if (session) {
