@@ -247,6 +247,11 @@ function renderTableau() {
           e.stopPropagation();
           handleTableauCardClick(c, i);
         });
+        el.addEventListener('touchend', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleTableauCardClick(c, i);
+        });
 
         el.draggable = true;
         el.addEventListener('dragstart', e => {
@@ -287,6 +292,9 @@ for (let c = 0; c < 7; c++) {
   colEl.addEventListener('click', () => {
     if (selected) dropOnTableauSelected(c);
   });
+  colEl.addEventListener('touchend', e => {
+    if (selected) { e.preventDefault(); dropOnTableauSelected(c); }
+  });
 }
 
 for (const suit of SUITS) {
@@ -318,9 +326,10 @@ function makeFaceUpCard(card) {
   el.style.height = '100px';
   const r = RANKS[card.rank];
   el.innerHTML = `
-    <div class="card-tl">${r}<br>${card.suit}</div>
-    <div class="card-center">${card.suit}</div>
-    <div class="card-br">${r}<br>${card.suit}</div>
+    <div class="card-center">
+      <span class="card-suit">${card.suit}</span>
+      <span class="card-rank">${r}</span>
+    </div>
   `;
   return el;
 }
@@ -329,6 +338,7 @@ function makeFaceUpCard(card) {
 //  CLICK HANDLERS
 // =============================================
 stockEl.addEventListener('click', drawFromStock);
+stockEl.addEventListener('touchend', e => { e.preventDefault(); drawFromStock(); });
 
 function drawFromStock() {
   if (state.stock.length === 0) {
