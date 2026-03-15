@@ -146,16 +146,16 @@ function renderWaste() {
   wasteEl.innerHTML = '';
   if (state.waste.length === 0) return;
 
-  // Mostra a carta de cima e a de baixo (2 cartas em leque)
+  const dims = getCardDims();
+  // Renderiza 2 cartas empilhadas: a de baixo fica escondida atrás da de cima
   const show = state.waste.slice(-2);
 
-  const dims = getCardDims();
   show.forEach((card, i) => {
     const isTop = i === show.length - 1;
     const el = makeFaceUpCard(card);
     el.style.position = 'absolute';
     el.style.top = '0';
-    el.style.left = (i * dims.fanOff) + 'px';
+    el.style.left = '0'; // ambas na mesma posição (empilhadas)
     el.style.zIndex = i + 1;
     if (isTop) {
       el.addEventListener('click', () => handleWasteClick());
@@ -167,7 +167,7 @@ function renderWaste() {
     } else {
       el.style.pointerEvents = 'none';
     }
-    // Drag
+    // Drag (só a carta de cima)
     if (isTop) {
       const topCard = state.waste[state.waste.length - 1];
       initTouchDrag(
@@ -186,8 +186,7 @@ function renderWaste() {
     wasteEl.appendChild(el);
   });
 
-  // Adjust waste width for fanned view
-  wasteEl.style.width = (dims.w + (show.length - 1) * dims.fanOff) + 'px';
+  wasteEl.style.width = dims.w + 'px';
 }
 
 // ---- Foundations ----
