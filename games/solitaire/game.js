@@ -166,6 +166,7 @@ function renderWaste() {
     }
     // Drag
     if (isTop) {
+      initTouchDrag(el, { source: 'waste' });
       el.draggable = true;
       el.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
@@ -247,12 +248,11 @@ function renderTableau() {
           e.stopPropagation();
           handleTableauCardClick(c, i);
         });
-        el.addEventListener('touchend', e => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleTableauCardClick(c, i);
-        });
 
+        // Touch drag (iOS)
+        initTouchDrag(el, { source: 'tableau', colIndex: c, cardIndex: i });
+
+        // Mouse drag (desktop)
         el.draggable = true;
         el.addEventListener('dragstart', e => {
           if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
@@ -292,9 +292,6 @@ for (let c = 0; c < 7; c++) {
   colEl.addEventListener('click', () => {
     if (selected) dropOnTableauSelected(c);
   });
-  colEl.addEventListener('touchend', e => {
-    if (selected) { e.preventDefault(); dropOnTableauSelected(c); }
-  });
 }
 
 for (const suit of SUITS) {
@@ -316,6 +313,58 @@ for (const suit of SUITS) {
 }
 
 // =============================================
+//  TOUCH DRAG (iOS / Android)
+// =============================================
+let touchDrag = null;
+
+function initTouchDrag(el, dragData) {
+  el.addEventListener('touchstart', e => {
+    if (dragData.source === 'tableau' && !canPickFromTableau(dragData.colIndex, dragData.cardIndex)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const rect = el.getBoundingClientRect();
+    const ghost = el.cloneNode(true);
+    ghost.style.cssText = `
+      position:fixed; z-index:9999; pointer-events:none; opacity:0.85;
+      width:${rect.width}px; height:${rect.height}px;
+      left:${rect.left}px; top:${rect.top}px; transition:none;
+    `;
+    document.body.appendChild(ghost);
+    el.style.opacity = '0.3';
+    touchDrag = {
+      data: dragData, ghost, sourceEl: el,
+      offsetX: touch.clientX - rect.left,
+      offsetY: touch.clientY - rect.top,
+    };
+  }, { passive: false });
+}
+
+document.addEventListener('touchmove', e => {
+  if (!touchDrag) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  touchDrag.ghost.style.left = (touch.clientX - touchDrag.offsetX) + 'px';
+  touchDrag.ghost.style.top  = (touch.clientY - touchDrag.offsetY) + 'px';
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  if (!touchDrag) return;
+  const touch = e.changedTouches[0];
+  const { ghost, sourceEl, data } = touchDrag;
+  touchDrag = null;
+  ghost.remove();
+  sourceEl.style.opacity = '';
+  const target = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (target) {
+    const colEl = target.closest('.column');
+    const fEl   = target.closest('.foundation');
+    if (colEl)     dropOnTableau(parseInt(colEl.dataset.col), data);
+    else if (fEl)  dropOnFoundation(fEl.dataset.suit, data);
+  }
+}, { passive: false });
+
+// =============================================
 //  CARD ELEMENT
 // =============================================
 function makeFaceUpCard(card) {
@@ -326,10 +375,9 @@ function makeFaceUpCard(card) {
   el.style.height = '100px';
   const r = RANKS[card.rank];
   el.innerHTML = `
-    <div class="card-center">
-      <span class="card-suit">${card.suit}</span>
-      <span class="card-rank">${r}</span>
-    </div>
+    <div class="card-tl">${r}</div>
+    <div class="card-center">${card.suit}</div>
+    <div class="card-br">${r}</div>
   `;
   return el;
 }
@@ -338,7 +386,7 @@ function makeFaceUpCard(card) {
 //  CLICK HANDLERS
 // =============================================
 stockEl.addEventListener('click', drawFromStock);
-stockEl.addEventListener('touchend', e => { e.preventDefault(); drawFromStock(); });
+stockEl.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); drawFromStock(); });
 
 function drawFromStock() {
   if (state.stock.length === 0) {

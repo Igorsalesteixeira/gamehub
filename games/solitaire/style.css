@@ -261,18 +261,20 @@ body {
 .card.face-up.dragging { opacity: 0.45; }
 
 /* Card content */
-.card-center {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
+.card-tl, .card-br {
+  font-size: 0.85rem;
+  font-weight: 800;
   line-height: 1;
 }
-.card-suit { font-size: 2rem; }
-.card-rank { font-size: 1.1rem; font-weight: 800; }
+.card-br { transform: rotate(180deg); margin-top: auto; }
+.card-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  line-height: 1;
+}
 
 /* Suit colors */
 .red  { color: #cc0000; }
