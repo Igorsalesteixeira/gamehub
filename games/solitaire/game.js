@@ -160,13 +160,23 @@ function renderWaste() {
     el.style.zIndex = i + 1;
     if (isTop) {
       el.addEventListener('click', () => handleWasteClick());
+      el.addEventListener('dblclick', () => {
+        const top = state.waste[state.waste.length - 1];
+        if (top) tryAutoToFoundation(top, 'waste');
+      });
       if (selected && selected.source === 'waste') el.classList.add('selected');
     } else {
       el.style.pointerEvents = 'none';
     }
     // Drag
     if (isTop) {
-      initTouchDrag(el, { source: 'waste' });
+      const topCard = state.waste[state.waste.length - 1];
+      initTouchDrag(
+        el,
+        { source: 'waste' },
+        () => handleWasteClick(),
+        () => { if (topCard) tryAutoToFoundation(topCard, 'waste'); }
+      );
       el.draggable = true;
       el.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
@@ -244,13 +254,25 @@ function renderTableau() {
           el.classList.add('selected');
         }
 
+        const isLast = i === col.length - 1;
+
+        // Desktop: clique simples e duplo clique
         el.addEventListener('click', e => {
           e.stopPropagation();
           handleTableauCardClick(c, i);
         });
+        el.addEventListener('dblclick', e => {
+          e.stopPropagation();
+          if (isLast) tryAutoToFoundation(col[i], 'tableau', c);
+        });
 
-        // Touch drag (iOS)
-        initTouchDrag(el, { source: 'tableau', colIndex: c, cardIndex: i });
+        // Touch drag (iOS) com duplo toque
+        initTouchDrag(
+          el,
+          { source: 'tableau', colIndex: c, cardIndex: i },
+          () => handleTableauCardClick(c, i),
+          () => { if (isLast) tryAutoToFoundation(col[i], 'tableau', c); }
+        );
 
         // Mouse drag (desktop)
         el.draggable = true;
@@ -313,17 +335,18 @@ for (const suit of SUITS) {
 }
 
 // =============================================
-//  TOUCH DRAG (iOS / Android)
+//  TOUCH DRAG (iOS / Android) + DOUBLE TAP
 // =============================================
-let touchDrag = null;
+let touchDrag  = null;
+const tapTimes = {}; // key → timestamp of last tap
 
-function initTouchDrag(el, dragData) {
+function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
   el.addEventListener('touchstart', e => {
     if (dragData.source === 'tableau' && !canPickFromTableau(dragData.colIndex, dragData.cardIndex)) return;
     e.preventDefault();
     e.stopPropagation();
     const touch = e.touches[0];
-    const rect = el.getBoundingClientRect();
+    const rect  = el.getBoundingClientRect();
     const ghost = el.cloneNode(true);
     ghost.style.cssText = `
       position:fixed; z-index:9999; pointer-events:none; opacity:0.85;
@@ -336,6 +359,8 @@ function initTouchDrag(el, dragData) {
       data: dragData, ghost, sourceEl: el,
       offsetX: touch.clientX - rect.left,
       offsetY: touch.clientY - rect.top,
+      startX: touch.clientX, startY: touch.clientY,
+      moved: false, onSingleTap, onDoubleTap,
     };
   }, { passive: false });
 }
@@ -344,23 +369,44 @@ document.addEventListener('touchmove', e => {
   if (!touchDrag) return;
   e.preventDefault();
   const touch = e.touches[0];
-  touchDrag.ghost.style.left = (touch.clientX - touchDrag.offsetX) + 'px';
-  touchDrag.ghost.style.top  = (touch.clientY - touchDrag.offsetY) + 'px';
+  const dx = Math.abs(touch.clientX - touchDrag.startX);
+  const dy = Math.abs(touch.clientY - touchDrag.startY);
+  if (dx > 8 || dy > 8) touchDrag.moved = true;
+  if (touchDrag.moved) {
+    touchDrag.ghost.style.left = (touch.clientX - touchDrag.offsetX) + 'px';
+    touchDrag.ghost.style.top  = (touch.clientY - touchDrag.offsetY) + 'px';
+  }
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
   if (!touchDrag) return;
   const touch = e.changedTouches[0];
-  const { ghost, sourceEl, data } = touchDrag;
+  const { ghost, sourceEl, data, moved, onSingleTap, onDoubleTap } = touchDrag;
+  const tapKey = data.source + (data.colIndex ?? '') + (data.cardIndex ?? '');
   touchDrag = null;
   ghost.remove();
   sourceEl.style.opacity = '';
+
+  if (!moved) {
+    // Tap — detect double tap
+    const now = Date.now();
+    if (tapTimes[tapKey] && now - tapTimes[tapKey] < 400) {
+      delete tapTimes[tapKey];
+      if (onDoubleTap) onDoubleTap();
+    } else {
+      tapTimes[tapKey] = now;
+      if (onSingleTap) onSingleTap();
+    }
+    return;
+  }
+
+  // Drag — find drop target
   const target = document.elementFromPoint(touch.clientX, touch.clientY);
   if (target) {
     const colEl = target.closest('.column');
     const fEl   = target.closest('.foundation');
-    if (colEl)     dropOnTableau(parseInt(colEl.dataset.col), data);
-    else if (fEl)  dropOnFoundation(fEl.dataset.suit, data);
+    if (colEl)    dropOnTableau(parseInt(colEl.dataset.col), data);
+    else if (fEl) dropOnFoundation(fEl.dataset.suit, data);
   }
 }, { passive: false });
 
