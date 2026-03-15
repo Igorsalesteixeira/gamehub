@@ -234,8 +234,9 @@ function renderTableau() {
       colEl.classList.remove('empty-slot');
     }
 
-    const OFFSET_DOWN = 20;
-    const OFFSET_UP   = 24;
+    const isMobile    = window.innerWidth <= 580;
+    const OFFSET_DOWN = isMobile ? 14 : 20;
+    const OFFSET_UP   = isMobile ? 18 : 24;
     let topPx = 0;
 
     col.forEach((card, i) => {
@@ -338,25 +339,82 @@ for (const suit of SUITS) {
 //  TOUCH DRAG (iOS / Android) + DOUBLE TAP
 // =============================================
 let touchDrag  = null;
-const tapTimes = {}; // key → timestamp of last tap
+const tapTimes = {};
+const CARD_OFFSET = () => window.innerWidth <= 580 ? 18 : 24;
+
+function buildStackGhost(dragData, rect) {
+  if (dragData.source !== 'tableau') {
+    const g = document.createElement('div');
+    g.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.85;
+      width:${rect.width}px;height:${rect.height}px;
+      left:${rect.left}px;top:${rect.top}px;transition:none;`;
+    return g; // caller clones content separately
+  }
+  const stack = state.tableau[dragData.colIndex].slice(dragData.cardIndex);
+  const offset = CARD_OFFSET();
+  const totalH = rect.height + (stack.length - 1) * offset;
+  const g = document.createElement('div');
+  g.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.85;
+    width:${rect.width}px;height:${totalH}px;
+    left:${rect.left}px;top:${rect.top}px;transition:none;`;
+  stack.forEach((card, idx) => {
+    const cardEl = makeFaceUpCard(card);
+    cardEl.style.position = 'absolute';
+    cardEl.style.top = (idx * offset) + 'px';
+    cardEl.style.width = '100%';
+    g.appendChild(cardEl);
+  });
+  return g;
+}
+
+// Sobe na coluna para encontrar o início real da sequência válida
+function findSequenceStart(colIndex, cardIndex) {
+  const col = state.tableau[colIndex];
+  let start = cardIndex;
+  while (start > 0) {
+    const above = col[start - 1];
+    const curr  = col[start];
+    if (!above.faceUp || !curr.faceUp) break;
+    if (above.rank !== curr.rank + 1) break;
+    if (RED_SUITS.has(above.suit) === RED_SUITS.has(curr.suit)) break;
+    start--;
+  }
+  return start;
+}
 
 function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
   el.addEventListener('touchstart', e => {
-    if (dragData.source === 'tableau' && !canPickFromTableau(dragData.colIndex, dragData.cardIndex)) return;
+    // Expande para o início real da sequência (resolve o problema do 5-4-3)
+    let actualData = dragData;
+    if (dragData.source === 'tableau') {
+      const seqStart = findSequenceStart(dragData.colIndex, dragData.cardIndex);
+      actualData = { ...dragData, cardIndex: seqStart };
+    }
+    if (actualData.source === 'tableau' && !canPickFromTableau(actualData.colIndex, actualData.cardIndex)) return;
     e.preventDefault();
     e.stopPropagation();
     const touch = e.touches[0];
     const rect  = el.getBoundingClientRect();
-    const ghost = el.cloneNode(true);
-    ghost.style.cssText = `
-      position:fixed; z-index:9999; pointer-events:none; opacity:0.85;
-      width:${rect.width}px; height:${rect.height}px;
-      left:${rect.left}px; top:${rect.top}px; transition:none;
-    `;
+
+    const ghost = buildStackGhost(actualData, rect);
+    if (actualData.source !== 'tableau') {
+      ghost.appendChild(el.cloneNode(true));
+    }
     document.body.appendChild(ghost);
-    el.style.opacity = '0.3';
+
+    // Escurece todas as cartas da pilha sendo movida
+    const stackEls = [];
+    if (actualData.source === 'tableau') {
+      const colDiv = document.getElementById(`col${actualData.colIndex}`);
+      const allCards = Array.from(colDiv.querySelectorAll('.card'));
+      allCards.slice(actualData.cardIndex).forEach(c => { c.style.opacity = '0.25'; stackEls.push(c); });
+    } else {
+      el.style.opacity = '0.25';
+      stackEls.push(el);
+    }
+
     touchDrag = {
-      data: dragData, ghost, sourceEl: el,
+      data: actualData, ghost, stackEls,
       offsetX: touch.clientX - rect.left,
       offsetY: touch.clientY - rect.top,
       startX: touch.clientX, startY: touch.clientY,
@@ -381,14 +439,13 @@ document.addEventListener('touchmove', e => {
 document.addEventListener('touchend', e => {
   if (!touchDrag) return;
   const touch = e.changedTouches[0];
-  const { ghost, sourceEl, data, moved, onSingleTap, onDoubleTap } = touchDrag;
+  const { ghost, stackEls, data, moved, onSingleTap, onDoubleTap } = touchDrag;
   const tapKey = data.source + (data.colIndex ?? '') + (data.cardIndex ?? '');
   touchDrag = null;
   ghost.remove();
-  sourceEl.style.opacity = '';
+  stackEls.forEach(el => { if (el.isConnected) el.style.opacity = ''; });
 
   if (!moved) {
-    // Tap — detect double tap
     const now = Date.now();
     if (tapTimes[tapKey] && now - tapTimes[tapKey] < 400) {
       delete tapTimes[tapKey];
@@ -402,12 +459,14 @@ document.addEventListener('touchend', e => {
 
   // Drag — find drop target
   const target = document.elementFromPoint(touch.clientX, touch.clientY);
+  let dropped = false;
   if (target) {
     const colEl = target.closest('.column');
     const fEl   = target.closest('.foundation');
-    if (colEl)    dropOnTableau(parseInt(colEl.dataset.col), data);
-    else if (fEl) dropOnFoundation(fEl.dataset.suit, data);
+    if (colEl)    { dropOnTableau(parseInt(colEl.dataset.col), data); dropped = true; }
+    else if (fEl) { dropOnFoundation(fEl.dataset.suit, data); dropped = true; }
   }
+  if (!dropped) render(); // restaura visual se o drop foi inválido
 }, { passive: false });
 
 // =============================================

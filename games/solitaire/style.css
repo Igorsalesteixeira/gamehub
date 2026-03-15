@@ -5,9 +5,13 @@ body {
   font-family: 'Nunito', sans-serif;
   background: #1a6b3c;
   background-image: radial-gradient(circle at 20% 80%, #155e33 0%, #1a6b3c 60%);
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   color: #fff;
   user-select: none;
+  touch-action: none; /* evita scroll acidental no iOS */
 }
 
 /* ===== TOP BAR ===== */
@@ -98,9 +102,14 @@ body {
 
 /* ===== BOARD ===== */
 .board {
-  padding: 0.8rem;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.6rem 0.5rem;
   max-width: 780px;
+  width: 100%;
   margin: 0 auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== TOP ROW ===== */
@@ -315,14 +324,17 @@ body {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 580px) {
   .card, .stock-pile, .waste-pile, .foundation {
-    width: 52px;
-    height: 74px;
+    width: 46px;
+    height: 66px;
   }
-  .card-center { font-size: 1.1rem; }
-  .card-tl, .card-br { font-size: 0.65rem; }
-  .tableau { gap: 3px; }
-  .top-row { gap: 0.3rem; }
-  .foundations-row { gap: 0.3rem; }
+  .card-center { font-size: 1rem; }
+  .card-tl, .card-br { font-size: 0.6rem; }
+  .tableau { gap: 2px; }
+  .top-row { gap: 0.3rem; margin-bottom: 0.5rem; }
+  .foundations-row { gap: 2px; }
+  .topbar { padding: 0.4rem 0.8rem; }
+  .controls { padding: 0.3rem 0.8rem; }
+  .board { padding: 0.4rem 0.3rem; }
 }
 
 @media (max-width: 420px) {
