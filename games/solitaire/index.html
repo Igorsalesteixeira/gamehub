@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paciência 🃏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🃏 Paciência</h1>
+    <div class="stats">
+      <span id="moves-display">Movimentos: 0</span>
+      <span id="time-display">⏱ 00:00</span>
+    </div>
+  </header>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button id="btn-new" class="btn btn-orange">Novo Jogo</button>
+    <button id="btn-undo" class="btn btn-gray" disabled>↩ Desfazer</button>
+    <div class="draw-selector">
+      <label for="draw-count">Virar:</label>
+      <select id="draw-count">
+        <option value="1" selected>1 carta (Fácil)</option>
+        <option value="3">3 cartas (Difícil)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- GAME BOARD -->
+  <div class="board">
+
+    <!-- Top row: Stock, Waste, gap, 4 Foundations -->
+    <div class="top-row">
+      <div class="top-left">
+        <div class="stock-pile" id="stock" title="Clique para virar carta(s)"></div>
+        <div class="waste-pile" id="waste"></div>
+      </div>
+      <div class="foundations-row" id="foundations">
+        <div class="foundation" id="f0" data-suit="♠" title="Espadas"></div>
+        <div class="foundation" id="f1" data-suit="♥" title="Copas"></div>
+        <div class="foundation" id="f2" data-suit="♦" title="Ouros"></div>
+        <div class="foundation" id="f3" data-suit="♣" title="Paus"></div>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="tableau" id="tableau">
+      <div class="column" id="col0" data-col="0"></div>
+      <div class="column" id="col1" data-col="1"></div>
+      <div class="column" id="col2" data-col="2"></div>
+      <div class="column" id="col3" data-col="3"></div>
+      <div class="column" id="col4" data-col="4"></div>
+      <div class="column" id="col5" data-col="5"></div>
+      <div class="column" id="col6" data-col="6"></div>
+    </div>
+  </div>
+
+  <!-- WIN MODAL -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="modal">
+      <div class="modal-icon">🏆</div>
+      <h2>Parabéns!</h2>
+      <p>Você completou a Paciência!</p>
+      <p id="win-stats"></p>
+      <button class="btn btn-orange" id="btn-win-new">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

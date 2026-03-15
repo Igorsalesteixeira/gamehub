@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paciência Spider 🃏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🃏 Paciência Spider</h1>
+    <div class="stats">
+      <span id="moves-display">Movimentos: 0</span>
+      <span id="time-display">⏱ 00:00</span>
+    </div>
+  </header>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button id="btn-new" class="btn btn-orange">Novo Jogo</button>
+    <button id="btn-undo" class="btn btn-gray">↩ Desfazer</button>
+    <div class="suit-selector">
+      <label for="suit-count">Naipes:</label>
+      <select id="suit-count">
+        <option value="1" selected>1 naipe (Fácil)</option>
+        <option value="2">2 naipes (Médio)</option>
+        <option value="4">4 naipes (Difícil)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- GAME BOARD -->
+  <div class="board">
+    <!-- Foundations (top right) -->
+    <div class="top-row">
+      <div class="foundations" id="foundations">
+        <div class="foundation" id="f0"></div>
+        <div class="foundation" id="f1"></div>
+        <div class="foundation" id="f2"></div>
+        <div class="foundation" id="f3"></div>
+        <div class="foundation" id="f4"></div>
+        <div class="foundation" id="f5"></div>
+        <div class="foundation" id="f6"></div>
+        <div class="foundation" id="f7"></div>
+      </div>
+      <div class="stock" id="stock" title="Clique para distribuir cartas">
+        <div class="stock-count" id="stock-count">5</div>
+      </div>
+    </div>
+
+    <!-- Tableau columns -->
+    <div class="tableau" id="tableau">
+      <div class="column" id="col0" data-col="0"></div>
+      <div class="column" id="col1" data-col="1"></div>
+      <div class="column" id="col2" data-col="2"></div>
+      <div class="column" id="col3" data-col="3"></div>
+      <div class="column" id="col4" data-col="4"></div>
+      <div class="column" id="col5" data-col="5"></div>
+      <div class="column" id="col6" data-col="6"></div>
+      <div class="column" id="col7" data-col="7"></div>
+      <div class="column" id="col8" data-col="8"></div>
+      <div class="column" id="col9" data-col="9"></div>
+    </div>
+  </div>
+
+  <!-- WIN MODAL -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="modal">
+      <div class="modal-icon">🏆</div>
+      <h2>Parabéns!</h2>
+      <p>Você completou a Paciência Spider!</p>
+      <p id="win-stats"></p>
+      <button class="btn btn-orange" id="btn-win-new">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
