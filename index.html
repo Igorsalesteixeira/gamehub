@@ -14,6 +14,9 @@
       <div class="logo">🎮 Game Hub</div>
       <p class="tagline">Seus jogos favoritos, de graça e online!</p>
     </div>
+    <div class="header-auth" id="header-auth">
+      <!-- preenchido pelo JS -->
+    </div>
   </header>
 
   <main class="main">
@@ -67,5 +70,38 @@
   <footer class="footer">
     <p>Feito com ❤️ &mdash; Game Hub &copy; 2024</p>
   </footer>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const authEl = document.getElementById('header-auth');
+
+    const { data: { session } } = await supabase.auth.getSession();
+    renderAuth(session);
+
+    supabase.auth.onAuthStateChange((_event, session) => renderAuth(session));
+
+    function renderAuth(session) {
+      if (session) {
+        const name = session.user.user_metadata?.display_name
+                  || session.user.user_metadata?.full_name
+                  || session.user.email.split('@')[0];
+        authEl.innerHTML = `
+          <div class="user-info">
+            <span class="user-avatar">${name[0].toUpperCase()}</span>
+            <span class="user-name">Olá, ${name}!</span>
+            <button class="btn-logout" id="btn-logout">Sair</button>
+          </div>
+        `;
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+          await supabase.auth.signOut();
+        });
+      } else {
+        authEl.innerHTML = `
+          <a href="auth.html" class="btn-login">Entrar / Criar conta</a>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>

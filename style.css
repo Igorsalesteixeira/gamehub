@@ -17,14 +17,17 @@ body {
 /* ===== HEADER ===== */
 .header {
   background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 100%);
-  padding: 2rem 1rem;
-  text-align: center;
+  padding: 1.2rem 1.5rem;
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
 }
 
 .header-inner {
-  max-width: 900px;
-  margin: 0 auto;
+  text-align: center;
 }
 
 .logo {
@@ -41,6 +44,62 @@ body {
   margin-top: 0.4rem;
   font-weight: 600;
 }
+
+/* ===== HEADER AUTH ===== */
+.header-auth { display: flex; align-items: center; }
+
+.btn-login {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.5);
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-login:hover { background: rgba(255,255,255,0.4); }
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  color: #ff6b35;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.user-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.btn-logout {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.35); }
 
 /* ===== MAIN ===== */
 .main {

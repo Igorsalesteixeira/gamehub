@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Game Hub 🎮</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+
+  <div class="auth-wrapper">
+    <a href="index.html" class="back-link">← Voltar ao lobby</a>
+
+    <div class="auth-card">
+      <div class="auth-logo">🎮 Game Hub</div>
+
+      <!-- SSO Buttons -->
+      <div class="sso-buttons">
+        <button class="btn-sso" onclick="loginWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          Continuar com Google
+        </button>
+        <button class="btn-sso btn-sso-facebook" onclick="loginWithFacebook()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Continuar com Facebook
+        </button>
+      </div>
+
+      <div class="divider">ou use seu e-mail</div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="showTab('login')">Entrar</button>
+        <button class="tab" id="tab-signup" onclick="showTab('signup')">Criar conta</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" required />
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <div class="error-msg" id="login-error"></div>
+        <button type="submit" class="btn-submit" id="login-btn">Entrar</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="form-signup" class="auth-form hidden" onsubmit="handleSignup(event)">
+        <div class="field">
+          <label>Nome de usuário</label>
+          <input type="text" id="signup-name" placeholder="Como quer ser chamado?" required minlength="2" />
+        </div>
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="signup-email" placeholder="seu@email.com" required />
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="signup-password" placeholder="Mínimo 6 caracteres" required minlength="6" />
+        </div>
+        <div class="error-msg" id="signup-error"></div>
+        <button type="submit" class="btn-submit" id="signup-btn">Criar conta</button>
+      </form>
+
+      <!-- Success message -->
+      <div class="success-msg hidden" id="success-msg"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    // Redirect if already logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) window.location.href = 'index.html';
+
+    // ---- SSO ----
+    window.loginWithGoogle = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + '/index.html' }
+      });
+      if (error) alert('Erro ao entrar com Google: ' + error.message);
+    };
+
+    window.loginWithFacebook = async function() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: { redirectTo: window.location.origin + '/index.html' }
+      });
+      if (error) alert('Erro ao entrar com Facebook: ' + error.message);
+    };
+
+    // ---- Tabs ----
+    window.showTab = function(tab) {
+      document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+      document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+      document.getElementById('login-error').textContent = '';
+      document.getElementById('signup-error').textContent = '';
+    };
+
+    // ---- Email login ----
+    window.handleLogin = async function(e) {
+      e.preventDefault();
+      const btn   = document.getElementById('login-btn');
+      const errEl = document.getElementById('login-error');
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+      errEl.textContent = '';
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email:    document.getElementById('login-email').value,
+        password: document.getElementById('login-password').value,
+      });
+
+      if (error) {
+        errEl.textContent = traduzirErro(error.message);
+        btn.textContent = 'Entrar';
+        btn.disabled = false;
+      } else {
+        window.location.href = 'index.html';
+      }
+    };
+
+    // ---- Email signup ----
+    window.handleSignup = async function(e) {
+      e.preventDefault();
+      const btn   = document.getElementById('signup-btn');
+      const errEl = document.getElementById('signup-error');
+      const sucEl = document.getElementById('success-msg');
+      btn.textContent = 'Criando conta...';
+      btn.disabled = true;
+      errEl.textContent = '';
+
+      const { error } = await supabase.auth.signUp({
+        email:    document.getElementById('signup-email').value,
+        password: document.getElementById('signup-password').value,
+        options:  { data: { display_name: document.getElementById('signup-name').value.trim() } }
+      });
+
+      if (error) {
+        errEl.textContent = traduzirErro(error.message);
+        btn.textContent = 'Criar conta';
+        btn.disabled = false;
+      } else {
+        document.getElementById('form-signup').classList.add('hidden');
+        sucEl.textContent = '✅ Conta criada! Verifique seu e-mail para confirmar o cadastro.';
+        sucEl.classList.remove('hidden');
+      }
+    };
+
+    function traduzirErro(msg) {
+      if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
+      if (msg.includes('Email not confirmed'))       return 'Confirme seu e-mail antes de entrar.';
+      if (msg.includes('User already registered'))   return 'Este e-mail já está cadastrado.';
+      if (msg.includes('Password should be'))        return 'A senha deve ter pelo menos 6 caracteres.';
+      return msg;
+    }
+  </script>
+</body>
+</html>
