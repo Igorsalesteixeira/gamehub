@@ -81,10 +81,12 @@
     if (session) window.location.href = 'index.html';
 
     // ---- SSO ----
+    const SITE_URL = 'https://hubgamer.netlify.app';
+
     window.loginWithGoogle = async function() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin + '/index.html' }
+        options: { redirectTo: SITE_URL + '/index.html' }
       });
       if (error) alert('Erro ao entrar com Google: ' + error.message);
     };
@@ -92,7 +94,7 @@
     window.loginWithFacebook = async function() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
-        options: { redirectTo: window.location.origin + '/index.html' }
+        options: { redirectTo: SITE_URL + '/index.html' }
       });
       if (error) alert('Erro ao entrar com Facebook: ' + error.message);
     };
