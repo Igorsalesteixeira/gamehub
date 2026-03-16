@@ -412,8 +412,8 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
     const stackEls = [];
 
     if (actualData.source === 'waste') {
-      // Waste: sem fantasma — só esconde a carta de cima para revelar a de baixo
-      el.style.visibility = 'hidden';
+      // Waste: sem fantasma — esconde a carta de cima para revelar a de baixo
+      el.style.display = 'none';
       stackEls.push(el);
       // Ghost vazio (necessário para o touchDrag funcionar)
       ghost = document.createElement('div');
@@ -466,6 +466,7 @@ document.addEventListener('touchend', e => {
     if (!el.isConnected) return;
     el.style.opacity = '';
     el.style.visibility = '';
+    el.style.display = '';
   });
 
   if (!moved) {
