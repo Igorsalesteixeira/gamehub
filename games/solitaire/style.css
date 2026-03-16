@@ -274,7 +274,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 4px 5px;
+  padding: 3px 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   transition: box-shadow 0.12s;
 }
@@ -292,19 +292,20 @@ body {
 .card-tl, .card-br {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   line-height: 1;
-  gap: 1px;
+  gap: 0;
+  min-width: 18px;
 }
 .card-br { transform: rotate(180deg); margin-top: auto; }
-.corner-rank { font-size: 0.85rem; font-weight: 800; line-height: 1; }
-.corner-suit  { font-size: 0.65rem; font-weight: 700; line-height: 1; }
+.corner-rank { font-size: 1.05rem; font-weight: 800; line-height: 1.1; }
+.corner-suit  { font-size: 0.95rem; font-weight: 700; line-height: 1.1; }
 .card-center {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 2.2rem;
   line-height: 1;
 }
 
@@ -357,8 +358,8 @@ body {
     height: 70px;
   }
   .card-center { font-size: 1.5rem; }
-  .corner-rank { font-size: 0.62rem; }
-  .corner-suit { font-size: 0.48rem; }
+  .corner-rank { font-size: 0.75rem; }
+  .corner-suit { font-size: 0.68rem; }
   .card.face-up { padding: 3px 4px; border-radius: 8px; }
 
   .tableau { gap: 3px; }
@@ -378,8 +379,8 @@ body {
     height: 62px;
   }
   .card-center { font-size: 1.3rem; }
-  .corner-rank { font-size: 0.55rem; }
-  .corner-suit { font-size: 0.42rem; }
+  .corner-rank { font-size: 0.65rem; }
+  .corner-suit { font-size: 0.58rem; }
   .tableau { gap: 2px; }
   .foundations-row { gap: 2px; }
   .btn { padding: 0.25rem 0.45rem; font-size: 0.72rem; }
@@ -392,8 +393,8 @@ body {
     height: 60px;
   }
   .card-center { font-size: 1.3rem; }
-  .corner-rank { font-size: 0.58rem; }
-  .corner-suit { font-size: 0.44rem; }
+  .corner-rank { font-size: 0.7rem; }
+  .corner-suit { font-size: 0.63rem; }
   .card.face-up { padding: 2px 3px; border-radius: 7px; }
 
   .hide-mobile { display: none; }
