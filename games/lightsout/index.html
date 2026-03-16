@@ -6,7 +6,21 @@
   <title>Lights Out - Game Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Apaga as Luzes (Lights Out)",
+    "description": "Jogue Apaga as Luzes (Lights Out) online grátis. Apague todas as luzes do tabuleiro usando a lógica.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/lightsout/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -21,5 +35,21 @@
   </div>
   <script type="module" src="game.js"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'lightsout' });</script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Apaga as Luzes (Lights Out) Online</h2>
+    <p>Lights Out é um puzzle lógico clássico onde você deve apagar todas as luzes de uma grade. O truque: ao clicar em uma luz, ela e todas as vizinhas adjacentes mudam de estado (ligadas/apagadas). Resolva com o mínimo de cliques e avance pelos níveis. Jogue apaga as luzes online grátis.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique em qualquer célula para alternar seu estado e o das células adjacentes (cima, baixo, esquerda, direita).</li>
+      <li>O objetivo é apagar todas as luzes (deixar o tabuleiro todo escuro).</li>
+      <li>Complete o nível atual para avançar para o próximo, com configurações mais difíceis.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Analise o padrão antes de clicar — planeje uma sequência de cliques em vez de clicar aleatoriamente.</li>
+      <li>Trabalhe de cima para baixo: resolva a primeira linha e use a segunda para corrigir o que sobrou.</li>
+    </ul>
+  </section>
 </body>
 </html>

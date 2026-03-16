@@ -6,7 +6,21 @@
   <title>Go (Baduk) - Game Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Go (Igo / Baduk)",
+    "description": "Jogue Go online grátis no tabuleiro 9x9. O milenar jogo de estratégia oriental onde capturar território é o objetivo.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/go/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -28,5 +42,21 @@
   </div>
   <script type="module" src="game.js"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'go' });</script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Go (Igo) Online</h2>
+    <p>Go é o jogo de tabuleiro mais antigo ainda praticado, originário da China há mais de 2.500 anos. Dois jogadores alternam posicionando pedras pretas e brancas nas interseções de um tabuleiro 9×9. O objetivo é conquistar mais território do que o adversário capturando suas pedras. Jogue go online grátis.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique em uma interseção vazia para posicionar sua pedra.</li>
+      <li>Grupos de pedras sem "respirações" livres adjacentes são capturados e removidos.</li>
+      <li>Use "Passar" se não tiver boas jogadas; dois passes consecutivos encerram a partida.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Mantenha sempre ao menos duas "respirações" em seus grupos — grupos isolados são vulneráveis.</li>
+      <li>Controle os cantos e bordas primeiro — eles precisam de menos pedras para cercar território.</li>
+    </ul>
+  </section>
 </body>
 </html>

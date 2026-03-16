@@ -8,7 +8,21 @@
   <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/sudoku/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Sudoku",
+    "description": "Jogue Sudoku online grátis com três níveis de dificuldade. Complete a grade 9x9 sem repetir números.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/sudoku/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -59,5 +73,21 @@
     initSidebar({ active: 'sudoku' });
   </script>
   <script type="module" src="game.js"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Sudoku Online</h2>
+    <p>O Sudoku é o puzzle de lógica mais famoso do mundo. Preencha a grade 9×9 de forma que cada linha, cada coluna e cada bloco 3×3 contenha os números de 1 a 9 sem repetição. Disponível nos níveis fácil, médio e difícil — jogue sudoku online grátis sem download.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Cada linha deve conter todos os números de 1 a 9, sem repetição.</li>
+      <li>Cada coluna deve conter todos os números de 1 a 9, sem repetição.</li>
+      <li>Cada bloco 3×3 deve conter todos os números de 1 a 9, sem repetição.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Comece pelos blocos e linhas que já têm mais números preenchidos.</li>
+      <li>Use a técnica de eliminação: se um número só cabe em uma célula de um bloco, coloque-o.</li>
+    </ul>
+  </section>
 </body>
 </html>

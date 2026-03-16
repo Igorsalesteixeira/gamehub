@@ -18,7 +18,21 @@
   <meta name="twitter:description" content="Jogue Campo Minado online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Campo Minado",
+    "description": "Jogue Campo Minado (Minesweeper) online grátis. Encontre todas as células seguras sem pisar nas minas.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/minesweeper/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
      crossorigin="anonymous"></script>
 </head>
@@ -67,5 +81,21 @@
     initSidebar({ active: 'minesweeper' });
   </script>
   <script type="module" src="game.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Campo Minado Online</h2>
+    <p>Campo Minado (Minesweeper) é o clássico jogo de lógica onde você deve revelar todas as células seguras do tabuleiro sem clicar em nenhuma mina. Os números indicam quantas minas estão nas células adjacentes. Escolha entre fácil, médio e difícil — jogue campo minado online grátis.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique em uma célula para revelá-la; se for mina, você perde.</li>
+      <li>Os números mostram quantas minas existem nas 8 células ao redor.</li>
+      <li>Clique com o botão direito (ou use o botão Bandeira) para marcar uma mina suspeita.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>O primeiro clique nunca é mina — clique no centro para abrir mais área.</li>
+      <li>Se o número de bandeiras ao redor de uma célula numerada coincidir com o número, as demais células vizinhas são seguras.</li>
+    </ul>
+  </section>
 </body>
 </html>

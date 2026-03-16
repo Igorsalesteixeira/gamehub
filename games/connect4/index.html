@@ -6,7 +6,21 @@
   <title>Conecte 4 - Game Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Conecta 4",
+    "description": "Jogue Conecta 4 online grátis. Seja o primeiro a conectar 4 peças em linha, coluna ou diagonal.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/connect4/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -21,5 +35,21 @@
   </div>
   <script type="module" src="game.js"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'connect4' });</script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Conecta 4 Online</h2>
+    <p>Conecta 4 é um jogo de estratégia para dois jogadores. Clique em uma coluna para soltar sua peça e tente conectar 4 peças da mesma cor em linha, coluna ou diagonal antes do adversário. Simples de aprender, difícil de dominar — jogue conecta 4 online grátis contra o computador.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique em qualquer coluna para soltar sua peça; ela cai para a posição mais baixa disponível.</li>
+      <li>Vence quem conectar 4 peças em sequência: horizontal, vertical ou diagonal.</li>
+      <li>O tabuleiro tem 7 colunas e 6 linhas; se estiver cheio sem vencedor, é empate.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Priorize a coluna central — quem controla o centro tem mais combinações de vitória.</li>
+      <li>Cuidado com ameaças duplas: criar duas sequências de 3 ao mesmo tempo força a vitória.</li>
+    </ul>
+  </section>
 </body>
 </html>

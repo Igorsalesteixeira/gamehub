@@ -18,7 +18,21 @@
   <meta name="twitter:description" content="Jogue Jogo da Velha online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=2" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Jogo da Velha",
+    "description": "Jogue Jogo da Velha online grátis contra o computador. Forme uma linha de 3 marcas e vença.",
+    "url": "https://igorsalesteixeira.github.io/gamehub/games/tictactoe/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
      crossorigin="anonymous"></script>
 </head>
@@ -77,5 +91,21 @@
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=3'; initSidebar({ active: 'velha' });</script>
   <script type="module" src="game.js"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Jogo da Velha Online</h2>
+    <p>Jogo da Velha (Tic-Tac-Toe) é o jogo de estratégia mais simples do mundo, mas cheio de nuances! Alterne marcações com o computador em um tabuleiro 3×3 e tente formar uma linha de 3 marcas — horizontal, vertical ou diagonal — antes do adversário. Jogue jogo da velha online grátis.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Você é o X, o computador é o O. Clique em uma casa vazia para jogar.</li>
+      <li>Vence quem completar primeiro uma linha de 3 marcas: horizontal, vertical ou diagonal.</li>
+      <li>Se o tabuleiro encher sem vencedor, é empate.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Sempre comece pelo centro — tem mais possibilidades de vitória do que as bordas.</li>
+      <li>Bloqueie o adversário imediatamente se ele tiver 2 marcas em linha; depois pense no ataque.</li>
+    </ul>
+  </section>
 </body>
 </html>
