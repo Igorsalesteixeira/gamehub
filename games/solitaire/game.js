@@ -357,10 +357,10 @@ const CARD_OFFSET = () => getCardDims().offsetUp;
 function buildStackGhost(dragData, rect) {
   if (dragData.source !== 'tableau') {
     const g = document.createElement('div');
-    g.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.85;
+    g.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:1;
       width:${rect.width}px;height:${rect.height}px;
       left:${rect.left}px;top:${rect.top}px;transition:none;`;
-    return g; // caller clones content separately
+    return g;
   }
   const stack = state.tableau[dragData.colIndex].slice(dragData.cardIndex);
   const offset = CARD_OFFSET();
