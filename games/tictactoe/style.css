@@ -1,0 +1,291 @@
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #1a1a2e;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* === Topbar === */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.btn-back {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.btn-back:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.game-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.placeholder {
+  width: 60px;
+}
+
+/* === Game Container === */
+.game-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.2rem 1rem 2rem;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* === Scoreboard === */
+.scoreboard {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  min-width: 80px;
+}
+
+.score-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.score-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.player-score .score-value { color: #4dabf7; }
+.draw-score .score-value { color: #ffd43b; }
+.cpu-score .score-value { color: #ff6b6b; }
+
+/* === Turn Indicator === */
+.turn-indicator {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  transition: all 0.3s;
+}
+
+.turn-indicator.player-turn {
+  background: rgba(77, 171, 247, 0.2);
+  color: #4dabf7;
+}
+
+.turn-indicator.cpu-turn {
+  background: rgba(255, 107, 107, 0.2);
+  color: #ff6b6b;
+}
+
+/* === Board === */
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  width: min(90vw, 360px);
+  height: min(90vw, 360px);
+  background: #ff6b35;
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+}
+
+.cell {
+  background: #16213e;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: min(18vw, 5rem);
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.cell:hover:not(.taken) {
+  background: #1a2744;
+  transform: scale(1.03);
+}
+
+.cell:active:not(.taken) {
+  transform: scale(0.97);
+}
+
+.cell.taken {
+  cursor: default;
+}
+
+.cell.x {
+  color: #4dabf7;
+  text-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+}
+
+.cell.o {
+  color: #ff6b6b;
+  text-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+}
+
+/* Winning cells */
+.cell.winner {
+  animation: winPulse 0.6s ease-in-out infinite alternate;
+  background: rgba(255, 212, 59, 0.15);
+}
+
+@keyframes winPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+/* Cell appear animation */
+.cell.pop {
+  animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+/* === Buttons === */
+.btn {
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.7rem 2rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-orange {
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+}
+
+.btn-orange:hover {
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+  transform: translateY(-1px);
+}
+
+/* === Modal === */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.visible {
+  display: flex;
+}
+
+.modal {
+  background: #16213e;
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 0.3rem;
+}
+
+.modal-msg {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 1.2rem;
+}
+
+/* === Responsive === */
+@media (max-width: 400px) {
+  .topbar { padding: 0.5rem 0.7rem; }
+  .game-title { font-size: 1rem; }
+  .scoreboard { gap: 0.5rem; }
+  .score-item { padding: 0.4rem 0.8rem; min-width: 65px; }
+  .score-value { font-size: 1.4rem; }
+  .score-label { font-size: 0.65rem; }
+}
+
+@media (min-width: 600px) {
+  .game-container { padding-top: 2rem; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .board {
+    width: min(55vh, 300px);
+    height: min(55vh, 300px);
+  }
+  .game-container { padding: 0.5rem 1rem 1rem; gap: 0.5rem; }
+  .scoreboard { gap: 0.4rem; }
+  .score-item { padding: 0.3rem 0.6rem; }
+  .score-value { font-size: 1.2rem; }
+}

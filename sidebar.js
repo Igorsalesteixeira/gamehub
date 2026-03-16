@@ -245,6 +245,58 @@ export function initSidebar(options = {}) {
         <span class="sidebar-icon">🧠</span>
         <span>Memoria</span>
       </a>
+      <a href="${base}games/blackjack/index.html" class="sidebar-link ${isActive('blackjack')}">
+        <span class="sidebar-icon">🃏</span>
+        <span>Blackjack</span>
+      </a>
+      <a href="${base}games/freecell/index.html" class="sidebar-link ${isActive('freecell')}">
+        <span class="sidebar-icon">🂡</span>
+        <span>Freecell</span>
+      </a>
+      <a href="${base}games/tictactoe/index.html" class="sidebar-link ${isActive('velha')}">
+        <span class="sidebar-icon">❌</span>
+        <span>Jogo da Velha</span>
+      </a>
+      <a href="${base}games/reversi/index.html" class="sidebar-link ${isActive('reversi')}">
+        <span class="sidebar-icon">⚪</span>
+        <span>Reversi</span>
+      </a>
+      <a href="${base}games/minesweeper/index.html" class="sidebar-link ${isActive('minesweeper')}">
+        <span class="sidebar-icon">💣</span>
+        <span>Campo Minado</span>
+      </a>
+      <a href="${base}games/termo/index.html" class="sidebar-link ${isActive('termo')}">
+        <span class="sidebar-icon">📝</span>
+        <span>Termo</span>
+      </a>
+      <a href="${base}games/hangman/index.html" class="sidebar-link ${isActive('forca')}">
+        <span class="sidebar-icon">🔤</span>
+        <span>Forca</span>
+      </a>
+      <a href="${base}games/game2048/index.html" class="sidebar-link ${isActive('2048')}">
+        <span class="sidebar-icon">🔢</span>
+        <span>2048</span>
+      </a>
+      <a href="${base}games/sudoku/index.html" class="sidebar-link ${isActive('sudoku')}">
+        <span class="sidebar-icon">🔢</span>
+        <span>Sudoku</span>
+      </a>
+      <a href="${base}games/puzzle15/index.html" class="sidebar-link ${isActive('puzzle15')}">
+        <span class="sidebar-icon">🧩</span>
+        <span>Puzzle 15</span>
+      </a>
+      <a href="${base}games/tetris/index.html" class="sidebar-link ${isActive('tetris')}">
+        <span class="sidebar-icon">🧱</span>
+        <span>Tetris</span>
+      </a>
+      <a href="${base}games/flappybird/index.html" class="sidebar-link ${isActive('flappy')}">
+        <span class="sidebar-icon">🐦</span>
+        <span>Flappy Bird</span>
+      </a>
+      <a href="${base}games/pong/index.html" class="sidebar-link ${isActive('pong')}">
+        <span class="sidebar-icon">🏓</span>
+        <span>Pong</span>
+      </a>
       <div class="sidebar-divider"></div>
       <a href="${base}sobre.html" class="sidebar-link ${isActive('sobre')}">
         <span class="sidebar-icon">ℹ️</span>

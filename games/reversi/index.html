@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Jogo de Dama Online Gratis - Game Hub</title>
-  <meta name="description" content="Jogue Dama (Checkers) online e de graca contra o computador. Regras da Dama Brasileira com capturas obrigatorias e damas!" />
-  <meta name="keywords" content="jogo de dama online, checkers online, dama gratis, dama brasileira, jogo de damas" />
-  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/checkers/" />
+  <title>Reversi (Othello) Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Reversi (Othello) online e de graca contra o computador. Estrategia pura no tabuleiro 8x8!" />
+  <meta name="keywords" content="reversi online, othello online, reversi gratis, jogo de tabuleiro, othello gratis" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/reversi/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Jogo de Dama Online Gratis - Game Hub" />
-  <meta property="og:description" content="Jogue Dama online e de graca contra o computador!" />
-  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/checkers/" />
+  <meta property="og:title" content="Reversi (Othello) Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Reversi online e de graca contra o computador!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/reversi/" />
   <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Jogo de Dama Online Gratis - Game Hub" />
-  <meta name="twitter:description" content="Jogue Dama online e de graca contra o computador!" />
+  <meta name="twitter:title" content="Reversi (Othello) Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Reversi online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=1" />
@@ -26,16 +26,15 @@
 
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
-    <h1 class="game-title">&#9823; Dama</h1>
+    <h1 class="game-title">&#9898; Reversi</h1>
     <div class="stats">
-      <span class="stat-player">&#9899; <span id="player-count">12</span></span>
-      <span class="stat-cpu">&#128992; <span id="cpu-count">12</span></span>
-      <span>⏱ <span id="timer-display">00:00</span></span>
+      <span class="stat-player">&#9899; <span id="black-count">2</span></span>
+      <span class="stat-cpu">&#9898; <span id="white-count">2</span></span>
     </div>
   </header>
 
   <div class="game-wrapper">
-    <div class="turn-indicator" id="turn-indicator">Sua vez</div>
+    <div class="turn-indicator" id="turn-indicator">Sua vez (Preto)</div>
     <div class="board-container">
       <div class="board" id="board"></div>
     </div>
@@ -54,7 +53,7 @@
 
   <script type="module">
     import { initSidebar } from '../../sidebar.js?v=2';
-    initSidebar({ active: 'dama' });
+    initSidebar({ active: 'reversi' });
   </script>
   <script type="module" src="game.js?v=1"></script>
 </body>

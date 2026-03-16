@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Flappy Bird Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Flappy Bird online e de graca. Passe pelos canos e faca o maior score!" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/flappybird/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🐦 Flappy Bird</h1>
+    <div class="stats">
+      <span>🏆 <span id="best-display">0</span></span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <canvas id="game-canvas"></canvas>
+    <div class="start-msg" id="start-msg">Toque ou pressione Espaco para jogar</div>
+  </main>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=2';
+    initSidebar({ active: 'flappy' });
+  </script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

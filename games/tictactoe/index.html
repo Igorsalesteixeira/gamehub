@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Jogo da Velha Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Jogo da Velha online e de graca contra o computador. Teste sua estrategia! Sem download." />
+  <meta name="keywords" content="jogo da velha online, tic tac toe, jogo da velha gratis, velha online" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/tictactoe/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Jogo da Velha Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Jogo da Velha online e de graca contra o computador!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/tictactoe/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Jogo da Velha Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Jogo da Velha online e de graca contra o computador!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#10060; Jogo da Velha</h1>
+    <div class="placeholder"></div>
+  </header>
+
+  <main class="game-container">
+
+    <div class="scoreboard">
+      <div class="score-item player-score">
+        <span class="score-label">Voce (X)</span>
+        <span class="score-value" id="score-player">0</span>
+      </div>
+      <div class="score-item draw-score">
+        <span class="score-label">Empates</span>
+        <span class="score-value" id="score-draw">0</span>
+      </div>
+      <div class="score-item cpu-score">
+        <span class="score-label">CPU (O)</span>
+        <span class="score-value" id="score-cpu">0</span>
+      </div>
+    </div>
+
+    <div class="turn-indicator" id="turn-indicator">Sua vez!</div>
+
+    <div class="board" id="board">
+      <div class="cell" data-index="0"></div>
+      <div class="cell" data-index="1"></div>
+      <div class="cell" data-index="2"></div>
+      <div class="cell" data-index="3"></div>
+      <div class="cell" data-index="4"></div>
+      <div class="cell" data-index="5"></div>
+      <div class="cell" data-index="6"></div>
+      <div class="cell" data-index="7"></div>
+      <div class="cell" data-index="8"></div>
+    </div>
+
+    <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+
+    <!-- Modal de resultado -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal">
+        <div class="modal-icon" id="modal-icon">🎉</div>
+        <h2 class="modal-title" id="modal-title">Vitoria!</h2>
+        <p class="modal-msg" id="modal-msg">Parabens, voce venceu!</p>
+        <button class="btn btn-orange" id="btn-modal-new">Jogar Novamente</button>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=2'; initSidebar({ active: 'velha' });</script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

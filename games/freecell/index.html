@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freecell Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Freecell online e de graca. Organize as cartas nas fundacoes usando as celulas livres. Sem download." />
+  <meta name="keywords" content="freecell online, freecell gratis, jogo de cartas, paciencia freecell" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/freecell/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Freecell Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Freecell online e de graca. Use as celulas livres para vencer!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/freecell/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Freecell Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Freecell online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <div class="topbar-actions">
+      <button id="btn-new" class="btn btn-orange">Novo<span class="hide-mobile"> Jogo</span></button>
+      <button id="btn-undo" class="btn btn-gray" disabled>&circlearrowleft;<span class="hide-mobile"> Desfazer</span></button>
+    </div>
+    <h1 class="game-title">&#127183; Freecell</h1>
+    <div class="stats">
+      <span><span class="hide-mobile">Movimentos: </span><span id="moves-display">0</span></span>
+      <span id="time-display">&#9201; 00:00</span>
+    </div>
+  </header>
+
+  <!-- GAME BOARD -->
+  <div class="board">
+
+    <!-- Top row: 4 free cells (left), 4 foundations (right) -->
+    <div class="top-row">
+      <div class="top-left">
+        <div class="area-label">Celulas Livres</div>
+        <div class="cells-row">
+          <div class="free-cell" id="cell0" data-cell="0"></div>
+          <div class="free-cell" id="cell1" data-cell="1"></div>
+          <div class="free-cell" id="cell2" data-cell="2"></div>
+          <div class="free-cell" id="cell3" data-cell="3"></div>
+        </div>
+      </div>
+      <div class="top-right">
+        <div class="area-label">Fundacoes</div>
+        <div class="foundations-row">
+          <div class="foundation" id="f0" data-suit="&#9824;" title="Espadas"></div>
+          <div class="foundation" id="f1" data-suit="&#9829;" title="Copas"></div>
+          <div class="foundation" id="f2" data-suit="&#9830;" title="Ouros"></div>
+          <div class="foundation" id="f3" data-suit="&#9827;" title="Paus"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau: 8 columns -->
+    <div class="tableau" id="tableau">
+      <div class="column" id="col0" data-col="0"></div>
+      <div class="column" id="col1" data-col="1"></div>
+      <div class="column" id="col2" data-col="2"></div>
+      <div class="column" id="col3" data-col="3"></div>
+      <div class="column" id="col4" data-col="4"></div>
+      <div class="column" id="col5" data-col="5"></div>
+      <div class="column" id="col6" data-col="6"></div>
+      <div class="column" id="col7" data-col="7"></div>
+    </div>
+  </div>
+
+  <!-- WIN MODAL -->
+  <div class="modal-overlay" id="win-modal">
+    <div class="modal">
+      <div class="modal-icon">&#127942;</div>
+      <h2>Parabens!</h2>
+      <p>Voce completou o Freecell!</p>
+      <p id="win-stats"></p>
+      <button class="btn btn-orange" id="btn-win-new">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=2';
+    initSidebar({ active: 'freecell' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blackjack 21 Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Blackjack (21) online e de graca. Tente chegar o mais perto de 21 sem estourar! Sem download." />
+  <meta name="keywords" content="blackjack online, 21, jogo de cartas gratis, blackjack gratis, vinte e um" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/blackjack/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Blackjack 21 Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Blackjack online e de graca. Chegue a 21 e venca o dealer!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/blackjack/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Blackjack 21 Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Blackjack online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#127183; Blackjack</h1>
+    <div class="stats">
+      <span>Saldo: <strong id="balance-display">1000</strong></span>
+      <span>Aposta: <strong id="bet-display">10</strong></span>
+    </div>
+  </header>
+
+  <main class="game-area">
+    <!-- Dealer -->
+    <section class="hand-section dealer-section">
+      <div class="hand-label">Dealer <span id="dealer-score" class="score-badge"></span></div>
+      <div class="hand" id="dealer-hand"></div>
+    </section>
+
+    <!-- Player -->
+    <section class="hand-section player-section">
+      <div class="hand-label">Jogador <span id="player-score" class="score-badge"></span></div>
+      <div class="hand" id="player-hand"></div>
+    </section>
+
+    <!-- Bet controls -->
+    <div class="bet-controls" id="bet-controls">
+      <label for="bet-input">Aposta:</label>
+      <div class="bet-row">
+        <button class="btn btn-sm" id="bet-minus">-</button>
+        <input type="number" id="bet-input" value="10" min="1" max="1000" />
+        <button class="btn btn-sm" id="bet-plus">+</button>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="actions">
+      <button class="btn btn-green" id="btn-hit" disabled>&#127183; Comprar</button>
+      <button class="btn btn-red" id="btn-stand" disabled>&#9995; Parar</button>
+      <button class="btn btn-blue" id="btn-double" disabled>&#10006;2 Dobrar</button>
+      <button class="btn btn-orange" id="btn-new">&#9889; Novo Jogo</button>
+    </div>
+  </main>
+
+  <!-- Result modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon"></div>
+      <h2 id="modal-title"></h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-orange" id="modal-btn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=2'; initSidebar({ active: 'blackjack' });</script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

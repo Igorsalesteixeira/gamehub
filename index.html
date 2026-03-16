@@ -107,6 +107,149 @@
         <span class="badge badge-play">Jogar</span>
       </a>
 
+      <!-- Blackjack -->
+      <a href="games/blackjack/index.html" class="game-card">
+        <div class="game-icon">🃏</div>
+        <div class="game-info">
+          <h3>Blackjack</h3>
+          <p>Faca 21 pontos e venca o dealer</p>
+        </div>
+        <div class="game-stats" id="stats-blackjack"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Freecell -->
+      <a href="games/freecell/index.html" class="game-card">
+        <div class="game-icon">🂡</div>
+        <div class="game-info">
+          <h3>Freecell</h3>
+          <p>Organize as cartas usando as celulas livres</p>
+        </div>
+        <div class="game-stats" id="stats-freecell"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Jogo da Velha -->
+      <a href="games/tictactoe/index.html" class="game-card">
+        <div class="game-icon">❌</div>
+        <div class="game-info">
+          <h3>Jogo da Velha</h3>
+          <p>Classico X e O contra o computador</p>
+        </div>
+        <div class="game-stats" id="stats-tictactoe"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Reversi -->
+      <a href="games/reversi/index.html" class="game-card">
+        <div class="game-icon">⚪</div>
+        <div class="game-info">
+          <h3>Reversi</h3>
+          <p>Vire as pecas do adversario no tabuleiro</p>
+        </div>
+        <div class="game-stats" id="stats-reversi"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Campo Minado -->
+      <a href="games/minesweeper/index.html" class="game-card">
+        <div class="game-icon">💣</div>
+        <div class="game-info">
+          <h3>Campo Minado</h3>
+          <p>Revele todas as celulas sem pisar em minas</p>
+        </div>
+        <div class="game-stats" id="stats-minesweeper"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Termo -->
+      <a href="games/termo/index.html" class="game-card">
+        <div class="game-icon">📝</div>
+        <div class="game-info">
+          <h3>Termo</h3>
+          <p>Adivinhe a palavra de 5 letras em 6 tentativas</p>
+        </div>
+        <div class="game-stats" id="stats-termo"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Forca -->
+      <a href="games/hangman/index.html" class="game-card">
+        <div class="game-icon">🔤</div>
+        <div class="game-info">
+          <h3>Forca</h3>
+          <p>Adivinhe a palavra antes de ser enforcado</p>
+        </div>
+        <div class="game-stats" id="stats-hangman"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- 2048 -->
+      <a href="games/game2048/index.html" class="game-card">
+        <div class="game-icon">🔢</div>
+        <div class="game-info">
+          <h3>2048</h3>
+          <p>Deslize e combine blocos ate chegar a 2048</p>
+        </div>
+        <div class="game-stats" id="stats-game2048"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Sudoku -->
+      <a href="games/sudoku/index.html" class="game-card">
+        <div class="game-icon">🔢</div>
+        <div class="game-info">
+          <h3>Sudoku</h3>
+          <p>Preencha o tabuleiro 9x9 com logica</p>
+        </div>
+        <div class="game-stats" id="stats-sudoku"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Puzzle 15 -->
+      <a href="games/puzzle15/index.html" class="game-card">
+        <div class="game-icon">🧩</div>
+        <div class="game-info">
+          <h3>Puzzle 15</h3>
+          <p>Ordene os numeros deslizando as pecas</p>
+        </div>
+        <div class="game-stats" id="stats-puzzle15"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Tetris -->
+      <a href="games/tetris/index.html" class="game-card">
+        <div class="game-icon">🧱</div>
+        <div class="game-info">
+          <h3>Tetris</h3>
+          <p>Encaixe as pecas e complete linhas</p>
+        </div>
+        <div class="game-stats" id="stats-tetris"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Flappy Bird -->
+      <a href="games/flappybird/index.html" class="game-card">
+        <div class="game-icon">🐦</div>
+        <div class="game-info">
+          <h3>Flappy Bird</h3>
+          <p>Passe pelos canos sem bater</p>
+        </div>
+        <div class="game-stats" id="stats-flappybird"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <!-- Pong -->
+      <a href="games/pong/index.html" class="game-card">
+        <div class="game-icon">🏓</div>
+        <div class="game-info">
+          <h3>Pong</h3>
+          <p>Classico jogo de raquete contra o computador</p>
+        </div>
+        <div class="game-stats" id="stats-pong"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
     </div>
 
     <!-- Compartilhar -->
@@ -138,7 +281,7 @@
 
   <script type="module">
     import { supabase } from './supabase.js';
-    import { initSidebar } from './sidebar.js';
+    import { initSidebar } from './sidebar.js?v=2';
     initSidebar({ active: 'inicio' });
 
     const authEl = document.getElementById('header-auth');
@@ -230,6 +373,51 @@
         const bestTime = Math.min(...memData.map(r => r.time_seconds || Infinity));
         memEl.innerHTML = `<span>🎮 ${memData.length} partidas</span> · <span>⏱ Melhor: ${formatTime(bestTime)}</span>`;
       }
+
+      // Helper: stats por vitorias
+      function renderWinStats(game, elId) {
+        const d = data.filter(r => r.game === game);
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (d.length === 0) { el.textContent = 'Nenhuma partida ainda'; return; }
+        const wins = d.filter(r => r.result === 'win').length;
+        const pct = Math.round((wins / d.length) * 100);
+        el.innerHTML = `<span>🎮 ${d.length}</span> · <span>🏆 ${pct}%</span>`;
+      }
+
+      // Helper: stats por tempo
+      function renderTimeStats(game, elId) {
+        const d = data.filter(r => r.game === game && r.result === 'win');
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (d.length === 0) { el.textContent = 'Nenhuma partida ainda'; return; }
+        const best = Math.min(...d.map(r => r.time_seconds || Infinity));
+        el.innerHTML = `<span>🎮 ${d.length}</span> · <span>⏱ ${formatTime(best)}</span>`;
+      }
+
+      // Helper: stats por score (usa campo moves)
+      function renderScoreStats(game, elId, emoji) {
+        const d = data.filter(r => r.game === game);
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (d.length === 0) { el.textContent = 'Nenhuma partida ainda'; return; }
+        const best = Math.max(...d.map(r => r.moves || 0));
+        el.innerHTML = `<span>🎮 ${d.length}</span> · <span>${emoji} ${best}</span>`;
+      }
+
+      renderWinStats('blackjack', 'stats-blackjack');
+      renderTimeStats('freecell', 'stats-freecell');
+      renderWinStats('tictactoe', 'stats-tictactoe');
+      renderWinStats('reversi', 'stats-reversi');
+      renderTimeStats('minesweeper', 'stats-minesweeper');
+      renderWinStats('termo', 'stats-termo');
+      renderWinStats('hangman', 'stats-hangman');
+      renderScoreStats('game2048', 'stats-game2048', '⭐');
+      renderTimeStats('sudoku', 'stats-sudoku');
+      renderTimeStats('puzzle15', 'stats-puzzle15');
+      renderScoreStats('tetris', 'stats-tetris', '⭐');
+      renderScoreStats('flappybird', 'stats-flappybird', '🐦');
+      renderWinStats('pong', 'stats-pong');
     }
 
     // ---- Copiar link ----

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Tetris Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Tetris online e de graca. Encaixe as pecas e faca o maximo de pontos!" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/tetris/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🧱 Tetris</h1>
+    <div class="stats">
+      <span>⭐ <span id="score-display">0</span></span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="game-layout">
+      <div class="side-panel">
+        <div class="info-box">
+          <div class="info-label">Nivel</div>
+          <div class="info-value" id="level-display">1</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Linhas</div>
+          <div class="info-value" id="lines-display">0</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Proxima</div>
+          <canvas id="next-canvas" width="80" height="80"></canvas>
+        </div>
+      </div>
+      <canvas id="game-canvas"></canvas>
+    </div>
+
+    <div class="mobile-controls">
+      <button class="ctrl-btn" id="btn-left">◀</button>
+      <button class="ctrl-btn" id="btn-down">▼</button>
+      <button class="ctrl-btn" id="btn-rotate">↻</button>
+      <button class="ctrl-btn" id="btn-right">▶</button>
+    </div>
+
+    <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2>Fim de Jogo!</h2>
+      <p id="modal-message">Pontuacao: 0</p>
+      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=2';
+    initSidebar({ active: 'tetris' });
+  </script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

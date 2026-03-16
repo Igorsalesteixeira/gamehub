@@ -181,6 +181,19 @@
       <button class="ranking-tab" data-game="snake">🐍 Cobrinha</button>
       <button class="ranking-tab" data-game="checkers">⚫ Dama</button>
       <button class="ranking-tab" data-game="memory">🧠 Memória</button>
+      <button class="ranking-tab" data-game="blackjack">🃏 Blackjack</button>
+      <button class="ranking-tab" data-game="freecell">🂡 Freecell</button>
+      <button class="ranking-tab" data-game="tictactoe">❌ Velha</button>
+      <button class="ranking-tab" data-game="reversi">⚪ Reversi</button>
+      <button class="ranking-tab" data-game="minesweeper">💣 Campo Minado</button>
+      <button class="ranking-tab" data-game="termo">📝 Termo</button>
+      <button class="ranking-tab" data-game="hangman">🔤 Forca</button>
+      <button class="ranking-tab" data-game="game2048">🔢 2048</button>
+      <button class="ranking-tab" data-game="sudoku">🔢 Sudoku</button>
+      <button class="ranking-tab" data-game="puzzle15">🧩 Puzzle 15</button>
+      <button class="ranking-tab" data-game="tetris">🧱 Tetris</button>
+      <button class="ranking-tab" data-game="flappybird">🐦 Flappy Bird</button>
+      <button class="ranking-tab" data-game="pong">🏓 Pong</button>
     </div>
 
     <div class="ranking-table" id="ranking-table">
@@ -201,7 +214,7 @@
 
   <script type="module">
     import { supabase } from './supabase.js';
-    import { initSidebar } from './sidebar.js';
+    import { initSidebar } from './sidebar.js?v=2';
     initSidebar({ active: 'ranking' });
 
     const tableEl = document.getElementById('ranking-table');
@@ -266,14 +279,18 @@
     }
 
     const GAME_LABELS = {
-      solitaire: 'Paciência',
-      snake: 'Cobrinha',
-      checkers: 'Dama',
-      memory: 'Memória'
+      solitaire: 'Paciência', snake: 'Cobrinha', checkers: 'Dama', memory: 'Memória',
+      blackjack: 'Blackjack', freecell: 'Freecell', tictactoe: 'Jogo da Velha',
+      reversi: 'Reversi', minesweeper: 'Campo Minado', termo: 'Termo', hangman: 'Forca',
+      game2048: '2048', sudoku: 'Sudoku', puzzle15: 'Puzzle 15',
+      tetris: 'Tetris', flappybird: 'Flappy Bird', pong: 'Pong'
     };
 
     // Jogos rankeados por tempo (menor = melhor)
-    const TIME_RANKED = ['checkers', 'memory'];
+    const TIME_RANKED = ['checkers', 'memory', 'freecell', 'minesweeper', 'sudoku', 'puzzle15'];
+
+    // Jogos rankeados por score (maior = melhor, usa campo moves)
+    const SCORE_RANKED = ['game2048', 'tetris', 'flappybird'];
 
     function formatRankTime(secs) {
       const m = Math.floor(secs / 60);
@@ -333,6 +350,43 @@
             error = null;
           }
         }
+      } else if (SCORE_RANKED.includes(currentGame)) {
+        // Ranking por maior score (campo moves)
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const { data: rawData, error: rawError } = await supabase
+          .from('game_stats')
+          .select('user_id, moves')
+          .eq('game', currentGame)
+          .gte('created_at', weekAgo.toISOString())
+          .order('moves', { ascending: false });
+
+        if (rawError) {
+          error = rawError;
+        } else {
+          const best = {};
+          for (const row of rawData || []) {
+            if (!best[row.user_id] || row.moves > best[row.user_id]) {
+              best[row.user_id] = row.moves;
+            }
+          }
+          const userIds = Object.keys(best);
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('user_id, display_name')
+              .in('user_id', userIds);
+            const nameMap = {};
+            for (const p of profiles || []) nameMap[p.user_id] = p.display_name;
+            data = userIds
+              .map(uid => ({ user_id: uid, display_name: nameMap[uid] || 'Jogador', best_score: best[uid] }))
+              .sort((a, b) => b.best_score - a.best_score)
+              .slice(0, 20);
+          } else {
+            data = [];
+          }
+          error = null;
+        }
       } else {
         ({ data, error } = await supabase.rpc('get_weekly_ranking', { game_filter: currentGame }));
       }
@@ -351,6 +405,7 @@
 
       const isSnake = currentGame === 'snake';
       const isTimeRanked = TIME_RANKED.includes(currentGame);
+      const isScoreRanked = SCORE_RANKED.includes(currentGame);
 
       tableEl.innerHTML = data.map((row, i) => {
         const pos = i + 1;
@@ -364,6 +419,8 @@
           label = `⏱ ${formatRankTime(row.best_time)}`;
         } else if (isSnake) {
           label = `${row.best_score} 🍎`;
+        } else if (isScoreRanked) {
+          label = `⭐ ${row.best_score} pts`;
         } else {
           const score = row.wins;
           label = `${score} ${score === 1 ? 'vitória' : 'vitórias'}`;
