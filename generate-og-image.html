@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head><title>Gerar OG Image</title></head>
+<body>
+<p>Clique no botao para gerar e baixar a imagem.png (1200x630)</p>
+<button id="btn" style="font-size:20px;padding:10px 20px">Gerar imagem.png</button>
+<br><br>
+<canvas id="c" width="1200" height="630" style="border:1px solid #ccc;max-width:100%"></canvas>
+<script>
+document.getElementById('btn').addEventListener('click', () => {
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+
+  // Background gradient (matching site dark theme)
+  const grad = ctx.createLinearGradient(0, 0, 1200, 630);
+  grad.addColorStop(0, '#0f0c29');
+  grad.addColorStop(0.5, '#302b63');
+  grad.addColorStop(1, '#24243e');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1200, 630);
+
+  // Decorative glowing circles
+  ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#a78bfa';
+  ctx.beginPath(); ctx.arc(150, 500, 350, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#ff6b35';
+  ctx.beginPath(); ctx.arc(1050, 130, 300, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // Scattered game emojis (decorative background)
+  const emojis = ['🎮','🎲','🏆','🎯','🧩','♠','♣','♥','♦','⭐','🔥','💎','🎪','🕹️','🏅'];
+  ctx.font = '40px sans-serif';
+  ctx.globalAlpha = 0.1;
+  // Use fixed seed-like positions for consistency
+  const positions = [
+    [80,80],[300,60],[520,90],[750,50],[950,85],[1100,70],
+    [60,200],[250,250],[480,180],[700,220],[900,190],[1080,240],
+    [100,380],[350,420],[550,370],[780,400],[1000,380],
+    [70,520],[280,550],[500,510],[720,540],[940,520],[1120,500]
+  ];
+  positions.forEach((p, i) => {
+    ctx.fillText(emojis[i % emojis.length], p[0], p[1]);
+  });
+  ctx.globalAlpha = 1;
+
+  // Main title with glow
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Glow effect
+  ctx.shadowColor = '#ff6b35';
+  ctx.shadowBlur = 40;
+  ctx.fillStyle = '#ff6b35';
+  ctx.font = 'bold 100px Segoe UI, sans-serif';
+  ctx.fillText('Game Hub', 600, 230);
+
+  // Solid title on top
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Game Hub', 600, 230);
+
+  // Subtitle
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.font = 'bold 46px Segoe UI, sans-serif';
+  ctx.fillStyle = '#a78bfa';
+  ctx.fillText('Jogos Online Gratis', 600, 330);
+
+  // Tagline
+  ctx.font = '28px Segoe UI, sans-serif';
+  ctx.fillStyle = '#9ca3af';
+  ctx.fillText('Sem download. Direto no navegador. Com ranking semanal.', 600, 410);
+
+  // Bottom accent bar
+  const barGrad = ctx.createLinearGradient(0, 560, 1200, 560);
+  barGrad.addColorStop(0, 'rgba(255, 107, 53, 0.4)');
+  barGrad.addColorStop(0.5, 'rgba(167, 139, 250, 0.4)');
+  barGrad.addColorStop(1, 'rgba(255, 107, 53, 0.4)');
+  ctx.fillStyle = barGrad;
+  ctx.fillRect(0, 570, 1200, 60);
+
+  ctx.font = '22px Segoe UI, sans-serif';
+  ctx.fillStyle = '#e5e7eb';
+  ctx.fillText('igorsalesteixeira.github.io/gamehub', 600, 600);
+
+  // Download
+  const link = document.createElement('a');
+  link.download = 'imagem.png';
+  link.href = c.toDataURL('image/png');
+  link.click();
+});
+</script>
+</body>
+</html>

@@ -6,12 +6,7 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/solitaire/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/snake/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/blackjack/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -21,12 +16,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/memory/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/blackjack/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/flappybird/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -36,22 +26,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/tictactoe/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/reversi/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/minesweeper/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/termo/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/game2048/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -61,12 +36,17 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/game2048/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/memory/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/sudoku/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/minesweeper/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/pong/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -76,17 +56,42 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/reversi/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/snake/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/solitaire/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/spider-solitaire/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/sudoku/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/termo/index.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://igorsalesteixeira.github.io/gamehub/games/tetris/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/flappybird/index.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://igorsalesteixeira.github.io/gamehub/games/pong/index.html</loc>
+    <loc>https://igorsalesteixeira.github.io/gamehub/games/tictactoe/index.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
