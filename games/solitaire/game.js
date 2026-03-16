@@ -147,47 +147,35 @@ function renderWaste() {
   if (state.waste.length === 0) return;
 
   const dims = getCardDims();
-  // Empilha 2 cartas: a anterior fica escondida atrás da do topo
-  const show = state.waste.slice(-2);
+  const topCard = state.waste[state.waste.length - 1];
 
-  show.forEach((card, i) => {
-    const isTop = i === show.length - 1;
-    const el = makeFaceUpCard(card);
-    el.style.position = 'absolute';
-    el.style.top = '0';
-    el.style.left = '0';
-    el.style.zIndex = i + 1;
+  // Renderiza SOMENTE a carta do topo
+  const el = makeFaceUpCard(topCard);
+  el.style.position = 'absolute';
+  el.style.top = '0';
+  el.style.left = '0';
+  el.style.zIndex = 2;
 
-    if (!isTop) {
-      el.style.pointerEvents = 'none';
-      wasteEl.appendChild(el);
-      return;
-    }
-
-    // Eventos só na carta de cima
-    el.addEventListener('click', () => handleWasteClick());
-    el.addEventListener('dblclick', () => {
-      const top = state.waste[state.waste.length - 1];
-      if (top) tryAutoMove(top, 'waste');
-    });
-    if (selected && selected.source === 'waste') el.classList.add('selected');
-
-    const topCard = state.waste[state.waste.length - 1];
-    initTouchDrag(
-      el,
-      { source: 'waste' },
-      () => handleWasteClick(),
-      () => { if (topCard) tryAutoMove(topCard, 'waste'); }
-    );
-    el.draggable = true;
-    el.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-      setTimeout(() => el.classList.add('dragging'), 0);
-    });
-    el.addEventListener('dragend', () => el.classList.remove('dragging'));
-    wasteEl.appendChild(el);
+  el.addEventListener('click', () => handleWasteClick());
+  el.addEventListener('dblclick', () => {
+    if (topCard) tryAutoMove(topCard, 'waste');
   });
+  if (selected && selected.source === 'waste') el.classList.add('selected');
 
+  initTouchDrag(
+    el,
+    { source: 'waste' },
+    () => handleWasteClick(),
+    () => { if (topCard) tryAutoMove(topCard, 'waste'); }
+  );
+  el.draggable = true;
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
+    setTimeout(() => el.classList.add('dragging'), 0);
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+
+  wasteEl.appendChild(el);
   wasteEl.style.width = dims.w + 'px';
 }
 
@@ -412,12 +400,23 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
     const stackEls = [];
 
     if (actualData.source === 'waste') {
-      // Waste: sem fantasma — esconde a carta de cima para revelar a de baixo
+      // Waste: esconde a carta de cima e mostra a anterior por baixo
       el.style.display = 'none';
       stackEls.push(el);
-      // Ghost vazio (necessário para o touchDrag funcionar)
+      // Cria dinamicamente a carta anterior (se existir)
+      if (state.waste.length >= 2) {
+        const prevCard = state.waste[state.waste.length - 2];
+        const prevEl = makeFaceUpCard(prevCard);
+        prevEl.style.position = 'absolute';
+        prevEl.style.top = '0';
+        prevEl.style.left = '0';
+        prevEl.style.zIndex = 1;
+        prevEl.style.pointerEvents = 'none';
+        wasteEl.appendChild(prevEl);
+      }
+      // Ghost invisível (necessário para o touchDrag funcionar)
       ghost = document.createElement('div');
-      ghost.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;width:0;height:0;';
+      ghost.style.cssText = 'position:fixed;z-index:-1;pointer-events:none;width:0;height:0;';
     } else if (actualData.source === 'tableau') {
       ghost = buildStackGhost(actualData, rect);
       document.body.appendChild(ghost);

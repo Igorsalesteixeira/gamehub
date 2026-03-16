@@ -122,10 +122,27 @@ body {
   gap: 0.4rem;
 }
 
+.area-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 2px;
+  text-align: center;
+}
+
 .top-left {
   display: flex;
   gap: 0.4rem;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ===== STOCK & WASTE ===== */
