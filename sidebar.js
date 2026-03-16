@@ -311,6 +311,10 @@ export function initSidebar(options = {}) {
         <span class="sidebar-icon">☕</span>
         <span>Apoie o Projeto</span>
       </a>
+      <a href="${base}report-bug.html" class="sidebar-link ${isActive('bug')}">
+        <span class="sidebar-icon">🐛</span>
+        <span>Reportar Bug</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <span>Game Hub &copy; 2025</span>
@@ -357,4 +361,40 @@ export function initSidebar(options = {}) {
       closeSidebar();
     }
   });
+
+  // Botao flutuante "Reportar Bug" em paginas de jogos
+  if (window.location.pathname.includes('/games/')) {
+    const bugBtn = document.createElement('a');
+    bugBtn.href = base + 'report-bug.html';
+    bugBtn.className = 'bug-report-float';
+    bugBtn.innerHTML = '🐛';
+    bugBtn.title = 'Reportar Bug';
+    document.body.appendChild(bugBtn);
+
+    const bugStyle = document.createElement('style');
+    bugStyle.textContent = `
+      .bug-report-float {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #ff6b35, #e85d2a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+        z-index: 800;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .bug-report-float:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+      }
+    `;
+    document.head.appendChild(bugStyle);
+  }
 }

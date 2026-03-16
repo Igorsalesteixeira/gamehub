@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reportar Bug - Game Hub</title>
+  <meta name="description" content="Encontrou um bug no Game Hub? Reporte aqui para nos ajudar a melhorar!" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/report-bug.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Reportar Bug - Game Hub" />
+  <meta property="og:description" content="Encontrou um bug? Reporte para nos ajudar a melhorar os jogos!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/report-bug.html" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <style>
+    .bug-container {
+      max-width: 680px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .bug-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .bug-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #2d2d2d;
+      margin-bottom: 0.3rem;
+    }
+
+    .bug-subtitle {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #444;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group label .required {
+      color: #e74c3c;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #ff6b35;
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+      background: #fff;
+    }
+
+    .form-textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    /* File upload area */
+    .file-upload {
+      position: relative;
+      border: 2px dashed #d0d0d0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #fafafa;
+    }
+
+    .file-upload:hover {
+      border-color: #ff6b35;
+      background: rgba(255, 107, 53, 0.03);
+    }
+
+    .file-upload.has-file {
+      border-color: #27ae60;
+      background: rgba(39, 174, 96, 0.05);
+    }
+
+    .file-upload input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-upload-icon {
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .file-upload-text {
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    .file-upload-text strong {
+      color: #ff6b35;
+    }
+
+    .file-name {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: #27ae60;
+      font-weight: 700;
+    }
+
+    .file-preview {
+      margin-top: 0.8rem;
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success message */
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .success-msg .icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-msg h2 {
+      color: #27ae60;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-msg p {
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    .success-msg a {
+      color: #ff6b35;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    /* Info box */
+    .info-box {
+      background: rgba(255, 107, 53, 0.08);
+      border-left: 4px solid #ff6b35;
+      border-radius: 0 10px 10px 0;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    @media (max-width: 480px) {
+      .bug-card {
+        padding: 1.3rem;
+      }
+      .bug-title {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">Reportar Bug</div>
+      <div class="tagline">Ajude-nos a melhorar o Game Hub</div>
+    </div>
+  </header>
+
+  <div class="bug-container">
+    <div class="bug-card">
+      <div id="form-area">
+        <h1 class="bug-title">Encontrou um problema?</h1>
+        <p class="bug-subtitle">Preencha o formulario abaixo e vamos corrigir o mais rapido possivel.</p>
+
+        <div class="info-box">
+          Descreva o bug com o maximo de detalhes: qual jogo, o que voce fez, e o que aconteceu de errado. Uma imagem ajuda muito!
+        </div>
+
+        <form action="https://formsubmit.co/igor-strike@hotmail.com" method="POST" enctype="multipart/form-data" id="bug-form">
+          <!-- FormSubmit config -->
+          <input type="hidden" name="_subject" value="[Game Hub] Novo Bug Reportado">
+          <input type="hidden" name="_captcha" value="true">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_next" id="next-url">
+          <input type="text" name="_honey" style="display:none">
+
+          <div class="form-group">
+            <label>Jogo com problema <span class="required">*</span></label>
+            <select name="Jogo" class="form-select" required>
+              <option value="">Selecione o jogo...</option>
+              <option value="Paciencia">Paciencia (Solitaire)</option>
+              <option value="Cobrinha">Cobrinha (Snake)</option>
+              <option value="Dama">Dama (Checkers)</option>
+              <option value="Memoria">Jogo da Memoria</option>
+              <option value="Blackjack">Blackjack</option>
+              <option value="Freecell">Freecell</option>
+              <option value="Jogo da Velha">Jogo da Velha</option>
+              <option value="Reversi">Reversi</option>
+              <option value="Campo Minado">Campo Minado</option>
+              <option value="Termo">Termo</option>
+              <option value="Forca">Forca</option>
+              <option value="2048">2048</option>
+              <option value="Sudoku">Sudoku</option>
+              <option value="Puzzle 15">Puzzle 15</option>
+              <option value="Tetris">Tetris</option>
+              <option value="Flappy Bird">Flappy Bird</option>
+              <option value="Pong">Pong</option>
+              <option value="Spider Solitaire">Spider Solitaire</option>
+              <option value="Outro / Geral">Outro / Problema geral do site</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Titulo do bug <span class="required">*</span></label>
+            <input type="text" name="Titulo" class="form-input" placeholder="Ex: Carta nao arrasta no celular" required>
+          </div>
+
+          <div class="form-group">
+            <label>Descricao detalhada <span class="required">*</span></label>
+            <textarea name="Descricao" class="form-textarea" placeholder="Descreva o que aconteceu, passo a passo. Ex: Abri o jogo de Paciencia no iPhone, tentei arrastar uma carta e ela nao se moveu..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Dispositivo / Navegador</label>
+            <input type="text" name="Dispositivo" class="form-input" placeholder="Ex: iPhone 14, Safari / PC, Chrome" id="device-info">
+          </div>
+
+          <div class="form-group">
+            <label>Screenshot do bug (opcional)</label>
+            <div class="file-upload" id="file-upload-area">
+              <input type="file" name="attachment" accept="image/*" id="file-input">
+              <div class="file-upload-icon">📸</div>
+              <div class="file-upload-text">
+                <strong>Clique aqui</strong> ou arraste uma imagem
+              </div>
+              <div class="file-name" id="file-name"></div>
+              <img class="file-preview" id="file-preview" alt="Preview">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" id="btn-submit">Enviar Report</button>
+        </form>
+      </div>
+
+      <div class="success-msg" id="success-msg">
+        <div class="icon">✅</div>
+        <h2>Bug reportado com sucesso!</h2>
+        <p>Obrigado por ajudar a melhorar o Game Hub. Vamos analisar e corrigir o mais rapido possivel.</p>
+        <a href="index.html">Voltar para os jogos</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from './sidebar.js?v=3';
+    initSidebar({ active: 'bug' });
+  </script>
+  <script>
+    // Set return URL
+    document.getElementById('next-url').value = window.location.href + '?sent=1';
+
+    // Auto-detect device info
+    const deviceInput = document.getElementById('device-info');
+    if (!deviceInput.value) {
+      const ua = navigator.userAgent;
+      let device = '';
+      if (/iPhone/.test(ua)) device = 'iPhone';
+      else if (/iPad/.test(ua)) device = 'iPad';
+      else if (/Android/.test(ua)) device = 'Android';
+      else if (/Windows/.test(ua)) device = 'PC Windows';
+      else if (/Mac/.test(ua)) device = 'Mac';
+      else device = 'Outro';
+
+      let browser = '';
+      if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+      else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+      else if (/Firefox/.test(ua)) browser = 'Firefox';
+      else if (/Edg/.test(ua)) browser = 'Edge';
+      else browser = 'Outro';
+
+      deviceInput.value = `${device}, ${browser}`;
+    }
+
+    // File upload preview
+    const fileInput = document.getElementById('file-input');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const fileName = document.getElementById('file-name');
+    const filePreview = document.getElementById('file-preview');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        fileName.textContent = file.name;
+        fileUploadArea.classList.add('has-file');
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            filePreview.src = e.target.result;
+            filePreview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      } else {
+        fileName.textContent = '';
+        fileUploadArea.classList.remove('has-file');
+        filePreview.style.display = 'none';
+      }
+    });
+
+    // Check if returning from successful submission
+    if (window.location.search.includes('sent=1')) {
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

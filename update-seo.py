@@ -87,6 +87,7 @@ def update_sitemap(games):
     extras = [
         ("doacao.html", "monthly", "0.5"),
         ("ranking.html", "daily", "0.7"),
+        ("report-bug.html", "monthly", "0.4"),
         ("sobre.html", "monthly", "0.4"),
         ("privacidade.html", "monthly", "0.3"),
     ]
