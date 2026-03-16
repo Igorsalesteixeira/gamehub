@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Jogo da Memoria Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue o Jogo da Memoria online e de graca. Encontre todos os pares, treine seu cerebro e bata seu recorde! Sem download." />
+  <meta name="keywords" content="jogo da memoria online, memory game, jogo da memoria gratis, encontre os pares" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/memory/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Jogo da Memoria Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue o Jogo da Memoria online e de graca. Encontre os pares e treine seu cerebro!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/memory/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Jogo da Memoria Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue o Jogo da Memoria online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🧠 Memoria</h1>
+    <div class="stats">
+      <span>🎯 <span id="moves-display">0</span></span>
+      <span>⏱️ <span id="timer-display">0:00</span></span>
+    </div>
+  </header>
+
+  <div class="controls-bar">
+    <select id="difficulty-select">
+      <option value="easy">Facil (4x3)</option>
+      <option value="medium" selected>Medio (4x4)</option>
+      <option value="hard">Dificil (6x4)</option>
+    </select>
+    <button class="btn btn-orange btn-sm" id="btn-new-game">Novo Jogo</button>
+  </div>
+
+  <div class="game-container">
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- Modal de vitoria -->
+  <div class="modal-overlay hidden" id="victory-modal">
+    <div class="modal-content">
+      <div class="modal-icon">🎉</div>
+      <h2>Parabens!</h2>
+      <p>Voce encontrou todos os pares!</p>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <span class="modal-stat-label">Movimentos</span>
+          <span class="modal-stat-value" id="final-moves">0</span>
+        </div>
+        <div class="modal-stat">
+          <span class="modal-stat-label">Tempo</span>
+          <span class="modal-stat-value" id="final-time">0:00</span>
+        </div>
+      </div>
+      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js';
+    initSidebar({ active: 'memoria' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

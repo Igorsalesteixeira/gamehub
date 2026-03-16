@@ -237,6 +237,14 @@ export function initSidebar(options = {}) {
         <span class="sidebar-icon">🐍</span>
         <span>Cobrinha</span>
       </a>
+      <a href="${base}games/checkers/index.html" class="sidebar-link ${isActive('dama')}">
+        <span class="sidebar-icon">⚫</span>
+        <span>Dama</span>
+      </a>
+      <a href="${base}games/memory/index.html" class="sidebar-link ${isActive('memoria')}">
+        <span class="sidebar-icon">🧠</span>
+        <span>Memoria</span>
+      </a>
       <div class="sidebar-divider"></div>
       <a href="${base}sobre.html" class="sidebar-link ${isActive('sobre')}">
         <span class="sidebar-icon">ℹ️</span>
