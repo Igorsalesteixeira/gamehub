@@ -295,14 +295,13 @@ body {
 .card-tl, .card-br {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   line-height: 1;
   gap: 0;
-  min-width: 18px;
 }
 .card-br { transform: rotate(180deg); margin-top: auto; }
-.corner-rank { font-size: 1.05rem; font-weight: 800; line-height: 1.1; }
-.corner-suit  { font-size: 0.95rem; font-weight: 700; line-height: 1.1; }
+.corner-rank { font-size: 0.95rem; font-weight: 800; line-height: 1.1; }
+.corner-suit  { font-size: 0.8rem;  font-weight: 700; line-height: 1.1; }
 .card-center {
   flex: 1;
   display: flex;
