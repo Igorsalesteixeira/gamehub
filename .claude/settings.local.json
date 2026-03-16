@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -d \"c:/Users/igor-/Downloads/Site de jogos/games/\"*/)"
+    ]
+  }
+}
