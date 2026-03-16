@@ -1,4 +1,5 @@
 // ===== Jogo da Memoria =====
+import { supabase } from '../../supabase.js';
 
 const EMOJIS = [
   '🐶','🐱','🐸','🦊','🐼','🐨','🦁','🐯',
@@ -198,6 +199,24 @@ function showVictory() {
   finalMoves.textContent = moves;
   finalTime.textContent = formatTime(timerSeconds);
   victoryModal.classList.remove('hidden');
+  saveGameStat();
+}
+
+// ===== Stats — Supabase =====
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'memory',
+      result: 'win',
+      moves: moves,
+      time_seconds: timerSeconds,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
 
 // ===== Events =====

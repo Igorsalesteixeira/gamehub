@@ -172,10 +172,16 @@
     }
 
     // ---- Stats ----
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
     async function loadAllStats(userId) {
       const { data, error } = await supabase
         .from('game_stats')
-        .select('game, result, moves')
+        .select('game, result, moves, time_seconds')
         .eq('user_id', userId);
 
       if (error || !data) return;
@@ -199,6 +205,30 @@
       } else {
         const best = Math.max(...snkData.map(r => r.moves || 0));
         snkEl.innerHTML = `<span>🎮 ${snkData.length} partidas</span> · <span>🍎 Recorde: ${best}</span>`;
+      }
+
+      // Dama
+      const chkData = data.filter(r => r.game === 'checkers');
+      const chkEl = document.getElementById('stats-checkers');
+      if (chkData.length === 0) {
+        chkEl.textContent = 'Nenhuma partida ainda';
+      } else {
+        const wins = chkData.filter(r => r.result === 'win').length;
+        const bestWin = chkData.filter(r => r.result === 'win' && r.time_seconds > 0);
+        const bestTime = bestWin.length > 0 ? Math.min(...bestWin.map(r => r.time_seconds)) : null;
+        let label = `<span>🎮 ${chkData.length} partidas</span> · <span>🏆 ${wins} vitórias</span>`;
+        if (bestTime) label += ` · <span>⏱ ${formatTime(bestTime)}</span>`;
+        chkEl.innerHTML = label;
+      }
+
+      // Memoria
+      const memData = data.filter(r => r.game === 'memory');
+      const memEl = document.getElementById('stats-memory');
+      if (memData.length === 0) {
+        memEl.textContent = 'Nenhuma partida ainda';
+      } else {
+        const bestTime = Math.min(...memData.map(r => r.time_seconds || Infinity));
+        memEl.innerHTML = `<span>🎮 ${memData.length} partidas</span> · <span>⏱ Melhor: ${formatTime(bestTime)}</span>`;
       }
     }
 

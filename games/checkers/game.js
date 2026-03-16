@@ -1,5 +1,6 @@
 // Jogo de Dama (Checkers) - Dama Brasileira
 // Player = 'player' (dark pieces, bottom), CPU = 'cpu' (orange pieces, top)
+import { supabase } from '../../supabase.js';
 
 const BOARD_SIZE = 8;
 const PLAYER = 'player';
@@ -13,6 +14,9 @@ let currentTurn = PLAYER;
 let gameOver = false;
 let lastMove = null; // { from: {row,col}, to: {row,col} }
 let multiCaptureActive = false; // true during a multi-capture sequence
+let timerSeconds = 0;
+let timerInterval = null;
+let timerStarted = false;
 
 // DOM refs
 const boardEl = document.getElementById('board');
@@ -20,6 +24,7 @@ const turnIndicator = document.getElementById('turn-indicator');
 const playerCountEl = document.getElementById('player-count');
 const cpuCountEl = document.getElementById('cpu-count');
 const btnNewGame = document.getElementById('btn-new-game');
+const timerDisplay = document.getElementById('timer-display');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalIcon = document.getElementById('modal-icon');
 const modalTitle = document.getElementById('modal-title');
@@ -49,6 +54,10 @@ function initGame() {
   gameOver = false;
   lastMove = null;
   multiCaptureActive = false;
+  stopTimer();
+  timerStarted = false;
+  timerSeconds = 0;
+  if (timerDisplay) timerDisplay.textContent = '00:00';
   modalOverlay.classList.add('hidden');
   render();
   updateTurnIndicator();
@@ -269,6 +278,12 @@ function getValidMovesForPiece(r, c) {
 
 function onCellClick(r, c) {
   if (gameOver || currentTurn !== PLAYER) return;
+
+  // Start timer on first player action
+  if (!timerStarted) {
+    timerStarted = true;
+    startTimer();
+  }
 
   // If clicking on a valid move destination
   const moveTarget = validMoves.find(m => m.row === r && m.col === c);
@@ -502,7 +517,10 @@ function checkGameOver() {
 
 function endGame(winner) {
   gameOver = true;
+  stopTimer();
   updateTurnIndicator();
+  const result = winner === PLAYER ? 'win' : winner === CPU ? 'loss' : 'draw';
+  saveGameStat(result);
 
   if (winner === PLAYER) {
     modalIcon.innerHTML = '&#127942;';
@@ -522,6 +540,43 @@ function endGame(winner) {
   }
 
   modalOverlay.classList.remove('hidden');
+}
+
+// ==================== TIMER ====================
+
+function startTimer() {
+  if (timerInterval) return;
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    if (timerDisplay) {
+      const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+      const s = (timerSeconds % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `${m}:${s}`;
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+// ==================== STATS — Supabase ====================
+
+async function saveGameStat(result) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'checkers',
+      result,
+      moves: 0,
+      time_seconds: timerSeconds,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
 
 // ==================== EVENTS ====================

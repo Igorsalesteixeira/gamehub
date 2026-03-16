@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ranking Semanal - Game Hub</title>
-  <meta name="description" content="Veja o ranking semanal dos melhores jogadores do Game Hub. Paciencia e Cobrinha!" />
+  <meta name="description" content="Veja o ranking semanal dos melhores jogadores do Game Hub. Paciencia, Cobrinha, Dama e Memoria!" />
   <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/ranking.html" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Ranking Semanal - Game Hub" />
@@ -47,6 +47,7 @@
     .ranking-tabs {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       gap: 0.5rem;
       margin-bottom: 1.5rem;
     }
@@ -178,6 +179,8 @@
     <div class="ranking-tabs">
       <button class="ranking-tab active" data-game="solitaire">🃏 Paciência</button>
       <button class="ranking-tab" data-game="snake">🐍 Cobrinha</button>
+      <button class="ranking-tab" data-game="checkers">⚫ Dama</button>
+      <button class="ranking-tab" data-game="memory">🧠 Memória</button>
     </div>
 
     <div class="ranking-table" id="ranking-table">
@@ -262,16 +265,75 @@
       timerEl.textContent = `Reseta em: ${parts.join(' ')}`;
     }
 
+    const GAME_LABELS = {
+      solitaire: 'Paciência',
+      snake: 'Cobrinha',
+      checkers: 'Dama',
+      memory: 'Memória'
+    };
+
+    // Jogos rankeados por tempo (menor = melhor)
+    const TIME_RANKED = ['checkers', 'memory'];
+
+    function formatRankTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
     async function loadRanking() {
       tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Carregando...</div>';
 
       let data, error;
 
       if (currentGame === 'snake') {
-        // Cobrinha: ranking por melhor pontuação (frutas)
         ({ data, error } = await supabase.rpc('get_weekly_ranking_snake'));
+      } else if (TIME_RANKED.includes(currentGame)) {
+        // Ranking por tempo mais rapido (vitórias apenas)
+        ({ data, error } = await supabase.rpc('get_weekly_ranking_time', { game_filter: currentGame }));
+
+        // Fallback: se a RPC não existir, buscar direto
+        if (error && error.message && error.message.includes('function')) {
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          const { data: rawData, error: rawError } = await supabase
+            .from('game_stats')
+            .select('user_id, time_seconds')
+            .eq('game', currentGame)
+            .eq('result', 'win')
+            .gte('created_at', weekAgo.toISOString())
+            .order('time_seconds', { ascending: true });
+
+          if (rawError) {
+            error = rawError;
+          } else {
+            // Agrupar: menor tempo por usuario
+            const best = {};
+            for (const row of rawData || []) {
+              if (!best[row.user_id] || row.time_seconds < best[row.user_id]) {
+                best[row.user_id] = row.time_seconds;
+              }
+            }
+            // Buscar nomes
+            const userIds = Object.keys(best);
+            if (userIds.length > 0) {
+              const { data: profiles } = await supabase
+                .from('profiles')
+                .select('user_id, display_name')
+                .in('user_id', userIds);
+              const nameMap = {};
+              for (const p of profiles || []) nameMap[p.user_id] = p.display_name;
+              data = userIds
+                .map(uid => ({ user_id: uid, display_name: nameMap[uid] || 'Jogador', best_time: best[uid] }))
+                .sort((a, b) => a.best_time - b.best_time)
+                .slice(0, 20);
+            } else {
+              data = [];
+            }
+            error = null;
+          }
+        }
       } else {
-        // Paciência: ranking por número de vitórias
         ({ data, error } = await supabase.rpc('get_weekly_ranking', { game_filter: currentGame }));
       }
 
@@ -282,13 +344,13 @@
       }
 
       if (!data || data.length === 0) {
-        const gameLabel = currentGame === 'solitaire' ? 'Paciência' : 'Cobrinha';
-        const actionLabel = currentGame === 'solitaire' ? 'Nenhuma vitória' : 'Nenhuma partida';
-        tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>${actionLabel} essa semana em ${gameLabel}.<br>Seja o primeiro!</div>`;
+        const gameLabel = GAME_LABELS[currentGame] || currentGame;
+        tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>Nenhuma partida essa semana em ${gameLabel}.<br>Seja o primeiro!</div>`;
         return;
       }
 
       const isSnake = currentGame === 'snake';
+      const isTimeRanked = TIME_RANKED.includes(currentGame);
 
       tableEl.innerHTML = data.map((row, i) => {
         const pos = i + 1;
@@ -296,10 +358,16 @@
         const rowClass = pos <= 3 ? `top-${pos}` : '';
         const isMe = row.user_id === currentUserId;
         const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
-        const score = isSnake ? row.best_score : row.wins;
-        const label = isSnake
-          ? `${score} 🍎`
-          : `${score} ${score === 1 ? 'vitória' : 'vitórias'}`;
+
+        let label;
+        if (isTimeRanked) {
+          label = `⏱ ${formatRankTime(row.best_time)}`;
+        } else if (isSnake) {
+          label = `${row.best_score} 🍎`;
+        } else {
+          const score = row.wins;
+          label = `${score} ${score === 1 ? 'vitória' : 'vitórias'}`;
+        }
 
         return `
           <div class="ranking-row ${rowClass}">
