@@ -408,19 +408,26 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
     const touch = e.touches[0];
     const rect  = el.getBoundingClientRect();
 
-    const ghost = buildStackGhost(actualData, rect);
-    if (actualData.source !== 'tableau') {
-      ghost.appendChild(el.cloneNode(true));
-    }
-    document.body.appendChild(ghost);
-
-    // Escurece todas as cartas da pilha sendo movida
+    let ghost = null;
     const stackEls = [];
-    if (actualData.source === 'tableau') {
+
+    if (actualData.source === 'waste') {
+      // Waste: sem fantasma — só esconde a carta de cima para revelar a de baixo
+      el.style.visibility = 'hidden';
+      stackEls.push(el);
+      // Ghost vazio (necessário para o touchDrag funcionar)
+      ghost = document.createElement('div');
+      ghost.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;width:0;height:0;';
+    } else if (actualData.source === 'tableau') {
+      ghost = buildStackGhost(actualData, rect);
+      document.body.appendChild(ghost);
       const colDiv = document.getElementById(`col${actualData.colIndex}`);
       const allCards = Array.from(colDiv.querySelectorAll('.card'));
       allCards.slice(actualData.cardIndex).forEach(c => { c.style.opacity = '0.25'; stackEls.push(c); });
     } else {
+      ghost = buildStackGhost(actualData, rect);
+      ghost.appendChild(el.cloneNode(true));
+      document.body.appendChild(ghost);
       el.style.visibility = 'hidden';
       stackEls.push(el);
     }
