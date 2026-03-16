@@ -12,6 +12,9 @@
 </head>
 <body>
   <header class="header">
+    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="header-inner">
       <div class="logo">🎮 Game Hub</div>
       <p class="tagline">Seus jogos favoritos, de graça e online!</p>
@@ -21,11 +24,49 @@
     </div>
   </header>
 
-  <main class="main">
-    <div class="lobby-actions">
-      <h2 class="section-title">Escolha um jogo</h2>
-      <a href="ranking.html" class="btn-ranking">🏆 Ranking Semanal</a>
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">🎮</span>
+      <span class="sidebar-title">Menu</span>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Fechar menu">&times;</button>
     </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-link active">
+        <span class="sidebar-icon">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="ranking.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span>
+        <span>Ranking Semanal</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <span class="sidebar-section-label">Jogos</span>
+      <a href="games/solitaire/index.html" class="sidebar-link">
+        <span class="sidebar-icon">🃏</span>
+        <span>Paciencia</span>
+      </a>
+      <a href="games/snake/index.html" class="sidebar-link">
+        <span class="sidebar-icon">🐍</span>
+        <span>Cobrinha</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <a href="sobre.html" class="sidebar-link">
+        <span class="sidebar-icon">ℹ️</span>
+        <span>Sobre</span>
+      </a>
+      <a href="privacidade.html" class="sidebar-link">
+        <span class="sidebar-icon">🔒</span>
+        <span>Privacidade</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h2 class="section-title">Escolha um jogo</h2>
 
     <div class="games-grid">
 
@@ -81,10 +122,6 @@
 
   <footer class="footer">
     <p>Feito com ❤️ &mdash; Game Hub &copy; 2025</p>
-    <div class="footer-links">
-      <a href="sobre.html">Sobre</a>
-      <a href="privacidade.html">Política de Privacidade</a>
-    </div>
   </footer>
 
   <script type="module">
@@ -150,6 +187,26 @@
         snkEl.innerHTML = `<span>🎮 ${snkData.length} partidas</span> · <span>🍎 Recorde: ${best}</span>`;
       }
     }
+
+    // ---- Sidebar ----
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const closeBtn = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+      sidebarEl.classList.add('open');
+      overlayEl.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebarEl.classList.remove('open');
+      overlayEl.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    toggleBtn.addEventListener('click', openSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+    overlayEl.addEventListener('click', closeSidebar);
 
     function renderAuth(session) {
       if (session) {
