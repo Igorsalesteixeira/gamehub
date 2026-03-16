@@ -173,9 +173,28 @@ function renderWaste() {
   el.draggable = true;
   el.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-    setTimeout(() => el.classList.add('dragging'), 0);
+    // Cria imagem de arraste invisível para eliminar o ghost nativo
+    const emptyImg = document.createElement('canvas');
+    emptyImg.width = 1; emptyImg.height = 1;
+    e.dataTransfer.setDragImage(emptyImg, 0, 0);
+    // Mostra a carta anterior (peek) e esconde a atual
+    setTimeout(() => {
+      wasteEl.innerHTML = '';
+      if (state.waste.length >= 2) {
+        const prevCard = state.waste[state.waste.length - 2];
+        const prevEl = makeFaceUpCard(prevCard);
+        prevEl.style.position = 'absolute';
+        prevEl.style.top = '0';
+        prevEl.style.left = '0';
+        prevEl.style.pointerEvents = 'none';
+        wasteEl.appendChild(prevEl);
+      }
+    }, 0);
   });
-  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  el.addEventListener('dragend', () => {
+    // Re-renderiza o descarte ao soltar (independente de onde caiu)
+    renderWaste();
+  });
 
   wasteEl.appendChild(el);
   wasteEl.style.width = dims.w + 'px';

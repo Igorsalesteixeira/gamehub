@@ -31,4 +31,7 @@
 - Sempre manter `el.draggable = true` em todas as plataformas
 - Touch drag (custom) e HTML5 drag (nativo) coexistem: `e.preventDefault()` no touchstart evita conflitos
 - Waste peek: usar `wasteEl.innerHTML = ''` para limpar, depois criar carta anterior dinamicamente
-- Sempre incrementar `?v=N` no script/css tag ao fazer alteracoes para evitar cache
+- Desktop waste drag: usar `e.dataTransfer.setDragImage(canvas1x1, 0, 0)` para eliminar ghost nativo do navegador
+- No dragstart do waste (desktop): limpar wasteEl e mostrar carta anterior, igual ao touchstart
+- No dragend do waste (desktop): chamar `renderWaste()` para restaurar estado visual
+- Sempre incrementar `?v=N` no script/css tag ao fazer alteracoes para evitar cache (atual: v=11)
