@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Anagrama Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Anagrama online e de graça. Descubra a palavra escondida nas letras embaralhadas!" />
+  <meta name="keywords" content="anagrama online, jogo de anagrama, embaralhar letras, jogo de palavras gratis" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/anagram/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Anagrama Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Anagrama online e de graça!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/anagram/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Anagrama Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Anagrama online e de graça!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#128260; Anagrama</h1>
+    <div class="stats">
+      <span>&#127942; <span id="score-display">0</span></span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="info-bar">
+      <span>Rodada <strong id="round-display">1</strong>/10</span>
+      <span id="timer-display">00:00</span>
+      <span>Dicas: <strong id="hints-display">3</strong></span>
+    </div>
+
+    <div class="category-label">Categoria: <span id="category-name">---</span></div>
+
+    <div class="answer-area" id="answer-area">
+      <!-- answer letter slots -->
+    </div>
+
+    <div class="scramble-area" id="scramble-area">
+      <!-- scrambled letter tiles -->
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" id="btn-hint">&#128161; Dica</button>
+      <button class="btn btn-secondary" id="btn-shuffle">&#128256; Embaralhar</button>
+      <button class="btn btn-orange" id="btn-skip">Pular &#9654;</button>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title"></h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-orange" id="btn-new-game">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'anagrama' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,495 @@
+import { supabase } from '../../supabase.js';
+
+// === DOM ===
+const playerHandEl = document.getElementById('player-hand');
+const cpuHandEl = document.getElementById('cpu-hand');
+const playerPlayedEl = document.getElementById('player-played');
+const cpuPlayedEl = document.getElementById('cpu-played');
+const playerScoreEl = document.getElementById('player-score');
+const cpuScoreEl = document.getElementById('cpu-score');
+const roundNumEl = document.getElementById('round-num');
+const handValueEl = document.getElementById('hand-value');
+const roundScoreEl = document.getElementById('round-score-display');
+const messageEl = document.getElementById('message');
+const btnTruco = document.getElementById('btn-truco');
+const btnAccept = document.getElementById('btn-accept');
+const btnDecline = document.getElementById('btn-decline');
+const btnNew = document.getElementById('btn-new');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalIcon = document.getElementById('modal-icon');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+const modalBtn = document.getElementById('modal-btn');
+
+// === GAME CONSTANTS ===
+const SUITS = ['♠', '♥', '♦', '♣'];
+const VALUES = ['A', '2', '3', '4', '5', '6', '7', 'Q', 'J', 'K'];
+// Truco Mineiro card strength (higher = stronger)
+const STRENGTH = {
+  '4♣': 14, '7♥': 13, 'A♠': 12, '7♦': 11,  // manilhas
+  '3': 10, '2': 9, 'A': 8, 'K': 7, 'J': 6, 'Q': 5,
+  '7': 4, '6': 3, '5': 2, '4': 1
+};
+const TRUCO_VALUES = [1, 3, 6, 9, 12];
+
+// === STATE ===
+let deck = [];
+let playerHand = [];
+let cpuHand = [];
+let playerScore = 0;
+let cpuScore = 0;
+let roundWinsPlayer = 0;
+let roundWinsCpu = 0;
+let currentRound = 0;
+let handValue = 1;
+let trucoLevel = 0;
+let playerTrucoCalled = false;
+let cpuTrucoCalled = false;
+let waitingForTrucoResponse = false;
+let gameOver = false;
+let playerTurn = true;
+let firstToPlay = 'player'; // alternates each hand
+
+function getCardStrength(card) {
+  const key = card.value + card.suit;
+  if (STRENGTH[key] !== undefined) return STRENGTH[key];
+  return STRENGTH[card.value] || 0;
+}
+
+function createDeck() {
+  const d = [];
+  for (const suit of SUITS) {
+    for (const value of VALUES) {
+      d.push({ suit, value });
+    }
+  }
+  return d;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function isRed(suit) { return suit === '♥' || suit === '♦'; }
+
+function createCardEl(card, faceDown = false) {
+  if (faceDown) {
+    const el = document.createElement('div');
+    el.className = 'card-back';
+    el.textContent = '?';
+    return el;
+  }
+  const el = document.createElement('div');
+  el.className = `card ${isRed(card.suit) ? 'red' : 'black'}`;
+  el.innerHTML = `<span class="card-value">${card.value}</span><span class="card-suit">${card.suit}</span>`;
+  return el;
+}
+
+// === GAME LOGIC ===
+function startMatch() {
+  playerScore = 0;
+  cpuScore = 0;
+  gameOver = false;
+  firstToPlay = 'player';
+  updateScores();
+  startHand();
+}
+
+function startHand() {
+  deck = shuffle(createDeck());
+  playerHand = [deck.pop(), deck.pop(), deck.pop()];
+  cpuHand = [deck.pop(), deck.pop(), deck.pop()];
+  roundWinsPlayer = 0;
+  roundWinsCpu = 0;
+  currentRound = 0;
+  handValue = 1;
+  trucoLevel = 0;
+  playerTrucoCalled = false;
+  cpuTrucoCalled = false;
+  waitingForTrucoResponse = false;
+
+  playerTurn = (firstToPlay === 'player');
+
+  playerPlayedEl.innerHTML = '';
+  cpuPlayedEl.innerHTML = '';
+  messageEl.textContent = '';
+
+  btnTruco.style.display = '';
+  btnTruco.disabled = false;
+  btnAccept.style.display = 'none';
+  btnDecline.style.display = 'none';
+  btnNew.style.display = 'none';
+
+  updateRoundInfo();
+  renderHands();
+
+  if (!playerTurn) {
+    messageEl.textContent = 'CPU joga primeiro...';
+    setTimeout(() => cpuPlayCard(), 800);
+  } else {
+    messageEl.textContent = 'Sua vez! Escolha uma carta.';
+  }
+}
+
+function renderHands() {
+  playerHandEl.innerHTML = '';
+  cpuHandEl.innerHTML = '';
+
+  playerHand.forEach((card, i) => {
+    const el = createCardEl(card);
+    el.addEventListener('click', () => playCard(i));
+    el.addEventListener('touchend', (e) => { e.preventDefault(); playCard(i); });
+    playerHandEl.appendChild(el);
+  });
+
+  cpuHand.forEach(() => {
+    cpuHandEl.appendChild(createCardEl(null, true));
+  });
+}
+
+function updateScores() {
+  playerScoreEl.textContent = playerScore;
+  cpuScoreEl.textContent = cpuScore;
+}
+
+function updateRoundInfo() {
+  roundNumEl.textContent = currentRound + 1;
+  handValueEl.textContent = TRUCO_VALUES[trucoLevel];
+  roundScoreEl.textContent = `Rodadas: Voce ${roundWinsPlayer} x ${roundWinsCpu} CPU`;
+}
+
+function playCard(index) {
+  if (!playerTurn || waitingForTrucoResponse || gameOver) return;
+  if (index < 0 || index >= playerHand.length) return;
+
+  const card = playerHand.splice(index, 1)[0];
+  playerPlayedEl.innerHTML = '';
+  playerPlayedEl.appendChild(createCardEl(card));
+
+  playerTurn = false;
+  renderHands();
+
+  // Check if CPU already played (CPU went first)
+  if (cpuPlayedEl.querySelector('.card')) {
+    setTimeout(() => resolveRound(card, cpuPlayedEl._card), 600);
+  } else {
+    // CPU plays after player
+    setTimeout(() => {
+      cpuPlayCard(card);
+    }, 600);
+  }
+}
+
+function cpuPlayCard(playerCard = null) {
+  if (cpuHand.length === 0) return;
+
+  // CPU AI: try to win if possible, otherwise play weakest
+  let chosenIndex = 0;
+
+  if (playerCard) {
+    // CPU plays second - try to beat the player's card
+    const playerStr = getCardStrength(playerCard);
+    let bestWinIdx = -1;
+    let bestWinStr = Infinity;
+    let weakestIdx = 0;
+    let weakestStr = Infinity;
+
+    cpuHand.forEach((c, i) => {
+      const s = getCardStrength(c);
+      if (s > playerStr && s < bestWinStr) {
+        bestWinIdx = i;
+        bestWinStr = s;
+      }
+      if (s < weakestStr) {
+        weakestIdx = i;
+        weakestStr = s;
+      }
+    });
+
+    chosenIndex = bestWinIdx >= 0 ? bestWinIdx : weakestIdx;
+  } else {
+    // CPU plays first - play strongest
+    let bestIdx = 0;
+    let bestStr = -1;
+    cpuHand.forEach((c, i) => {
+      const s = getCardStrength(c);
+      if (s > bestStr) { bestStr = s; bestIdx = i; }
+    });
+    chosenIndex = bestIdx;
+  }
+
+  // CPU might call truco
+  if (!cpuTrucoCalled && trucoLevel < 4 && Math.random() < 0.2 && cpuHand.length > 1) {
+    const avgStr = cpuHand.reduce((s, c) => s + getCardStrength(c), 0) / cpuHand.length;
+    if (avgStr > 7) {
+      cpuCallTruco();
+      return;
+    }
+  }
+
+  const card = cpuHand.splice(chosenIndex, 1)[0];
+  cpuPlayedEl.innerHTML = '';
+  cpuPlayedEl._card = card;
+  cpuPlayedEl.appendChild(createCardEl(card));
+
+  if (playerCard) {
+    // Both played, resolve
+    setTimeout(() => resolveRound(playerCard, card), 600);
+  } else {
+    // Wait for player
+    playerTurn = true;
+    messageEl.textContent = 'Sua vez! Escolha uma carta.';
+    renderHands();
+  }
+}
+
+function resolveRound(playerCard, cpuCard) {
+  const pStr = getCardStrength(playerCard);
+  const cStr = getCardStrength(cpuCard);
+
+  currentRound++;
+  let msg = '';
+
+  if (pStr > cStr) {
+    roundWinsPlayer++;
+    msg = `Voce venceu a rodada! (${playerCard.value}${playerCard.suit} > ${cpuCard.value}${cpuCard.suit})`;
+  } else if (cStr > pStr) {
+    roundWinsCpu++;
+    msg = `CPU venceu a rodada! (${cpuCard.value}${cpuCard.suit} > ${playerCard.value}${playerCard.suit})`;
+  } else {
+    msg = `Empate na rodada! (${playerCard.value} = ${cpuCard.value})`;
+    // In truco, tie on first round goes to who is "mao"
+    if (currentRound === 1) {
+      if (firstToPlay === 'player') roundWinsPlayer++;
+      else roundWinsCpu++;
+    }
+  }
+
+  messageEl.textContent = msg;
+  updateRoundInfo();
+
+  // Check if hand is decided
+  if (roundWinsPlayer >= 2 || roundWinsCpu >= 2 || currentRound >= 3) {
+    setTimeout(() => finishHand(), 1200);
+    return;
+  }
+
+  // Next round: loser plays first, or same order on tie
+  setTimeout(() => {
+    playerPlayedEl.innerHTML = '';
+    cpuPlayedEl.innerHTML = '';
+    cpuPlayedEl._card = null;
+
+    let nextPlayerFirst = (pStr >= cStr);
+    playerTurn = nextPlayerFirst;
+
+    if (!playerTurn) {
+      messageEl.textContent = 'CPU joga primeiro...';
+      setTimeout(() => cpuPlayCard(), 600);
+    } else {
+      messageEl.textContent = 'Sua vez! Escolha uma carta.';
+    }
+
+    updateRoundInfo();
+    renderHands();
+  }, 1400);
+}
+
+function finishHand() {
+  const pts = TRUCO_VALUES[trucoLevel];
+  let winner;
+
+  if (roundWinsPlayer > roundWinsCpu) {
+    playerScore += pts;
+    winner = 'player';
+    messageEl.textContent = `Voce ganhou a mao! +${pts} ponto(s)`;
+  } else if (roundWinsCpu > roundWinsPlayer) {
+    cpuScore += pts;
+    winner = 'cpu';
+    messageEl.textContent = `CPU ganhou a mao! +${pts} ponto(s)`;
+  } else {
+    // tie goes to first player ("mao")
+    if (firstToPlay === 'player') {
+      playerScore += pts;
+      winner = 'player';
+    } else {
+      cpuScore += pts;
+      winner = 'cpu';
+    }
+    messageEl.textContent = `Empate! ${winner === 'player' ? 'Voce' : 'CPU'} leva por ser mao. +${pts}`;
+  }
+
+  updateScores();
+
+  // Alternate who starts
+  firstToPlay = firstToPlay === 'player' ? 'cpu' : 'player';
+
+  if (playerScore >= 12 || cpuScore >= 12) {
+    endMatch();
+  } else {
+    btnTruco.style.display = 'none';
+    btnNew.style.display = '';
+  }
+}
+
+function endMatch() {
+  gameOver = true;
+  const won = playerScore >= 12;
+  btnTruco.style.display = 'none';
+  btnNew.style.display = 'none';
+
+  modalIcon.textContent = won ? '🏆' : '😢';
+  modalTitle.textContent = won ? 'Voce Venceu!' : 'CPU Venceu!';
+  modalMessage.textContent = `Placar final: ${playerScore} x ${cpuScore}`;
+  modalOverlay.classList.add('active');
+
+  saveStats(won ? 'win' : 'loss');
+}
+
+async function saveStats(result) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('game_stats').insert({
+      user_id: user.id,
+      game: 'truco',
+      result,
+      moves: null,
+      time_seconds: null
+    });
+  } catch (e) { /* ignore */ }
+}
+
+// === TRUCO CALLS ===
+btnTruco.addEventListener('click', playerCallTruco);
+
+function playerCallTruco() {
+  if (waitingForTrucoResponse || gameOver) return;
+  if (trucoLevel >= 4) return;
+
+  trucoLevel++;
+  playerTrucoCalled = true;
+  waitingForTrucoResponse = true;
+
+  const val = TRUCO_VALUES[trucoLevel];
+  messageEl.textContent = `Voce pediu TRUCO! Valor: ${val} pontos`;
+  btnTruco.disabled = true;
+
+  // CPU decides
+  setTimeout(() => {
+    const avgStr = cpuHand.reduce((s, c) => s + getCardStrength(c), 0) / cpuHand.length;
+    const acceptChance = Math.min(0.8, avgStr / 12);
+
+    if (Math.random() < acceptChance) {
+      // Accept
+      messageEl.textContent = `CPU aceitou! Valor da mao: ${val} pontos`;
+      waitingForTrucoResponse = false;
+      cpuTrucoCalled = false;
+      updateRoundInfo();
+      // CPU can now re-truco if level allows
+      if (trucoLevel < 4) btnTruco.disabled = false;
+    } else {
+      // Decline - player wins hand at previous value
+      const prevVal = TRUCO_VALUES[Math.max(0, trucoLevel - 1)];
+      trucoLevel = Math.max(0, trucoLevel - 1);
+      playerScore += prevVal;
+      messageEl.textContent = `CPU correu! Voce ganhou ${prevVal} ponto(s)`;
+      updateScores();
+      waitingForTrucoResponse = false;
+      firstToPlay = firstToPlay === 'player' ? 'cpu' : 'player';
+      if (playerScore >= 12) {
+        endMatch();
+      } else {
+        btnTruco.style.display = 'none';
+        btnNew.style.display = '';
+      }
+    }
+  }, 1000);
+}
+
+function cpuCallTruco() {
+  trucoLevel++;
+  cpuTrucoCalled = true;
+  waitingForTrucoResponse = true;
+
+  const val = TRUCO_VALUES[trucoLevel];
+  messageEl.textContent = `CPU pediu TRUCO! Valor: ${val} pontos. Aceitar?`;
+
+  btnTruco.style.display = 'none';
+  btnAccept.style.display = '';
+  btnDecline.style.display = '';
+  playerTurn = false;
+}
+
+btnAccept.addEventListener('click', () => {
+  waitingForTrucoResponse = false;
+  btnAccept.style.display = 'none';
+  btnDecline.style.display = 'none';
+  btnTruco.style.display = '';
+  btnTruco.disabled = trucoLevel >= 4;
+
+  const val = TRUCO_VALUES[trucoLevel];
+  messageEl.textContent = `Voce aceitou! Valor da mao: ${val} pontos`;
+  updateRoundInfo();
+
+  // Continue with CPU playing its card
+  setTimeout(() => {
+    cpuPlayActual();
+  }, 500);
+});
+
+btnDecline.addEventListener('click', () => {
+  waitingForTrucoResponse = false;
+  btnAccept.style.display = 'none';
+  btnDecline.style.display = 'none';
+
+  const prevVal = TRUCO_VALUES[Math.max(0, trucoLevel - 1)];
+  trucoLevel = Math.max(0, trucoLevel - 1);
+  cpuScore += prevVal;
+  messageEl.textContent = `Voce correu! CPU ganhou ${prevVal} ponto(s)`;
+  updateScores();
+  firstToPlay = firstToPlay === 'player' ? 'cpu' : 'player';
+  if (cpuScore >= 12) {
+    endMatch();
+  } else {
+    btnTruco.style.display = 'none';
+    btnNew.style.display = '';
+  }
+});
+
+function cpuPlayActual() {
+  // Pick strongest card
+  let bestIdx = 0;
+  let bestStr = -1;
+  cpuHand.forEach((c, i) => {
+    const s = getCardStrength(c);
+    if (s > bestStr) { bestStr = s; bestIdx = i; }
+  });
+
+  const card = cpuHand.splice(bestIdx, 1)[0];
+  cpuPlayedEl.innerHTML = '';
+  cpuPlayedEl._card = card;
+  cpuPlayedEl.appendChild(createCardEl(card));
+
+  playerTurn = true;
+  messageEl.textContent = 'Sua vez! Escolha uma carta.';
+  renderHands();
+}
+
+// === NEW HAND / MATCH ===
+btnNew.addEventListener('click', () => {
+  btnNew.style.display = 'none';
+  startHand();
+});
+
+modalBtn.addEventListener('click', () => {
+  modalOverlay.classList.remove('active');
+  startMatch();
+});
+
+// === START ===
+startMatch();

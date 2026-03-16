@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Caça-Palavras Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Caça-Palavras online e de graça. Encontre todas as palavras escondidas no grid!" />
+  <meta name="keywords" content="caça-palavras online, word search, jogo de palavras, caça palavras gratis" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/wordsearch/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Caça-Palavras Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Caça-Palavras online e de graça!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/wordsearch/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Caça-Palavras Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Caça-Palavras online e de graça!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#128270; Caça-Palavras</h1>
+    <div class="stats">
+      <span id="timer-display">00:00</span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="game-layout">
+      <div class="grid-wrapper">
+        <canvas id="grid-canvas"></canvas>
+      </div>
+      <div class="word-panel">
+        <h3>Palavras</h3>
+        <ul id="word-list"></ul>
+        <button class="btn btn-orange" id="btn-new">Novo Jogo</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Parabéns!</h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-orange" id="btn-modal-new">Novo Jogo</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'cacapalavras' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

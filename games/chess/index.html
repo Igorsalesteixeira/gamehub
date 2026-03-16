@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Xadrez Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Xadrez online e de graca contra o computador. Todas as regras incluindo roque, en passant e promocao!" />
+  <meta name="keywords" content="xadrez online, chess online, xadrez gratis, jogar xadrez" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/chess/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Xadrez Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Xadrez online e de graca contra o computador!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/chess/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#9812; Xadrez</h1>
+    <div class="stats">
+      <span>&#9201; <span id="timer-display">00:00</span></span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="turn-indicator" id="turn-indicator">Sua vez (Brancas)</div>
+    <div class="board-wrapper">
+      <div class="board" id="board"></div>
+    </div>
+    <div class="controls">
+      <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+    </div>
+  </main>
+
+  <!-- Promotion modal -->
+  <div class="modal-overlay" id="promo-modal">
+    <div class="modal">
+      <h2 class="modal-title">Promocao</h2>
+      <p class="modal-msg">Escolha a peca:</p>
+      <div class="promo-choices" id="promo-choices"></div>
+    </div>
+  </div>
+
+  <!-- Result modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon">&#127942;</div>
+      <h2 class="modal-title" id="modal-title">Fim de Jogo</h2>
+      <p class="modal-msg" id="modal-msg">Resultado</p>
+      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'xadrez' });</script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

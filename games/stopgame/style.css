@@ -1,0 +1,26 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.topbar { width: 100%; background: linear-gradient(135deg, #ff6b35, #e85d2a); padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem; }
+.topbar h1 { font-size: 1.2rem; font-weight: 800; }
+.back-btn { color: #fff; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+#game-container { padding: 1.5rem; max-width: 500px; width: 100%; display: flex; flex-direction: column; gap: 1rem; }
+.round-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center; font-weight: 700; color: #a78bfa; }
+.letter-display { font-size: 2.5rem; font-weight: 800; color: #ff6b35; background: rgba(255,107,53,0.15); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+.timer { font-size: 1.5rem; font-weight: 800; color: #eab308; min-width: 40px; text-align: center; }
+.timer.urgent { color: #ef4444; animation: blink 0.5s ease infinite alternate; }
+@keyframes blink { to { opacity: 0.5; } }
+.categories { display: flex; flex-direction: column; gap: 0.6rem; }
+.cat-row { display: flex; align-items: center; gap: 0.5rem; }
+.cat-label { font-weight: 800; font-size: 0.85rem; color: rgba(255,255,255,0.6); min-width: 70px; }
+.cat-input { flex: 1; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.95rem; }
+.cat-input:focus { outline: none; border-color: #ff6b35; }
+.cat-input:disabled { opacity: 0.5; }
+.cat-result { font-size: 0.85rem; font-weight: 800; min-width: 50px; text-align: center; }
+.cat-result.valid { color: #10b981; }
+.cat-result.invalid { color: #ef4444; }
+.actions { display: flex; gap: 0.5rem; justify-content: center; }
+.btn { padding: 0.7rem 2rem; background: linear-gradient(135deg, #ff6b35, #e85d2a); color: #fff; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; }
+.btn:hover { transform: translateY(-2px); }
+.btn-secondary { background: rgba(255,255,255,0.15); }
+.results { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; text-align: center; }
+.results h3 { color: #eab308; margin-bottom: 0.5rem; }

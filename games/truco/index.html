@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Truco Mineiro Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Truco Mineiro online e de graca contra o computador. Primeiro a 12 pontos vence!" />
+  <meta name="keywords" content="truco online, truco mineiro, jogo de cartas gratis, truco gratis" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/truco/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Truco Mineiro Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Truco Mineiro online e de graca!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/truco/" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#127183; Truco Mineiro</h1>
+    <div class="stats">
+      <span>Voce: <strong id="player-score">0</strong></span>
+      <span>CPU: <strong id="cpu-score">0</strong></span>
+    </div>
+  </header>
+
+  <main class="game-area">
+    <div class="round-info">
+      <span>Rodada: <strong id="round-num">1</strong>/3</span>
+      <span>Valor: <strong id="hand-value">1</strong> pt(s)</span>
+      <span id="round-score-display">Rodadas: Voce 0 x 0 CPU</span>
+    </div>
+
+    <section class="table">
+      <div class="cpu-zone">
+        <div class="zone-label">CPU</div>
+        <div class="cpu-hand" id="cpu-hand"></div>
+      </div>
+
+      <div class="played-cards">
+        <div class="played-col">
+          <div class="played-label">Voce jogou</div>
+          <div id="player-played" class="played-slot"></div>
+        </div>
+        <div class="played-col">
+          <div class="played-label">CPU jogou</div>
+          <div id="cpu-played" class="played-slot"></div>
+        </div>
+      </div>
+
+      <div class="player-zone">
+        <div class="zone-label">Suas Cartas</div>
+        <div class="player-hand" id="player-hand"></div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-orange" id="btn-truco">&#128293; Truco!</button>
+      <button class="btn btn-green" id="btn-accept" style="display:none">Aceitar</button>
+      <button class="btn btn-red" id="btn-decline" style="display:none">Correr</button>
+      <button class="btn btn-blue" id="btn-new" style="display:none">Nova Mao</button>
+    </div>
+
+    <div id="message" class="message"></div>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon"></div>
+      <h2 id="modal-title"></h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-orange" id="modal-btn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=3'; initSidebar({ active: 'truco' });</script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

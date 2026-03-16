@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paciencia Piramide Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Paciencia Piramide online e de graca. Combine cartas que somam 13 e limpe a piramide!" />
+  <meta name="keywords" content="paciencia piramide, pyramid solitaire, jogo de cartas gratis, paciencia online" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/pyramid/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Paciencia Piramide Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Paciencia Piramide online e de graca!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/pyramid/" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#127183; Paciencia Piramide</h1>
+    <div class="stats">
+      <span>Movimentos: <strong id="moves-display">0</strong></span>
+      <span>Tempo: <strong id="time-display">0:00</strong></span>
+    </div>
+  </header>
+
+  <main class="game-area">
+    <div class="pyramid" id="pyramid"></div>
+
+    <div class="stock-area">
+      <div class="stock-pile" id="stock-pile">
+        <div class="card-back">&#127136;</div>
+        <div class="pile-label">Monte</div>
+      </div>
+      <div class="waste-pile" id="waste-pile">
+        <div class="pile-label">Descarte</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-orange" id="btn-new">&#9889; Novo Jogo</button>
+      <button class="btn btn-blue" id="btn-undo">&#8617; Desfazer</button>
+    </div>
+
+    <div id="message" class="message"></div>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon"></div>
+      <h2 id="modal-title"></h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-orange" id="modal-btn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=3'; initSidebar({ active: 'piramide' });</script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

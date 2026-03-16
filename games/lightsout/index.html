@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lights Out - Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>💡 Lights Out</h1></div>
+  <div id="game-container">
+    <div class="info"><span id="level">Nivel 1</span> · <span id="moves">Cliques: 0</span></div>
+    <div class="board" id="board"></div>
+    <button class="btn" id="restart">Reiniciar Nivel</button>
+  </div>
+  <div class="modal-overlay" id="modal" style="display:none">
+    <div class="modal"><p id="modal-msg"></p><button class="btn" id="modal-btn">Proximo Nivel</button></div>
+  </div>
+  <script type="module" src="game.js"></script>
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'lightsout' });</script>
+</body>
+</html>

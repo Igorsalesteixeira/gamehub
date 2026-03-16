@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Mahjong Solitaire Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Mahjong Solitaire online e de graca. Encontre pares de pecas livres!" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/mahjong/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#x1F000; Mahjong</h1>
+    <div class="stats">
+      <span>&#x1F3B4; <span id="tiles-left">144</span></span>
+      <span>&#x23F1;&#xFE0F; <span id="timer-display">0:00</span></span>
+    </div>
+  </header>
+
+  <div class="controls-bar">
+    <div class="control-buttons">
+      <button class="btn btn-hint" id="btn-hint">&#x1F4A1; Dica</button>
+      <button class="btn btn-shuffle" id="btn-shuffle">&#x1F500; Embaralhar</button>
+      <button class="btn btn-new" id="btn-new">Novo Jogo</button>
+    </div>
+  </div>
+
+  <div class="game-container">
+    <div id="mahjong-board" class="mahjong-board"></div>
+  </div>
+
+  <div class="modal-overlay hidden" id="modal">
+    <div class="modal-content">
+      <div class="modal-icon" id="modal-icon">&#x1F3C6;</div>
+      <h2 id="modal-title">Parabens!</h2>
+      <p id="modal-msg">Voce completou o Mahjong!</p>
+      <p id="modal-stats" class="modal-stats"></p>
+      <button class="btn btn-orange" id="btn-modal-new">Novo Jogo</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'mahjong' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

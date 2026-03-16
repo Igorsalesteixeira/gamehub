@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Sokoban Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Sokoban online e de graca. Empurre as caixas ate os alvos e complete todos os niveis! Sem download." />
+  <meta name="keywords" content="sokoban online, jogo sokoban gratis, puzzle sokoban, empurrar caixas" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/sokoban/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sokoban Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Sokoban online e de graca. Empurre as caixas ate os alvos!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/sokoban/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sokoban Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Sokoban online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">📦 Sokoban</h1>
+    <div class="stats">
+      <span>📋 Nivel <span id="level-display">1</span></span>
+      <span>👣 <span id="moves-display">0</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <div id="board"></div>
+
+    <!-- Overlay inicio / vitoria -->
+    <div class="overlay" id="overlay">
+      <div class="overlay-content">
+        <div class="overlay-icon" id="overlay-icon">📦</div>
+        <h2 id="overlay-title">Sokoban</h2>
+        <p id="overlay-msg">Empurre as caixas ate os alvos!</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-orange" id="btn-start">Jogar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-bar">
+    <button class="ctrl-action" id="btn-undo" title="Desfazer">↩ Desfazer</button>
+    <button class="ctrl-action" id="btn-restart" title="Reiniciar nivel">🔄 Reiniciar</button>
+  </div>
+
+  <!-- Controles mobile -->
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="up">▲</button>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="left">◄</button>
+      <button class="ctrl-btn" data-dir="down">▼</button>
+      <button class="ctrl-btn" data-dir="right">►</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'sokoban' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

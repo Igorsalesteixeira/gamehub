@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Space Invaders Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Space Invaders online e de graca. Destrua os aliens invasores! Sem download." />
+  <meta name="keywords" content="space invaders online, jogo space invaders gratis, aliens, arcade" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/spaceinvaders/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Space Invaders Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Space Invaders online e de graca. Destrua os aliens!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/spaceinvaders/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Space Invaders Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Space Invaders online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="game-title">&#128126; Space Invaders</h1>
+    <div class="stats">
+      <span>Pts: <span id="score-display">0</span></span>
+      <span>Vidas: <span id="lives-display">3</span></span>
+      <span>Onda: <span id="wave-display">1</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-content">
+        <div class="overlay-icon" id="overlay-icon">&#128126;</div>
+        <h2 id="overlay-title">Space Invaders</h2>
+        <p id="overlay-msg">Use as setas ou botoes para mover e atirar</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-orange" id="btn-start">Jogar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="ctrl-row">
+      <button class="ctrl-btn ctrl-wide" data-dir="left">&#9664;</button>
+      <button class="ctrl-btn ctrl-wide ctrl-shoot" data-dir="shoot">&#128299;</button>
+      <button class="ctrl-btn ctrl-wide" data-dir="right">&#9654;</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'invaders' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Numble Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Numble online e de graca. Adivinhe a equacao matematica em 6 tentativas!" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/numble/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#x1F522; Numble</h1>
+    <div class="stats">
+      <span>Tentativa: <span id="attempt-display">0/6</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <div class="board-area">
+      <div id="board" class="numble-board"></div>
+    </div>
+
+    <div id="keyboard" class="numble-keyboard"></div>
+  </div>
+
+  <div class="modal-overlay hidden" id="modal">
+    <div class="modal-content">
+      <div class="modal-icon" id="modal-icon">&#x1F3C6;</div>
+      <h2 id="modal-title">Parabens!</h2>
+      <p id="modal-msg"></p>
+      <p id="modal-stats" class="modal-stats"></p>
+      <button class="btn btn-orange" id="btn-modal-new">Novo Jogo</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'numble' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

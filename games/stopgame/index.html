@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stop! (Adedonha) - Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>✋ Stop!</h1></div>
+  <div id="game-container">
+    <div class="round-info">
+      <span class="letter-display" id="letter">A</span>
+      <span class="timer" id="timer">60</span>
+      <span>Rodada: <strong id="round">1</strong></span>
+      <span>Pontos: <strong id="score">0</strong></span>
+    </div>
+    <div class="categories" id="categories"></div>
+    <div class="actions">
+      <button class="btn" id="stop-btn">STOP!</button>
+      <button class="btn btn-secondary" id="new-round">Nova Rodada</button>
+    </div>
+    <div class="results" id="results" style="display:none"></div>
+  </div>
+  <script type="module" src="game.js"></script>
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'stop' });</script>
+</body>
+</html>

@@ -194,6 +194,27 @@
       <button class="ranking-tab" data-game="tetris">🧱 Tetris</button>
       <button class="ranking-tab" data-game="flappybird">🐦 Flappy Bird</button>
       <button class="ranking-tab" data-game="pong">🏓 Pong</button>
+      <button class="ranking-tab" data-game="pacman">🟡 Pac-Man</button>
+      <button class="ranking-tab" data-game="breakout">🧱 Breakout</button>
+      <button class="ranking-tab" data-game="dinorunner">🦕 Dino Runner</button>
+      <button class="ranking-tab" data-game="spaceinvaders">👾 Space Invaders</button>
+      <button class="ranking-tab" data-game="chess">♟️ Xadrez</button>
+      <button class="ranking-tab" data-game="connect4">🔴 Conecte 4</button>
+      <button class="ranking-tab" data-game="battleship">🚢 Batalha Naval</button>
+      <button class="ranking-tab" data-game="go">⚫ Go</button>
+      <button class="ranking-tab" data-game="spider">🕷️ Spider Solitaire</button>
+      <button class="ranking-tab" data-game="pyramid">🔺 Pirâmide</button>
+      <button class="ranking-tab" data-game="truco">🂠 Truco</button>
+      <button class="ranking-tab" data-game="uno">🟥 Uno</button>
+      <button class="ranking-tab" data-game="mahjong">🀄 Mahjong</button>
+      <button class="ranking-tab" data-game="sokoban">📦 Sokoban</button>
+      <button class="ranking-tab" data-game="nonogram">🖼️ Nonogram</button>
+      <button class="ranking-tab" data-game="lightsout">💡 Lights Out</button>
+      <button class="ranking-tab" data-game="wordsearch">🔍 Caça-Palavras</button>
+      <button class="ranking-tab" data-game="anagram">🔀 Anagrama</button>
+      <button class="ranking-tab" data-game="stopgame">✋ Stop!</button>
+      <button class="ranking-tab" data-game="numble">🔣 Numble</button>
+      <button class="ranking-tab" data-game="cookieclicker">🍪 Cookie Clicker</button>
     </div>
 
     <div class="ranking-table" id="ranking-table">
@@ -283,14 +304,20 @@
       blackjack: 'Blackjack', freecell: 'Freecell', tictactoe: 'Jogo da Velha',
       reversi: 'Reversi', minesweeper: 'Campo Minado', termo: 'Termo', hangman: 'Forca',
       game2048: '2048', sudoku: 'Sudoku', puzzle15: 'Puzzle 15',
-      tetris: 'Tetris', flappybird: 'Flappy Bird', pong: 'Pong'
+      tetris: 'Tetris', flappybird: 'Flappy Bird', pong: 'Pong', pacman: 'Pac-Man',
+      breakout: 'Breakout', dinorunner: 'Dino Runner', spaceinvaders: 'Space Invaders',
+      chess: 'Xadrez', connect4: 'Conecte 4', battleship: 'Batalha Naval', go: 'Go',
+      spider: 'Spider Solitaire', pyramid: 'Pirâmide', truco: 'Truco', uno: 'Uno',
+      mahjong: 'Mahjong', sokoban: 'Sokoban', nonogram: 'Nonogram', lightsout: 'Lights Out',
+      wordsearch: 'Caça-Palavras', anagram: 'Anagrama', stopgame: 'Stop!',
+      numble: 'Numble', cookieclicker: 'Cookie Clicker'
     };
 
     // Jogos rankeados por tempo (menor = melhor)
-    const TIME_RANKED = ['checkers', 'memory', 'freecell', 'minesweeper', 'sudoku', 'puzzle15'];
+    const TIME_RANKED = ['checkers', 'memory', 'freecell', 'minesweeper', 'sudoku', 'puzzle15', 'mahjong', 'sokoban', 'nonogram', 'lightsout', 'wordsearch'];
 
     // Jogos rankeados por score (maior = melhor, usa campo moves)
-    const SCORE_RANKED = ['game2048', 'tetris', 'flappybird'];
+    const SCORE_RANKED = ['game2048', 'tetris', 'flappybird', 'pacman', 'breakout', 'dinorunner', 'spaceinvaders', 'stopgame', 'anagram', 'numble', 'cookieclicker'];
 
     function formatRankTime(secs) {
       const m = Math.floor(secs / 60);

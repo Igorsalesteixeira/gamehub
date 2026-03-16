@@ -1,0 +1,334 @@
+/* === RESET & BASE === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #1a1a2e;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === TOPBAR === */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  z-index: 100;
+}
+
+.btn-back {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.2s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.3); }
+
+.game-title { font-size: 1.3rem; font-weight: 800; white-space: nowrap; }
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* === GAME AREA === */
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.8rem;
+  gap: 0.6rem;
+}
+
+/* === OPPONENTS === */
+.opponents {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 700px;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.opponent {
+  text-align: center;
+  background: rgba(255,255,255,0.05);
+  padding: 0.5rem 0.8rem;
+  border-radius: 12px;
+  min-width: 100px;
+  transition: background 0.3s;
+}
+.opponent.active-turn {
+  background: rgba(255,107,53,0.25);
+  box-shadow: 0 0 15px rgba(255,107,53,0.3);
+}
+
+.opp-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+
+.opp-cards {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 0.2rem;
+}
+
+.opp-card-back {
+  width: 22px;
+  height: 32px;
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.opp-count {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+}
+
+/* === TABLE CENTER === */
+.table-center {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.pile {
+  text-align: center;
+  cursor: pointer;
+}
+
+.pile-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 0.3rem;
+}
+
+.card-back {
+  width: 75px;
+  height: 108px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1565c0, #0d47a1);
+  border: 2px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.card-back:hover { transform: scale(1.05); }
+
+/* === UNO CARDS === */
+.uno-card {
+  width: 65px;
+  height: 95px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  user-select: none;
+  border: 3px solid rgba(255,255,255,0.3);
+  position: relative;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.uno-card:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
+
+.uno-card.color-red { background: linear-gradient(135deg, #e53935, #c62828); }
+.uno-card.color-blue { background: linear-gradient(135deg, #1e88e5, #1565c0); }
+.uno-card.color-green { background: linear-gradient(135deg, #43a047, #2e7d32); }
+.uno-card.color-yellow { background: linear-gradient(135deg, #fdd835, #f9a825); color: #333; text-shadow: none; }
+.uno-card.color-wild { background: linear-gradient(135deg, #333, #111); }
+
+.uno-card .card-value { font-size: 1.4rem; }
+.uno-card .card-label { font-size: 0.55rem; text-transform: uppercase; }
+
+.discard-pile .uno-card { cursor: default; }
+.discard-pile .uno-card:hover { transform: none; box-shadow: none; }
+
+/* === PLAYER HAND === */
+.player-section {
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+}
+
+.zone-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0.4rem;
+}
+
+.player-hand {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+
+.uno-badge {
+  background: #e53935;
+  color: #fff;
+  padding: 0.1rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+/* === BUTTONS === */
+.actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.3rem 0;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.4rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  transition: filter 0.15s, transform 0.1s;
+}
+.btn:hover { filter: brightness(1.1); transform: scale(1.03); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-orange { background: linear-gradient(135deg, #ff6b35, #e85d2a); }
+.btn-green { background: linear-gradient(135deg, #43a047, #2e7d32); }
+.btn-red { background: linear-gradient(135deg, #e53935, #c62828); }
+.btn-blue { background: linear-gradient(135deg, #1e88e5, #1565c0); }
+
+/* === COLOR PICKER === */
+.color-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-picker {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+
+.color-picker h3 { margin-bottom: 1rem; }
+
+.color-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.color-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #fff;
+  transition: transform 0.1s;
+}
+.color-btn:hover { transform: scale(1.08); }
+.color-red { background: #e53935; }
+.color-blue { background: #1e88e5; }
+.color-green { background: #43a047; }
+.color-yellow { background: #fdd835; color: #333; }
+
+/* === MESSAGE === */
+.message {
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  min-height: 1.5rem;
+  color: #ffd54f;
+  padding: 0.3rem;
+}
+
+/* === MODAL === */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  max-width: 90%;
+  width: 360px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.modal-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.modal h2 { margin-bottom: 0.5rem; }
+.modal p { color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
+
+/* === RESPONSIVE === */
+@media (max-width: 480px) {
+  .topbar { padding: 0.4rem 0.6rem; }
+  .game-title { font-size: 1rem; }
+  .stats { font-size: 0.8rem; }
+  .opponents { gap: 0.5rem; }
+  .opponent { min-width: 80px; padding: 0.3rem 0.5rem; }
+  .opp-name { font-size: 0.75rem; }
+  .uno-card { width: 52px; height: 76px; }
+  .uno-card .card-value { font-size: 1.1rem; }
+  .uno-card .card-label { font-size: 0.45rem; }
+  .card-back { width: 60px; height: 86px; }
+  .table-center { gap: 1rem; }
+}

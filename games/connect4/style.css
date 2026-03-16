@@ -1,0 +1,20 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.topbar { width: 100%; background: linear-gradient(135deg, #ff6b35, #e85d2a); padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem; }
+.topbar h1 { font-size: 1.2rem; font-weight: 800; }
+.back-btn { color: #fff; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+#game-container { padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.status { font-size: 1.1rem; font-weight: 700; color: #a78bfa; min-height: 1.5rem; }
+.board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; background: #1e3a8a; padding: 10px; border-radius: 12px; max-width: 420px; width: 100%; }
+.cell { aspect-ratio: 1; border-radius: 50%; background: #1a1a2e; cursor: pointer; transition: all 0.2s; border: 2px solid rgba(255,255,255,0.1); }
+.cell:hover { border-color: rgba(255,255,255,0.3); }
+.cell.red { background: #ef4444; border-color: #dc2626; box-shadow: inset 0 -3px 6px rgba(0,0,0,0.3); }
+.cell.yellow { background: #eab308; border-color: #ca8a04; box-shadow: inset 0 -3px 6px rgba(0,0,0,0.3); }
+.cell.win { animation: pulse 0.5s ease infinite alternate; }
+@keyframes pulse { to { transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.5); } }
+.btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #ff6b35, #e85d2a); color: #fff; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; }
+.btn:hover { transform: translateY(-2px); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: #16213e; border-radius: 16px; padding: 2rem; text-align: center; max-width: 320px; }
+.modal p { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
+@media (max-width: 480px) { .board { max-width: 320px; gap: 4px; padding: 8px; } }

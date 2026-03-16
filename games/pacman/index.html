@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Pac-Man Online Gratis - Game Hub</title>
+  <meta name="description" content="Jogue Pac-Man online e de graca. Coma todos os pontos, fuja dos fantasmas e bata seu recorde! Sem download." />
+  <meta name="keywords" content="pacman online, pac-man gratis, jogo pacman, pac man online" />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/games/pacman/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Pac-Man Online Gratis - Game Hub" />
+  <meta property="og:description" content="Jogue Pac-Man online e de graca. Coma os pontos e fuja dos fantasmas!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/games/pacman/" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pac-Man Online Gratis - Game Hub" />
+  <meta name="twitter:description" content="Jogue Pac-Man online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🟡 Pac-Man</h1>
+    <div class="stats">
+      <span>⭐ <span id="score-display">0</span></span>
+      <span>❤️ <span id="lives-display">3</span></span>
+      <span>🏆 <span id="best-display">0</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Overlay de inicio / game over -->
+    <div class="overlay" id="overlay">
+      <div class="overlay-content">
+        <div class="overlay-icon" id="overlay-icon">🟡</div>
+        <h2 id="overlay-title">Pac-Man</h2>
+        <p id="overlay-msg">Use as setas, WASD ou os botoes para jogar</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-orange" id="btn-start">Jogar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles mobile -->
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="up">▲</button>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="left">◄</button>
+      <button class="ctrl-btn" data-dir="down">▼</button>
+      <button class="ctrl-btn" data-dir="right">►</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=4';
+    initSidebar({ active: 'pacman' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

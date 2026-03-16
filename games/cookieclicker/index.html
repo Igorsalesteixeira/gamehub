@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookie Clicker - Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>🍪 Cookie Clicker</h1></div>
+  <div id="game-container">
+    <div class="cookie-count"><span id="count">0</span> cookies</div>
+    <div class="cps">por segundo: <span id="cps">0</span></div>
+    <div class="cookie-btn" id="cookie-btn">🍪</div>
+    <div class="shop" id="shop"></div>
+  </div>
+  <script type="module" src="game.js"></script>
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=4'; initSidebar({ active: 'cookie' });</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #1a1a2e;
+  color: #fff;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+}
+.btn-back {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.2s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.3); }
+.game-title { font-size: 1.25rem; font-weight: 800; }
+.stats { font-weight: 700; font-size: 1rem; }
+
+/* ===== Game Container ===== */
+.game-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+}
+
+.game-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  max-width: 900px;
+  width: 100%;
+}
+
+.grid-wrapper {
+  flex-shrink: 0;
+}
+
+#grid-canvas {
+  border-radius: 12px;
+  background: #16213e;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* ===== Word Panel ===== */
+.word-panel {
+  background: #16213e;
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 160px;
+}
+
+.word-panel h3 {
+  text-align: center;
+  margin-bottom: 0.75rem;
+  color: #ff6b35;
+  font-size: 1.1rem;
+}
+
+#word-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+#word-list li {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+
+#word-list li.found {
+  text-decoration: line-through;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+}
+
+/* ===== Buttons ===== */
+.btn {
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.2s;
+}
+.btn:active { transform: scale(0.96); }
+.btn-orange {
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  width: 100%;
+}
+.btn-orange:hover { filter: brightness(1.1); }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: #16213e;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.modal h2 { color: #4ade80; margin-bottom: 0.5rem; font-size: 1.5rem; }
+.modal p { margin-bottom: 1rem; color: #ccc; }
+
+/* ===== Responsive ===== */
+@media (max-width: 700px) {
+  .game-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .word-panel {
+    width: 100%;
+    min-width: unset;
+  }
+  #word-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #word-list li {
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,23 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.topbar { width: 100%; background: linear-gradient(135deg, #ff6b35, #e85d2a); padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem; }
+.topbar h1 { font-size: 1.2rem; font-weight: 800; }
+.back-btn { color: #fff; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+#game-container { padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; max-width: 500px; width: 100%; }
+.cookie-count { font-size: 2rem; font-weight: 800; color: #eab308; }
+.cps { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+.cookie-btn { font-size: 8rem; cursor: pointer; user-select: none; transition: transform 0.1s; filter: drop-shadow(0 4px 20px rgba(234,179,8,0.3)); }
+.cookie-btn:active { transform: scale(0.92); }
+.cookie-btn:hover { transform: scale(1.05); }
+.float-text { position: fixed; pointer-events: none; font-size: 1.2rem; font-weight: 800; color: #eab308; animation: floatUp 1s ease-out forwards; z-index: 50; }
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
+.shop { width: 100%; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+.shop-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.08); }
+.shop-item:hover { background: rgba(255,255,255,0.1); border-color: #ff6b35; }
+.shop-item.locked { opacity: 0.4; cursor: not-allowed; }
+.shop-icon { font-size: 1.8rem; }
+.shop-info { flex: 1; }
+.shop-name { font-weight: 800; font-size: 0.9rem; }
+.shop-desc { font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+.shop-cost { font-weight: 800; color: #eab308; font-size: 0.9rem; white-space: nowrap; }
+.shop-owned { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
