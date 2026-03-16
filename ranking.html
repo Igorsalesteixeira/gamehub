@@ -167,9 +167,6 @@
       <div class="logo">🎮 Game Hub</div>
       <p class="tagline">Ranking Semanal</p>
     </div>
-    <div class="header-auth">
-      <a href="index.html" class="back-link">← Voltar ao Lobby</a>
-    </div>
   </header>
 
   <main class="ranking-container">
@@ -201,6 +198,8 @@
 
   <script type="module">
     import { supabase } from './supabase.js';
+    import { initSidebar } from './sidebar.js';
+    initSidebar({ active: 'ranking' });
 
     const tableEl = document.getElementById('ranking-table');
     const timerEl = document.getElementById('timer');
