@@ -24,6 +24,10 @@ let state = {
 // source: 'tableau' | 'waste' | 'foundation'
 let selected = null;
 
+// ---- Desktop Drag Ghost ----
+let desktopGhost = null;
+let ghostOffsetX = 0, ghostOffsetY = 0;
+
 let timerInterval  = null;
 let secondsElapsed = 0;
 
@@ -178,12 +182,14 @@ function renderWaste() {
   // Mouse drag (desktop)
   el.draggable = true;
   el.addEventListener('dragstart', e => {
+    selected = null;
+    el.classList.remove('selected');
+    el.style.opacity = '0';
     e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-    // Cria imagem de arraste invisível para eliminar o ghost nativo
     const emptyImg = document.createElement('canvas');
     emptyImg.width = 1; emptyImg.height = 1;
     e.dataTransfer.setDragImage(emptyImg, 0, 0);
-    // Mostra a carta anterior (peek) e esconde a atual
+    createDesktopGhost({ source: 'waste' }, el, e.clientX, e.clientY);
     setTimeout(() => {
       wasteEl.innerHTML = '';
       if (state.waste.length >= 2) {
@@ -198,7 +204,7 @@ function renderWaste() {
     }, 0);
   });
   el.addEventListener('dragend', () => {
-    // Re-renderiza o descarte ao soltar (independente de onde caiu)
+    removeDesktopGhost();
     renderWaste();
   });
 
@@ -225,6 +231,22 @@ function renderFoundations() {
       el.style.height = '100%';
       el.style.cursor = 'pointer';
       el.addEventListener('click', () => handleFoundationClick(suit));
+
+      // Drag da fundação de volta ao tableau (desktop)
+      el.draggable = true;
+      el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'foundation', suit }));
+        const emptyImg = document.createElement('canvas');
+        emptyImg.width = 1; emptyImg.height = 1;
+        e.dataTransfer.setDragImage(emptyImg, 0, 0);
+        createDesktopGhost({ source: 'foundation', suit }, el, e.clientX, e.clientY);
+        setTimeout(() => { el.style.opacity = '0.2'; }, 0);
+      });
+      el.addEventListener('dragend', () => { removeDesktopGhost(); renderFoundations(); });
+
+      // Touch drag da fundação de volta ao tableau
+      initTouchDrag(el, { source: 'foundation', suit }, () => handleFoundationClick(suit), null);
+
       fEl.appendChild(el);
     }
 
@@ -298,9 +320,16 @@ function renderTableau() {
         el.addEventListener('dragstart', e => {
           if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
           e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
-          setTimeout(() => el.classList.add('dragging'), 0);
+          const emptyImg = document.createElement('canvas');
+          emptyImg.width = 1; emptyImg.height = 1;
+          e.dataTransfer.setDragImage(emptyImg, 0, 0);
+          createDesktopGhost({ source: 'tableau', colIndex: c, cardIndex: i }, el, e.clientX, e.clientY);
+          setTimeout(() => {
+            const colDiv = document.getElementById(`col${c}`);
+            Array.from(colDiv.querySelectorAll('.card')).slice(i).forEach(cd => { cd.style.opacity = '0.25'; });
+          }, 0);
         });
-        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        el.addEventListener('dragend', () => { removeDesktopGhost(); render(); });
       }
 
       el.style.position = 'absolute';
@@ -368,6 +397,51 @@ function getCardDims() {
 }
 
 const CARD_OFFSET = () => getCardDims().offsetUp;
+
+function createDesktopGhost(data, sourceEl, mouseX, mouseY) {
+  removeDesktopGhost();
+  const dims = getCardDims();
+  const rect = sourceEl.getBoundingClientRect();
+  ghostOffsetX = mouseX - rect.left;
+  ghostOffsetY = mouseY - rect.top;
+
+  if (data.source === 'tableau') {
+    const stack = state.tableau[data.colIndex].slice(data.cardIndex);
+    const off = dims.offsetUp;
+    const totalH = dims.h + (stack.length - 1) * off;
+    desktopGhost = document.createElement('div');
+    desktopGhost.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.9;
+      width:${dims.w}px;height:${totalH}px;left:${rect.left}px;top:${rect.top}px;transition:none;`;
+    stack.forEach((card, idx) => {
+      const cardEl = makeFaceUpCard(card);
+      cardEl.style.cssText = `position:absolute;top:${idx * off}px;width:${dims.w}px;height:${dims.h}px;border-radius:10px;`;
+      desktopGhost.appendChild(cardEl);
+    });
+  } else {
+    let card;
+    if (data.source === 'waste') card = state.waste[state.waste.length - 1];
+    else if (data.source === 'foundation') {
+      const pile = state.foundations[data.suit];
+      card = pile[pile.length - 1];
+    }
+    if (!card) return;
+    desktopGhost = makeFaceUpCard(card);
+    desktopGhost.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.9;
+      width:${dims.w}px;height:${dims.h}px;left:${rect.left}px;top:${rect.top}px;transition:none;
+      border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.3);`;
+  }
+  document.body.appendChild(desktopGhost);
+}
+
+function moveDesktopGhost(mouseX, mouseY) {
+  if (!desktopGhost) return;
+  desktopGhost.style.left = (mouseX - ghostOffsetX) + 'px';
+  desktopGhost.style.top  = (mouseY - ghostOffsetY) + 'px';
+}
+
+function removeDesktopGhost() {
+  if (desktopGhost) { desktopGhost.remove(); desktopGhost = null; }
+}
 
 function buildStackGhost(dragData, rect) {
   if (dragData.source !== 'tableau') {
@@ -478,6 +552,12 @@ document.addEventListener('touchmove', e => {
   }
 }, { passive: false });
 
+// Move o ghost do desktop durante o drag
+document.addEventListener('drag', e => {
+  if (!desktopGhost || (e.clientX === 0 && e.clientY === 0)) return;
+  moveDesktopGhost(e.clientX, e.clientY);
+});
+
 document.addEventListener('touchend', e => {
   if (!touchDrag) return;
   const touch = e.changedTouches[0];
@@ -525,9 +605,9 @@ function makeFaceUpCard(card) {
   el.className = `card face-up ${isRed ? 'red' : 'black'}`;
   const r = RANKS[card.rank];
   el.innerHTML = `
-    <div class="card-tl">${r}</div>
+    <div class="card-tl"><span class="corner-rank">${r}</span><span class="corner-suit">${card.suit}</span></div>
     <div class="card-center">${card.suit}</div>
-    <div class="card-br">${r}</div>
+    <div class="card-br"><span class="corner-rank">${r}</span><span class="corner-suit">${card.suit}</span></div>
   `;
   return el;
 }
