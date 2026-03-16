@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head><title>Gerar OG Image</title></head>
+<body>
+<p>Clique no botao e salve a imagem que aparecer (botao direito > Salvar como > og-image.png)</p>
+<button id="gen">Gerar Imagem</button>
+<br><br>
+<canvas id="c" width="1200" height="630"></canvas>
+<script>
+document.getElementById('gen').onclick = function() {
+  const c = document.getElementById('c');
+  const ctx = c.getContext('2d');
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 1200, 630);
+  grad.addColorStop(0, '#ff6b35');
+  grad.addColorStop(1, '#f7c59f');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1200, 630);
+
+  // Emoji
+  ctx.textAlign = 'center';
+  ctx.font = '100px Arial';
+  ctx.fillText('🎮', 600, 230);
+
+  // Title
+  ctx.font = 'bold 72px Arial';
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Game Hub', 600, 350);
+
+  // Subtitle
+  ctx.font = '32px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText('Jogos online e gratis — direto no navegador!', 600, 420);
+
+  // Games
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.fillText('🃏 Paciencia  ·  🐍 Cobrinha  ·  🏆 Ranking', 600, 520);
+
+  alert('Imagem gerada! Clique com o botao direito no canvas e salve como og-image.png');
+};
+</script>
+</body>
+</html>
