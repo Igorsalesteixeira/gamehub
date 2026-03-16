@@ -184,7 +184,6 @@ function renderWaste() {
   el.addEventListener('dragstart', e => {
     selected = null;
     el.classList.remove('selected');
-    el.style.opacity = '0';
     e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
     const emptyImg = document.createElement('canvas');
     emptyImg.width = 1; emptyImg.height = 1;
@@ -512,9 +511,14 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
         prevEl.style.pointerEvents = 'none';
         wasteEl.appendChild(prevEl);
       }
-      // Ghost invisível (necessário para o touchDrag funcionar)
-      ghost = document.createElement('div');
-      ghost.style.cssText = 'position:fixed;z-index:-1;pointer-events:none;width:0;height:0;';
+      // Ghost visível da carta arrastada (mobile e desktop touch)
+      const wasteTopCard = state.waste[state.waste.length - 1];
+      ghost = makeFaceUpCard(wasteTopCard);
+      ghost.style.cssText = `position:fixed;z-index:9999;pointer-events:none;opacity:0.9;
+        width:${rect.width}px;height:${rect.height}px;
+        left:${rect.left}px;top:${rect.top}px;transition:none;border-radius:10px;
+        box-shadow:0 4px 16px rgba(0,0,0,0.3);`;
+      document.body.appendChild(ghost);
     } else if (actualData.source === 'tableau') {
       ghost = buildStackGhost(actualData, rect);
       document.body.appendChild(ghost);
@@ -553,9 +557,13 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 // Move o ghost do desktop durante o drag
+// 'drag' cobre o elemento arrastado; 'dragover' cobre o elemento sob o cursor — juntos garantem posição correta
 document.addEventListener('drag', e => {
   if (!desktopGhost || (e.clientX === 0 && e.clientY === 0)) return;
   moveDesktopGhost(e.clientX, e.clientY);
+});
+document.addEventListener('dragover', e => {
+  if (desktopGhost) moveDesktopGhost(e.clientX, e.clientY);
 });
 
 document.addEventListener('touchend', e => {
