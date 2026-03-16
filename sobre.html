@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sobre - Game Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .about-section {
+      background: #fff;
+      border-radius: 18px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      border: 2px solid transparent;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .about-section:hover {
+      box-shadow: 0 6px 24px rgba(255, 107, 53, 0.15);
+    }
+
+    .about-section h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ff6b35;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .about-section p,
+    .about-section li {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    .about-section ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+    }
+
+    .about-section ul li {
+      background: linear-gradient(135deg, #ff6b35, #f7c59f);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+    }
+
+    .back-link {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.5);
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .back-link:hover {
+      background: rgba(255,255,255,0.4);
+    }
+
+    .github-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #ff6b35;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 999px;
+      margin-top: 0.8rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .github-link:hover {
+      background: #e55a28;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">🎮 Game Hub</div>
+      <p class="tagline">Sobre o projeto</p>
+    </div>
+    <div class="header-auth">
+      <a href="index.html" class="back-link">&#8592; Voltar ao lobby</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <h2 class="section-title">Sobre o Game Hub</h2>
+
+    <div class="about-section">
+      <h3>🎮 O que é o Game Hub?</h3>
+      <p>
+        O Game Hub é uma plataforma gratuita de jogos online, criada para reunir jogos
+        classicos e divertidos em um unico lugar. Todos os jogos rodam diretamente no
+        navegador, sem necessidade de download ou instalacao. Basta acessar, escolher
+        um jogo e se divertir!
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3>👨‍💻 Quem criou?</h3>
+      <p>
+        O Game Hub foi desenvolvido por <strong>Igor Sales Teixeira</strong>, com o
+        objetivo de praticar desenvolvimento web e criar algo divertido e acessivel
+        para todos.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3>🛠️ Tecnologias utilizadas</h3>
+      <p>O projeto foi construido usando tecnologias web modernas:</p>
+      <ul>
+        <li>HTML5</li>
+        <li>CSS3</li>
+        <li>JavaScript</li>
+      </ul>
+    </div>
+
+    <div class="about-section">
+      <h3>📬 Contato e codigo-fonte</h3>
+      <p>
+        O projeto e de codigo aberto! Voce pode conferir o repositorio, reportar
+        problemas ou contribuir pelo GitHub:
+      </p>
+      <a href="https://github.com/Igorsalesteixeira/gamehub" target="_blank" rel="noopener noreferrer" class="github-link">
+        ⭐ Ver no GitHub
+      </a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Feito com ❤️ &mdash; Game Hub &copy; 2024</p>
+  </footer>
+</body>
+</html>
