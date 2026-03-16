@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apoie o Game Hub - Doacao</title>
+  <meta name="description" content="Apoie o Game Hub com uma doacao! Ajude a manter a plataforma de jogos online gratuita." />
+  <link rel="canonical" href="https://igorsalesteixeira.github.io/gamehub/doacao.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Apoie o Game Hub - Doacao" />
+  <meta property="og:description" content="Apoie o Game Hub com uma doacao e ajude a manter os jogos online gratuitos!" />
+  <meta property="og:url" content="https://igorsalesteixeira.github.io/gamehub/doacao.html" />
+  <meta property="og:image" content="https://igorsalesteixeira.github.io/gamehub/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <style>
+    .donate-content {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .donate-hero {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .donate-hero-icon {
+      font-size: 4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .donate-hero h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .donate-hero p {
+      font-size: 1.05rem;
+      color: #666;
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .donate-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .donate-card:hover {
+      box-shadow: 0 6px 24px rgba(255, 107, 53, 0.15);
+    }
+
+    .donate-card h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ff6b35;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .donate-card p {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.7;
+    }
+
+    /* PIX Section */
+    .pix-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .pix-key-box {
+      background: #f0f4ff;
+      border: 2px dashed #ff6b35;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .pix-key-label {
+      font-size: 0.8rem;
+      color: #888;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pix-key-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #333;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .btn-copy-pix {
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 0.5rem 1.2rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-copy-pix:hover {
+      background: #e55a28;
+      transform: translateY(-2px);
+    }
+
+    /* Suggested values */
+    .donate-values {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .donate-value {
+      background: linear-gradient(135deg, #ff6b35, #f7c59f);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: none;
+      cursor: default;
+    }
+
+    /* Thank you section */
+    .thanks-card {
+      background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 100%);
+      color: #fff;
+      text-align: center;
+    }
+
+    .thanks-card h3 {
+      color: #fff;
+      justify-content: center;
+    }
+
+    .thanks-card p {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .thanks-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 480px) {
+      .donate-hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .donate-hero-icon {
+        font-size: 3rem;
+      }
+
+      .donate-card {
+        padding: 1.3rem;
+        border-radius: 14px;
+      }
+
+      .pix-key-box {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">🎮 Game Hub</div>
+      <p class="tagline">Apoie o projeto</p>
+    </div>
+  </header>
+
+  <main class="donate-content">
+    <div class="donate-hero">
+      <div class="donate-hero-icon">☕</div>
+      <h1>Apoie o Game Hub</h1>
+      <p>
+        O Game Hub e 100% gratuito e sem anuncios invasivos.
+        Se voce gosta do projeto, considere fazer uma doacao para ajudar
+        a manter o site no ar e desenvolver novos jogos!
+      </p>
+    </div>
+
+    <!-- PIX -->
+    <div class="donate-card">
+      <h3>📱 Doe via PIX</h3>
+      <p>Rapido, seguro e sem taxas. Escaneie o QR Code ou copie a chave abaixo:</p>
+      <div class="pix-container">
+        <div class="pix-key-box">
+          <div>
+            <div class="pix-key-label">Chave PIX</div>
+            <div class="pix-key-value" id="pix-key">c5f908ef-651c-4604-8c87-d36b8f0e5749</div>
+          </div>
+          <button class="btn-copy-pix" id="btn-copy-pix">Copiar</button>
+        </div>
+        <div class="donate-values">
+          <span class="donate-value">R$ 2</span>
+          <span class="donate-value">R$ 5</span>
+          <span class="donate-value">R$ 10</span>
+          <span class="donate-value">R$ 25</span>
+          <span class="donate-value">Qualquer valor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why donate -->
+    <div class="donate-card">
+      <h3>💡 Para que serve sua doacao?</h3>
+      <p>Sua contribuicao ajuda a:</p>
+      <ul style="list-style: none; padding: 0; margin-top: 0.8rem;">
+        <li style="padding: 0.4rem 0; padding-left: 1.4rem; position: relative; color: #555; font-size: 0.95rem; line-height: 1.7;">
+          <span style="position: absolute; left: 0; color: #ff6b35; font-weight: 800;">✓</span>
+          Manter o site online e gratuito para todos
+        </li>
+        <li style="padding: 0.4rem 0; padding-left: 1.4rem; position: relative; color: #555; font-size: 0.95rem; line-height: 1.7;">
+          <span style="position: absolute; left: 0; color: #ff6b35; font-weight: 800;">✓</span>
+          Desenvolver novos jogos (Dama, Memoria e mais!)
+        </li>
+        <li style="padding: 0.4rem 0; padding-left: 1.4rem; position: relative; color: #555; font-size: 0.95rem; line-height: 1.7;">
+          <span style="position: absolute; left: 0; color: #ff6b35; font-weight: 800;">✓</span>
+          Melhorar a experiencia em todos os dispositivos
+        </li>
+        <li style="padding: 0.4rem 0; padding-left: 1.4rem; position: relative; color: #555; font-size: 0.95rem; line-height: 1.7;">
+          <span style="position: absolute; left: 0; color: #ff6b35; font-weight: 800;">✓</span>
+          Criar recursos como ranking, perfil e conquistas
+        </li>
+      </ul>
+    </div>
+
+    <!-- Thank you -->
+    <div class="donate-card thanks-card">
+      <div class="thanks-icon">❤️</div>
+      <h3>Obrigado!</h3>
+      <p>
+        Cada doacao, por menor que seja, faz a diferenca.
+        Muito obrigado por apoiar o Game Hub!
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Feito com ❤️ &mdash; Game Hub &copy; 2025</p>
+  </footer>
+
+  <script>
+    document.getElementById('btn-copy-pix').addEventListener('click', function() {
+      const pixKey = document.getElementById('pix-key').textContent;
+      navigator.clipboard.writeText(pixKey).then(() => {
+        this.textContent = 'Copiado!';
+        setTimeout(() => { this.textContent = 'Copiar'; }, 2000);
+      });
+    });
+  </script>
+
+  <script type="module">
+    import { initSidebar } from './sidebar.js';
+    initSidebar({ active: 'doacao' });
+  </script>
+</body>
+</html>

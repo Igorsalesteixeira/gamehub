@@ -246,6 +246,11 @@ export function initSidebar(options = {}) {
         <span class="sidebar-icon">🔒</span>
         <span>Privacidade</span>
       </a>
+      <div class="sidebar-divider"></div>
+      <a href="${base}doacao.html" class="sidebar-link ${isActive('doacao')}">
+        <span class="sidebar-icon">☕</span>
+        <span>Apoie o Projeto</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <span>Game Hub &copy; 2025</span>
