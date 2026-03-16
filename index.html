@@ -36,14 +36,15 @@
       </a>
 
       <!-- Cobrinha -->
-      <div class="game-card disabled">
+      <a href="games/snake/index.html" class="game-card">
         <div class="game-icon">🐍</div>
         <div class="game-info">
           <h3>Cobrinha</h3>
           <p>Coma as frutas e cresça sem bater nas paredes</p>
         </div>
-        <span class="badge badge-soon">Em breve</span>
-      </div>
+        <div class="game-stats" id="stats-snake"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
 
       <!-- Dama -->
       <div class="game-card disabled">
@@ -82,31 +83,43 @@
       window.location.href = 'auth.html';
     }
     renderAuth(session);
-    if (session) loadStats(session.user.id);
+    if (session) loadAllStats(session.user.id);
 
     supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) window.location.href = 'auth.html';
       renderAuth(session);
-      if (session) loadStats(session.user.id);
+      if (session) loadAllStats(session.user.id);
     });
 
     // ---- Stats ----
-    async function loadStats(userId) {
+    async function loadAllStats(userId) {
       const { data, error } = await supabase
         .from('game_stats')
-        .select('result')
-        .eq('user_id', userId)
-        .eq('game', 'solitaire');
+        .select('game, result, moves')
+        .eq('user_id', userId);
 
-      const el = document.getElementById('stats-solitaire');
-      if (error || !data || data.length === 0) {
-        el.textContent = 'Nenhuma partida ainda';
-        return;
+      if (error || !data) return;
+
+      // Paciencia
+      const solData = data.filter(r => r.game === 'solitaire');
+      const solEl = document.getElementById('stats-solitaire');
+      if (solData.length === 0) {
+        solEl.textContent = 'Nenhuma partida ainda';
+      } else {
+        const wins = solData.filter(r => r.result === 'win').length;
+        const pct = Math.round((wins / solData.length) * 100);
+        solEl.innerHTML = `<span>🎮 ${solData.length} partidas</span> · <span>🏆 ${pct}% vitórias</span>`;
       }
-      const total = data.length;
-      const wins = data.filter(r => r.result === 'win').length;
-      const pct = Math.round((wins / total) * 100);
-      el.innerHTML = `<span>🎮 ${total} partidas</span> · <span>🏆 ${pct}% vitórias</span>`;
+
+      // Cobrinha
+      const snkData = data.filter(r => r.game === 'snake');
+      const snkEl = document.getElementById('stats-snake');
+      if (snkData.length === 0) {
+        snkEl.textContent = 'Nenhuma partida ainda';
+      } else {
+        const best = Math.max(...snkData.map(r => r.moves || 0));
+        snkEl.innerHTML = `<span>🎮 ${snkData.length} partidas</span> · <span>🍎 Recorde: ${best}</span>`;
+      }
     }
 
     function renderAuth(session) {

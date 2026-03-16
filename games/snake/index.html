@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Cobrinha 🐍</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🐍 Cobrinha</h1>
+    <div class="stats">
+      <span>🍎 <span id="score-display">0</span></span>
+      <span>🏆 <span id="best-display">0</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Overlay de inicio / game over -->
+    <div class="overlay" id="overlay">
+      <div class="overlay-content">
+        <div class="overlay-icon" id="overlay-icon">🐍</div>
+        <h2 id="overlay-title">Cobrinha</h2>
+        <p id="overlay-msg">Use as setas ou deslize para jogar</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-orange" id="btn-start">Jogar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles mobile -->
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="up">▲</button>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-dir="left">◄</button>
+      <button class="ctrl-btn" data-dir="down">▼</button>
+      <button class="ctrl-btn" data-dir="right">►</button>
+    </div>
+  </div>
+
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>
