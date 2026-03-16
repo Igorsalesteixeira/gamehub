@@ -31,6 +31,7 @@
           <h3>Paciência</h3>
           <p>Mova as cartas para as fundações do Ás ao Rei</p>
         </div>
+        <div class="game-stats" id="stats-solitaire"></div>
         <span class="badge badge-play">Jogar</span>
       </a>
 
@@ -81,11 +82,32 @@
       window.location.href = 'auth.html';
     }
     renderAuth(session);
+    if (session) loadStats(session.user.id);
 
     supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) window.location.href = 'auth.html';
       renderAuth(session);
+      if (session) loadStats(session.user.id);
     });
+
+    // ---- Stats ----
+    async function loadStats(userId) {
+      const { data, error } = await supabase
+        .from('game_stats')
+        .select('result')
+        .eq('user_id', userId)
+        .eq('game', 'solitaire');
+
+      const el = document.getElementById('stats-solitaire');
+      if (error || !data || data.length === 0) {
+        el.textContent = 'Nenhuma partida ainda';
+        return;
+      }
+      const total = data.length;
+      const wins = data.filter(r => r.result === 'win').length;
+      const pct = Math.round((wins / total) * 100);
+      el.innerHTML = `<span>🎮 ${total} partidas</span> · <span>🏆 ${pct}% vitórias</span>`;
+    }
 
     function renderAuth(session) {
       if (session) {

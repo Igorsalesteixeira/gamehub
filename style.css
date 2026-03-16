@@ -173,6 +173,19 @@ body {
   line-height: 1.4;
 }
 
+/* ===== GAME STATS (inside card) ===== */
+.game-stats {
+  font-size: 0.78rem;
+  color: #888;
+  font-weight: 600;
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+.game-stats span {
+  white-space: nowrap;
+}
+
 /* ===== BADGES ===== */
 .badge {
   display: inline-block;

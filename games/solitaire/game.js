@@ -1,6 +1,7 @@
 // =============================================
 //  PACIÊNCIA (Klondike Solitaire) — game.js
 // =============================================
+import { supabase } from '../../supabase.js';
 
 const IS_TOUCH = 'ontouchstart' in window;
 const SUITS  = ['♠','♥','♦','♣'];
@@ -70,6 +71,11 @@ function shuffle(arr) {
 //  NEW GAME
 // =============================================
 function newGame() {
+  // Salva derrota se o jogo anterior tinha começado e não foi vencido
+  if (gameStarted && !checkWin()) {
+    saveGameStat('loss');
+  }
+  gameStarted = false;
   selected = null;
   clearInterval(timerInterval);
   secondsElapsed = 0;
@@ -837,6 +843,8 @@ function checkWin() {
 
 function showWin() {
   clearInterval(timerInterval);
+  saveGameStat('win');
+  gameStarted = false; // evita salvar 'loss' ao clicar "Novo Jogo" depois
   const m = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
   const s = String(secondsElapsed % 60).padStart(2,'0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
@@ -847,6 +855,7 @@ function showWin() {
 //  UNDO
 // =============================================
 function saveHistory() {
+  gameStarted = true;
   const snap = {
     tableau:     state.tableau.map(col => col.map(c => ({ ...c }))),
     stock:       state.stock.map(c => ({ ...c })),
@@ -873,6 +882,27 @@ function undo() {
   state.moves       = snap.moves;
   selected = null;
   render();
+}
+
+// =============================================
+//  STATS — salvar no Supabase
+// =============================================
+let gameStarted = false; // true quando o jogador fez pelo menos 1 movimento
+
+async function saveGameStat(result) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'solitaire',
+      result,
+      moves: state.moves,
+      time_seconds: secondsElapsed,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
 
 // =============================================
