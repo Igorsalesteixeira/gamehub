@@ -1,5 +1,5 @@
 // =============================================
-//  Space Invaders — Game Hub
+//  Space Invaders — Games Hub
 // =============================================
 import { supabase } from '../../supabase.js';
 

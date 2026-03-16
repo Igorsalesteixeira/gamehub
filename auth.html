@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrar — Game Hub 🎮</title>
+  <title>Entrar — Games Hub 🎮</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="auth.css" />
@@ -16,7 +16,7 @@
     <a href="index.html" class="back-link">← Voltar ao lobby</a>
 
     <div class="auth-card">
-      <div class="auth-logo">🎮 Game Hub</div>
+      <div class="auth-logo">🎮 Games Hub</div>
 
       <!-- SSO Buttons -->
       <div class="sso-buttons">
@@ -79,7 +79,7 @@
     if (session) window.location.href = 'index.html';
 
     // ---- SSO ----
-    const SITE_URL = 'https://igorsalesteixeira.github.io/gamehub';
+    const SITE_URL = 'https://gameshub.com.br';
 
     window.loginWithGoogle = async function() {
       const { error } = await supabase.auth.signInWithOAuth({

@@ -214,7 +214,7 @@ export function initSidebar(options = {}) {
     <div class="sidebar-header">
       <a href="${base}index.html" class="sidebar-brand">
         <span class="sidebar-logo">🎮</span>
-        <span class="sidebar-title">Game Hub</span>
+        <span class="sidebar-title">Games Hub</span>
       </a>
       <button class="sidebar-close" id="sidebar-close" aria-label="Fechar menu">&times;</button>
     </div>
@@ -292,7 +292,7 @@ export function initSidebar(options = {}) {
       </a>
     </nav>
     <div class="sidebar-footer">
-      <span>Game Hub &copy; 2025</span>
+      <span>Games Hub &copy; 2025</span>
     </div>
   `;
   document.body.appendChild(aside);

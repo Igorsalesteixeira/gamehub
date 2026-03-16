@@ -1,5 +1,5 @@
 """
-update-seo.py — Atualiza automaticamente SEO do Game Hub
+update-seo.py — Atualiza automaticamente SEO do Games Hub
 Executa: python update-seo.py
 
 Le a pasta games/ para detectar todos os jogos e atualiza:
@@ -21,7 +21,7 @@ from datetime import datetime
 if sys.stdout.encoding != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_URL = "https://igorsalesteixeira.github.io/gamehub"
+BASE_URL = "https://gameshub.com.br"
 ROOT = Path(__file__).parent
 
 # Mapeamento: pasta -> (nome exibicao, genero, emoji, keywords)
@@ -128,7 +128,7 @@ def update_index_meta(games):
     short_names = [g["name"].split(" (")[0] for g in games]
 
     # 1. Atualizar <title>
-    new_title = f"Game Hub - {n} Jogos Online Gratis | {', '.join(short_names[:3])} e mais"
+    new_title = f"Games Hub - {n} Jogos Online Gratis | {', '.join(short_names[:3])} e mais"
     old_title_match = re.search(r'<title>(.*?)</title>', content)
     if old_title_match and old_title_match.group(1) != new_title:
         content = content.replace(old_title_match.group(0), f'<title>{new_title}</title>')
@@ -154,7 +154,7 @@ def update_index_meta(games):
         print(f"  [ATUALIZADO] meta keywords")
 
     # 4. Atualizar OG title e description
-    og_title = f"Game Hub - {n} Jogos Online Gratis"
+    og_title = f"Games Hub - {n} Jogos Online Gratis"
     top_names = ', '.join(short_names[:7])
     og_desc = f"Jogue {n} jogos gratis no navegador: {top_names} e muito mais. Ranking semanal e estatisticas!"
 
@@ -212,7 +212,7 @@ def update_index_meta(games):
     item_list = {
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": "Jogos disponíveis no Game Hub",
+        "name": "Jogos disponíveis no Games Hub",
         "numberOfItems": n,
         "itemListElement": items
     }
@@ -241,7 +241,7 @@ def update_index_meta(games):
 
 def main():
     print("=" * 50)
-    print("  Game Hub — Atualizacao SEO Automatica")
+    print("  Games Hub — Atualizacao SEO Automatica")
     print("=" * 50)
     print()
 

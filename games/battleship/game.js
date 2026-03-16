@@ -1,5 +1,5 @@
 // =============================================
-//  Batalha Naval — Game Hub
+//  Batalha Naval — Games Hub
 // =============================================
 import { supabase } from '../../supabase.js';
 
