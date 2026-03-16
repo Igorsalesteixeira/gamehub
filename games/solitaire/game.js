@@ -169,15 +169,13 @@ function renderWaste() {
     () => handleWasteClick(),
     () => { if (topCard) tryAutoMove(topCard, 'waste'); }
   );
-  // HTML5 drag só no desktop (no iOS, draggable causa ghost nativo do navegador)
-  if (!IS_TOUCH) {
-    el.draggable = true;
-    el.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-      setTimeout(() => el.classList.add('dragging'), 0);
-    });
-    el.addEventListener('dragend', () => el.classList.remove('dragging'));
-  }
+  // Mouse drag (desktop)
+  el.draggable = true;
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
+    setTimeout(() => el.classList.add('dragging'), 0);
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
 
   wasteEl.appendChild(el);
   wasteEl.style.width = dims.w + 'px';
@@ -270,16 +268,14 @@ function renderTableau() {
           () => tryAutoMove(col[i], 'tableau', c, i)
         );
 
-        // Mouse drag (desktop only — no iOS para evitar ghost nativo)
-        if (!IS_TOUCH) {
-          el.draggable = true;
-          el.addEventListener('dragstart', e => {
-            if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
-            e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
-            setTimeout(() => el.classList.add('dragging'), 0);
-          });
-          el.addEventListener('dragend', () => el.classList.remove('dragging'));
-        }
+        // Mouse drag (desktop)
+        el.draggable = true;
+        el.addEventListener('dragstart', e => {
+          if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
+          e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
+          setTimeout(() => el.classList.add('dragging'), 0);
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
       }
 
       el.style.position = 'absolute';

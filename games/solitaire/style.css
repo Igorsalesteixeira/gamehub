@@ -255,7 +255,6 @@ body {
   border: 1px solid rgba(0,0,0,0.15);
   flex-shrink: 0;
   -webkit-touch-callout: none;
-  -webkit-user-drag: none;
 }
 
 .card.face-down {
