@@ -2,6 +2,7 @@
 //  PACIÊNCIA (Klondike Solitaire) — game.js
 // =============================================
 
+const IS_TOUCH = 'ontouchstart' in window;
 const SUITS  = ['♠','♥','♦','♣'];
 const RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS   = new Set(['♥','♦']);
@@ -168,12 +169,15 @@ function renderWaste() {
     () => handleWasteClick(),
     () => { if (topCard) tryAutoMove(topCard, 'waste'); }
   );
-  el.draggable = true;
-  el.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
-    setTimeout(() => el.classList.add('dragging'), 0);
-  });
-  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  // HTML5 drag só no desktop (no iOS, draggable causa ghost nativo do navegador)
+  if (!IS_TOUCH) {
+    el.draggable = true;
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'waste' }));
+      setTimeout(() => el.classList.add('dragging'), 0);
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  }
 
   wasteEl.appendChild(el);
   wasteEl.style.width = dims.w + 'px';
@@ -266,14 +270,16 @@ function renderTableau() {
           () => tryAutoMove(col[i], 'tableau', c, i)
         );
 
-        // Mouse drag (desktop)
-        el.draggable = true;
-        el.addEventListener('dragstart', e => {
-          if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
-          e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
-          setTimeout(() => el.classList.add('dragging'), 0);
-        });
-        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        // Mouse drag (desktop only — no iOS para evitar ghost nativo)
+        if (!IS_TOUCH) {
+          el.draggable = true;
+          el.addEventListener('dragstart', e => {
+            if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
+            e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
+            setTimeout(() => el.classList.add('dragging'), 0);
+          });
+          el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        }
       }
 
       el.style.position = 'absolute';
@@ -400,17 +406,14 @@ function initTouchDrag(el, dragData, onSingleTap, onDoubleTap) {
     const stackEls = [];
 
     if (actualData.source === 'waste') {
-      // Waste: esconde a carta de cima e mostra a anterior por baixo
-      el.style.display = 'none';
-      stackEls.push(el);
-      // Cria dinamicamente a carta anterior (se existir)
+      // Waste: REMOVE tudo e mostra SÓ a carta anterior
+      wasteEl.innerHTML = '';
       if (state.waste.length >= 2) {
         const prevCard = state.waste[state.waste.length - 2];
         const prevEl = makeFaceUpCard(prevCard);
         prevEl.style.position = 'absolute';
         prevEl.style.top = '0';
         prevEl.style.left = '0';
-        prevEl.style.zIndex = 1;
         prevEl.style.pointerEvents = 'none';
         wasteEl.appendChild(prevEl);
       }
