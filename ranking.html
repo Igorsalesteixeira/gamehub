@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ranking Semanal — Game Hub 🏆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <style>
+    .ranking-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .ranking-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .ranking-header h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #333;
+    }
+
+    .ranking-timer {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 0.3rem;
+      font-weight: 600;
+    }
+
+    .ranking-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ranking-tab {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 999px;
+      background: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ranking-tab:hover { border-color: #ff6b35; color: #ff6b35; }
+
+    .ranking-tab.active {
+      background: #ff6b35;
+      color: #fff;
+      border-color: #ff6b35;
+    }
+
+    .ranking-table {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .ranking-row {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 1rem;
+      transition: background 0.15s;
+    }
+
+    .ranking-row:last-child { border-bottom: none; }
+    .ranking-row:hover { background: #fafafa; }
+
+    .ranking-row.top-1 { background: linear-gradient(90deg, #fff9e6, #fff); }
+    .ranking-row.top-2 { background: linear-gradient(90deg, #f5f5f5, #fff); }
+    .ranking-row.top-3 { background: linear-gradient(90deg, #fdf0e8, #fff); }
+
+    .ranking-pos {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .pos-1 { background: #ffd700; color: #7a6200; }
+    .pos-2 { background: #c0c0c0; color: #555; }
+    .pos-3 { background: #cd7f32; color: #fff; }
+    .pos-other { background: #f0f0f0; color: #888; }
+
+    .ranking-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .ranking-name.is-me { color: #ff6b35; }
+
+    .ranking-wins {
+      font-weight: 800;
+      font-size: 1rem;
+      color: #ff6b35;
+      white-space: nowrap;
+    }
+
+    .ranking-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #999;
+      font-size: 1rem;
+    }
+
+    .ranking-empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.2);
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.4);
+      transition: background 0.2s;
+    }
+
+    .back-link:hover { background: rgba(255,255,255,0.35); }
+
+    @media (max-width: 480px) {
+      .ranking-container { padding: 1.2rem 0.8rem; }
+      .ranking-header h2 { font-size: 1.4rem; }
+      .ranking-row { padding: 0.6rem 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">🎮 Game Hub</div>
+      <p class="tagline">Ranking Semanal</p>
+    </div>
+    <div class="header-auth">
+      <a href="index.html" class="back-link">← Voltar ao Lobby</a>
+    </div>
+  </header>
+
+  <main class="ranking-container">
+    <div class="ranking-header">
+      <h2>🏆 Ranking Semanal</h2>
+      <div class="ranking-timer" id="timer">Reseta em: --</div>
+    </div>
+
+    <div class="ranking-tabs">
+      <button class="ranking-tab active" data-game="solitaire">🃏 Paciência</button>
+      <button class="ranking-tab" data-game="snake">🐍 Cobrinha</button>
+    </div>
+
+    <div class="ranking-table" id="ranking-table">
+      <div class="ranking-empty">
+        <div class="ranking-empty-icon">⏳</div>
+        Carregando...
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Feito com ❤️ &mdash; Game Hub &copy; 2025</p>
+    <div class="footer-links">
+      <a href="sobre.html">Sobre</a>
+      <a href="privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const tableEl = document.getElementById('ranking-table');
+    const timerEl = document.getElementById('timer');
+    let currentGame = 'solitaire';
+    let currentUserId = null;
+
+    // Auth check
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'auth.html';
+    }
+    currentUserId = session?.user?.id;
+
+    // Tabs
+    document.querySelectorAll('.ranking-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ranking-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentGame = tab.dataset.game;
+        loadRanking();
+      });
+    });
+
+    // Calcula próxima segunda 9h BRT
+    function getNextReset() {
+      const now = new Date();
+      // Converte para BRT (UTC-3)
+      const brt = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      const dow = brt.getDay(); // 0=dom
+      let daysUntilMon;
+      if (dow === 0) daysUntilMon = 1;
+      else if (dow === 1) {
+        if (brt.getHours() < 9) daysUntilMon = 0;
+        else daysUntilMon = 7;
+      } else {
+        daysUntilMon = 8 - dow;
+      }
+      const next = new Date(brt);
+      next.setDate(next.getDate() + daysUntilMon);
+      next.setHours(9, 0, 0, 0);
+      return next;
+    }
+
+    function updateTimer() {
+      const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      const reset = getNextReset();
+      const diff = reset - now;
+      if (diff <= 0) {
+        timerEl.textContent = 'Resetando...';
+        setTimeout(() => { loadRanking(); updateTimer(); }, 2000);
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const parts = [];
+      if (d > 0) parts.push(`${d}d`);
+      parts.push(`${h}h`);
+      parts.push(`${m}min`);
+      timerEl.textContent = `Reseta em: ${parts.join(' ')}`;
+    }
+
+    async function loadRanking() {
+      tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Carregando...</div>';
+
+      let data, error;
+
+      if (currentGame === 'snake') {
+        // Cobrinha: ranking por melhor pontuação (frutas)
+        ({ data, error } = await supabase.rpc('get_weekly_ranking_snake'));
+      } else {
+        // Paciência: ranking por número de vitórias
+        ({ data, error } = await supabase.rpc('get_weekly_ranking', { game_filter: currentGame }));
+      }
+
+      if (error) {
+        console.error('Erro ao carregar ranking:', error);
+        tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div>Erro ao carregar ranking</div>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        const gameLabel = currentGame === 'solitaire' ? 'Paciência' : 'Cobrinha';
+        const actionLabel = currentGame === 'solitaire' ? 'Nenhuma vitória' : 'Nenhuma partida';
+        tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>${actionLabel} essa semana em ${gameLabel}.<br>Seja o primeiro!</div>`;
+        return;
+      }
+
+      const isSnake = currentGame === 'snake';
+
+      tableEl.innerHTML = data.map((row, i) => {
+        const pos = i + 1;
+        const posClass = pos <= 3 ? `pos-${pos}` : 'pos-other';
+        const rowClass = pos <= 3 ? `top-${pos}` : '';
+        const isMe = row.user_id === currentUserId;
+        const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+        const score = isSnake ? row.best_score : row.wins;
+        const label = isSnake
+          ? `${score} 🍎`
+          : `${score} ${score === 1 ? 'vitória' : 'vitórias'}`;
+
+        return `
+          <div class="ranking-row ${rowClass}">
+            <div class="ranking-pos ${posClass}">${medal}</div>
+            <div class="ranking-name ${isMe ? 'is-me' : ''}">${escapeHtml(row.display_name)}${isMe ? ' (você)' : ''}</div>
+            <div class="ranking-wins">${label}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Init
+    loadRanking();
+    updateTimer();
+    setInterval(updateTimer, 60000);
+  </script>
+</body>
+</html>

@@ -118,6 +118,35 @@ body {
   text-align: center;
 }
 
+/* ===== LOBBY ACTIONS ===== */
+.lobby-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.lobby-actions .section-title {
+  margin-bottom: 0;
+}
+
+.btn-ranking {
+  background: linear-gradient(135deg, #ff6b35, #ff8f5e);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(255,107,53,0.3);
+}
+.btn-ranking:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(255,107,53,0.4);
+}
+
 /* ===== GAMES GRID ===== */
 .games-grid {
   display: grid;

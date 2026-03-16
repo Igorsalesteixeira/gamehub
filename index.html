@@ -22,7 +22,10 @@
   </header>
 
   <main class="main">
-    <h2 class="section-title">Escolha um jogo</h2>
+    <div class="lobby-actions">
+      <h2 class="section-title">Escolha um jogo</h2>
+      <a href="ranking.html" class="btn-ranking">🏆 Ranking Semanal</a>
+    </div>
 
     <div class="games-grid">
 
@@ -94,13 +97,28 @@
       window.location.href = 'auth.html';
     }
     renderAuth(session);
-    if (session) loadAllStats(session.user.id);
+    if (session) {
+      upsertProfile(session);
+      loadAllStats(session.user.id);
+    }
 
     supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) window.location.href = 'auth.html';
       renderAuth(session);
       if (session) loadAllStats(session.user.id);
     });
+
+    // ---- Profile (para ranking) ----
+    async function upsertProfile(session) {
+      const name = session.user.user_metadata?.display_name
+                || session.user.user_metadata?.full_name
+                || session.user.email.split('@')[0];
+      await supabase.from('profiles').upsert({
+        user_id: session.user.id,
+        display_name: name,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    }
 
     // ---- Stats ----
     async function loadAllStats(userId) {
