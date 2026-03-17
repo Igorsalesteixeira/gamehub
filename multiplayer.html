@@ -767,6 +767,30 @@
     .pyr-waste-card.pyr-red { color: #c0392b; }
     .pyr-waste-card.pyr-sel { box-shadow: 0 0 0 2px #ffcc00; }
     .pyr-empty { width: 32px; height: 46px; border: 2px dashed rgba(255,255,255,0.15); border-radius: 5px; }
+    /* UNO */
+    .uno-table { display: flex; flex-direction: column; gap: 0.8rem; }
+    .uno-opp-hand { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .uno-card-back { width: 38px; height: 54px; border-radius: 8px; background: linear-gradient(135deg,#1565c0,#283593); border: 2px solid rgba(255,255,255,0.2); }
+    .uno-center { display: flex; align-items: center; justify-content: center; gap: 1.5rem; margin: 0.5rem 0; }
+    .uno-pile { width: 54px; height: 78px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; text-align: center; line-height: 1.2; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .uno-discard { border: 3px solid rgba(255,255,255,0.3); }
+    .uno-draw { background: linear-gradient(135deg,#1565c0,#283593) !important; color: rgba(255,255,255,0.6) !important; border: 2px solid rgba(255,255,255,0.15); }
+    .uno-my-hand { display: flex; gap: 6px; flex-wrap: wrap; padding: 0.5rem; background: rgba(255,255,255,0.03); border-radius: 12px; min-height: 80px; }
+    .uno-card { width: 44px; height: 64px; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.4); cursor: default; user-select: none; line-height: 1.2; text-align: center; transition: transform 0.12s; }
+    .uno-card.playable { cursor: pointer; outline: 2px solid rgba(255,255,255,0.5); }
+    .uno-card.playable:hover { transform: translateY(-8px); }
+    .uno-color-red    { background: #e53935; color: #fff; }
+    .uno-color-blue   { background: #1e88e5; color: #fff; }
+    .uno-color-green  { background: #43a047; color: #fff; }
+    .uno-color-yellow { background: #f9a825; color: #222; }
+    .uno-color-wild   { background: linear-gradient(135deg,#e53935,#1e88e5,#43a047,#f9a825); color: #fff; }
+    .uno-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .uno-btn { padding: 0.5rem 1.1rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.15s; font-size: 0.85rem; }
+    .uno-btn:hover:not(:disabled) { border-color: #ff6b35; color: #ff8f5e; }
+    .uno-btn:disabled { opacity: 0.3; cursor: default; }
+    .uno-color-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; background: rgba(255,255,255,0.06); border-radius: 14px; padding: 0.8rem; }
+    .uno-color-btn { width: 40px; height: 40px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.3); cursor: pointer; transition: transform 0.12s; }
+    .uno-color-btn:hover { transform: scale(1.15); border-color: #fff; }
   </style>
 </head>
 <body>
@@ -817,6 +841,7 @@
         <button class="filter-btn" data-filter="nonogram">📐 Nonogram</button>
         <button class="filter-btn" data-filter="truco">🃏 Truco</button>
         <button class="filter-btn" data-filter="pyramid">🔺 Pirâmide</button>
+        <button class="filter-btn" data-filter="uno">🎴 Uno</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -939,6 +964,9 @@
         </button>
         <button class="game-option" data-game="pyramid">
           <span class="game-option-icon">🔺</span>Pirâmide
+        </button>
+        <button class="game-option" data-game="uno">
+          <span class="game-option-icon">🎴</span>Uno
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -1327,6 +1355,28 @@
           return{pyr,stock1:[...stock],stock2:[...stock],waste1:[],waste2:[],rem1:Array(28).fill(false),rem2:Array(28).fill(false),done1:false,done2:false};
         }
       },
+      uno: {
+        name: 'Uno', icon: '🎴',
+        initState: () => {
+          const COLORS=['red','blue','green','yellow'];
+          const SPECIALS=['skip','reverse','draw2'];
+          const d=[];
+          for(const c of COLORS){
+            d.push({color:c,value:'0',type:'number'});
+            for(let n=1;n<=9;n++){d.push({color:c,value:String(n),type:'number'});d.push({color:c,value:String(n),type:'number'});}
+            for(const sp of SPECIALS){d.push({color:c,value:sp,type:'special'});d.push({color:c,value:sp,type:'special'});}
+          }
+          for(let i=0;i<4;i++){d.push({color:'wild',value:'wild',type:'wild'});d.push({color:'wild',value:'wild4',type:'wild'});}
+          for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}
+          const hand1=[],hand2=[];
+          for(let i=0;i<7;i++){hand1.push(d.pop());hand2.push(d.pop());}
+          // First discard: must be a number card
+          let startIdx=d.findIndex(c=>c.type==='number');
+          if(startIdx<0)startIdx=d.length-1;
+          const startCard=d.splice(startIdx,1)[0];
+          return{drawPile:d,discardPile:[startCard],hand1,hand2,turn:1,currentColor:startCard.color,mustDraw:0,wildPending:false};
+        }
+      },
     };
 
     // ===== WIN: TICTACTOE =====
@@ -1550,6 +1600,7 @@
       else if (room.game==='nonogram') renderNonogram(room);
       else if (room.game==='truco') renderTruco(room);
       else if (room.game==='pyramid') renderPyramid(room);
+      else if (room.game==='uno') renderUno(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -3902,6 +3953,178 @@
       }
     }
 
+    // ===== UNO =====
+    let unoDrawnThis = false; // local: did I draw a card this turn (before playing)
+
+    function unoCardDisplay(card) {
+      const labels={skip:'⊘',reverse:'⟳',draw2:'+2',wild:'★',wild4:'★+4'};
+      return card.type==='number'?card.value:(labels[card.value]||card.value);
+    }
+    function unoCardLabel(card) {
+      const labels={skip:'Bloquear',reverse:'Reverter',draw2:'+2',wild:'Coringa',wild4:'Coringa+4'};
+      return card.type==='number'?card.value:(labels[card.value]||card.value);
+    }
+    function unoCanPlay(card, topCard, currentColor) {
+      if(card.type==='wild') return true;
+      if(card.color===currentColor) return true;
+      if(card.type==='number'&&topCard.type==='number'&&card.value===topCard.value) return true;
+      if(card.type==='special'&&topCard.type==='special'&&card.value===topCard.value) return true;
+      return false;
+    }
+    function unoCardEl(card, playable) {
+      const dc=card.type==='wild'?'wild':card.color;
+      return `<div class="uno-card uno-color-${dc}${playable?' playable':''}" data-v="${card.value}" data-c="${card.color}" data-t="${card.type}">${unoCardDisplay(card)}<br><small style="font-size:0.6rem">${unoCardLabel(card)}</small></div>`;
+    }
+    function renderUno(room) {
+      const st=room.state;
+      const myHand=myNum===1?st.hand1:st.hand2;
+      const oppHand=myNum===1?st.hand2:st.hand1;
+      const oppName=myNum===1?room.player2_name:room.player1_name;
+      const topCard=st.discardPile[st.discardPile.length-1];
+      const myTurn=isMyTurn&&!st.wildPending&&room.status==='playing';
+      const canDraw=myTurn&&!myHand.some(c=>unoCanPlay(c,topCard,st.currentColor));
+      const el=document.getElementById('game-board');
+      el.innerHTML=`
+        <div class="uno-table">
+          <div>
+            <div style="font-size:0.7rem;font-weight:800;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem">${oppName||'Adversário'} — ${oppHand.length} cartas</div>
+            <div class="uno-opp-hand">${oppHand.map(()=>`<div class="uno-card-back"></div>`).join('')}</div>
+          </div>
+          <div class="uno-center">
+            <div style="text-align:center">
+              <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);font-weight:700;margin-bottom:4px">Comprar</div>
+              <div class="uno-pile uno-draw" id="uno-draw-pile" title="Comprar carta">🂠<br><small style="font-size:0.6rem">${st.drawPile.length}</small></div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);font-weight:700;margin-bottom:4px">Descarte — <span style="color:#ff8f5e">${st.currentColor}</span></div>
+              <div class="uno-pile uno-discard uno-color-${topCard.type==='wild'?'wild':topCard.color}">${unoCardDisplay(topCard)}</div>
+            </div>
+          </div>
+          ${st.wildPending&&isMyTurn?`<div style="font-size:0.82rem;font-weight:800;color:#ff8f5e;margin-bottom:0.3rem">Escolha a cor:</div>
+          <div class="uno-color-picker">
+            <button class="uno-color-btn" style="background:#e53935" data-color="red"></button>
+            <button class="uno-color-btn" style="background:#1e88e5" data-color="blue"></button>
+            <button class="uno-color-btn" style="background:#43a047" data-color="green"></button>
+            <button class="uno-color-btn" style="background:#f9a825" data-color="yellow"></button>
+          </div>`:''}
+          <div>
+            <div style="font-size:0.7rem;font-weight:800;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem">Sua mão — ${myHand.length} cartas</div>
+            <div class="uno-my-hand" id="uno-my-hand">
+              ${myHand.map((c,i)=>{
+                const playable=myTurn&&unoCanPlay(c,topCard,st.currentColor)&&(st.mustDraw===0||c.value==='draw2'||c.value==='wild4');
+                return `<div class="uno-card uno-color-${c.type==='wild'?'wild':c.color}${playable?' playable':''}" data-idx="${i}">${unoCardDisplay(c)}<br><small style="font-size:0.6rem">${unoCardLabel(c)}</small></div>`;
+              }).join('')}
+            </div>
+          </div>
+          <div class="uno-actions">
+            ${myTurn&&!st.wildPending?`<button class="uno-btn" id="uno-draw" ${!canDraw&&st.mustDraw===0?'disabled':''}>Comprar${st.mustDraw>0?` (${st.mustDraw})`:'1'}</button>`:''}
+          </div>
+        </div>`;
+      if(room.status!=='playing') return;
+      // Play card
+      if(myTurn&&!st.wildPending) {
+        document.querySelectorAll('#uno-my-hand .playable').forEach(card=>{
+          card.addEventListener('click',()=>unoPlayCard(parseInt(card.dataset.idx),room));
+        });
+        document.getElementById('uno-draw')?.addEventListener('click',()=>unoDrawCard(room));
+      }
+      // Color picker
+      if(st.wildPending&&isMyTurn) {
+        document.querySelectorAll('.uno-color-btn').forEach(btn=>{
+          btn.addEventListener('click',()=>unoChooseColor(btn.dataset.color,room));
+        });
+      }
+    }
+    async function unoPlayCard(idx, room) {
+      if(!currentRoom||room.status!=='playing') return;
+      const st2=JSON.parse(JSON.stringify(room.state));
+      const myHand=myNum===1?st2.hand1:st2.hand2;
+      const card=myHand.splice(idx,1)[0];
+      st2.discardPile.push(card);
+      // Check win
+      if(myHand.length===0){
+        await supabase.from('game_rooms').update({state:st2,status:'finished',winner:myNum}).eq('id',currentRoom.id);
+        return;
+      }
+      // Handle specials
+      const opp=myNum===1?2:1;
+      let applyMustDraw=0;
+      let skipOpp=false;
+      if(card.value==='draw2'){applyMustDraw=st2.mustDraw+2;skipOpp=true;}
+      else if(card.value==='wild4'){applyMustDraw=st2.mustDraw+4;skipOpp=true;}
+      else if(card.value==='skip'||card.value==='reverse'){skipOpp=true;}
+      // If opponent must draw accumulated
+      if(card.value!=='draw2'&&card.value!=='wild4'&&st2.mustDraw>0){
+        // play without draw card — opponent still has to draw (can't stack)
+        // actually reset: you chose not to stack
+        applyMustDraw=0;
+      }
+      // Wild: wait for color
+      if(card.type==='wild'){
+        st2.wildPending=true;
+        st2.mustDraw=applyMustDraw;
+        // Don't switch turn yet — wait for color choice
+        await supabase.from('game_rooms').update({state:st2,turn:myNum}).eq('id',currentRoom.id);
+        return;
+      }
+      st2.currentColor=card.color;
+      st2.mustDraw=applyMustDraw;
+      // Apply mustDraw to opponent if skip/draw card was used as draw
+      if(applyMustDraw>0){
+        const oppHand=myNum===1?st2.hand2:st2.hand1;
+        for(let i=0;i<applyMustDraw;i++){
+          if(st2.drawPile.length===0){const top=st2.discardPile.pop();st2.drawPile=[...st2.discardPile].reverse();st2.discardPile=[top];}
+          oppHand.push(st2.drawPile.pop());
+        }
+        st2.mustDraw=0;
+      }
+      // Switch turn (unless skip)
+      const nextTurn=skipOpp?myNum:opp;
+      st2.turn=nextTurn;
+      await supabase.from('game_rooms').update({state:st2,turn:nextTurn}).eq('id',currentRoom.id);
+    }
+    async function unoChooseColor(color, room) {
+      if(!currentRoom||room.status!=='playing') return;
+      const st2=JSON.parse(JSON.stringify(room.state));
+      st2.currentColor=color;
+      st2.wildPending=false;
+      const opp=myNum===1?2:1;
+      const topCard=st2.discardPile[st2.discardPile.length-1];
+      let skipOpp=topCard.value==='wild4';
+      // Apply draw if wild4
+      if(topCard.value==='wild4'&&st2.mustDraw>0){
+        const oppHand=myNum===1?st2.hand2:st2.hand1;
+        for(let i=0;i<st2.mustDraw;i++){
+          if(st2.drawPile.length===0){const top=st2.discardPile.pop();st2.drawPile=[...st2.discardPile].reverse();st2.discardPile=[top];}
+          oppHand.push(st2.drawPile.pop());
+        }
+        st2.mustDraw=0;
+      }
+      const nextTurn=skipOpp?myNum:opp;
+      st2.turn=nextTurn;
+      await supabase.from('game_rooms').update({state:st2,turn:nextTurn}).eq('id',currentRoom.id);
+    }
+    async function unoDrawCard(room) {
+      if(!currentRoom||room.status!=='playing') return;
+      const st2=JSON.parse(JSON.stringify(room.state));
+      const myHand=myNum===1?st2.hand1:st2.hand2;
+      const drawCount=st2.mustDraw>0?st2.mustDraw:1;
+      for(let i=0;i<drawCount;i++){
+        if(st2.drawPile.length===0){const top=st2.discardPile.pop();st2.drawPile=[...st2.discardPile].reverse();st2.discardPile=[top];}
+        const c=st2.drawPile.pop();
+        if(c)myHand.push(c);
+      }
+      st2.mustDraw=0;
+      const opp=myNum===1?2:1;
+      // If drew due to penalty: skip turn. If drew voluntarily: keep turn (can play drawn card if valid)
+      const topCard=st2.discardPile[st2.discardPile.length-1];
+      const drawnCard=myHand[myHand.length-1];
+      const skip=drawCount>1||(drawCount===1&&!unoCanPlay(drawnCard,topCard,st2.currentColor));
+      const nextTurn=skip?opp:myNum;
+      st2.turn=nextTurn;
+      await supabase.from('game_rooms').update({state:st2,turn:nextTurn}).eq('id',currentRoom.id);
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -4054,7 +4277,6 @@
         // Game doesn't have multiplayer yet — show banner
         const LABELS = {
           solitaire:'Paciência', freecell:'Freecell', spider:'Spider Solitaire',
-          uno:'Uno',
           mahjong:'Mahjong', sokoban:'Sokoban',
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
