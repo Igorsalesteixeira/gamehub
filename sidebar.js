@@ -382,6 +382,44 @@ export function initSidebar(options = {}) {
     document.head.appendChild(friendStyle);
   }
 
+  // Widget de doacao PIX na secao de info dos jogos
+  const gameInfo = document.querySelector('section.game-info');
+  if (gameInfo) {
+    const donateEl = document.createElement('div');
+    donateEl.className = 'pix-donate-card';
+    donateEl.innerHTML = `
+      <span class="pix-donate-icon">❤️</span>
+      <div class="pix-donate-text">
+        <strong>Gostou dos jogos?</strong>
+        <span>Ajude a manter o Games Hub gratuito com uma doação via PIX.</span>
+      </div>
+      <a href="${base}doacao.html" class="pix-donate-btn">Apoiar com PIX</a>
+    `;
+    gameInfo.appendChild(donateEl);
+
+    const pixStyle = document.createElement('style');
+    pixStyle.textContent = `
+      .pix-donate-card {
+        display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        margin-top: 1.8rem; padding: 1rem 1.2rem;
+        background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.02));
+        border: 1.5px solid rgba(255,107,53,0.22); border-radius: 14px;
+      }
+      .pix-donate-icon { font-size: 1.6rem; flex-shrink: 0; }
+      .pix-donate-text { flex: 1; min-width: 160px; }
+      .pix-donate-text strong { display: block; font-size: 0.92rem; color: #333; margin-bottom: 0.15rem; font-family: 'Nunito', sans-serif; }
+      .pix-donate-text span { font-size: 0.8rem; color: #777; font-family: 'Nunito', sans-serif; }
+      .pix-donate-btn {
+        display: inline-block; background: #ff6b35; color: #fff; text-decoration: none;
+        font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+        border-radius: 999px; padding: 0.5rem 1.2rem; white-space: nowrap;
+        transition: background 0.2s; flex-shrink: 0;
+      }
+      .pix-donate-btn:hover { background: #e85d2a; }
+    `;
+    document.head.appendChild(pixStyle);
+  }
+
   // Botao flutuante "Reportar Bug" em paginas de jogos
   if (window.location.pathname.includes('/games/')) {
     const bugBtn = document.createElement('a');

@@ -618,6 +618,39 @@ body {
 }
 .live-see-all:hover { color: #ff8f5e; }
 
+/* ===== PIX DONATION BANNER ===== */
+.pix-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  max-width: 1100px;
+  margin: 2rem auto 0;
+  padding: 1.1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.02));
+  border: 1.5px solid rgba(255,107,53,0.2);
+  border-radius: 16px;
+}
+.pix-banner-icon { font-size: 1.8rem; flex-shrink: 0; }
+.pix-banner-text { flex: 1; min-width: 180px; }
+.pix-banner-text strong { display: block; font-size: 0.95rem; font-weight: 800; color: #333; margin-bottom: 0.15rem; }
+.pix-banner-text span { font-size: 0.82rem; color: #777; }
+.pix-banner-btn {
+  display: inline-block;
+  background: #ff6b35;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  padding: 0.55rem 1.3rem;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.1s;
+}
+.pix-banner-btn:hover { background: #e85d2a; transform: scale(1.02); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .hero-title { font-size: 1.4rem; }
