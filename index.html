@@ -87,7 +87,7 @@
 
   <div class="game-count" id="game-count"></div>
 
-  <!-- Live Rooms Widget (only shown when there are open rooms) -->
+  <!-- Live Rooms Widget -->
   <div class="live-rooms-section" id="live-rooms-section" style="display:none">
     <div class="live-rooms-header">
       <span class="live-dot"></span>
@@ -689,9 +689,20 @@
 
       const section = document.getElementById('live-rooms-section');
       const grid = document.getElementById('live-rooms-grid');
-      if (!data || !data.length) { section.style.display = 'none'; return; }
-
       section.style.display = '';
+
+      if (!data || !data.length) {
+        grid.innerHTML = `<a class="live-room-chip" href="multiplayer.html" style="border-style:dashed">
+          <span class="live-room-icon">➕</span>
+          <span class="live-room-info">
+            <span class="live-room-game">Criar sala</span>
+            <span class="live-room-player">Nenhuma sala aberta agora</span>
+          </span>
+          <span class="live-room-enter">Jogar →</span>
+        </a>`;
+        return;
+      }
+
       grid.innerHTML = data.map(room => {
         const g = GAME_LABELS[room.game] || { icon: '🎮', name: room.game };
         return `<a class="live-room-chip" href="multiplayer.html?room=${room.id}">
