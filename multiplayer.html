@@ -984,6 +984,7 @@
         <button class="btn-cancel" id="btn-close-modal">Cancelar</button>
         <button class="btn-confirm" id="btn-confirm-create">Criar sala</button>
       </div>
+      <div id="selected-game-label" style="text-align:center;margin-top:0.6rem;font-size:0.8rem;font-weight:700;color:rgba(255,107,53,0.8)"></div>
     </div>
   </div>
 
@@ -1018,6 +1019,7 @@
     let selGame = 'tictactoe';
     let selMode = 'public';
     let isMyTurn = false;
+    let pollInterval = null;
 
     // Checkers UI state (local only)
     let ckSelected = null;
@@ -1029,6 +1031,25 @@
       ['lobby','waiting','playing'].forEach(id => {
         document.getElementById(`view-${id}`).style.display = id === v ? '' : 'none';
       });
+      if (v !== 'waiting' && v !== 'playing') stopPoll();
+    }
+
+    // ===== POLLING FALLBACK (backup when realtime misses events) =====
+    function startPoll(roomId) {
+      stopPoll();
+      pollInterval = setInterval(async () => {
+        if (!currentRoom) { stopPoll(); return; }
+        const { data } = await supabase.from('game_rooms').select('*').eq('id', roomId).single();
+        if (!data) { stopPoll(); return; }
+        // Only update if state actually changed (avoid re-renders on same state)
+        const changed = JSON.stringify(data.state) !== JSON.stringify(currentRoom.state)
+          || data.status !== currentRoom.status
+          || data.turn !== currentRoom.turn;
+        if (changed) handleRoomUpdate(data);
+      }, 3000);
+    }
+    function stopPoll() {
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
     }
 
     // ===== GAME DEFINITIONS =====
@@ -1510,11 +1531,13 @@
       }
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
       if (currentRoom.status==='playing' && isWaiting) {
+        stopPoll(); // transition detected — stop waiting poll
         g2048Board=null; p15Tiles=null; loBoard=null; sdkGrid=null; sdkSel=-1; wsSelStart=null; wsSelEnd=null;
         showView('playing'); renderPlaying(currentRoom);
+        startPoll(currentRoom.id); // continue polling during gameplay as backup
       }
       else if (currentRoom.status==='playing') { renderPlaying(currentRoom); }
-      else if (currentRoom.status==='finished') { renderPlaying(currentRoom); showResult(currentRoom); }
+      else if (currentRoom.status==='finished') { stopPoll(); renderPlaying(currentRoom); showResult(currentRoom); }
     }
 
     // ===== CREATE ROOM =====
@@ -1542,6 +1565,7 @@
       const shareLink = location.origin + location.pathname + '?room=' + data.id;
       document.getElementById('share-link-display').textContent = shareLink;
       subscribeToRoom(data.id);
+      startPoll(data.id); // fallback: poll every 3s in case realtime misses the join event
     }
 
     // ===== JOIN ROOM =====
@@ -1555,7 +1579,7 @@
         .select().single();
       if (error||!updated) { alert('Não foi possível entrar. Tente outra sala.'); return; }
       currentRoom=updated; myNum=2;
-      showView('playing'); renderPlaying(updated); subscribeToRoom(updated.id);
+      showView('playing'); renderPlaying(updated); subscribeToRoom(updated.id); startPoll(updated.id);
     }
 
     async function joinByCode(code) {
@@ -4180,12 +4204,19 @@
     });
     document.getElementById('btn-confirm-create').addEventListener('click',createRoom);
 
+    function updateSelectedGameLabel() {
+      const meta = GAMES[selGame];
+      const lbl = document.getElementById('selected-game-label');
+      if (lbl && meta) lbl.textContent = `Jogo selecionado: ${meta.icon} ${meta.name}`;
+    }
     document.querySelectorAll('.game-option').forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll('.game-option').forEach(b=>b.classList.remove('sel'));
         btn.classList.add('sel'); selGame=btn.dataset.game;
+        updateSelectedGameLabel();
       });
     });
+    updateSelectedGameLabel(); // show default on page load
     document.querySelectorAll('.mode-option').forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll('.mode-option').forEach(b=>b.classList.remove('sel'));
@@ -4274,6 +4305,7 @@
         document.querySelectorAll('.game-option').forEach(b => {
           b.classList.toggle('sel', b.dataset.game === urlGame);
         });
+        updateSelectedGameLabel();
         document.getElementById('create-modal').style.display = 'flex';
       } else {
         // Game doesn't have multiplayer yet — show banner
