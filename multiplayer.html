@@ -675,6 +675,57 @@
       .ttt-cell { font-size: 2rem; }
       .c4-cell { min-width: 0; }
     }
+
+    /* BLACKJACK */
+    .bj-table { display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 1rem; }
+    .bj-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.2rem; }
+    .bj-section-label { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.7rem; }
+    .bj-hand { display: flex; gap: 6px; flex-wrap: wrap; }
+    .bj-card { width: 44px; height: 62px; background: #fff; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.4); color: #222; }
+    .bj-card.red { color: #c0392b; }
+    .bj-card.back { background: linear-gradient(135deg,#1565c0,#283593); color: transparent; }
+    .bj-score { font-size: 0.78rem; color: rgba(255,255,255,0.45); font-weight: 700; margin-top: 0.5rem; }
+    .bj-actions { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .bj-btn { padding: 0.6rem 1.4rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.15s; font-size: 0.9rem; }
+    .bj-btn:hover:not(:disabled) { border-color: #ff6b35; color: #ff8f5e; }
+    .bj-btn:disabled { opacity: 0.35; cursor: default; }
+    .bj-btn.hit { background: rgba(76,175,80,0.12); border-color: rgba(76,175,80,0.35); color: #81c784; }
+    .bj-btn.hit:hover:not(:disabled) { background: rgba(76,175,80,0.25); }
+    .bj-btn.stand { background: rgba(239,83,80,0.1); border-color: rgba(239,83,80,0.3); color: #ef9a9a; }
+    .bj-btn.stand:hover:not(:disabled) { background: rgba(239,83,80,0.2); }
+    .bj-status { font-size: 0.82rem; font-weight: 700; padding: 0.3rem 0.8rem; border-radius: 999px; }
+    .bj-status.waiting { color: rgba(255,200,0,0.8); background: rgba(255,200,0,0.1); }
+    .bj-status.done { color: rgba(100,255,100,0.8); background: rgba(100,255,100,0.08); }
+    .bj-status.bust { color: rgba(255,80,80,0.8); background: rgba(255,80,80,0.08); }
+
+    /* MINESWEEPER MULTI */
+    .ms-wrap { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .ms-panel { flex: 1; min-width: 200px; max-width: 280px; }
+    .ms-panel-label { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; text-align: center; }
+    .ms-board { display: grid; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+    .ms-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; user-select: none; transition: background 0.1s; }
+    .ms-cell:hover:not(.ms-rev):not(.ms-dead-cell) { background: rgba(255,107,53,0.15); }
+    .ms-cell.ms-rev { background: rgba(255,255,255,0.02); cursor: default; color: #aaa; }
+    .ms-cell.ms-rev.n1 { color: #2196f3; } .ms-cell.ms-rev.n2 { color: #4caf50; } .ms-cell.ms-rev.n3 { color: #f44336; } .ms-cell.ms-rev.n4 { color: #9c27b0; }
+    .ms-cell.ms-flag { background: rgba(255,107,53,0.08); }
+    .ms-cell.ms-mine { background: rgba(255,0,0,0.2); }
+    .ms-cell.ms-dead-cell { background: rgba(255,0,0,0.08); cursor: default; }
+    .ms-progress { font-size: 0.75rem; color: rgba(255,255,255,0.4); font-weight: 700; margin-top: 0.4rem; text-align: center; }
+
+    /* NONOGRAM MULTI */
+    .ng-wrap { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    .ng-panel { flex: 1; min-width: 180px; max-width: 280px; }
+    .ng-panel-label { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; text-align: center; }
+    .ng-grid-wrap { display: flex; gap: 4px; }
+    .ng-col-clues { display: flex; gap: 0; flex-direction: row; }
+    .ng-clue-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.5); min-width: 22px; gap: 1px; }
+    .ng-right { display: flex; flex-direction: column; gap: 0; }
+    .ng-row { display: flex; align-items: center; gap: 0; }
+    .ng-row-clue { font-size: 0.6rem; font-weight: 800; color: rgba(255,255,255,0.5); min-width: 20px; text-align: right; padding-right: 3px; white-space: nowrap; }
+    .ng-cell { width: 22px; height: 22px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; transition: background 0.1s; }
+    .ng-cell.filled { background: #ff6b35; border-color: #cc4400; }
+    .ng-cell.crossed { color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
+    .ng-cell.opponent { cursor: default; }
   </style>
 </head>
 <body>
@@ -720,6 +771,9 @@
         <button class="filter-btn" data-filter="puzzle15">🧩 Puzzle 15</button>
         <button class="filter-btn" data-filter="lightsout">💡 Lights Out</button>
         <button class="filter-btn" data-filter="sudoku">📊 Sudoku</button>
+        <button class="filter-btn" data-filter="blackjack">🃏 Blackjack</button>
+        <button class="filter-btn" data-filter="minesweeper">💣 Campo Minado</button>
+        <button class="filter-btn" data-filter="nonogram">📐 Nonogram</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -827,6 +881,15 @@
         </button>
         <button class="game-option" data-game="sudoku">
           <span class="game-option-icon">🔢</span>Sudoku
+        </button>
+        <button class="game-option" data-game="blackjack">
+          <span class="game-option-icon">🃏</span>Blackjack
+        </button>
+        <button class="game-option" data-game="minesweeper">
+          <span class="game-option-icon">💣</span>Campo Minado
+        </button>
+        <button class="game-option" data-game="nonogram">
+          <span class="game-option-icon">📐</span>Nonogram
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -1147,6 +1210,47 @@
           return{puzzle:flat,solution:sflat,grid1:[...flat],grid2:[...flat],solved:null,sel1:-1,sel2:-1};
         }
       },
+      blackjack: {
+        name: 'Blackjack', icon: '🃏',
+        initState: () => {
+          const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+          const SUITS=['♠','♥','♦','♣'];
+          const shoe=[];
+          for(let d=0;d<2;d++)for(const s of SUITS)for(const r of RANKS)shoe.push({r,s});
+          for(let i=shoe.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[shoe[i],shoe[j]]=[shoe[j],shoe[i]];}
+          const deck=[...shoe];
+          const hand1=[deck.pop(),deck.pop()];
+          const hand2=[deck.pop(),deck.pop()];
+          const dealer=[deck.pop(),deck.pop()];
+          return{deck,hand1,hand2,dealer,done1:false,done2:false,phase:'playing'};
+        }
+      },
+      minesweeper: {
+        name: 'Campo Minado', icon: '💣',
+        initState: () => {
+          const ROWS=9,COLS=9,TOTAL_MINES=10;
+          const mines=Array(ROWS*COLS).fill(false);
+          let placed=0;
+          // avoid center area for first-click fairness
+          while(placed<TOTAL_MINES){
+            const idx=Math.floor(Math.random()*ROWS*COLS);
+            if(!mines[idx]){mines[idx]=true;placed++;}
+          }
+          return{mines,rows:ROWS,cols:COLS,rev1:Array(ROWS*COLS).fill(false),rev2:Array(ROWS*COLS).fill(false),flag1:Array(ROWS*COLS).fill(false),flag2:Array(ROWS*COLS).fill(false),dead1:false,dead2:false,done1:false,done2:false};
+        }
+      },
+      nonogram: {
+        name: 'Nonogram', icon: '📐',
+        initState: () => {
+          const SZ=5;
+          const sol=[];
+          for(let r=0;r<SZ;r++){const row=[];for(let c=0;c<SZ;c++)row.push(Math.random()<0.5?1:0);sol.push(row);}
+          for(let r=0;r<SZ;r++)if(!sol[r].includes(1))sol[r][Math.floor(Math.random()*SZ)]=1;
+          for(let c=0;c<SZ;c++){if(!sol.map(r=>r[c]).includes(1))sol[Math.floor(Math.random()*SZ)][c]=1;}
+          const flat=sol.flat();
+          return{solution:flat,grid1:Array(SZ*SZ).fill(0),grid2:Array(SZ*SZ).fill(0),sz:SZ,done1:false,done2:false};
+        }
+      },
     };
 
     // ===== WIN: TICTACTOE =====
@@ -1365,6 +1469,9 @@
       else if (room.game==='puzzle15') renderPuzzle15(room);
       else if (room.game==='lightsout') renderLightsout(room);
       else if (room.game==='sudoku') renderSudoku(room);
+      else if (room.game==='blackjack') renderBlackjack(room);
+      else if (room.game==='minesweeper') renderMinesweeper(room);
+      else if (room.game==='nonogram') renderNonogram(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -3082,6 +3189,302 @@
       renderSudoku(currentRoom);
     }
 
+    // ===== BLACKJACK =====
+    let bjLocalDone = false;
+    function bjVal(hand) {
+      let t=0,aces=0;
+      for(const {r} of hand){
+        if(r==='A'){aces++;t+=11;}
+        else if(['J','Q','K'].includes(r))t+=10;
+        else t+=parseInt(r);
+      }
+      while(t>21&&aces>0){t-=10;aces--;}
+      return t;
+    }
+    function bjCardEl(card, hidden) {
+      if(hidden) return `<div class="bj-card back">🂠</div>`;
+      const red=['♥','♦'].includes(card.s);
+      return `<div class="bj-card ${red?'red':''}">${card.r}<br><span>${card.s}</span></div>`;
+    }
+    function renderBlackjack(room) {
+      const st=room.state;
+      const myHand=myNum===1?st.hand1:st.hand2;
+      const oppHand=myNum===1?st.hand2:st.hand1;
+      const myDone=myNum===1?st.done1:st.done2;
+      const oppDone=myNum===1?st.done2:st.done1;
+      const reveal=st.phase==='reveal';
+      const myVal=bjVal(myHand);
+      const oppVal=bjVal(oppHand);
+      const dealerVal=bjVal(st.dealer);
+      const myBust=myVal>21;
+      const oppBust=oppVal>21;
+      const dealerBust=dealerVal>21;
+
+      let myStatus='', oppStatus='';
+      if(myDone){myStatus=myBust?'bust':'done';}else{myStatus='waiting';}
+      if(oppDone){oppStatus=oppBust?'bust':'done';}else{oppStatus='waiting';}
+
+      const myStatusLabel=myBust?'Busted':myDone?'Parado':'Jogando';
+      const oppStatusLabel=oppBust?'Busted':oppDone?'Parado':'Jogando';
+
+      const el=document.getElementById('game-board');
+      el.innerHTML=`
+        <div class="bj-table">
+          <div class="bj-section">
+            <div class="bj-section-label">🂠 Dealer ${reveal?`(${dealerVal}${dealerBust?' — BUST':''})`:''}</div>
+            <div class="bj-hand">${st.dealer.map((c,i)=>bjCardEl(c,!reveal&&i===1)).join('')}</div>
+          </div>
+          <div class="bj-section">
+            <div class="bj-section-label" style="display:flex;justify-content:space-between">
+              <span>🟠 Você (${myVal}${myBust?' — BUST':''})</span>
+              <span class="bj-status ${myStatus}">${myStatusLabel}</span>
+            </div>
+            <div class="bj-hand" id="bj-my-hand">${myHand.map(c=>bjCardEl(c,false)).join('')}</div>
+          </div>
+          <div class="bj-section">
+            <div class="bj-section-label" style="display:flex;justify-content:space-between">
+              <span>🔵 Adversário (${reveal||oppDone?oppVal+'':oppHand.length+' cartas'}${reveal&&oppBust?' — BUST':''})</span>
+              <span class="bj-status ${oppStatus}">${oppStatusLabel}</span>
+            </div>
+            <div class="bj-hand">${oppHand.map((c,i)=>reveal?bjCardEl(c,false):`<div class="bj-card back">🂠</div>`).join('')}</div>
+          </div>
+        </div>
+        <div class="bj-actions">
+          <button class="bj-btn hit" id="bj-hit" ${myDone||!isMyTurn&&false?'disabled':''}>🃏 Pedir (Hit)</button>
+          <button class="bj-btn stand" id="bj-stand" ${myDone||!isMyTurn&&false?'disabled':''}>✋ Parar (Stand)</button>
+        </div>`;
+      if(!myDone && room.status==='playing') {
+        document.getElementById('bj-hit').addEventListener('click', async()=>{
+          const st2=JSON.parse(JSON.stringify(room.state));
+          const card=st2.deck.pop();
+          if(!card)return;
+          if(myNum===1)st2.hand1.push(card);else st2.hand2.push(card);
+          const newVal=bjVal(myNum===1?st2.hand1:st2.hand2);
+          if(newVal>=21){if(myNum===1)st2.done1=true;else st2.done2=true;}
+          if(st2.done1&&st2.done2)await bjReveal(st2);
+          else await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+        });
+        document.getElementById('bj-stand').addEventListener('click', async()=>{
+          const st2=JSON.parse(JSON.stringify(room.state));
+          if(myNum===1)st2.done1=true;else st2.done2=true;
+          if(st2.done1&&st2.done2)await bjReveal(st2);
+          else await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+        });
+      }
+    }
+    async function bjReveal(st2) {
+      st2.phase='reveal';
+      // dealer draws to 17+
+      while(bjVal(st2.dealer)<17 && st2.deck.length>0) st2.dealer.push(st2.deck.pop());
+      const dv=bjVal(st2.dealer), db=dv>21;
+      const v1=bjVal(st2.hand1),v2=bjVal(st2.hand2);
+      const bust1=v1>21, bust2=v2>21;
+      // determine winner: 1 or 2 or 0 (tie)
+      const p1wins=!bust1&&(db||v1>dv);
+      const p2wins=!bust2&&(db||v2>dv);
+      let winner=0;
+      if(p1wins&&!p2wins)winner=1;
+      else if(p2wins&&!p1wins)winner=2;
+      else if(p1wins&&p2wins){winner=v1>v2?1:v1<v2?2:0;}
+      else winner=0;
+      await supabase.from('game_rooms').update({state:st2,status:'finished',winner}).eq('id',currentRoom.id);
+    }
+
+    // ===== MINESWEEPER MULTI =====
+    let msFlagMode1=false;
+    function msAdjCount(mines,idx,rows,cols){
+      const r=Math.floor(idx/cols),c=idx%cols;
+      let cnt=0;
+      for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const nr=r+dr,nc=c+dc;if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&mines[nr*cols+nc])cnt++;}
+      return cnt;
+    }
+    function msFloodReveal(mines,rev,idx,rows,cols){
+      const q=[idx]; const visited=new Set([idx]);
+      while(q.length){
+        const ci=q.shift(); rev[ci]=true;
+        const r=Math.floor(ci/cols),c=ci%cols;
+        if(msAdjCount(mines,ci,rows,cols)===0){
+          for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+            if(!dr&&!dc)continue;const nr=r+dr,nc=c+dc;const ni=nr*cols+nc;
+            if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&!visited.has(ni)&&!rev[ni]&&!mines[ni]){visited.add(ni);q.push(ni);}
+          }
+        }
+      }
+    }
+    function msSafeCells(mines){return mines.filter(v=>!v).length;}
+    function msRevealedSafe(mines,rev){let cnt=0;for(let i=0;i<mines.length;i++)if(!mines[i]&&rev[i])cnt++;return cnt;}
+    function renderMsPanel(mines,rev,flag,dead,done,rows,cols,isMe,label,el,room){
+      const total=msSafeCells(mines);
+      const cleared=msRevealedSafe(mines,rev);
+      el.innerHTML=`
+        <div class="ms-panel-label">${label} — ${cleared}/${total} ${dead?'💀':done?'✅':''}</div>
+        <div class="ms-board" style="grid-template-columns:repeat(${cols},1fr)">
+          ${mines.map((_,idx)=>{
+            const r=Math.floor(idx/cols),c=idx%cols;
+            const isRev=rev[idx],isFlag=flag[idx],isMine=mines[idx];
+            const adj=isRev&&!isMine?msAdjCount(mines,idx,rows,cols):0;
+            let cls='ms-cell';
+            if(isRev){cls+=' ms-rev'+(adj>0?' n'+adj:'');if(isMine)cls+=' ms-mine';}
+            else if(isFlag){cls+=' ms-flag';}
+            else if(dead||done){cls+=' ms-dead-cell';}
+            const txt=isRev?(isMine?'💥':adj||''):(isFlag?'🚩':'');
+            return `<div class="${cls}" data-idx="${idx}" data-me="${isMe}">${txt}</div>`;
+          }).join('')}
+        </div>`;
+      if(isMe && !dead && !done && room.status==='playing') {
+        el.querySelectorAll('.ms-cell:not(.ms-rev):not(.ms-dead-cell)').forEach(cell=>{
+          cell.addEventListener('click',()=>msCellClick(parseInt(cell.dataset.idx),room,false));
+          cell.addEventListener('contextmenu',e=>{e.preventDefault();msCellClick(parseInt(cell.dataset.idx),room,true);});
+        });
+      }
+    }
+    function renderMinesweeper(room) {
+      const st=room.state;
+      const {mines,rows,cols,rev1,rev2,flag1,flag2,dead1,dead2,done1,done2}=st;
+      const myRev=myNum===1?rev1:rev2;
+      const myFlag=myNum===1?flag1:flag2;
+      const myDead=myNum===1?dead1:dead2;
+      const myDone=myNum===1?done1:done2;
+      const oppRev=myNum===1?rev2:rev1;
+      const oppFlag=myNum===1?flag2:flag1;
+      const oppDead=myNum===1?dead2:dead1;
+      const oppDone=myNum===1?done2:done1;
+      const myLabel='🟠 Você';
+      const oppName=myNum===1?room.player2_name:room.player1_name;
+      const oppLabel=`🔵 ${oppName||'Adversário'}`;
+      const el=document.getElementById('game-board');
+      el.innerHTML=`<div class="ms-wrap"><div class="ms-panel" id="ms-my-panel"></div><div class="ms-panel" id="ms-opp-panel"></div></div><div style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);font-weight:700">Clique esquerdo: revelar | Clique direito: bandeira</div>`;
+      renderMsPanel(mines,myRev,myFlag,myDead,myDone,rows,cols,true,myLabel,document.getElementById('ms-my-panel'),room);
+      renderMsPanel(mines,oppRev,oppFlag,oppDead,oppDone,rows,cols,false,oppLabel,document.getElementById('ms-opp-panel'),room);
+    }
+    async function msCellClick(idx,room,rightClick) {
+      if(!currentRoom||room.status!=='playing')return;
+      const st2=JSON.parse(JSON.stringify(room.state));
+      const rev=myNum===1?st2.rev1:st2.rev2;
+      const flag=myNum===1?st2.flag1:st2.flag2;
+      if(rev[idx])return;
+      if(rightClick){flag[idx]=!flag[idx];await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);return;}
+      if(flag[idx])return;
+      if(st2.mines[idx]){
+        // hit mine
+        rev[idx]=true;
+        if(myNum===1)st2.dead1=true;else st2.dead2=true;
+        // if other player already done/dead, end game
+        const otherDone=myNum===1?st2.done2:st2.done1;
+        const otherDead=myNum===1?st2.dead2:st2.dead1;
+        if(otherDone||otherDead){
+          const winner=otherDone?myNum===1?2:1:0;
+          await supabase.from('game_rooms').update({state:st2,status:'finished',winner}).eq('id',currentRoom.id);
+        } else {
+          await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+        }
+        return;
+      }
+      msFloodReveal(st2.mines,rev,idx,st2.rows,st2.cols);
+      const safe=msSafeCells(st2.mines);
+      const cleared=msRevealedSafe(st2.mines,rev);
+      if(cleared>=safe){
+        if(myNum===1)st2.done1=true;else st2.done2=true;
+        const otherDone=myNum===1?st2.done2:st2.done1;
+        const otherDead=myNum===1?st2.dead2:st2.dead1;
+        const winner=myNum; // I finished first
+        if(otherDone||otherDead){
+          await supabase.from('game_rooms').update({state:st2,status:'finished',winner}).eq('id',currentRoom.id);
+        } else {
+          await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+        }
+      } else {
+        await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+      }
+    }
+
+    // ===== NONOGRAM MULTI =====
+    function ngGetClues(flat,sz){
+      const rowC=[],colC=[];
+      for(let r=0;r<sz;r++){const run=[];let cnt=0;for(let c=0;c<sz;c++){if(flat[r*sz+c])cnt++;else{if(cnt)run.push(cnt);cnt=0;}}if(cnt)run.push(cnt);rowC.push(run.length?run:[0]);}
+      for(let c=0;c<sz;c++){const run=[];let cnt=0;for(let r=0;r<sz;r++){if(flat[r*sz+c])cnt++;else{if(cnt)run.push(cnt);cnt=0;}}if(cnt)run.push(cnt);colC.push(run.length?run:[0]);}
+      return{rowC,colC};
+    }
+    function ngCheck(sol,grid,sz){return sol.every((v,i)=>(v===1)===(grid[i]===1));}
+    function renderNgGrid(sol,grid,sz,isMe,el,room){
+      const {rowC,colC}=ngGetClues(sol,sz);
+      const maxColClue=Math.max(...colC.map(c=>c.length));
+      let html=`<div class="ng-grid-wrap"><div style="display:flex;flex-direction:column;gap:0">`;
+      // top-left corner spacer rows
+      for(let i=0;i<maxColClue;i++){
+        html+=`<div style="display:flex;gap:0">`;
+        html+=`<div style="min-width:20px"></div>`;
+        colC.forEach((cc,ci)=>{
+          const offset=maxColClue-cc.length;
+          html+=`<div class="ng-cell" style="cursor:default;background:transparent;border-color:transparent;font-size:0.6rem;color:rgba(255,255,255,0.45);min-width:22px;height:22px;font-weight:800">${i>=offset?cc[i-offset]:''}</div>`;
+        });
+        html+=`</div>`;
+      }
+      // rows
+      for(let r=0;r<sz;r++){
+        html+=`<div style="display:flex;gap:0">`;
+        html+=`<div style="min-width:20px;font-size:0.6rem;font-weight:800;color:rgba(255,255,255,0.45);display:flex;align-items:center;justify-content:flex-end;padding-right:3px">${rowC[r].join(' ')}</div>`;
+        for(let c=0;c<sz;c++){
+          const idx=r*sz+c;
+          const v=grid[idx];
+          let cls='ng-cell'+(isMe?'':' opponent');
+          if(v===1)cls+=' filled';
+          else if(v===2)cls+=' crossed';
+          html+=`<div class="${cls}" data-idx="${idx}">${v===2?'×':''}</div>`;
+        }
+        html+=`</div>`;
+      }
+      html+=`</div></div>`;
+      el.innerHTML=html;
+      if(isMe&&room.status==='playing'){
+        el.querySelectorAll('.ng-cell[data-idx]').forEach(cell=>{
+          cell.addEventListener('click',()=>ngCellClick(parseInt(cell.dataset.idx),room,false));
+          cell.addEventListener('contextmenu',e=>{e.preventDefault();ngCellClick(parseInt(cell.dataset.idx),room,true);});
+        });
+      }
+    }
+    function renderNonogram(room) {
+      const st=room.state;
+      const {solution,grid1,grid2,sz,done1,done2}=st;
+      const myGrid=myNum===1?grid1:grid2;
+      const oppGrid=myNum===1?grid2:grid1;
+      const myDone=myNum===1?done1:done2;
+      const oppDone=myNum===1?done2:done1;
+      const oppName=myNum===1?room.player2_name:room.player1_name;
+      const el=document.getElementById('game-board');
+      el.innerHTML=`
+        <div class="ng-wrap">
+          <div class="ng-panel">
+            <div class="ng-panel-label">🟠 Você ${myDone?'✅':''}</div>
+            <div id="ng-my-grid"></div>
+          </div>
+          <div class="ng-panel">
+            <div class="ng-panel-label">🔵 ${oppName||'Adversário'} ${oppDone?'✅':''}</div>
+            <div id="ng-opp-grid"></div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.35);font-weight:700;margin-top:0.5rem">Clique: preencher | Clique direito: marcar X</div>`;
+      renderNgGrid(solution,myGrid,sz,true,document.getElementById('ng-my-grid'),room);
+      renderNgGrid(solution,oppGrid,sz,false,document.getElementById('ng-opp-grid'),room);
+    }
+    async function ngCellClick(idx,room,rightClick) {
+      if(!currentRoom||room.status!=='playing')return;
+      const st2=JSON.parse(JSON.stringify(room.state));
+      const grid=myNum===1?st2.grid1:st2.grid2;
+      if(rightClick){grid[idx]=grid[idx]===2?0:2;}
+      else{grid[idx]=grid[idx]===1?0:1;}
+      // check completion
+      if(ngCheck(st2.solution,grid,st2.sz)){
+        if(myNum===1)st2.done1=true;else st2.done2=true;
+        const otherDone=myNum===1?st2.done2:st2.done1;
+        const winner=myNum; // I finished first
+        if(otherDone){await supabase.from('game_rooms').update({state:st2,status:'finished',winner:0}).eq('id',currentRoom.id);}
+        else{await supabase.from('game_rooms').update({state:st2,status:'finished',winner}).eq('id',currentRoom.id);}
+      } else {
+        await supabase.from('game_rooms').update({state:st2}).eq('id',currentRoom.id);
+      }
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -3234,9 +3637,7 @@
         // Game doesn't have multiplayer yet — show banner
         const LABELS = {
           solitaire:'Paciência', freecell:'Freecell', spider:'Spider Solitaire',
-          blackjack:'Blackjack', truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
-          minesweeper:'Campo Minado',
-          nonogram:'Nonogram',
+          truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
           mahjong:'Mahjong', sokoban:'Sokoban',
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
