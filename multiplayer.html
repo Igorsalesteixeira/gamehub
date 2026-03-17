@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multijogador - Games Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+  <style>
+    body { background: #0f0f1a; }
+
+    .multi-container { max-width: 760px; margin: 0 auto; padding: 0 1rem 4rem; }
+
+    /* HERO */
+    .multi-hero { text-align: center; padding: 2rem 1rem 1.8rem; }
+    .multi-hero h1 { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .multi-hero p { color: rgba(255,255,255,0.45); font-size: 0.95rem; }
+
+    /* ACTIONS */
+    .lobby-actions { display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+    .btn-create {
+      background: #ff6b35; color: #fff; border: none; border-radius: 999px;
+      padding: 0.75rem 1.8rem; font-family: 'Nunito', sans-serif; font-weight: 800;
+      font-size: 1rem; cursor: pointer; transition: background 0.2s, transform 0.1s;
+    }
+    .btn-create:hover { background: #e85d2a; transform: scale(1.02); }
+    .join-code-wrap { display: flex; gap: 0.5rem; align-items: center; }
+    .join-code-input {
+      padding: 0.7rem 1rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07); color: #fff; font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.95rem; width: 130px; text-transform: uppercase; letter-spacing: 2px;
+    }
+    .join-code-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+    .btn-join-code {
+      padding: 0.7rem 1.2rem; border-radius: 999px; border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8);
+      font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-join-code:hover { border-color: #ff6b35; color: #ff8f5e; }
+
+    /* SECTION */
+    .section-title {
+      font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
+    }
+
+    /* ROOM CARDS */
+    .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .room-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px; padding: 1.2rem; display: flex; flex-direction: column;
+      gap: 0.5rem; transition: border-color 0.2s, background 0.2s;
+    }
+    .room-card:hover { border-color: rgba(255,107,53,0.35); background: rgba(255,255,255,0.07); }
+    .room-card-game { font-size: 1.6rem; }
+    .room-card-name { font-weight: 700; color: rgba(255,255,255,0.85); font-size: 0.95rem; }
+    .room-card-sub { font-size: 0.78rem; color: rgba(255,255,255,0.4); font-weight: 600; }
+    .btn-enter {
+      margin-top: 0.4rem; background: rgba(255,107,53,0.12); color: #ff8f5e;
+      border: 1.5px solid rgba(255,107,53,0.3); border-radius: 999px; padding: 0.4rem 1rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.83rem;
+      cursor: pointer; transition: all 0.2s; align-self: flex-start;
+    }
+    .btn-enter:hover { background: #ff6b35; color: #fff; border-color: #ff6b35; }
+    .empty-rooms {
+      text-align: center; padding: 2.5rem 1rem; color: rgba(255,255,255,0.3); font-weight: 600;
+      border: 1.5px dashed rgba(255,255,255,0.09); border-radius: 16px; margin-bottom: 2rem;
+    }
+    .empty-rooms .ei { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: flex;
+      align-items: center; justify-content: center; z-index: 2000;
+      backdrop-filter: blur(4px); padding: 1rem;
+    }
+    .modal {
+      background: #1a1a2e; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px; padding: 2rem; width: 100%; max-width: 400px;
+    }
+    .modal h3 { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 1.5rem; }
+    .modal-label { font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .game-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.2rem; }
+    .game-option {
+      padding: 0.75rem 0.5rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.83rem;
+      cursor: pointer; text-align: center; transition: all 0.15s;
+    }
+    .game-option:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .game-option.sel { border-color: #ff6b35; background: rgba(255,107,53,0.15); color: #ff8f5e; }
+    .game-option-icon { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+    .mode-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.5rem; }
+    .mode-option {
+      padding: 0.7rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+      cursor: pointer; text-align: center; transition: all 0.15s; line-height: 1.4;
+    }
+    .mode-option:hover { border-color: #ff6b35; }
+    .mode-option.sel { border-color: #ff6b35; background: rgba(255,107,53,0.15); color: #ff8f5e; }
+    .mode-option small { font-size: 0.72rem; color: rgba(255,255,255,0.35); display: block; font-weight: 600; }
+    .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+    .btn-cancel {
+      background: transparent; border: 1.5px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5);
+      border-radius: 999px; padding: 0.6rem 1.2rem; font-family: 'Nunito', sans-serif;
+      font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+    .btn-confirm {
+      background: #ff6b35; border: none; color: #fff; border-radius: 999px; padding: 0.6rem 1.4rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-confirm:hover { background: #e85d2a; }
+
+    /* WAITING */
+    .waiting-view { text-align: center; padding: 3rem 1rem; }
+    .waiting-spinner { font-size: 3rem; animation: spin 2s linear infinite; display: block; margin-bottom: 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .waiting-title { font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+    .waiting-sub { color: rgba(255,255,255,0.45); margin-bottom: 2rem; }
+    .room-code-box {
+      background: rgba(255,107,53,0.1); border: 2px solid rgba(255,107,53,0.3);
+      border-radius: 16px; padding: 1.2rem 2rem; display: inline-block; margin-bottom: 1.5rem;
+    }
+    .room-code-label { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem; }
+    .room-code-value { font-size: 2.2rem; font-weight: 800; color: #ff8f5e; letter-spacing: 6px; }
+    .btn-copy {
+      display: block; margin: 0.8rem auto 0; background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6);
+      border-radius: 999px; padding: 0.45rem 1.1rem; font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-copy:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .btn-abandon {
+      background: transparent; border: 1.5px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.35); border-radius: 999px; padding: 0.5rem 1.2rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-abandon:hover { border-color: #e53935; color: #ef5350; }
+
+    /* PLAYING */
+    .game-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .game-vs { font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.45); }
+    .game-vs strong { color: rgba(255,255,255,0.9); }
+    .turn-indicator { padding: 0.45rem 1rem; border-radius: 999px; font-weight: 800; font-size: 0.85rem; white-space: nowrap; }
+    .turn-mine { background: rgba(255,107,53,0.2); color: #ff8f5e; border: 1.5px solid rgba(255,107,53,0.4); }
+    .turn-theirs { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); border: 1.5px solid rgba(255,255,255,0.1); }
+
+    /* TICTACTOE */
+    .ttt-board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 300px; margin: 0 auto 1.5rem; }
+    .ttt-cell {
+      aspect-ratio: 1; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; user-select: none;
+    }
+    .ttt-cell:hover:not(.taken) { background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.3); }
+    .ttt-cell.taken { cursor: default; }
+    .ttt-cell.win-cell { background: rgba(255,107,53,0.2); border-color: #ff6b35; }
+
+    /* CONNECT 4 */
+    .c4-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; }
+    .c4-col-btns { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 4px; width: 100%; max-width: 360px; }
+    .c4-col-btn {
+      background: rgba(255,255,255,0.04); border: none; padding: 0.3rem 0;
+      cursor: pointer; border-radius: 6px; transition: background 0.15s;
+      font-size: 0.8rem; color: rgba(255,255,255,0.3); font-family: 'Nunito', sans-serif; font-weight: 700;
+    }
+    .c4-col-btn:hover:not(:disabled) { background: rgba(255,107,53,0.15); color: #ff8f5e; }
+    .c4-col-btn:disabled { opacity: 0.25; cursor: default; }
+    .c4-board {
+      background: rgba(33,150,243,0.12); border: 2px solid rgba(33,150,243,0.25);
+      border-radius: 14px; padding: 10px; width: 100%; max-width: 360px;
+    }
+    .c4-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+    .c4-cell {
+      aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.07); transition: background 0.2s;
+    }
+    .c4-cell.p1 { background: #ff6b35; box-shadow: 0 0 8px rgba(255,107,53,0.5); }
+    .c4-cell.p2 { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+    .c4-cell.win-cell { box-shadow: 0 0 16px rgba(255,255,255,0.7); outline: 2px solid #fff; }
+
+    /* RESULT */
+    .result-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
+      align-items: center; justify-content: center; z-index: 1500;
+      backdrop-filter: blur(5px); padding: 1rem;
+    }
+    .result-card {
+      background: #1a1a2e; border: 1px solid rgba(255,255,255,0.12); border-radius: 24px;
+      padding: 2.5rem 2rem; text-align: center; max-width: 340px; width: 100%;
+    }
+    .result-emoji { font-size: 4rem; margin-bottom: 0.8rem; }
+    .result-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.4rem; }
+    .result-sub { color: rgba(255,255,255,0.5); margin-bottom: 1.5rem; }
+    .result-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .btn-back-lobby {
+      background: #ff6b35; border: none; color: #fff; border-radius: 999px; padding: 0.7rem 1.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-back-lobby:hover { background: #e85d2a; }
+
+    @media (max-width: 480px) {
+      .c4-cell { min-width: 0; }
+      .ttt-cell { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">🎮 Games Hub</div>
+      <p class="tagline">Multijogador</p>
+    </div>
+  </header>
+
+  <!-- LOBBY -->
+  <div id="view-lobby">
+    <div class="multi-hero">
+      <h1>🎮 Multijogador</h1>
+      <p>Jogue contra amigos ou entre em uma sala pública</p>
+    </div>
+    <div class="multi-container">
+      <div class="lobby-actions">
+        <button class="btn-create" id="btn-open-create">+ Criar Sala</button>
+        <div class="join-code-wrap">
+          <input class="join-code-input" id="code-input" maxlength="6" placeholder="CÓDIGO" />
+          <button class="btn-join-code" id="btn-join-code">Entrar</button>
+        </div>
+      </div>
+      <div class="section-title">Salas públicas aguardando jogador</div>
+      <div id="public-rooms-list">
+        <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING -->
+  <div id="view-waiting" style="display:none">
+    <div class="multi-container" style="padding-top:3rem">
+      <div class="waiting-view">
+        <span class="waiting-spinner">⏳</span>
+        <div class="waiting-title">Aguardando adversário...</div>
+        <div class="waiting-sub" id="waiting-sub">Sua sala está pública. Qualquer jogador pode entrar.</div>
+        <div id="code-box" style="display:none">
+          <div class="room-code-box">
+            <div class="room-code-label">Código da sala</div>
+            <div class="room-code-value" id="room-code-display"></div>
+          </div>
+          <button class="btn-copy" id="btn-copy-code">📋 Copiar código</button>
+        </div>
+        <br><br>
+        <button class="btn-abandon" id="btn-cancel-room">Cancelar sala</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAYING -->
+  <div id="view-playing" style="display:none">
+    <div class="multi-container" style="padding-top:1.5rem">
+      <div class="game-header">
+        <div class="game-vs">
+          <strong id="p1-name">Jogador 1</strong>
+          <span> vs </span>
+          <strong id="p2-name">Jogador 2</strong>
+        </div>
+        <div class="turn-indicator" id="turn-indicator">—</div>
+        <button class="btn-abandon" id="btn-abandon">Abandonar</button>
+      </div>
+      <div id="game-board" style="text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- CREATE MODAL -->
+  <div class="modal-backdrop" id="create-modal" style="display:none">
+    <div class="modal">
+      <h3>🎮 Criar Sala</h3>
+      <div class="modal-label">Escolha o jogo</div>
+      <div class="game-select-grid">
+        <button class="game-option sel" data-game="tictactoe">
+          <span class="game-option-icon">❌</span>Jogo da Velha
+        </button>
+        <button class="game-option" data-game="connect4">
+          <span class="game-option-icon">🔴</span>Conecte 4
+        </button>
+      </div>
+      <div class="modal-label">Tipo de sala</div>
+      <div class="mode-select-grid">
+        <button class="mode-option sel" data-mode="public">
+          🌐 Pública<small>Qualquer um entra</small>
+        </button>
+        <button class="mode-option" data-mode="private">
+          🔒 Privada<small>Só com código</small>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btn-close-modal">Cancelar</button>
+        <button class="btn-confirm" id="btn-confirm-create">Criar sala</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-overlay" id="result-overlay" style="display:none">
+    <div class="result-card">
+      <div class="result-emoji" id="result-emoji">🏆</div>
+      <div class="result-title" id="result-title">Vitória!</div>
+      <div class="result-sub" id="result-sub"></div>
+      <div class="result-actions">
+        <button class="btn-back-lobby" id="btn-to-lobby">← Voltar ao lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+    import { initSidebar } from './sidebar.js?v=5';
+    initSidebar({ active: 'multi' });
+
+    // ===== AUTH =====
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = 'auth.html'; }
+    const me = session.user;
+    const myName = me.user_metadata?.display_name || me.user_metadata?.full_name || me.email.split('@')[0];
+
+    // ===== STATE =====
+    let currentRoom = null;
+    let myNum = null;
+    let rtChannel = null;
+    let selGame = 'tictactoe';
+    let selMode = 'public';
+    let isMyTurn = false;
+
+    // ===== VIEWS =====
+    function showView(v) {
+      ['lobby','waiting','playing'].forEach(id => {
+        document.getElementById(`view-${id}`).style.display = id === v ? '' : 'none';
+      });
+    }
+
+    // ===== GAMES =====
+    const GAMES = {
+      tictactoe: { name: 'Jogo da Velha', icon: '❌', initState: () => ({ board: Array(9).fill(null) }) },
+      connect4:  { name: 'Conecte 4',     icon: '🔴', initState: () => ({ board: Array(6).fill(null).map(() => Array(7).fill(0)) }) },
+    };
+
+    // ===== WIN DETECTION =====
+    function checkTTT(board) {
+      const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      for (const [a,b,c] of lines) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c])
+          return { winner: board[a], line: [a,b,c] };
+      }
+      if (board.every(c => c !== null)) return { winner: 0 };
+      return null;
+    }
+    function checkC4(board) {
+      const R = 6, C = 7, dirs = [[0,1],[1,0],[1,1],[1,-1]];
+      for (let r = 0; r < R; r++) {
+        for (let c = 0; c < C; c++) {
+          const p = board[r][c];
+          if (!p) continue;
+          for (const [dr,dc] of dirs) {
+            const cells = [[r,c]];
+            for (let i = 1; i < 4; i++) {
+              const nr = r+dr*i, nc = c+dc*i;
+              if (nr<0||nr>=R||nc<0||nc>=C||board[nr][nc]!==p) break;
+              cells.push([nr,nc]);
+            }
+            if (cells.length === 4) return { winner: p, cells };
+          }
+        }
+      }
+      if (board[0].every(c => c !== 0)) return { winner: 0 };
+      return null;
+    }
+
+    // ===== UTILS =====
+    function genCode() {
+      return Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
+    }
+
+    // ===== REALTIME =====
+    function subscribeToRoom(roomId) {
+      if (rtChannel) supabase.removeChannel(rtChannel);
+      rtChannel = supabase.channel(`room-${roomId}`)
+        .on('postgres_changes', {
+          event: 'UPDATE', schema: 'public', table: 'game_rooms', filter: `id=eq.${roomId}`
+        }, payload => handleRoomUpdate(payload.new))
+        .subscribe();
+    }
+
+    function handleRoomUpdate(room) {
+      currentRoom = room;
+      const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
+      if (room.status === 'playing' && isWaiting) {
+        showView('playing');
+        renderPlaying(room);
+      } else if (room.status === 'playing') {
+        renderPlaying(room);
+      } else if (room.status === 'finished') {
+        renderPlaying(room);
+        showResult(room);
+      }
+    }
+
+    // ===== CREATE =====
+    async function createRoom() {
+      document.getElementById('btn-confirm-create').textContent = 'Criando...';
+      const code = genCode();
+      const { data, error } = await supabase.from('game_rooms').insert({
+        code, game: selGame, mode: selMode,
+        player1_id: me.id, player1_name: myName,
+        state: GAMES[selGame].initState(), turn: 1, status: 'waiting',
+      }).select().single();
+      document.getElementById('btn-confirm-create').textContent = 'Criar sala';
+      if (error) { alert('Erro ao criar sala: ' + error.message); return; }
+      currentRoom = data; myNum = 1;
+      document.getElementById('create-modal').style.display = 'none';
+      showView('waiting');
+      if (selMode === 'private') {
+        document.getElementById('code-box').style.display = 'block';
+        document.getElementById('room-code-display').textContent = code;
+        document.getElementById('waiting-sub').textContent = 'Sala privada — compartilhe o código com seu amigo.';
+      } else {
+        document.getElementById('code-box').style.display = 'none';
+        document.getElementById('waiting-sub').textContent = 'Sala pública — aguardando alguém entrar...';
+      }
+      subscribeToRoom(data.id);
+    }
+
+    // ===== JOIN =====
+    async function joinRoom(roomId) {
+      const { data: room } = await supabase.from('game_rooms').select('*').eq('id', roomId).single();
+      if (!room || room.status !== 'waiting') { alert('Sala indisponível.'); loadPublicRooms(); return; }
+      if (room.player1_id === me.id) { alert('Você criou essa sala! Aguarde um adversário.'); return; }
+      const { data: updated, error } = await supabase.from('game_rooms')
+        .update({ player2_id: me.id, player2_name: myName, status: 'playing' })
+        .eq('id', roomId).eq('status', 'waiting').is('player2_id', null)
+        .select().single();
+      if (error || !updated) { alert('Não foi possível entrar. Tente outra sala.'); return; }
+      currentRoom = updated; myNum = 2;
+      showView('playing');
+      renderPlaying(updated);
+      subscribeToRoom(updated.id);
+    }
+
+    async function joinByCode(code) {
+      const { data } = await supabase.from('game_rooms')
+        .select('*').eq('code', code.toUpperCase()).eq('status', 'waiting').single();
+      if (!data) { alert('Código inválido ou sala já encerrada.'); return; }
+      await joinRoom(data.id);
+    }
+
+    // ===== PLAYING =====
+    function renderPlaying(room) {
+      document.getElementById('p1-name').textContent = room.player1_name || 'Jogador 1';
+      document.getElementById('p2-name').textContent = room.player2_name || 'Jogador 2';
+      isMyTurn = room.turn === myNum && room.status === 'playing';
+      const ti = document.getElementById('turn-indicator');
+      if (room.status === 'finished') {
+        ti.textContent = 'Partida encerrada';
+        ti.className = 'turn-indicator turn-theirs';
+      } else if (isMyTurn) {
+        ti.textContent = 'Sua vez!';
+        ti.className = 'turn-indicator turn-mine';
+      } else {
+        const op = myNum === 1 ? room.player2_name : room.player1_name;
+        ti.textContent = `Vez de ${op || 'adversário'}`;
+        ti.className = 'turn-indicator turn-theirs';
+      }
+      if (room.game === 'tictactoe') renderTTT(room);
+      else renderC4(room);
+    }
+
+    // ===== TICTACTOE =====
+    function renderTTT(room) {
+      const board = room.state.board;
+      const result = checkTTT(board);
+      const winLine = result?.line || [];
+      const el = document.getElementById('game-board');
+      el.innerHTML = `<div class="ttt-board">${
+        board.map((cell, i) => {
+          const icon = cell === 1 ? '❌' : cell === 2 ? '⭕' : '';
+          const cls = ['ttt-cell', cell ? 'taken' : '', winLine.includes(i) ? 'win-cell' : ''].join(' ').trim();
+          return `<div class="${cls}" data-idx="${i}">${icon}</div>`;
+        }).join('')
+      }</div>`;
+      if (!result && isMyTurn) {
+        el.querySelectorAll('.ttt-cell:not(.taken)').forEach(c => {
+          c.addEventListener('click', () => makeTTTMove(parseInt(c.dataset.idx)));
+        });
+      }
+    }
+    async function makeTTTMove(idx) {
+      if (!isMyTurn || !currentRoom) return;
+      isMyTurn = false;
+      const board = [...currentRoom.state.board];
+      if (board[idx]) return;
+      board[idx] = myNum;
+      const result = checkTTT(board);
+      await supabase.from('game_rooms').update({
+        state: { board }, turn: myNum === 1 ? 2 : 1,
+        status: result ? 'finished' : 'playing',
+        winner: result ? result.winner : null,
+      }).eq('id', currentRoom.id);
+    }
+
+    // ===== CONNECT 4 =====
+    function renderC4(room) {
+      const board = room.state.board;
+      const result = checkC4(board);
+      const winSet = new Set((result?.cells || []).map(([r,c]) => `${r},${c}`));
+      const el = document.getElementById('game-board');
+      const colBtns = Array.from({length:7}, (_,c) => {
+        const full = board[0][c] !== 0;
+        const dis = !isMyTurn || !!result || full;
+        return `<button class="c4-col-btn" data-col="${c}" ${dis?'disabled':''}>▼</button>`;
+      }).join('');
+      const cells = board.map((row, r) =>
+        row.map((cell, c) => {
+          const cls = ['c4-cell', cell===1?'p1':cell===2?'p2':'', winSet.has(`${r},${c}`)?'win-cell':''].join(' ').trim();
+          return `<div class="${cls}"></div>`;
+        }).join('')
+      ).join('');
+      el.innerHTML = `
+        <div class="c4-wrap">
+          <div class="c4-col-btns">${colBtns}</div>
+          <div class="c4-board"><div class="c4-grid">${cells}</div></div>
+        </div>`;
+      if (isMyTurn && !result) {
+        el.querySelectorAll('.c4-col-btn:not([disabled])').forEach(btn => {
+          btn.addEventListener('click', () => makeC4Move(parseInt(btn.dataset.col)));
+        });
+      }
+    }
+    async function makeC4Move(col) {
+      if (!isMyTurn || !currentRoom) return;
+      isMyTurn = false;
+      const board = currentRoom.state.board.map(r => [...r]);
+      let row = -1;
+      for (let r = 5; r >= 0; r--) { if (board[r][col] === 0) { row = r; break; } }
+      if (row === -1) return;
+      board[row][col] = myNum;
+      const result = checkC4(board);
+      await supabase.from('game_rooms').update({
+        state: { board }, turn: myNum === 1 ? 2 : 1,
+        status: result ? 'finished' : 'playing',
+        winner: result ? result.winner : null,
+      }).eq('id', currentRoom.id);
+    }
+
+    // ===== RESULT =====
+    function showResult(room) {
+      const w = room.winner;
+      let emoji, title, sub;
+      if (w === 0) {
+        emoji = '🤝'; title = 'Empate!'; sub = 'Partida muito equilibrada!';
+      } else if (w === myNum) {
+        emoji = '🏆'; title = 'Você venceu!'; sub = 'Parabéns, excelente jogada!';
+      } else {
+        const op = myNum === 1 ? room.player2_name : room.player1_name;
+        emoji = '😢'; title = 'Você perdeu!'; sub = `${op || 'Adversário'} ganhou dessa vez.`;
+      }
+      document.getElementById('result-emoji').textContent = emoji;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-sub').textContent = sub;
+      document.getElementById('result-overlay').style.display = 'flex';
+    }
+
+    // ===== PUBLIC ROOMS =====
+    async function loadPublicRooms() {
+      const cutoff = new Date(Date.now() - 30 * 60000).toISOString();
+      const { data } = await supabase.from('game_rooms')
+        .select('*').eq('mode','public').eq('status','waiting')
+        .neq('player1_id', me.id).gte('created_at', cutoff)
+        .order('created_at', { ascending: false }).limit(12);
+      const el = document.getElementById('public-rooms-list');
+      if (!data || !data.length) {
+        el.innerHTML = `<div class="empty-rooms"><div class="ei">🕹️</div>Nenhuma sala pública aberta agora.<br>Crie uma e espere alguém entrar!</div>`;
+        return;
+      }
+      el.innerHTML = `<div class="room-grid">${data.map(room => {
+        const g = GAMES[room.game] || { icon: '🎮', name: room.game };
+        return `<div class="room-card">
+          <div class="room-card-game">${g.icon}</div>
+          <div class="room-card-name">${g.name}</div>
+          <div class="room-card-sub">por ${room.player1_name || 'Jogador'}</div>
+          <button class="btn-enter" data-id="${room.id}">Entrar →</button>
+        </div>`;
+      }).join('')}</div>`;
+      el.querySelectorAll('.btn-enter').forEach(btn => {
+        btn.addEventListener('click', () => joinRoom(btn.dataset.id));
+      });
+    }
+
+    // ===== EVENTS =====
+    document.getElementById('btn-open-create').addEventListener('click', () => {
+      document.getElementById('create-modal').style.display = 'flex';
+    });
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+      document.getElementById('create-modal').style.display = 'none';
+    });
+    document.getElementById('btn-confirm-create').addEventListener('click', createRoom);
+
+    document.querySelectorAll('.game-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.game-option').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel'); selGame = btn.dataset.game;
+      });
+    });
+    document.querySelectorAll('.mode-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-option').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel'); selMode = btn.dataset.mode;
+      });
+    });
+
+    document.getElementById('btn-join-code').addEventListener('click', () => {
+      const code = document.getElementById('code-input').value.trim();
+      if (code.length !== 6) { alert('Digite um código de 6 letras.'); return; }
+      joinByCode(code);
+    });
+    document.getElementById('code-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-join-code').click();
+    });
+
+    document.getElementById('btn-copy-code').addEventListener('click', () => {
+      const code = document.getElementById('room-code-display').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('btn-copy-code');
+        btn.textContent = '✅ Copiado!';
+        setTimeout(() => { btn.textContent = '📋 Copiar código'; }, 2000);
+      });
+    });
+
+    document.getElementById('btn-cancel-room').addEventListener('click', async () => {
+      if (currentRoom) {
+        await supabase.from('game_rooms').delete().eq('id', currentRoom.id).eq('player1_id', me.id);
+        if (rtChannel) supabase.removeChannel(rtChannel);
+        currentRoom = null;
+      }
+      showView('lobby'); loadPublicRooms();
+    });
+
+    document.getElementById('btn-abandon').addEventListener('click', async () => {
+      if (!currentRoom) return;
+      await supabase.from('game_rooms').update({
+        status: 'finished', winner: myNum === 1 ? 2 : 1,
+      }).eq('id', currentRoom.id);
+    });
+
+    document.getElementById('btn-to-lobby').addEventListener('click', () => {
+      document.getElementById('result-overlay').style.display = 'none';
+      if (rtChannel) supabase.removeChannel(rtChannel);
+      currentRoom = null; myNum = null;
+      showView('lobby'); loadPublicRooms();
+    });
+
+    // ===== INIT =====
+    loadPublicRooms();
+    setInterval(() => {
+      if (document.getElementById('view-lobby').style.display !== 'none') loadPublicRooms();
+    }, 15000);
+  </script>
+</body>
+</html>

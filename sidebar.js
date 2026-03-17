@@ -231,6 +231,10 @@ export function initSidebar(options = {}) {
         <span class="sidebar-icon">👤</span>
         <span>Meu Perfil</span>
       </a>
+      <a href="${base}multiplayer.html" class="sidebar-link ${isActive('multi')}">
+        <span class="sidebar-icon">🎮</span>
+        <span>Multijogador</span>
+      </a>
       <div class="sidebar-divider"></div>
       <span class="sidebar-section-label">Cartas</span>
       <a href="${base}games/solitaire/index.html" class="sidebar-link ${isActive('paciencia')}"><span class="sidebar-icon">🃏</span><span>Paciencia</span></a>
