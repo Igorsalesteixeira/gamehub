@@ -38,6 +38,14 @@ body {
 }
 .start-msg.hidden { display: none; }
 
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 480px) {
+  #game-canvas { width: 100vw; max-width: 100vw; }
+  .start-msg { font-size: 0.95rem; bottom: 15%; }
+  .topbar { padding: 0.4rem 0.8rem; }
+  .game-title { font-size: 1rem; }
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 body:has(.game-info) { overflow-y: auto; height: auto; min-height: 100dvh; }
 .game-info {

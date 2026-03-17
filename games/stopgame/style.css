@@ -25,6 +25,20 @@ body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-
 .results { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; text-align: center; }
 .results h3 { color: #eab308; margin-bottom: 0.5rem; }
 
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 480px) {
+  #game-container { padding: 0.8rem; gap: 0.7rem; }
+  .topbar { padding: 0.6rem 1rem; }
+  .topbar h1 { font-size: 1rem; }
+  .letter-display { font-size: 2rem; width: 50px; height: 50px; }
+  .timer { font-size: 1.2rem; }
+  .cat-label { font-size: 0.75rem; min-width: 60px; }
+  .cat-input { padding: 0.5rem 0.6rem; font-size: 0.88rem; }
+  .cat-result { font-size: 0.75rem; min-width: 40px; }
+  .btn { padding: 0.55rem 1.2rem; font-size: 0.9rem; }
+  .round-info { gap: 0.6rem; }
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;

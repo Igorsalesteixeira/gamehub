@@ -58,6 +58,15 @@ body {
 .modal h2 { font-size: 1.6rem; margin-bottom: 0.5rem; }
 .modal p { font-size: 1rem; margin-bottom: 1rem; color: #ccc; }
 
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 480px) {
+  .game-container { padding: 0.6rem; gap: 1rem; }
+  .board { width: min(300px, 92vw); gap: 4px; }
+  .tile { border-radius: 8px; }
+  .stats { gap: 0.5rem; font-size: 0.9rem; }
+  .btn-orange { padding: 0.6rem 1.5rem; font-size: 0.95rem; }
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;
