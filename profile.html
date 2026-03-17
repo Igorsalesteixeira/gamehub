@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Perfil - Games Hub</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <style>
+    .profile-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ===== HERO ===== */
+    .profile-hero {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      background: #fff;
+      border-radius: 20px;
+      padding: 1.5rem 1.8rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-info h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-info .profile-email {
+      font-size: 0.88rem;
+      color: #888;
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+
+    .profile-info .profile-since {
+      font-size: 0.8rem;
+      color: #bbb;
+      font-weight: 600;
+    }
+
+    .btn-logout {
+      background: #f5f5f5;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 999px;
+      padding: 0.45rem 1.1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-logout:hover {
+      background: #ffe5de;
+      border-color: #ff6b35;
+      color: #ff6b35;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #ff6b35;
+      line-height: 1.1;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 0.8rem;
+    }
+
+    /* ===== RECORDS ===== */
+    .records-wrap {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .records-category {
+      padding: 0.5rem 1.2rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .record-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.75rem 1.2rem;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.15s;
+    }
+    .record-row:last-child { border-bottom: none; }
+    .record-row:hover { background: #fafafa; }
+
+    .record-icon {
+      font-size: 1.2rem;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .record-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .record-games {
+      font-size: 0.8rem;
+      color: #aaa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .record-wins {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #4caf50;
+      white-space: nowrap;
+    }
+
+    .record-best {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #ff6b35;
+      white-space: nowrap;
+    }
+
+    /* ===== ACTIVITY ===== */
+    .activity-wrap {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .activity-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1.2rem;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.15s;
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-row:hover { background: #fafafa; }
+
+    .activity-icon {
+      font-size: 1.1rem;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .activity-game {
+      flex: 1;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #333;
+    }
+
+    .activity-result {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .activity-result.win  { background: #e8f5e9; color: #2e7d32; }
+    .activity-result.loss { background: #fce4ec; color: #c62828; }
+
+    .activity-meta {
+      font-size: 0.78rem;
+      color: #bbb;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #aaa;
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .empty-state p { font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; }
+    .empty-state a {
+      display: inline-block;
+      background: #ff6b35;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.5rem 1.4rem;
+      border-radius: 999px;
+      transition: opacity 0.2s;
+    }
+    .empty-state a:hover { opacity: 0.85; }
+
+    /* ===== LOADING ===== */
+    .loading {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #bbb;
+      font-weight: 600;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 480px) {
+      .profile-container { padding: 1.2rem 0.8rem 2rem; }
+      .profile-hero { padding: 1.1rem 1rem; gap: 0.9rem; }
+      .profile-avatar { width: 58px; height: 58px; font-size: 1.6rem; }
+      .profile-info h1 { font-size: 1.2rem; }
+      .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .stat-card { padding: 0.8rem 0.5rem; }
+      .stat-value { font-size: 1.25rem; }
+      .stat-label { font-size: 0.66rem; }
+      .record-row, .activity-row { padding: 0.65rem 0.9rem; }
+      .record-games { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">🎮 Games Hub</div>
+      <p class="tagline">Meu Perfil</p>
+    </div>
+  </header>
+
+  <main class="profile-container">
+
+    <!-- Hero -->
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profile-avatar">?</div>
+      <div class="profile-info">
+        <h1 id="profile-name">Carregando...</h1>
+        <div class="profile-email" id="profile-email"></div>
+        <div class="profile-since" id="profile-since"></div>
+      </div>
+      <button class="btn-logout" id="btn-logout">← Sair</button>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-label">Partidas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-wins">—</div>
+        <div class="stat-label">Vitórias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-winrate">—</div>
+        <div class="stat-label">Taxa vit.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-time">—</div>
+        <div class="stat-label">Tempo jogado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-unique">—</div>
+        <div class="stat-label">Jogos diff.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-favorite">—</div>
+        <div class="stat-label">Favorito</div>
+      </div>
+    </div>
+
+    <!-- Records -->
+    <div class="section-title">📊 Meus Recordes</div>
+    <div id="records-wrap"></div>
+
+    <!-- Recent activity -->
+    <div class="section-title">🕐 Atividade Recente</div>
+    <div id="activity-wrap"></div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Feito com ❤️ &mdash; Games Hub &copy; 2025</p>
+    <div class="footer-links">
+      <a href="sobre.html">Sobre</a>
+      <a href="privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+    import { initSidebar } from './sidebar.js?v=4';
+    initSidebar({ active: 'profile' });
+
+    // Auth check
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'auth.html';
+    }
+    const user = session.user;
+    const currentUserId = user.id;
+
+    // Logout
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      window.location.href = 'index.html';
+    });
+
+    // ===== GAMES DATA =====
+    const GAMES = {
+      solitaire:    { label: 'Paciência',      icon: '🃏', cat: 'Cartas',     ranked: 'time'  },
+      freecell:     { label: 'Freecell',       icon: '🂡', cat: 'Cartas',     ranked: 'time'  },
+      spider:       { label: 'Spider Solitaire',icon:'🕷️',cat: 'Cartas',     ranked: 'time'  },
+      blackjack:    { label: 'Blackjack',      icon: '🃏', cat: 'Cartas',     ranked: 'wins'  },
+      truco:        { label: 'Truco',          icon: '🂠', cat: 'Cartas',     ranked: 'wins'  },
+      uno:          { label: 'Uno',            icon: '🟥', cat: 'Cartas',     ranked: 'wins'  },
+      pyramid:      { label: 'Pirâmide',       icon: '🔺', cat: 'Cartas',     ranked: 'wins'  },
+      memory:       { label: 'Memória',        icon: '🧠', cat: 'Puzzle',     ranked: 'time'  },
+      minesweeper:  { label: 'Campo Minado',   icon: '💣', cat: 'Puzzle',     ranked: 'time'  },
+      game2048:     { label: '2048',           icon: '🔢', cat: 'Puzzle',     ranked: 'score' },
+      sudoku:       { label: 'Sudoku',         icon: '🔢', cat: 'Puzzle',     ranked: 'time'  },
+      puzzle15:     { label: 'Puzzle 15',      icon: '🧩', cat: 'Puzzle',     ranked: 'time'  },
+      nonogram:     { label: 'Nonogram',       icon: '🖼️', cat: 'Puzzle',    ranked: 'time'  },
+      mahjong:      { label: 'Mahjong',        icon: '🀄', cat: 'Puzzle',     ranked: 'time'  },
+      numble:       { label: 'Numble',         icon: '🔣', cat: 'Puzzle',     ranked: 'wins'  },
+      lightsout:    { label: 'Lights Out',     icon: '💡', cat: 'Puzzle',     ranked: 'time'  },
+      sokoban:      { label: 'Sokoban',        icon: '📦', cat: 'Puzzle',     ranked: 'time'  },
+      snake:        { label: 'Cobrinha',       icon: '🐍', cat: 'Arcade',     ranked: 'score' },
+      tetris:       { label: 'Tetris',         icon: '🧱', cat: 'Arcade',     ranked: 'score' },
+      flappybird:   { label: 'Flappy Bird',    icon: '🐦', cat: 'Arcade',     ranked: 'score' },
+      pong:         { label: 'Pong',           icon: '🏓', cat: 'Arcade',     ranked: 'score' },
+      breakout:     { label: 'Breakout',       icon: '🧱', cat: 'Arcade',     ranked: 'score' },
+      dinorunner:   { label: 'Dino Runner',    icon: '🦕', cat: 'Arcade',     ranked: 'score' },
+      spaceinvaders:{ label: 'Space Invaders', icon: '👾', cat: 'Arcade',     ranked: 'score' },
+      pacman:       { label: 'Pac-Man',        icon: '🟡', cat: 'Arcade',     ranked: 'score' },
+      cookieclicker:{ label: 'Cookie Clicker', icon: '🍪', cat: 'Casual',     ranked: 'score' },
+      checkers:     { label: 'Dama',           icon: '⚫', cat: 'Estratégia', ranked: 'time'  },
+      tictactoe:    { label: 'Jogo da Velha',  icon: '❌', cat: 'Estratégia', ranked: 'wins'  },
+      reversi:      { label: 'Reversi',        icon: '⚪', cat: 'Estratégia', ranked: 'time'  },
+      chess:        { label: 'Xadrez',         icon: '♟️', cat: 'Estratégia', ranked: 'time'  },
+      battleship:   { label: 'Batalha Naval',  icon: '🚢', cat: 'Estratégia', ranked: 'time'  },
+      connect4:     { label: 'Conecte 4',      icon: '🔴', cat: 'Estratégia', ranked: 'time'  },
+      go:           { label: 'Go',             icon: '⚫', cat: 'Estratégia', ranked: 'time'  },
+      termo:        { label: 'Termo',          icon: '📝', cat: 'Palavras',   ranked: 'wins'  },
+      hangman:      { label: 'Forca',          icon: '🔤', cat: 'Palavras',   ranked: 'wins'  },
+      wordsearch:   { label: 'Caça-Palavras',  icon: '🔍', cat: 'Palavras',   ranked: 'time'  },
+      anagram:      { label: 'Anagrama',       icon: '🔀', cat: 'Palavras',   ranked: 'wins'  },
+      stopgame:     { label: 'Stop!',          icon: '✋', cat: 'Palavras',   ranked: 'wins'  },
+    };
+
+    const CAT_ORDER = ['Cartas', 'Puzzle', 'Arcade', 'Estratégia', 'Palavras', 'Casual'];
+
+    // ===== AVATAR =====
+    function getAvatarColor(name) {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const hue = Math.abs(hash) % 360;
+      return `hsl(${hue}, 60%, 48%)`;
+    }
+
+    function formatTime(secs) {
+      if (!secs || secs <= 0) return '—';
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function formatTotalTime(secs) {
+      if (!secs || secs <= 0) return '0min';
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      if (h > 0) return `${h}h ${m}m`;
+      return `${m}min`;
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    function formatMemberSince(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    }
+
+    // ===== FILL HEADER =====
+    const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'Jogador';
+    const initial = displayName.charAt(0).toUpperCase();
+    const avatarEl = document.getElementById('profile-avatar');
+    avatarEl.textContent = initial;
+    avatarEl.style.background = getAvatarColor(displayName);
+
+    document.getElementById('profile-name').textContent = displayName;
+    document.getElementById('profile-email').textContent = user.email || '';
+    document.getElementById('profile-since').textContent = 'Membro desde ' + formatMemberSince(user.created_at);
+
+    // ===== FETCH ALL STATS =====
+    const { data: allStats, error: statsError } = await supabase
+      .from('game_stats')
+      .select('game, result, moves, time_seconds, score, created_at')
+      .eq('user_id', currentUserId)
+      .order('created_at', { ascending: false });
+
+    if (statsError) {
+      console.error('Erro ao carregar stats:', statsError);
+    }
+
+    const stats = allStats || [];
+
+    // ===== GLOBAL STATS =====
+    const total = stats.length;
+    const wins = stats.filter(s => s.result === 'win').length;
+    const winRate = total > 0 ? Math.round(wins / total * 100) : 0;
+    const totalTimeSecs = stats.reduce((acc, s) => acc + (s.time_seconds || 0), 0);
+    const uniqueGames = new Set(stats.map(s => s.game)).size;
+
+    // Favorite game (most played)
+    const gameCounts = {};
+    for (const s of stats) {
+      gameCounts[s.game] = (gameCounts[s.game] || 0) + 1;
+    }
+    let favoriteGame = '—';
+    if (Object.keys(gameCounts).length > 0) {
+      const topGame = Object.entries(gameCounts).sort((a, b) => b[1] - a[1])[0][0];
+      favoriteGame = GAMES[topGame]?.icon || '🎮';
+    }
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-wins').textContent = wins;
+    document.getElementById('stat-winrate').textContent = total > 0 ? winRate + '%' : '—';
+    document.getElementById('stat-time').textContent = formatTotalTime(totalTimeSecs);
+    document.getElementById('stat-unique').textContent = uniqueGames;
+    document.getElementById('stat-favorite').textContent = favoriteGame;
+
+    // ===== RECORDS PER GAME =====
+    // Group stats by game
+    const byGame = {};
+    for (const s of stats) {
+      if (!byGame[s.game]) byGame[s.game] = [];
+      byGame[s.game].push(s);
+    }
+
+    const recordsWrap = document.getElementById('records-wrap');
+
+    // Get games played, grouped by category
+    const playedGames = Object.keys(byGame);
+
+    if (playedGames.length === 0) {
+      recordsWrap.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🎮</div>
+          <p>Você ainda não jogou nenhuma partida registrada.<br>Comece a jogar para ver seus recordes aqui!</p>
+          <a href="index.html">Ver jogos</a>
+        </div>
+      `;
+    } else {
+      let recordsHtml = '<div class="records-wrap">';
+      let hasAny = false;
+
+      for (const cat of CAT_ORDER) {
+        const gamesInCat = Object.entries(GAMES)
+          .filter(([id, g]) => g.cat === cat && byGame[id])
+          .sort((a, b) => (byGame[b[0]]?.length || 0) - (byGame[a[0]]?.length || 0));
+
+        if (gamesInCat.length === 0) continue;
+        hasAny = true;
+        recordsHtml += `<div class="records-category">${cat}</div>`;
+
+        for (const [gameId, gameInfo] of gamesInCat) {
+          const gameSessions = byGame[gameId];
+          const gTotal = gameSessions.length;
+          const gWins = gameSessions.filter(s => s.result === 'win').length;
+
+          let bestLabel = '';
+          if (gameInfo.ranked === 'time') {
+            const bestWin = gameSessions
+              .filter(s => s.result === 'win' && s.time_seconds > 0)
+              .sort((a, b) => a.time_seconds - b.time_seconds)[0];
+            bestLabel = bestWin ? `⏱ ${formatTime(bestWin.time_seconds)}` : '';
+          } else if (gameInfo.ranked === 'score') {
+            const bestScore = Math.max(...gameSessions.map(s => s.score || 0));
+            bestLabel = bestScore > 0 ? `🎯 ${bestScore.toLocaleString('pt-BR')}` : '';
+          } else {
+            bestLabel = gWins > 0 ? `🏅 ${gWins} ${gWins === 1 ? 'vitória' : 'vitórias'}` : '';
+          }
+
+          const winsText = gameInfo.ranked !== 'wins'
+            ? `<span class="record-wins">${gWins}V / ${gTotal}</span>`
+            : `<span class="record-wins">${gWins}V</span>`;
+
+          recordsHtml += `
+            <div class="record-row">
+              <span class="record-icon">${gameInfo.icon}</span>
+              <span class="record-name">${gameInfo.label}</span>
+              <span class="record-games">${gTotal} ${gTotal === 1 ? 'partida' : 'partidas'}</span>
+              ${winsText}
+              ${bestLabel ? `<span class="record-best">${bestLabel}</span>` : ''}
+            </div>
+          `;
+        }
+      }
+
+      recordsHtml += '</div>';
+
+      if (!hasAny) {
+        recordsWrap.innerHTML = `
+          <div class="records-wrap">
+            <div class="loading">Nenhum recorde ainda. Vá jogar! 🎮</div>
+          </div>
+        `;
+      } else {
+        recordsWrap.innerHTML = recordsHtml;
+      }
+    }
+
+    // ===== RECENT ACTIVITY =====
+    const activityWrap = document.getElementById('activity-wrap');
+    const recent = stats.slice(0, 20);
+
+    if (recent.length === 0) {
+      activityWrap.innerHTML = `
+        <div class="activity-wrap">
+          <div class="loading">Nenhuma atividade ainda.</div>
+        </div>
+      `;
+    } else {
+      let actHtml = '<div class="activity-wrap">';
+
+      for (const s of recent) {
+        const gameInfo = GAMES[s.game];
+        const icon = gameInfo?.icon || '🎮';
+        const label = gameInfo?.label || s.game;
+        const isWin = s.result === 'win';
+        const resultClass = isWin ? 'win' : 'loss';
+        const resultText = isWin ? '✅ Vitória' : '❌ Derrota';
+
+        let metaText = formatDate(s.created_at);
+        if (gameInfo?.ranked === 'time' && s.time_seconds > 0) {
+          metaText = `⏱ ${formatTime(s.time_seconds)} · ${metaText}`;
+        } else if (gameInfo?.ranked === 'score' && s.score > 0) {
+          metaText = `🎯 ${s.score.toLocaleString('pt-BR')} · ${metaText}`;
+        }
+
+        actHtml += `
+          <div class="activity-row">
+            <span class="activity-icon">${icon}</span>
+            <span class="activity-game">${label}</span>
+            <span class="activity-result ${resultClass}">${resultText}</span>
+            <span class="activity-meta">${metaText}</span>
+          </div>
+        `;
+      }
+
+      actHtml += '</div>';
+      activityWrap.innerHTML = actHtml;
+    }
+  </script>
+</body>
+</html>
