@@ -599,18 +599,27 @@
       tableEl.innerHTML = `
         <div class="ranking-criterion">🌟 Nível global — XP acumulado de todos os tempos</div>
         <div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Calculando níveis...</div>`;
+      // Step 1: aggregate stats (no join to avoid large-result join issues)
       const { data, error } = await supabase.from('game_stats')
-        .select('user_id, result, profiles(display_name)').limit(5000);
+        .select('user_id, result').limit(5000);
       if (error || !data) {
         tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div>Erro ao carregar ranking de nível</div>`;
         return;
       }
       const stats = {};
       for (const r of data) {
-        if (!stats[r.user_id]) stats[r.user_id] = { name: r.profiles?.display_name || 'Jogador', total: 0, wins: 0 };
+        if (!stats[r.user_id]) stats[r.user_id] = { name: 'Jogador', total: 0, wins: 0 };
         stats[r.user_id].total++;
         if (r.result === 'win') stats[r.user_id].wins++;
-        if (r.profiles?.display_name) stats[r.user_id].name = r.profiles.display_name;
+      }
+      // Step 2: fetch display names separately for top users
+      const topUids = Object.entries(stats)
+        .sort((a,b) => (b[1].total*5+b[1].wins*15) - (a[1].total*5+a[1].wins*15))
+        .slice(0, 30).map(([uid]) => uid);
+      if (topUids.length > 0) {
+        const { data: profiles } = await supabase.from('profiles')
+          .select('id, display_name').in('id', topUids);
+        if (profiles) profiles.forEach(p => { if (stats[p.id]) stats[p.id].name = p.display_name || 'Jogador'; });
       }
       const sorted = Object.entries(stats)
         .map(([uid, s]) => {
