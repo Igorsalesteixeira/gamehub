@@ -345,6 +345,43 @@ export function initSidebar(options = {}) {
     }
   });
 
+  // Botao flutuante "Jogar com Amigos" em paginas de jogos
+  if (window.location.pathname.includes('/games/')) {
+    const gameName = window.location.pathname.split('/games/')[1].split('/')[0];
+
+    const friendBtn = document.createElement('a');
+    friendBtn.href = base + 'multiplayer.html?game=' + gameName;
+    friendBtn.className = 'friend-play-float';
+    friendBtn.innerHTML = '🎮 Jogar com Amigos';
+    document.body.appendChild(friendBtn);
+
+    const friendStyle = document.createElement('style');
+    friendStyle.textContent = `
+      .friend-play-float {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: linear-gradient(135deg, #7c3aed, #a855f7);
+        color: #fff;
+        border-radius: 999px;
+        padding: 0.55rem 1.1rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+        font-family: 'Nunito', sans-serif;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(124, 58, 237, 0.45);
+        z-index: 800;
+        transition: transform 0.2s, box-shadow 0.2s;
+        white-space: nowrap;
+      }
+      .friend-play-float:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+      }
+    `;
+    document.head.appendChild(friendStyle);
+  }
+
   // Botao flutuante "Reportar Bug" em paginas de jogos
   if (window.location.pathname.includes('/games/')) {
     const bugBtn = document.createElement('a');

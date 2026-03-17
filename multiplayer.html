@@ -357,7 +357,7 @@
 
   <script type="module">
     import { supabase } from './supabase.js';
-    import { initSidebar } from './sidebar.js?v=5';
+    import { initSidebar } from './sidebar.js?v=6';
     initSidebar({ active: 'multi' });
 
     // ===== AUTH =====
@@ -877,6 +877,40 @@
     setInterval(()=>{
       if (document.getElementById('view-lobby').style.display!=='none') loadPublicRooms();
     },15000);
+
+    // ===== URL PARAM: ?game=xxx =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlGame = urlParams.get('game');
+    if (urlGame) {
+      if (GAMES[urlGame]) {
+        // Game has multiplayer — pre-select and open modal
+        selGame = urlGame;
+        document.querySelectorAll('.game-option').forEach(b => {
+          b.classList.toggle('sel', b.dataset.game === urlGame);
+        });
+        document.getElementById('create-modal').style.display = 'flex';
+      } else {
+        // Game doesn't have multiplayer yet — show banner
+        const LABELS = {
+          solitaire:'Paciência', freecell:'Freecell', spider:'Spider Solitaire',
+          blackjack:'Blackjack', truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
+          memory:'Memória', minesweeper:'Campo Minado', game2048:'2048',
+          sudoku:'Sudoku', puzzle15:'Puzzle 15', nonogram:'Nonogram',
+          mahjong:'Mahjong', numble:'Numble', lightsout:'Lights Out', sokoban:'Sokoban',
+          snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
+          breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
+          pacman:'Pac-Man', cookieclicker:'Cookie Clicker', reversi:'Reversi',
+          chess:'Xadrez', battleship:'Batalha Naval', connect4:'Conecte 4', go:'Go',
+          termo:'Termo', hangman:'Forca', wordsearch:'Caça-Palavras',
+          anagram:'Anagrama', stopgame:'Stop!',
+        };
+        const gameName = LABELS[urlGame] || urlGame;
+        const banner = document.createElement('div');
+        banner.style.cssText = 'background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-align:center;padding:0.8rem 1rem;font-weight:700;font-size:0.9rem;';
+        banner.innerHTML = `🎮 Multijogador para <strong>${gameName}</strong> está chegando em breve! Enquanto isso, jogue uma das opções abaixo.`;
+        document.getElementById('view-lobby').insertBefore(banner, document.getElementById('view-lobby').firstChild);
+      }
+    }
   </script>
 </body>
 </html>
