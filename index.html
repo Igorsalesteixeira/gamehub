@@ -150,6 +150,15 @@
         <span class="badge badge-play">Jogar</span>
       </a>
 
+      <a href="games/buraco/index.html" class="game-card" data-category="cartas" data-name="Buraco Jogo de Cartas" data-game="buraco">
+        <div class="game-icon">🃏</div>
+        <div class="game-info"><h3>Buraco</h3><p>Forme canastas e vença no clássico brasileiro</p></div>
+        <span class="game-category-tag" data-cat="cartas">Cartas</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-buraco"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
       <a href="games/uno/index.html" class="game-card" data-category="cartas" data-name="Uno" data-game="uno">
         <div class="game-icon">🟥</div>
         <div class="game-info"><h3>Uno</h3><p>Jogue suas cartas e grite UNO!</p></div>
@@ -608,6 +617,7 @@
       renderTimeStats('freecell', 'stats-freecell');
       renderWinStats('blackjack', 'stats-blackjack');
       renderWinStats('truco', 'stats-truco');
+      renderScoreStats('buraco', 'stats-buraco');
       renderWinStats('uno', 'stats-uno');
       renderTimeStats('pyramid', 'stats-pyramid');
 

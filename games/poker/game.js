@@ -359,7 +359,7 @@ function awardPot(winnerIdx){
 function endGame(){
   gameOver=true;
   showModal('🎮','Fim de jogo!',players[0].chips>0?`Você terminou com ${players[0].chips} fichas!`:'Você ficou sem fichas!');
-  document.getElementById('btn-new-game').style.display='block';
+  document.getElementById('btn-modal-new').style.display='block';
 }
 
 // ===== STATS =====
@@ -492,7 +492,10 @@ function closeModal(){document.getElementById('modal-overlay').classList.add('hi
 
 // ===== EVENTS =====
 document.getElementById('btn-new-game').addEventListener('click',()=>{
-  document.getElementById('btn-new-game').style.display='none';
+  closeModal();init();
+});
+document.getElementById('btn-modal-new').addEventListener('click',()=>{
+  document.getElementById('btn-modal-new').style.display='none';
   closeModal();init();
 });
 

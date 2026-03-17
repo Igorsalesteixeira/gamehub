@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Buraco Online Gratis - Jogo de Cartas Brasileiro - Games Hub</title>
+  <meta name="description" content="Jogue Buraco online e de graca! O classico jogo de cartas brasileiro com canastas, combinacoes e estrategia. Buraco contra o computador." />
+  <meta name="keywords" content="buraco online gratis, jogo buraco, buraco de cartas, buraco brasil, canasta online" />
+  <link rel="canonical" href="https://gameshub.com.br/games/buraco/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Buraco Online Gratis - Games Hub" />
+  <meta property="og:description" content="Jogue Buraco online e de graca contra o computador!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/buraco/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Buraco",
+    "description": "Jogue Buraco online gratis, o classico jogo de cartas brasileiro com canastas e combinacoes.",
+    "url": "https://gameshub.com.br/games/buraco/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());gtag('config','G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#127183; Buraco</h1>
+    <div class="stats">
+      <span id="round-display">Rodada 1</span>
+    </div>
+  </header>
+
+  <div class="game-wrapper">
+    <!-- Score -->
+    <div class="score-bar">
+      <div class="score-side">
+        <div class="score-name">Você</div>
+        <div class="score-val" id="score-player">0</div>
+      </div>
+      <div id="turn-badge" class="turn-badge turn-mine">Sua vez</div>
+      <div class="score-side">
+        <div class="score-name">CPU</div>
+        <div class="score-val" id="score-cpu">0</div>
+      </div>
+    </div>
+
+    <!-- CPU -->
+    <div class="cpu-area">
+      <div class="area-label">CPU · <span id="cpu-hand-count"></span></div>
+      <div class="cpu-hand" id="cpu-hand-display"></div>
+      <div class="cpu-melds" id="cpu-melds-display"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-area">
+      <div class="pile-group">
+        <div class="pile-label">Monte</div>
+        <div class="pile-stack" id="stock-pile"><div class="card back"></div></div>
+        <div class="pile-count" id="stock-count">0</div>
+        <button class="draw-btn" id="btn-draw-stock" style="margin-top:4px">Comprar</button>
+      </div>
+      <div class="pile-group">
+        <div class="pile-label">Descarte</div>
+        <div class="discard-pile-wrap" id="discard-display"></div>
+        <button class="draw-btn" id="btn-draw-discard" style="margin-top:4px">Pegar</button>
+      </div>
+      <div class="pile-group">
+        <div class="pile-label">Morto 1</div>
+        <div id="morto1-display"></div>
+      </div>
+      <div class="pile-group">
+        <div class="pile-label">Morto 2</div>
+        <div id="morto2-display"></div>
+      </div>
+    </div>
+
+    <!-- Player -->
+    <div class="player-area">
+      <div class="area-label">
+        Sua mão · <span id="hand-count"></span> · <span id="morto-status" style="color:#ffd700"></span>
+      </div>
+      <div class="player-hand" id="player-hand-display"></div>
+      <div class="player-melds" id="player-melds-display"></div>
+      <div class="action-bar">
+        <button class="btn-action btn-meld" id="btn-meld" style="display:none">&#127183; Combinar selecionadas</button>
+        <button class="btn-action btn-discard" id="btn-discard" disabled>&#128465;&#65039; Descartar</button>
+        <button class="btn-action btn-baixar" id="btn-baixar" style="display:none">&#11015;&#65039; Baixar!</button>
+      </div>
+      <div class="msg-bar" id="msg-bar">Carregando...</div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon" id="m-icon">&#127942;</div>
+      <h2 class="modal-title" id="m-title"></h2>
+      <p class="modal-msg" id="m-msg" style="white-space:pre-line"></p>
+      <button class="btn-orange" id="btn-new-round">Nova Rodada</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'buraco' });
+  </script>
+  <script type="module" src="game.js"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como Jogar Buraco Online</h2>
+    <p>O Buraco é um dos jogos de cartas mais populares do Brasil, jogado com 2 baralhos completos mais 4 coringas (108 cartas no total). O objetivo é formar combinações de cartas e canastas para acumular pontos.</p>
+    <h3>Como jogar</h3>
+    <ul>
+      <li>Cada jogador começa com 11 cartas. Há dois "mortos" de 11 cartas na mesa.</li>
+      <li>Na sua vez: compre do monte ou pegue o descarte, forme combinações, descarte uma carta.</li>
+      <li>Quando esvaziar a mão, você pega o "morto" e continua jogando.</li>
+      <li>Para "baixar" e encerrar: esvazie a mão após pegar o morto e tenha pelo menos uma canasta.</li>
+    </ul>
+    <h3>Combinações válidas</h3>
+    <ul>
+      <li><strong>Grupo:</strong> 3 ou mais cartas do mesmo valor (ex: 3 Reis)</li>
+      <li><strong>Sequência:</strong> 3 ou mais cartas do mesmo naipe em ordem (ex: 4&#9824; 5&#9824; 6&#9824;)</li>
+      <li><strong>Canasta Pura:</strong> 7+ cartas sem coringas — vale 200 pontos bônus</li>
+      <li><strong>Canasta Suja:</strong> 7+ cartas com coringas — vale 100 pontos bônus</li>
+    </ul>
+    <h3>Pontuação das cartas</h3>
+    <ul>
+      <li>Ás: 15 pontos | 10, J, Q, K: 10 pontos | 2-9: 5 pontos | Coringa: 50 pontos</li>
+      <li>Cartas na mão ao fim da rodada são <strong>subtraídas</strong> da pontuação!</li>
+    </ul>
+  </section>
+</body>
+</html>
