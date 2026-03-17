@@ -22,6 +22,20 @@ body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-
 .shop-cost { font-weight: 800; color: #eab308; font-size: 0.9rem; white-space: nowrap; }
 .shop-owned { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
 
+/* ===== RESPONSIVIDADE MOBILE ===== */
+@media (max-width: 600px) {
+  #game-container { padding: 0.8rem; gap: 0.6rem; }
+  .cookie-count { font-size: 1.5rem; }
+  .cookie-btn { font-size: 5.5rem; }
+  .shop-item { padding: 0.6rem 0.8rem; gap: 0.6rem; }
+  .shop-icon { font-size: 1.5rem; }
+  .shop-name { font-size: 0.85rem; }
+  .shop-desc { font-size: 0.7rem; }
+  .shop-cost { font-size: 0.82rem; }
+  .topbar { padding: 0.6rem 1rem; }
+  .topbar h1 { font-size: 1rem; }
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;
