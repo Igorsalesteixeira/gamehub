@@ -352,6 +352,96 @@
     }
     .chess-promo-btn:hover { background: rgba(255,107,53,0.2); border-color: #ff6b35; }
 
+    /* GO */
+    .go-board-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.5rem; }
+    .go-board {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 0;
+      background: #dcb468;
+      border: 3px solid #8a6015;
+      border-radius: 6px;
+      width: min(380px, 92vw);
+      padding: 8px;
+    }
+    .go-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+    }
+    .go-cell::before {
+      content: ''; position: absolute;
+      background: #8a6015;
+      top: 50%; left: 0; right: 0; height: 1.5px; transform: translateY(-50%);
+    }
+    .go-cell::after {
+      content: ''; position: absolute;
+      background: #8a6015;
+      left: 50%; top: 0; bottom: 0; width: 1.5px; transform: translateX(-50%);
+    }
+    .go-stone {
+      width: 80%; height: 80%; border-radius: 50%; z-index: 1; position: relative;
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.4);
+    }
+    .go-stone.b { background: radial-gradient(circle at 35% 35%, #555, #111); }
+    .go-stone.w { background: radial-gradient(circle at 35% 35%, #fff, #ccc); }
+    .go-cell.hint::before, .go-cell.hint::after { background: #8a6015; }
+    .go-cell.hint .go-hint-dot {
+      width: 28%; height: 28%; border-radius: 50%; background: rgba(0,0,0,0.2); z-index: 1; position: relative;
+    }
+    .go-score {
+      display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.8rem;
+      font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.6);
+    }
+    .go-score-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 0.3rem; }
+    .go-pass-btn {
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.6); border-radius: 999px; padding: 0.45rem 1.2rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+    }
+    .go-pass-btn:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .go-pass-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* STOP */
+    .stop-wrap { max-width: 440px; margin: 0 auto 1.5rem; }
+    .stop-letter-display {
+      text-align: center; font-size: 4rem; font-weight: 800; color: #ff8f5e;
+      text-shadow: 0 0 30px rgba(255,107,53,0.4); margin-bottom: 1rem;
+    }
+    .stop-timer {
+      text-align: center; font-size: 1.4rem; font-weight: 800; color: rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+    }
+    .stop-timer.urgent { color: #ef5350; animation: pulse-dot 0.5s infinite; }
+    .stop-category-row {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;
+    }
+    .stop-cat-label { font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,0.5); }
+    .stop-cat-input {
+      padding: 0.5rem 0.8rem; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.07); color: #fff; font-family: 'Nunito', sans-serif;
+      font-weight: 700; font-size: 0.88rem;
+    }
+    .stop-cat-input:focus { outline: none; border-color: rgba(255,107,53,0.5); }
+    .stop-btn {
+      width: 100%; margin-top: 1rem; background: #ff6b35; border: none; color: #fff;
+      border-radius: 999px; padding: 0.7rem; font-family: 'Nunito', sans-serif;
+      font-weight: 800; font-size: 1rem; cursor: pointer; transition: background 0.2s;
+    }
+    .stop-btn:hover { background: #e85d2a; }
+    .stop-btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; }
+    .stop-results { margin-top: 1rem; }
+    .stop-result-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.4rem;
+      font-size: 0.82rem; align-items: center;
+    }
+    .stop-result-cat { font-weight: 800; color: rgba(255,255,255,0.5); font-size: 0.75rem; text-transform: uppercase; }
+    .stop-result-ans { padding: 0.3rem 0.6rem; border-radius: 8px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); font-weight: 700; }
+    .stop-result-ans.winner { background: rgba(76,175,80,0.2); color: #81c784; }
+    .stop-result-ans.loser { background: rgba(244,67,54,0.12); color: rgba(255,100,100,0.7); }
+    .stop-score-display { text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.6); }
+    .stop-waiting { text-align: center; padding: 1rem; color: rgba(255,255,255,0.4); font-size: 0.9rem; font-weight: 700; }
+
     /* RESULT */
     .result-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
@@ -410,6 +500,8 @@
         <button class="filter-btn" data-filter="memory">🧠 Memória</button>
         <button class="filter-btn" data-filter="battleship">🚢 Batalha Naval</button>
         <button class="filter-btn" data-filter="chess">♟️ Xadrez</button>
+        <button class="filter-btn" data-filter="go">⚫ Go</button>
+        <button class="filter-btn" data-filter="stopgame">🛑 Stop!</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -484,6 +576,12 @@
         </button>
         <button class="game-option" data-game="chess">
           <span class="game-option-icon">♟️</span>Xadrez
+        </button>
+        <button class="game-option" data-game="go">
+          <span class="game-option-icon">⚫</span>Go (9×9)
+        </button>
+        <button class="game-option" data-game="stopgame">
+          <span class="game-option-icon">🛑</span>Stop!
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -627,6 +725,23 @@
           return{board,castleRights:{wk:true,wq:true,bk:true,bq:true},enPassant:null,lastMove:null};
         }
       },
+      go: {
+        name: 'Go (9×9)', icon: '⚫',
+        initState: () => ({
+          board: Array(9).fill(null).map(()=>Array(9).fill(0)),
+          captures: {1:0, 2:0},
+          passes: 0,
+          lastBoard: null,
+        })
+      },
+      stopgame: {
+        name: 'Stop!', icon: '🛑',
+        initState: () => {
+          const LETTERS='ABCDEFGHIJLMNOPRS'.split('');
+          const letter=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+          return { letter, phase:'playing', ans1:null, ans2:null, scores:{1:0,2:0}, round:1 };
+        }
+      },
     };
 
     // ===== WIN: TICTACTOE =====
@@ -737,13 +852,17 @@
         .subscribe();
     }
 
-    function handleRoomUpdate(room) {
-      currentRoom = room;
+    function handleRoomUpdate(newData) {
+      const prevRoom = currentRoom;
+      currentRoom = newData;
       ckSelected = null; ckValidMoves = [];
+      if (currentRoom.game === 'stopgame' && newData.state?.phase === 'playing' && prevRoom?.state?.phase === 'reveal') {
+        stopLocalAnswers = {}; stopSubmitted = false; stopSeconds = 60;
+      }
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
-      if (room.status==='playing' && isWaiting) { showView('playing'); renderPlaying(room); }
-      else if (room.status==='playing') { renderPlaying(room); }
-      else if (room.status==='finished') { renderPlaying(room); showResult(room); }
+      if (currentRoom.status==='playing' && isWaiting) { showView('playing'); renderPlaying(currentRoom); }
+      else if (currentRoom.status==='playing') { renderPlaying(currentRoom); }
+      else if (currentRoom.status==='finished') { renderPlaying(currentRoom); showResult(currentRoom); }
     }
 
     // ===== CREATE ROOM =====
@@ -815,6 +934,8 @@
       else if (room.game==='memory') renderMemory(room);
       else if (room.game==='battleship') renderBattleship(room);
       else if (room.game==='chess') renderChess(room);
+      else if (room.game==='go') renderGo(room);
+      else if (room.game==='stopgame') renderStop(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -1451,6 +1572,283 @@
       });
     }
 
+    // ===== GO =====
+    const GO_SIZE = 9;
+
+    function goClone(b) { return b.map(r=>[...r]); }
+
+    function goGroup(b, r, c) {
+      const color = b[r][c];
+      if (!color) return { stones:[], liberties:new Set() };
+      const visited = new Set(), stones = [], liberties = new Set();
+      const stack = [[r,c]];
+      while (stack.length) {
+        const [cr,cc] = stack.pop();
+        const key = `${cr},${cc}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
+        if (b[cr][cc] === color) {
+          stones.push([cr,cc]);
+          for (const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+            const nr=cr+dr, nc=cc+dc;
+            if (nr<0||nr>=GO_SIZE||nc<0||nc>=GO_SIZE) continue;
+            if (b[nr][nc]===0) liberties.add(`${nr},${nc}`);
+            else stack.push([nr,nc]);
+          }
+        }
+      }
+      return { stones, liberties };
+    }
+
+    function goRemoveCaptures(b, color) {
+      let captured = 0;
+      const opp = color===1?2:1;
+      for (let r=0;r<GO_SIZE;r++) for (let c=0;c<GO_SIZE;c++) {
+        if (b[r][c]===opp) {
+          const g=goGroup(b,r,c);
+          if (!g.liberties.size) { g.stones.forEach(([sr,sc])=>{b[sr][sc]=0;}); captured+=g.stones.length; }
+        }
+      }
+      return captured;
+    }
+
+    function goIsLegal(board, r, c, color, lastBoard) {
+      if (board[r][c]!==0) return false;
+      const tb=goClone(board);
+      tb[r][c]=color;
+      goRemoveCaptures(tb,color);
+      if (!goGroup(tb,r,c).liberties.size) return false; // self capture
+      if (lastBoard && JSON.stringify(tb)===JSON.stringify(lastBoard)) return false; // ko
+      return true;
+    }
+
+    function goCountTerritory(board) {
+      const visited=Array(GO_SIZE).fill(null).map(()=>Array(GO_SIZE).fill(false));
+      let t1=0, t2=0;
+      for (let r=0;r<GO_SIZE;r++) for (let c=0;c<GO_SIZE;c++) {
+        if (board[r][c]||visited[r][c]) continue;
+        const stack=[[r,c]], region=[];
+        let touch1=false, touch2=false;
+        while (stack.length) {
+          const [cr,cc]=stack.pop();
+          if (cr<0||cr>=GO_SIZE||cc<0||cc>=GO_SIZE||visited[cr][cc]) continue;
+          if (board[cr][cc]===1){touch1=true;continue;}
+          if (board[cr][cc]===2){touch2=true;continue;}
+          visited[cr][cc]=true; region.push([cr,cc]);
+          stack.push([cr-1,cc],[cr+1,cc],[cr,cc-1],[cr,cc+1]);
+        }
+        if (touch1&&!touch2) t1+=region.length;
+        if (touch2&&!touch1) t2+=region.length;
+      }
+      return {1:t1,2:t2};
+    }
+
+    function renderGo(room) {
+      const {board,captures,passes,lastBoard} = room.state;
+      const myColor = myNum;
+      const el = document.getElementById('game-board');
+      const t = goCountTerritory(board);
+      const score1 = (t[1]||0) + (captures[1]||0);
+      const score2 = (t[2]||0) + (captures[2]||0) + 6.5;
+
+      const cells = board.flat().map((cell,i)=>{
+        const r=Math.floor(i/GO_SIZE), c=i%GO_SIZE;
+        const canPlay = isMyTurn && goIsLegal(board,r,c,myColor,lastBoard);
+        let inner = '';
+        if (cell===1) inner='<div class="go-stone b"></div>';
+        else if (cell===2) inner='<div class="go-stone w"></div>';
+        else if (canPlay) inner='<div class="go-hint-dot"></div>';
+        const cls='go-cell'+(canPlay?' hint':'');
+        return `<div class="${cls}" data-r="${r}" data-c="${c}">${inner}</div>`;
+      }).join('');
+
+      el.innerHTML=`
+        <div class="go-score">
+          <span><span class="go-score-dot" style="background:#111;border:1px solid #555"></span>${room.player1_name||'J1'}: ${score1.toFixed(0)} pts (${captures[1]||0} cap)</span>
+          <span><span class="go-score-dot" style="background:#fff;border:1px solid #ccc"></span>${room.player2_name||'J2'}: ${score2.toFixed(1)} pts (${captures[2]||0} cap)</span>
+        </div>
+        <div class="go-board-wrap"><div class="go-board">${cells}</div></div>
+        <button class="go-pass-btn" id="go-pass-btn" ${!isMyTurn?'disabled':''}>Passar (${passes}/2 passes consecutivos)</button>`;
+
+      el.querySelectorAll('.go-cell.hint').forEach(cell=>{
+        cell.addEventListener('click',()=>makeGoMove(parseInt(cell.dataset.r),parseInt(cell.dataset.c)));
+      });
+      const passBtn = el.querySelector('#go-pass-btn');
+      if (passBtn && isMyTurn) {
+        passBtn.addEventListener('click', makeGoPass);
+      }
+    }
+
+    async function makeGoMove(r, c) {
+      if (!isMyTurn||!currentRoom) return;
+      const st = currentRoom.state;
+      const board = goClone(st.board);
+      if (!goIsLegal(board, r, c, myNum, st.lastBoard)) return;
+      isMyTurn = false;
+      const prevBoard = goClone(board);
+      board[r][c] = myNum;
+      const captured = goRemoveCaptures(board, myNum);
+      const newCaptures = {...st.captures, [myNum]: (st.captures[myNum]||0)+captured};
+      const opp = myNum===1?2:1;
+      await supabase.from('game_rooms').update({
+        state: { board, captures: newCaptures, passes: 0, lastBoard: prevBoard },
+        turn: opp, status: 'playing',
+      }).eq('id', currentRoom.id);
+    }
+
+    async function makeGoPass() {
+      if (!isMyTurn||!currentRoom) return;
+      isMyTurn = false;
+      const st = currentRoom.state;
+      const newPasses = (st.passes||0) + 1;
+      const opp = myNum===1?2:1;
+      if (newPasses >= 2) {
+        // Game over — count territory
+        const t = goCountTerritory(st.board);
+        const s1 = (t[1]||0) + (st.captures[1]||0);
+        const s2 = (t[2]||0) + (st.captures[2]||0) + 6.5;
+        const winner = s1 > s2 ? 1 : 2;
+        await supabase.from('game_rooms').update({
+          state: {...st, passes: newPasses},
+          status: 'finished', winner, turn: opp,
+        }).eq('id', currentRoom.id);
+      } else {
+        await supabase.from('game_rooms').update({
+          state: {...st, passes: newPasses, lastBoard: goClone(st.board)},
+          turn: opp, status: 'playing',
+        }).eq('id', currentRoom.id);
+      }
+    }
+
+    // ===== STOP! =====
+    const STOP_CATS = ['Nome', 'Animal', 'Fruta', 'Cidade', 'Objeto', 'Cor'];
+    let stopLocalAnswers = {}; // local answers while playing
+    let stopSubmitted = false;
+    let stopTimerInterval = null;
+    let stopSeconds = 60;
+
+    function renderStop(room) {
+      const st = room.state;
+      const el = document.getElementById('game-board');
+
+      if (st.phase === 'playing') {
+        const myAns = myNum===1 ? st.ans1 : st.ans2;
+        const alreadySubmitted = myAns !== null;
+
+        if (!alreadySubmitted) {
+          // Show input form
+          const rows = STOP_CATS.map(cat=>`
+            <div class="stop-category-row">
+              <span class="stop-cat-label">${cat}</span>
+              <input class="stop-cat-input" data-cat="${cat}" placeholder="${cat} com ${st.letter}..." maxlength="30" value="${stopLocalAnswers[cat]||''}">
+            </div>`).join('');
+
+          el.innerHTML=`
+            <div class="stop-letter-display">${st.letter}</div>
+            <div class="stop-timer" id="stop-timer-display">⏱ ${stopSeconds}s</div>
+            <div class="stop-wrap">
+              ${rows}
+              <button class="stop-btn" id="stop-submit-btn">🛑 STOP!</button>
+            </div>`;
+
+          el.querySelectorAll('.stop-cat-input').forEach(input=>{
+            input.addEventListener('input',()=>{ stopLocalAnswers[input.dataset.cat]=input.value; });
+          });
+          el.querySelector('#stop-submit-btn').addEventListener('click', submitStopAnswers);
+
+          // Start local countdown if not already running
+          if (!stopTimerInterval) {
+            stopTimerInterval = setInterval(()=>{
+              stopSeconds--;
+              const td=document.getElementById('stop-timer-display');
+              if(td){td.textContent=`⏱ ${stopSeconds}s`;if(stopSeconds<=10)td.classList.add('urgent');}
+              if(stopSeconds<=0){clearInterval(stopTimerInterval);stopTimerInterval=null;submitStopAnswers();}
+            },1000);
+          }
+        } else {
+          el.innerHTML=`
+            <div class="stop-letter-display">${st.letter}</div>
+            <div class="stop-waiting">✅ Respostas enviadas! Aguardando adversário...</div>`;
+        }
+      } else if (st.phase === 'reveal') {
+        clearInterval(stopTimerInterval); stopTimerInterval=null;
+        // Show comparison
+        const rows = STOP_CATS.map(cat=>{
+          const a1=(st.ans1&&st.ans1[cat])||'';
+          const a2=(st.ans2&&st.ans2[cat])||'';
+          const v1=a1.trim().length>0&&a1.trim().toUpperCase().startsWith(st.letter);
+          const v2=a2.trim().length>0&&a2.trim().toUpperCase().startsWith(st.letter);
+          // Same valid answer = 5pts each; unique valid = 10pts; invalid = 0
+          const cls1=v1?(v2&&a1.trim().toLowerCase()===a2.trim().toLowerCase()?'':'winner'):'loser';
+          const cls2=v2?(v1&&a1.trim().toLowerCase()===a2.trim().toLowerCase()?'':'winner'):'loser';
+          return `<div class="stop-result-row">
+            <span class="stop-result-cat">${cat}</span>
+            <span class="stop-result-ans ${cls1}">${a1||'—'}</span>
+            <span class="stop-result-ans ${cls2}">${a2||'—'}</span>
+          </div>`;
+        }).join('');
+        const sc=st.scores||{1:0,2:0};
+        el.innerHTML=`
+          <div class="stop-letter-display" style="font-size:2.5rem">Rodada ${st.round} — ${st.letter}</div>
+          <div class="stop-wrap">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;font-size:0.72rem;font-weight:800;color:rgba(255,255,255,0.3);text-transform:uppercase;">
+              <span>Categoria</span><span>${room.player1_name||'J1'}</span><span>${room.player2_name||'J2'}</span>
+            </div>
+            <div class="stop-results">${rows}</div>
+            <div class="stop-score-display">Placar: ${room.player1_name||'J1'} ${sc[1]} × ${sc[2]} ${room.player2_name||'J2'}</div>
+          </div>`;
+      }
+    }
+
+    async function submitStopAnswers() {
+      if (!currentRoom||stopSubmitted) return;
+      clearInterval(stopTimerInterval); stopTimerInterval=null;
+      stopSubmitted=true;
+      const st=currentRoom.state;
+      const ansKey=myNum===1?'ans1':'ans2';
+      const myAns={};
+      STOP_CATS.forEach(cat=>{ myAns[cat]=stopLocalAnswers[cat]||''; });
+      const newSt={...st,[ansKey]:myAns};
+
+      // Check if both submitted
+      const otherAns=myNum===1?st.ans2:st.ans1;
+      if (otherAns!==null) {
+        // Both submitted — compute scores and go to reveal
+        const {scores:prevScores,round,letter}=st;
+        const a1=myNum===1?myAns:otherAns;
+        const a2=myNum===2?myAns:otherAns;
+        let add1=0,add2=0;
+        STOP_CATS.forEach(cat=>{
+          const v1=a1[cat]&&a1[cat].trim().toUpperCase().startsWith(letter);
+          const v2=a2[cat]&&a2[cat].trim().toUpperCase().startsWith(letter);
+          const same=v1&&v2&&a1[cat].trim().toLowerCase()===a2[cat].trim().toLowerCase();
+          if(v1) add1+=same?5:10;
+          if(v2) add2+=same?5:10;
+        });
+        const scores={1:(prevScores[1]||0)+add1,2:(prevScores[2]||0)+add2};
+        const revealSt={...newSt,ans1:a1,ans2:a2,phase:'reveal',scores};
+        await supabase.from('game_rooms').update({state:revealSt,turn:myNum}).eq('id',currentRoom.id);
+
+        // Auto-advance to next round after 5s
+        setTimeout(async()=>{
+          const LETTERS='ABCDEFGHIJLMNOPRS'.split('');
+          const newLetter=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+          const nextRound=round+1;
+          if(nextRound>5){
+            // Game over
+            const winner=scores[1]>scores[2]?1:scores[2]>scores[1]?2:0;
+            await supabase.from('game_rooms').update({status:'finished',winner,turn:1}).eq('id',currentRoom.id);
+          } else {
+            const nextSt={letter:newLetter,phase:'playing',ans1:null,ans2:null,scores,round:nextRound};
+            stopLocalAnswers={}; stopSubmitted=false; stopSeconds=60;
+            await supabase.from('game_rooms').update({state:nextSt,turn:1}).eq('id',currentRoom.id);
+          }
+        },5000);
+      } else {
+        await supabase.from('game_rooms').update({state:newSt}).eq('id',currentRoom.id);
+      }
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -1610,9 +2008,9 @@
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
           pacman:'Pac-Man', cookieclicker:'Cookie Clicker',
-          connect4:'Conecte 4', go:'Go',
+          connect4:'Conecte 4',
           termo:'Termo', hangman:'Forca', wordsearch:'Caça-Palavras',
-          anagram:'Anagrama', stopgame:'Stop!',
+          anagram:'Anagrama',
         };
         const gameName = LABELS[urlGame] || urlGame;
         const banner = document.createElement('div');
