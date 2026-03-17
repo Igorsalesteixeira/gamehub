@@ -1,6 +1,7 @@
 // =============================================
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
+import { supabase } from '../../supabase.js';
 
 // ---- Constants ----
 const SUITS_1 = ['♠','♠','♠','♠'];
@@ -470,6 +471,24 @@ function showWin() {
   const s = String(secondsElapsed % 60).padStart(2, '0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
+  saveGameStat();
+}
+
+// =============================================
+//  STATS — Supabase
+// =============================================
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'spider',
+      result: 'win',
+      moves: state.moves,
+      time_seconds: secondsElapsed,
+    });
+  } catch (e) { console.warn('Erro ao salvar stats:', e); }
 }
 
 // =============================================

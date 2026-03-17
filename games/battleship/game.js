@@ -505,7 +505,7 @@ async function saveStats(result) {
       user_id: user.id,
       game: 'battleship',
       result,
-      duration_seconds: seconds,
+      time_seconds: seconds,
     });
   } catch (e) {
     console.warn('Stats save failed:', e);

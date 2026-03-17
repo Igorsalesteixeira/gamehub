@@ -404,7 +404,15 @@
           <div class="level-badge" id="level-badge">Nv 1</div>
         </div>
         <div class="hero-info">
-          <h1 id="profile-name">Carregando...</h1>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <h1 id="profile-name">Carregando...</h1>
+            <button id="btn-edit-name" title="Editar nome" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.85rem;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✏️</button>
+          </div>
+          <div id="edit-name-form" style="display:none;margin-top:0.4rem;">
+            <input id="edit-name-input" type="text" maxlength="30" placeholder="Novo nome..." style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);border-radius:8px;color:#fff;padding:0.3rem 0.6rem;font-size:0.9rem;font-family:inherit;width:160px;">
+            <button id="btn-save-name" style="background:#ff6b35;border:none;border-radius:8px;color:#fff;padding:0.3rem 0.8rem;font-size:0.85rem;font-weight:700;cursor:pointer;margin-left:0.3rem;">Salvar</button>
+            <button id="btn-cancel-name" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:#fff;padding:0.3rem 0.7rem;font-size:0.85rem;cursor:pointer;margin-left:0.2rem;">✕</button>
+          </div>
           <div class="hero-level-name" id="level-name">Novato</div>
           <div class="hero-since" id="profile-since"></div>
         </div>
@@ -510,7 +518,7 @@
       mahjong:      { label: 'Mahjong',         icon: '🀄', cat: 'puzzle',     ranked: 'time'  },
       numble:       { label: 'Numble',          icon: '🔣', cat: 'puzzle',     ranked: 'wins'  },
       lightsout:    { label: 'Lights Out',      icon: '💡', cat: 'puzzle',     ranked: 'time'  },
-      sokoban:      { label: 'Sokoban',         icon: '📦', cat: 'puzzle',     ranked: 'time'  },
+      sokoban:      { label: 'Sokoban',         icon: '📦', cat: 'puzzle',     ranked: 'wins'  },
       snake:        { label: 'Cobrinha',        icon: '🐍', cat: 'arcade',     ranked: 'score' },
       tetris:       { label: 'Tetris',          icon: '🧱', cat: 'arcade',     ranked: 'score' },
       flappybird:   { label: 'Flappy Bird',     icon: '🐦', cat: 'arcade',     ranked: 'score' },
@@ -522,11 +530,11 @@
       cookieclicker:{ label: 'Cookie Clicker',  icon: '🍪', cat: 'arcade',     ranked: 'score' },
       checkers:     { label: 'Dama',            icon: '⚫', cat: 'estrategia', ranked: 'time'  },
       tictactoe:    { label: 'Jogo da Velha',   icon: '❌', cat: 'estrategia', ranked: 'wins'  },
-      reversi:      { label: 'Reversi',         icon: '⚪', cat: 'estrategia', ranked: 'time'  },
+      reversi:      { label: 'Reversi',         icon: '⚪', cat: 'estrategia', ranked: 'wins'  },
       chess:        { label: 'Xadrez',          icon: '♟️', cat: 'estrategia', ranked: 'time'  },
       battleship:   { label: 'Batalha Naval',   icon: '🚢', cat: 'estrategia', ranked: 'time'  },
-      connect4:     { label: 'Conecte 4',       icon: '🔴', cat: 'estrategia', ranked: 'time'  },
-      go:           { label: 'Go',              icon: '⚫', cat: 'estrategia', ranked: 'time'  },
+      connect4:     { label: 'Conecte 4',       icon: '🔴', cat: 'estrategia', ranked: 'wins'  },
+      go:           { label: 'Go',              icon: '⚫', cat: 'estrategia', ranked: 'wins'  },
       termo:        { label: 'Termo',           icon: '📝', cat: 'palavras',   ranked: 'wins'  },
       hangman:      { label: 'Forca',           icon: '🔤', cat: 'palavras',   ranked: 'wins'  },
       wordsearch:   { label: 'Caça-Palavras',   icon: '🔍', cat: 'palavras',   ranked: 'time'  },
@@ -706,6 +714,42 @@
     document.getElementById('xp-label').innerHTML = `<span class="xp-value">${totalXP.toLocaleString('pt-BR')} XP</span>`;
     document.getElementById('xp-next').textContent = nextLv ? `Próximo: ${lv.name} → ${nextLv.name}` : '👑 Nível máximo!';
     setTimeout(() => { document.getElementById('xp-bar').style.width = xpPct + '%'; }, 100);
+
+    // ===== EDIT NAME =====
+    const btnEditName   = document.getElementById('btn-edit-name');
+    const editNameForm  = document.getElementById('edit-name-form');
+    const editNameInput = document.getElementById('edit-name-input');
+    const btnSaveName   = document.getElementById('btn-save-name');
+    const btnCancelName = document.getElementById('btn-cancel-name');
+
+    btnEditName.addEventListener('click', () => {
+      editNameInput.value = displayName || '';
+      editNameForm.style.display = 'flex';
+      editNameInput.focus();
+      btnEditName.style.display = 'none';
+    });
+    btnCancelName.addEventListener('click', () => {
+      editNameForm.style.display = 'none';
+      btnEditName.style.display = '';
+    });
+    btnSaveName.addEventListener('click', async () => {
+      const newName = editNameInput.value.trim();
+      if (newName.length < 2) { editNameInput.style.borderColor = '#f87171'; return; }
+      btnSaveName.textContent = '...';
+      btnSaveName.disabled = true;
+      const { error } = await supabase.auth.updateUser({ data: { display_name: newName } });
+      if (error) {
+        btnSaveName.textContent = 'Salvar';
+        btnSaveName.disabled = false;
+        alert('Erro ao salvar: ' + error.message);
+        return;
+      }
+      document.getElementById('profile-name').textContent = newName;
+      editNameForm.style.display = 'none';
+      btnEditName.style.display = '';
+      btnSaveName.textContent = 'Salvar';
+      btnSaveName.disabled = false;
+    });
 
     // ===== RENDER STATS =====
     document.getElementById('stat-total').textContent   = total;

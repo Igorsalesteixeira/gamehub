@@ -111,7 +111,7 @@ async function saveStats() {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'stopgame', result: 'end', moves: totalScore, time_seconds: 0
+      user_id: session.user.id, game: 'stopgame', result: 'win', score: totalScore, moves: totalScore, time_seconds: 0
     });
   }
 }
