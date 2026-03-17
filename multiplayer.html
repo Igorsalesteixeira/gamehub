@@ -97,7 +97,7 @@
     }
     .modal h3 { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 1.5rem; }
     .modal-label { font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-    .game-select-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
+    .game-select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
     .game-option {
       padding: 0.75rem 0.4rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
@@ -297,6 +297,61 @@
     .mem-score-item { color: rgba(255,255,255,0.6); }
     .mem-score-item strong { color: #ff8f5e; font-size: 1.1rem; }
 
+    /* BATTLESHIP */
+    .bs-wrap { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+    .bs-board-section { text-align: center; }
+    .bs-board-label { font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .bs-grid {
+      display: grid; grid-template-columns: repeat(10, 1fr);
+      gap: 2px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden;
+      width: min(280px, 44vw);
+    }
+    .bs-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      background: rgba(33,150,243,0.12); font-size: 0.7rem; cursor: default; transition: background 0.15s;
+    }
+    .bs-cell.ship-visible { background: rgba(100,150,200,0.3); }
+    .bs-cell.hit { background: rgba(244,67,54,0.6); }
+    .bs-cell.hit::after { content: '💥'; font-size: 0.65rem; }
+    .bs-cell.miss { background: rgba(255,255,255,0.06); }
+    .bs-cell.miss::after { content: '·'; color: rgba(255,255,255,0.4); font-size: 1.2rem; }
+    .bs-cell.clickable { cursor: crosshair; }
+    .bs-cell.clickable:hover:not(.hit):not(.miss) { background: rgba(255,107,53,0.3); }
+    .bs-info { display:flex; gap:1rem; justify-content:center; margin-bottom:0.8rem; font-size:0.8rem; color:rgba(255,255,255,0.5); font-weight:700; }
+
+    /* CHESS */
+    .chess-board-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .chess-board {
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      border: 3px solid #5a3a1a; border-radius: 8px; overflow: hidden;
+      width: min(400px, 92vw);
+    }
+    .chess-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(1.2rem,4vw,1.8rem); cursor: pointer; user-select: none; position: relative;
+    }
+    .chess-cell.light { background: #f0d9b5; }
+    .chess-cell.dark  { background: #b58863; }
+    .chess-cell.sel   { background: #7fc97f !important; }
+    .chess-cell.vm::after {
+      content: ''; position: absolute; width: 28%; height: 28%;
+      border-radius: 50%; background: rgba(0,0,0,0.18);
+    }
+    .chess-cell.vc { background: rgba(220,50,50,0.45) !important; }
+    .chess-cell.lf { background: rgba(255,210,0,0.35) !important; }
+    .chess-cell.lt { background: rgba(255,210,0,0.55) !important; }
+    .chess-cell.chk { background: rgba(220,50,50,0.6) !important; }
+    .chess-promo-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex;
+      align-items: center; justify-content: center; z-index: 3000;
+    }
+    .chess-promo-choices { background: #1a1a2e; border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem; }
+    .chess-promo-btn {
+      font-size: 2.5rem; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; transition: background 0.15s;
+    }
+    .chess-promo-btn:hover { background: rgba(255,107,53,0.2); border-color: #ff6b35; }
+
     /* RESULT */
     .result-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
@@ -353,6 +408,8 @@
         <button class="filter-btn" data-filter="checkers">⚫ Dama</button>
         <button class="filter-btn" data-filter="reversi">⬛ Reversi</button>
         <button class="filter-btn" data-filter="memory">🧠 Memória</button>
+        <button class="filter-btn" data-filter="battleship">🚢 Batalha Naval</button>
+        <button class="filter-btn" data-filter="chess">♟️ Xadrez</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -421,6 +478,12 @@
         </button>
         <button class="game-option" data-game="memory">
           <span class="game-option-icon">🧠</span>Memória
+        </button>
+        <button class="game-option" data-game="battleship">
+          <span class="game-option-icon">🚢</span>Batalha Naval
+        </button>
+        <button class="game-option" data-game="chess">
+          <span class="game-option-icon">♟️</span>Xadrez
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -523,6 +586,44 @@
           const arr = [...pairs,...pairs];
           for (let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
           return { cards: arr.map(e=>({e,m:false,mb:0})), scores:{1:0,2:0}, pick1:null, show:null };
+        }
+      },
+      battleship: {
+        name: 'Batalha Naval', icon: '🚢',
+        initState: () => {
+          const SHIPS=[{size:5},{size:4},{size:3},{size:3},{size:2}];
+          function rndPlace(){
+            const b=Array(10).fill(null).map(()=>Array(10).fill(0));
+            const placed=[];
+            SHIPS.forEach(({size})=>{
+              let ok=false;
+              while(!ok){
+                const dir=Math.random()<0.5?'H':'V';
+                const r=Math.floor(Math.random()*10),c=Math.floor(Math.random()*10);
+                const cells=[];
+                for(let i=0;i<size;i++){
+                  const nr=dir==='V'?r+i:r,nc=dir==='H'?c+i:c;
+                  cells.push([nr,nc]);
+                }
+                if(cells.every(([nr,nc])=>nr>=0&&nr<10&&nc>=0&&nc<10&&b[nr][nc]===0)){
+                  cells.forEach(([nr,nc])=>{b[nr][nc]=1;});
+                  placed.push(cells);ok=true;
+                }
+              }
+            });
+            return placed;
+          }
+          return{ships1:rndPlace(),ships2:rndPlace(),shots1:[],shots2:[]};
+        }
+      },
+      chess: {
+        name: 'Xadrez', icon: '♟️',
+        initState: () => {
+          const WP=1,WN=2,WB=3,WR=4,WQ=5,WK=6,BP=7,BN=8,BB=9,BR=10,BQ=11,BK=12;
+          const board=[BR,BN,BB,BQ,BK,BB,BN,BR,BP,BP,BP,BP,BP,BP,BP,BP,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            WP,WP,WP,WP,WP,WP,WP,WP,WR,WN,WB,WQ,WK,WB,WN,WR];
+          return{board,castleRights:{wk:true,wq:true,bk:true,bq:true},enPassant:null,lastMove:null};
         }
       },
     };
@@ -711,6 +812,8 @@
       else if (room.game==='checkers') renderCheckers(room);
       else if (room.game==='reversi') renderReversi(room);
       else if (room.game==='memory') renderMemory(room);
+      else if (room.game==='battleship') renderBattleship(room);
+      else if (room.game==='chess') renderChess(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -1027,6 +1130,326 @@
       }
     }
 
+    // ===== BATTLESHIP =====
+    function bsHit(ships, r, c) {
+      return ships.some(ship => ship.some(([sr,sc]) => sr===r && sc===c));
+    }
+    function bsSunk(ships, shots, shipIdx) {
+      return ships[shipIdx].every(([r,c]) => shots.some(([sr,sc]) => sr===r && sc===c));
+    }
+    function bsAllSunk(ships, shots) {
+      return ships.every((ship,i) => bsSunk(ships, shots, i));
+    }
+
+    function renderBattleship(room) {
+      const st = room.state;
+      const myShips   = myNum===1 ? st.ships1 : st.ships2;
+      const oppShips  = myNum===1 ? st.ships2 : st.ships1;
+      const myShots   = myNum===1 ? st.shots1 : st.shots2;  // my shots at opponent
+      const oppShots  = myNum===1 ? st.shots2 : st.shots1;  // opponent shots at me
+
+      // Build my board (show my ships + enemy shots on me)
+      const myGrid = Array(100).fill('').map((_,i)=>{
+        const r=Math.floor(i/10),c=i%10;
+        const isMyShip = myShips.some(ship=>ship.some(([sr,sc])=>sr===r&&sc===c));
+        const isHit = oppShots.some(([sr,sc])=>sr===r&&sc===c) && isMyShip;
+        const isMiss = oppShots.some(([sr,sc])=>sr===r&&sc===c) && !isMyShip;
+        let cls='bs-cell';
+        if(isMyShip) cls+=' ship-visible';
+        if(isHit) cls+=' hit';
+        if(isMiss) cls+=' miss';
+        return `<div class="${cls}"></div>`;
+      }).join('');
+
+      // Build opponent board (only show hits/misses from my shots)
+      const oppGrid = Array(100).fill('').map((_,i)=>{
+        const r=Math.floor(i/10),c=i%10;
+        const shot = myShots.find(([sr,sc])=>sr===r&&sc===c);
+        const isHit = shot && bsHit(oppShips,r,c);
+        const isMiss = shot && !bsHit(oppShips,r,c);
+        let cls='bs-cell'+(isMyTurn&&!shot?' clickable':'');
+        if(isHit) cls+=' hit';
+        if(isMiss) cls+=' miss';
+        return `<div class="${cls}" data-r="${r}" data-c="${c}"></div>`;
+      }).join('');
+
+      // Count sunk ships
+      const mySunk = oppShips.filter((_,i)=>bsSunk(oppShips,myShots,i)).length;
+      const oppSunk = myShips.filter((_,i)=>bsSunk(myShips,oppShots,i)).length;
+
+      const el = document.getElementById('game-board');
+      el.innerHTML=`
+        <div class="bs-info">
+          <span>Meus navios: ${myShips.length - oppSunk} restantes</span>
+          <span>Navios afundados: ${mySunk}/${oppShips.length}</span>
+        </div>
+        <div class="bs-wrap">
+          <div class="bs-board-section">
+            <div class="bs-board-label">Meu tabuleiro</div>
+            <div class="bs-grid" id="bs-my-grid">${myGrid}</div>
+          </div>
+          <div class="bs-board-section">
+            <div class="bs-board-label">${isMyTurn?'⚡ Ataque!':'Tabuleiro inimigo'}</div>
+            <div class="bs-grid" id="bs-opp-grid">${oppGrid}</div>
+          </div>
+        </div>`;
+
+      if(isMyTurn) {
+        el.querySelectorAll('#bs-opp-grid .bs-cell.clickable').forEach(cell=>{
+          cell.addEventListener('click',()=>makeBsShot(parseInt(cell.dataset.r),parseInt(cell.dataset.c)));
+        });
+      }
+    }
+
+    async function makeBsShot(r, c) {
+      if(!isMyTurn||!currentRoom) return;
+      const st = currentRoom.state;
+      const myShots = myNum===1 ? [...st.shots1,[r,c]] : st.shots1;
+      const myShots2 = myNum===2 ? [...st.shots2,[r,c]] : st.shots2;
+      const shots1 = myNum===1 ? myShots : myShots2;
+      const shots2 = myNum===2 ? myShots : myShots2;
+      isMyTurn=false;
+
+      const oppShips = myNum===1 ? st.ships2 : st.ships1;
+      const myShotsNew = myNum===1 ? shots1 : shots2;
+      const isHit = bsHit(oppShips, r, c);
+      const allSunk = bsAllSunk(oppShips, myShotsNew);
+
+      const newSt = {...st, shots1, shots2};
+      const opp = myNum===1?2:1;
+      await supabase.from('game_rooms').update({
+        state: newSt,
+        turn: isHit && !allSunk ? myNum : opp,  // hit = keep turn
+        status: allSunk ? 'finished' : 'playing',
+        winner: allSunk ? myNum : null,
+      }).eq('id', currentRoom.id);
+    }
+
+    // ===== CHESS =====
+    const _WP=1,_WN=2,_WB=3,_WR=4,_WQ=5,_WK=6,_BP=7,_BN=8,_BB=9,_BR=10,_BQ=11,_BK=12;
+    const CHESS_SYM={1:'♙',2:'♘',3:'♗',4:'♖',5:'♕',6:'♔',7:'♟',8:'♞',9:'♝',10:'♜',11:'♛',12:'♚'};
+    function chRc(i){return[Math.floor(i/8),i%8];}
+    function chIdx(r,c){return r*8+c;}
+    function chOnB(r,c){return r>=0&&r<8&&c>=0&&c<8;}
+    function chIsW(p){return p>=1&&p<=6;}
+    function chIsB(p){return p>=7&&p<=12;}
+    function chColor(p){return p===0?null:chIsW(p)?'w':'b';}
+    function chEnem(c){return c==='w'?'b':'w';}
+
+    function chGenMoves(bd,color,cr,ep,onlyCaptures=false){
+      const moves=[];
+      const isAlly=color==='w'?chIsW:chIsB;
+      const isEnemy=color==='w'?chIsB:chIsW;
+      const pDir=color==='w'?-1:1;
+      const startRow=color==='w'?6:1;
+      const promoRow=color==='w'?0:7;
+      for(let i=0;i<64;i++){
+        const p=bd[i];if(!isAlly(p))continue;
+        const[r,c]=chRc(i);
+        const pType=color==='w'?p:p-6;
+        if(pType===1){
+          if(!onlyCaptures){
+            const fwd=chIdx(r+pDir,c);
+            if(chOnB(r+pDir,c)&&bd[fwd]===0){
+              moves.push({from:i,to:fwd,promo:r+pDir===promoRow});
+              if(r===startRow){const fwd2=chIdx(r+2*pDir,c);if(bd[fwd2]===0)moves.push({from:i,to:fwd2,double:true});}
+            }
+          }
+          for(const dc of[-1,1]){
+            const nr=r+pDir,nc=c+dc;if(!chOnB(nr,nc))continue;
+            const ti=chIdx(nr,nc);
+            if(isEnemy(bd[ti]))moves.push({from:i,to:ti,capture:true,promo:nr===promoRow});
+            if(ep===ti)moves.push({from:i,to:ti,capture:true,enPassant:true});
+          }
+        }else if(pType===2){
+          for(const[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){
+            const nr=r+dr,nc=c+dc;if(!chOnB(nr,nc))continue;
+            const ti=chIdx(nr,nc);if(isAlly(bd[ti]))continue;
+            if(onlyCaptures&&!isEnemy(bd[ti]))continue;
+            moves.push({from:i,to:ti,capture:isEnemy(bd[ti])});
+          }
+        }else if(pType===3||pType===4||pType===5){
+          const dirs=[];
+          if(pType===3||pType===5)dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);
+          if(pType===4||pType===5)dirs.push([-1,0],[1,0],[0,-1],[0,1]);
+          for(const[dr,dc]of dirs){
+            let nr=r+dr,nc=c+dc;
+            while(chOnB(nr,nc)){
+              const ti=chIdx(nr,nc);
+              if(isAlly(bd[ti]))break;
+              if(isEnemy(bd[ti])){moves.push({from:i,to:ti,capture:true});break;}
+              if(!onlyCaptures)moves.push({from:i,to:ti});
+              nr+=dr;nc+=dc;
+            }
+          }
+        }else if(pType===6){
+          for(const[dr,dc]of[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){
+            const nr=r+dr,nc=c+dc;if(!chOnB(nr,nc))continue;
+            const ti=chIdx(nr,nc);if(isAlly(bd[ti]))continue;
+            if(onlyCaptures&&!isEnemy(bd[ti]))continue;
+            moves.push({from:i,to:ti,capture:isEnemy(bd[ti])});
+          }
+          if(!onlyCaptures){
+            const row=color==='w'?7:0;
+            if(r===row&&c===4){
+              const ksKey=color==='w'?'wk':'bk';
+              if(cr[ksKey]&&bd[chIdx(row,5)]===0&&bd[chIdx(row,6)]===0&&
+                !chIsAttacked(bd,chIdx(row,4),chEnem(color))&&!chIsAttacked(bd,chIdx(row,5),chEnem(color))){
+                moves.push({from:i,to:chIdx(row,6),castle:'k'});
+              }
+              const qsKey=color==='w'?'wq':'bq';
+              if(cr[qsKey]&&bd[chIdx(row,3)]===0&&bd[chIdx(row,2)]===0&&bd[chIdx(row,1)]===0&&
+                !chIsAttacked(bd,chIdx(row,4),chEnem(color))&&!chIsAttacked(bd,chIdx(row,3),chEnem(color))){
+                moves.push({from:i,to:chIdx(row,2),castle:'q'});
+              }
+            }
+          }
+        }
+      }
+      return moves;
+    }
+
+    function chIsAttacked(bd,sq,byColor){
+      return chGenMoves(bd,byColor,{wk:false,wq:false,bk:false,bq:false},null,true).some(m=>m.to===sq);
+    }
+    function chFindKing(bd,color){return bd.indexOf(color==='w'?_WK:_BK);}
+    function chInCheck(bd,color){const k=chFindKing(bd,color);if(k===-1)return true;return chIsAttacked(bd,k,chEnem(color));}
+
+    function chApply(bd,move,cr,color){
+      const nb=[...bd],ncr={...cr};let nep=null;
+      const piece=nb[move.from];nb[move.to]=piece;nb[move.from]=0;
+      if(move.enPassant){const[tr,tc]=chRc(move.to);nb[chIdx(color==='w'?tr+1:tr-1,tc)]=0;}
+      if(move.double){const[fr]=chRc(move.from);nep=chIdx(color==='w'?fr-1:fr+1,chRc(move.from)[1]);}
+      if(move.castle){
+        const row=chRc(move.from)[0];
+        if(move.castle==='k'){nb[chIdx(row,5)]=nb[chIdx(row,7)];nb[chIdx(row,7)]=0;}
+        else{nb[chIdx(row,3)]=nb[chIdx(row,0)];nb[chIdx(row,0)]=0;}
+      }
+      if(piece===_WK){ncr.wk=false;ncr.wq=false;}
+      if(piece===_BK){ncr.bk=false;ncr.bq=false;}
+      if(move.from===63||move.to===63)ncr.wk=false;
+      if(move.from===56||move.to===56)ncr.wq=false;
+      if(move.from===7||move.to===7)ncr.bk=false;
+      if(move.from===0||move.to===0)ncr.bq=false;
+      return{board:nb,castleRights:ncr,enPassant:nep};
+    }
+
+    function chLegal(bd,color,cr,ep){
+      return chGenMoves(bd,color,cr,ep).filter(m=>{
+        const r=chApply(bd,m,cr,color);return!chInCheck(r.board,color);
+      });
+    }
+
+    // Chess UI state (local)
+    let chSelected=null,chValidMoves=[],chPromoResolve=null;
+
+    function renderChess(room){
+      const st=room.state;
+      const bd=st.board,cr=st.castleRights,ep=st.enPassant,lm=st.lastMove;
+      const myColor=myNum===1?'w':'b';
+      const legalMoves=isMyTurn?chLegal(bd,myColor,cr,ep):[];
+      const legalForSel=chSelected!==null?legalMoves.filter(m=>m.from===chSelected):[];
+      const vmSet=new Set(legalForSel.map(m=>m.to));
+      const vcSet=new Set(legalForSel.filter(m=>m.capture).map(m=>m.to));
+
+      const el=document.getElementById('game-board');
+      const inCheck=isMyTurn&&chInCheck(bd,myColor);
+      const kingPos=inCheck?chFindKing(bd,myColor):-1;
+
+      // Flip board for black player
+      const indices=myNum===2?[...Array(64).keys()].reverse():[...Array(64).keys()];
+      const cells=indices.map(i=>{
+        const[r,c]=chRc(i);
+        const piece=bd[i];
+        const isLight=(r+c)%2===0;
+        let cls=`chess-cell ${isLight?'light':'dark'}`;
+        if(chSelected===i)cls+=' sel';
+        if(vmSet.has(i))cls+=vcSet.has(i)?' vc':' vm';
+        if(lm&&lm.from===i)cls+=' lf';
+        if(lm&&lm.to===i)cls+=' lt';
+        if(i===kingPos)cls+=' chk';
+        const sym=piece?CHESS_SYM[piece]:'';
+        return `<div class="${cls}" data-idx="${i}">${sym}</div>`;
+      }).join('');
+
+      el.innerHTML=`<div class="chess-board-wrap"><div class="chess-board">${cells}</div></div>`;
+
+      el.querySelectorAll('.chess-cell').forEach(cell=>{
+        cell.addEventListener('click',()=>onChessClick(parseInt(cell.dataset.idx)));
+      });
+    }
+
+    function onChessClick(i){
+      if(!isMyTurn||!currentRoom)return;
+      const st=currentRoom.state;
+      const myColor=myNum===1?'w':'b';
+      const legalMoves=chLegal(st.board,myColor,st.castleRights,st.enPassant);
+
+      // Click on valid destination
+      if(chSelected!==null){
+        const move=legalMoves.find(m=>m.from===chSelected&&m.to===i);
+        if(move){makeChessMove(move);return;}
+      }
+
+      // Select own piece
+      const isMyPiece=myColor==='w'?chIsW(st.board[i]):chIsB(st.board[i]);
+      if(isMyPiece&&legalMoves.some(m=>m.from===i)){
+        chSelected=i;chValidMoves=legalMoves.filter(m=>m.from===i);
+      }else{
+        chSelected=null;chValidMoves=[];
+      }
+      renderChess(currentRoom);
+    }
+
+    async function makeChessMove(move){
+      if(!isMyTurn||!currentRoom)return;
+      isMyTurn=false;
+      const st=currentRoom.state;
+      const myColor=myNum===1?'w':'b';
+
+      let promoPiece=null;
+      if(move.promo){
+        promoPiece=await showChessPromo(myColor);
+        if(!promoPiece){isMyTurn=true;return;}
+      }
+
+      const result=chApply(st.board,move,st.castleRights,myColor);
+      if(promoPiece)result.board[move.to]=promoPiece;
+
+      chSelected=null;chValidMoves=[];
+      const opp=myNum===1?2:1;
+      const oppColor=chEnem(myColor);
+      const oppLegal=chLegal(result.board,oppColor,result.castleRights,result.enPassant);
+      let status='playing',winner=null,nextTurn=opp;
+      if(oppLegal.length===0){
+        status='finished';
+        winner=chInCheck(result.board,oppColor)?myNum:0;  // 0 = stalemate
+      }
+      await supabase.from('game_rooms').update({
+        state:{board:result.board,castleRights:result.castleRights,enPassant:result.enPassant,lastMove:move},
+        turn:nextTurn,status,winner,
+      }).eq('id',currentRoom.id);
+    }
+
+    function showChessPromo(color){
+      return new Promise(resolve=>{
+        chPromoResolve=resolve;
+        const pieces=color==='w'?[_WQ,_WR,_WB,_WN]:[_BQ,_BR,_BB,_BN];
+        const syms=pieces.map(p=>CHESS_SYM[p]);
+        const modal=document.createElement('div');
+        modal.className='chess-promo-modal';
+        modal.innerHTML=`<div class="chess-promo-choices">${pieces.map((p,i)=>`<button class="chess-promo-btn" data-p="${p}">${syms[i]}</button>`).join('')}</div>`;
+        document.body.appendChild(modal);
+        modal.querySelectorAll('.chess-promo-btn').forEach(btn=>{
+          btn.addEventListener('click',()=>{
+            const val=parseInt(btn.dataset.p);
+            modal.remove();
+            resolve(val);
+          });
+        });
+      });
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -1186,7 +1609,7 @@
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
           pacman:'Pac-Man', cookieclicker:'Cookie Clicker',
-          chess:'Xadrez', battleship:'Batalha Naval', connect4:'Conecte 4', go:'Go',
+          connect4:'Conecte 4', go:'Go',
           termo:'Termo', hangman:'Forca', wordsearch:'Caça-Palavras',
           anagram:'Anagrama', stopgame:'Stop!',
         };
