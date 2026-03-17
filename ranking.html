@@ -642,11 +642,11 @@
         for (let i = 0; i < allUids.length; i += 500) {
           const batch = allUids.slice(i, i + 500);
           const { data: profiles } = await supabase.from('profiles')
-            .select('id, display_name').in('id', batch);
+            .select('user_id, display_name').in('user_id', batch);
           if (profiles) profiles.forEach(p => {
-            if (stats[p.id]) {
-              stats[p.id].name = p.display_name || 'Jogador';
-              stats[p.id].hasName = !!(p.display_name && p.display_name.trim().length >= 2);
+            if (stats[p.user_id]) {
+              stats[p.user_id].name = p.display_name || 'Jogador';
+              stats[p.user_id].hasName = !!(p.display_name && p.display_name.trim().length >= 2);
             }
           });
         }
