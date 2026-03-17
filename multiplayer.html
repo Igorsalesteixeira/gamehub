@@ -97,7 +97,7 @@
     }
     .modal h3 { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 1.5rem; }
     .modal-label { font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-    .game-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
+    .game-select-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
     .game-option {
       padding: 0.75rem 0.4rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
@@ -240,6 +240,63 @@
     .ck-dot.d1 { background: #333; border: 1px solid #555; }
     .ck-dot.d2 { background: #cc4400; border: 1px solid #ff9866; }
 
+    /* REVERSI */
+    .rv-board-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .rv-board {
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      border: 3px solid #1a5e20; border-radius: 8px; overflow: hidden;
+      width: min(400px, 92vw); background: #2e7d32;
+    }
+    .rv-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 1px solid rgba(0,0,0,0.2); position: relative;
+    }
+    .rv-piece {
+      width: 80%; height: 80%; border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: transform 0.15s;
+    }
+    .rv-piece.rv1 { background: radial-gradient(circle at 35% 35%, #555, #111); }
+    .rv-piece.rv2 { background: radial-gradient(circle at 35% 35%, #fff, #bbb); }
+    .rv-valid { background: rgba(255,255,255,0.18) !important; cursor: pointer; }
+    .rv-valid::after {
+      content: ''; position: absolute; width: 28%; height: 28%;
+      border-radius: 50%; background: rgba(255,255,255,0.4);
+    }
+    .rv-score {
+      display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.8rem;
+      font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.7);
+    }
+    .rv-score-item { display: flex; align-items: center; gap: 0.5rem; }
+    .rv-dot { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
+    .rv-dot.d1 { background: #111; border: 1px solid #555; }
+    .rv-dot.d2 { background: #fff; border: 1px solid #ccc; }
+
+    /* MEMORY */
+    .mem-board-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .mem-board {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 8px; width: min(360px, 92vw);
+    }
+    .mem-card {
+      aspect-ratio: 1; border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.8rem; cursor: pointer;
+      transition: transform 0.2s; user-select: none; border: 2px solid transparent;
+    }
+    .mem-card.face-down {
+      background: linear-gradient(135deg, #1565c0, #0d47a1);
+      border-color: rgba(255,255,255,0.1); font-size: 0; cursor: pointer;
+    }
+    .mem-card.face-down::after { content: '?'; font-size: 1.8rem; color: rgba(255,255,255,0.3); }
+    .mem-card.face-up { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); cursor: default; }
+    .mem-card.matched { background: rgba(76,175,80,0.2); border-color: rgba(76,175,80,0.5); cursor: default; opacity: 0.7; }
+    .mem-card.selected { border-color: #ff6b35; transform: scale(1.05); }
+    .mem-score {
+      display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 0.8rem;
+      font-size: 0.88rem; font-weight: 700;
+    }
+    .mem-score-item { color: rgba(255,255,255,0.6); }
+    .mem-score-item strong { color: #ff8f5e; font-size: 1.1rem; }
+
     /* RESULT */
     .result-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
@@ -294,6 +351,8 @@
         <button class="filter-btn" data-filter="tictactoe">❌ Velha</button>
         <button class="filter-btn" data-filter="connect4">🔴 Conecte 4</button>
         <button class="filter-btn" data-filter="checkers">⚫ Dama</button>
+        <button class="filter-btn" data-filter="reversi">⬛ Reversi</button>
+        <button class="filter-btn" data-filter="memory">🧠 Memória</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -356,6 +415,12 @@
         </button>
         <button class="game-option" data-game="checkers">
           <span class="game-option-icon">⚫</span>Dama
+        </button>
+        <button class="game-option" data-game="reversi">
+          <span class="game-option-icon">⬛</span>Reversi
+        </button>
+        <button class="game-option" data-game="memory">
+          <span class="game-option-icon">🧠</span>Memória
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -440,6 +505,24 @@
             }
           }
           return { board };
+        }
+      },
+      reversi: {
+        name: 'Reversi', icon: '⬛',
+        initState: () => {
+          const b = new Array(64).fill(0);
+          b[27]=2; b[28]=1; b[35]=1; b[36]=2;
+          return { board: b };
+        }
+      },
+      memory: {
+        name: 'Memória', icon: '🧠',
+        initState: () => {
+          const EMJ=['🐶','🐱','🐸','🦊','🐼','🐨','🦁','🐯','🐮','🐷','🐵','🦄','🐙','🦋','🐢','🦀'];
+          const pairs = EMJ.slice(0,8);
+          const arr = [...pairs,...pairs];
+          for (let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+          return { cards: arr.map(e=>({e,m:false,mb:0})), scores:{1:0,2:0}, pick1:null, show:null };
         }
       },
     };
@@ -626,6 +709,8 @@
       if (room.game==='tictactoe') renderTTT(room);
       else if (room.game==='connect4') renderC4(room);
       else if (room.game==='checkers') renderCheckers(room);
+      else if (room.game==='reversi') renderReversi(room);
+      else if (room.game==='memory') renderMemory(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -800,6 +885,148 @@
       }).eq('id',currentRoom.id);
     }
 
+    // ===== REVERSI =====
+    function rvIdx(r,c){return r*8+c;}
+    function rvRowCol(i){return[Math.floor(i/8),i%8];}
+    const RV_DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    function rvFlips(b,pos,player){
+      const[r,c]=rvRowCol(pos);if(b[pos]!==0)return[];
+      const opp=player===1?2:1,flips=[];
+      for(const[dr,dc]of RV_DIRS){
+        const tmp=[];let nr=r+dr,nc=c+dc;
+        while(nr>=0&&nr<8&&nc>=0&&nc<8&&b[rvIdx(nr,nc)]===opp){tmp.push(rvIdx(nr,nc));nr+=dr;nc+=dc;}
+        if(tmp.length&&nr>=0&&nr<8&&nc>=0&&nc<8&&b[rvIdx(nr,nc)]===player)flips.push(...tmp);
+      }
+      return flips;
+    }
+    function rvValidMoves(b,player){
+      const moves=[];
+      for(let i=0;i<64;i++){const f=rvFlips(b,i,player);if(f.length)moves.push({pos:i,flips:f});}
+      return moves;
+    }
+    function rvCount(b){let a=0,w=0;for(const c of b){if(c===1)a++;else if(c===2)w++;}return{1:a,2:w};}
+
+    function renderReversi(room){
+      const board=room.state.board;
+      const counts=rvCount(board);
+      const myPlayer=myNum;
+      const validMoves=isMyTurn?rvValidMoves(board,myPlayer):[];
+      const validSet=new Set(validMoves.map(m=>m.pos));
+      const el=document.getElementById('game-board');
+      const rows=board.map((cell,i)=>{
+        const isValid=validSet.has(i);
+        const cls=['rv-cell',isValid?'rv-valid':''].join(' ').trim();
+        const piece=cell===1?'<div class="rv-piece rv1"></div>':cell===2?'<div class="rv-piece rv2"></div>':'';
+        return `<div class="${cls}" data-pos="${i}">${piece}</div>`;
+      }).join('');
+      el.innerHTML=`
+        <div class="rv-score">
+          <span class="rv-score-item"><span class="rv-dot d1"></span>${room.player1_name||'J1'}: ${counts[1]}</span>
+          <span class="rv-score-item"><span class="rv-dot d2"></span>${room.player2_name||'J2'}: ${counts[2]}</span>
+        </div>
+        <div class="rv-board-wrap"><div class="rv-board">${rows}</div></div>`;
+      if(isMyTurn){
+        el.querySelectorAll('.rv-valid').forEach(c=>{
+          c.addEventListener('click',()=>makeRvMove(parseInt(c.dataset.pos)));
+        });
+      }
+    }
+
+    async function makeRvMove(pos){
+      if(!isMyTurn||!currentRoom)return;
+      const board=[...currentRoom.state.board];
+      const flips=rvFlips(board,pos,myNum);
+      if(!flips.length)return;
+      isMyTurn=false;
+      board[pos]=myNum;
+      flips.forEach(i=>{board[i]=myNum;});
+      const opp=myNum===1?2:1;
+      const oppMoves=rvValidMoves(board,opp);
+      const myMoves=rvValidMoves(board,myNum);
+      let nextTurn=opp,status='playing',winner=null;
+      if(!oppMoves.length&&!myMoves.length){
+        const c=rvCount(board);
+        status='finished';
+        winner=c[1]>c[2]?1:c[2]>c[1]?2:0;
+      } else if(!oppMoves.length){
+        nextTurn=myNum; // opponent must pass
+      }
+      await supabase.from('game_rooms').update({
+        state:{board},turn:nextTurn,status,winner
+      }).eq('id',currentRoom.id);
+    }
+
+    // ===== MEMORY =====
+    let memPick1=null; // local first pick index
+
+    function renderMemory(room){
+      const{cards,scores,pick1,show}=room.state;
+      const el=document.getElementById('game-board');
+      const p1n=room.player1_name||'J1', p2n=room.player2_name||'J2';
+      const revealedSet=new Set();
+      if(pick1!=null)revealedSet.add(pick1);
+      if(show){show.forEach(i=>revealedSet.add(i));}
+      const grid=cards.map((card,i)=>{
+        let cls='mem-card';
+        if(card.m) cls+=' matched';
+        else if(revealedSet.has(i)) cls+=' face-up';
+        else cls+=' face-down';
+        if(pick1===i) cls+=' selected';
+        return `<div class="${cls}" data-idx="${i}">${card.m||revealedSet.has(i)?card.e:''}</div>`;
+      }).join('');
+      el.innerHTML=`
+        <div class="mem-score">
+          <span class="mem-score-item">${p1n}: <strong>${scores[1]||0}</strong></span>
+          <span class="mem-score-item">${p2n}: <strong>${scores[2]||0}</strong></span>
+        </div>
+        <div class="mem-board-wrap"><div class="mem-board">${grid}</div></div>`;
+      if(isMyTurn&&room.state.show==null){
+        el.querySelectorAll('.mem-card.face-down').forEach(c=>{
+          c.addEventListener('click',()=>onMemClick(parseInt(c.dataset.idx)));
+        });
+      }
+    }
+
+    async function onMemClick(idx){
+      if(!isMyTurn||!currentRoom)return;
+      const st=currentRoom.state;
+      if(st.show!=null)return; // waiting for flip-back
+      if(st.pick1==null){
+        // First pick — reveal it
+        const newSt={...st,pick1:idx};
+        await supabase.from('game_rooms').update({state:newSt}).eq('id',currentRoom.id);
+      } else {
+        // Second pick
+        if(idx===st.pick1)return; // same card
+        const cards=st.cards.map(c=>({...c}));
+        const a=st.pick1, b=idx;
+        if(cards[a].e===cards[b].e){
+          // Match!
+          cards[a].m=true; cards[b].m=true;
+          cards[a].mb=myNum; cards[b].mb=myNum;
+          const newScores={...st.scores,[myNum]:(st.scores[myNum]||0)+1};
+          const allMatched=cards.every(c=>c.m);
+          const newSt={cards,scores:newScores,pick1:null,show:null};
+          let status='playing',winner=null,nextTurn=myNum;
+          if(allMatched){
+            status='finished';
+            winner=newScores[1]>newScores[2]?1:newScores[2]>newScores[1]?2:0;
+          }
+          await supabase.from('game_rooms').update({state:newSt,turn:nextTurn,status,winner}).eq('id',currentRoom.id);
+        } else {
+          // No match — show both briefly then flip back
+          isMyTurn=false;
+          const showSt={...st,pick1:null,show:[a,b]};
+          await supabase.from('game_rooms').update({state:showSt}).eq('id',currentRoom.id);
+          setTimeout(async()=>{
+            const opp=myNum===1?2:1;
+            const hideSt={...showSt,show:null};
+            await supabase.from('game_rooms').update({state:hideSt,turn:opp}).eq('id',currentRoom.id);
+          },1300);
+        }
+      }
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -953,12 +1180,12 @@
         const LABELS = {
           solitaire:'Paciência', freecell:'Freecell', spider:'Spider Solitaire',
           blackjack:'Blackjack', truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
-          memory:'Memória', minesweeper:'Campo Minado', game2048:'2048',
+          minesweeper:'Campo Minado', game2048:'2048',
           sudoku:'Sudoku', puzzle15:'Puzzle 15', nonogram:'Nonogram',
           mahjong:'Mahjong', numble:'Numble', lightsout:'Lights Out', sokoban:'Sokoban',
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
-          pacman:'Pac-Man', cookieclicker:'Cookie Clicker', reversi:'Reversi',
+          pacman:'Pac-Man', cookieclicker:'Cookie Clicker',
           chess:'Xadrez', battleship:'Batalha Naval', connect4:'Conecte 4', go:'Go',
           termo:'Termo', hangman:'Forca', wordsearch:'Caça-Palavras',
           anagram:'Anagrama', stopgame:'Stop!',
