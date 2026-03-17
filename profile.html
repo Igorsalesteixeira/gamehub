@@ -272,6 +272,11 @@
     }
     .trophy-card.locked .trophy-xp { opacity: 0.2; }
 
+    .trophy-progress { margin-top: 6px; width: 100%; }
+    .trophy-progress-text { font-size: 0.65rem; color: #888; text-align: center; margin-bottom: 3px; font-weight: 700; }
+    .trophy-progress-bar { height: 5px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; }
+    .trophy-progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b35, #ffd700); border-radius: 3px; transition: width 0.6s ease; }
+
     .unlock-badge {
       position: absolute;
       top: -6px; left: -6px;
@@ -604,6 +609,32 @@
       { id:'devoted',       icon:'❤️', name:'Fiel',               desc:'Jogue o mesmo jogo 50 vezes',                    cat:'⚡ Especiais',         rarity:'raro',     xp:200,  check: s => s.maxGameCount >= 50 },
     ];
 
+    // ===== TROPHY PROGRESS MAPPING =====
+    const TROPHY_PROGRESS = {
+      curious:      s => ({ cur: s.unique,              max: 3    }),
+      explorer:     s => ({ cur: s.unique,              max: 10   }),
+      adventurer:   s => ({ cur: s.unique,              max: 20   }),
+      collector:    s => ({ cur: s.unique,              max: 30   }),
+      master_all:   s => ({ cur: s.unique,              max: 38   }),
+      games10:      s => ({ cur: s.total,               max: 10   }),
+      games50:      s => ({ cur: s.total,               max: 50   }),
+      games200:     s => ({ cur: s.total,               max: 200  }),
+      games500:     s => ({ cur: s.total,               max: 500  }),
+      games1000:    s => ({ cur: s.total,               max: 1000 }),
+      wins10:       s => ({ cur: s.wins,                max: 10   }),
+      wins50:       s => ({ cur: s.wins,                max: 50   }),
+      wins100:      s => ({ cur: s.wins,                max: 100  }),
+      wins500:      s => ({ cur: s.wins,                max: 500  }),
+      wins1000:     s => ({ cur: s.wins,                max: 1000 }),
+      card_master:  s => ({ cur: s.catWins.cartas||0,   max: 20   }),
+      puzzle_master:s => ({ cur: s.catWins.puzzle||0,   max: 20   }),
+      arcade_king:  s => ({ cur: s.catGames.arcade||0,  max: 20   }),
+      strategist:   s => ({ cur: s.catWins.estrategia||0, max: 20 }),
+      word_master:  s => ({ cur: s.catWins.palavras||0, max: 20   }),
+      consistent:   s => ({ cur: s.total,               max: 20   }),
+      devoted:      s => ({ cur: s.maxGameCount,        max: 50   }),
+    };
+
     // ===== HELPERS =====
     function getAvatarColor(name) {
       let hash = 0;
@@ -775,6 +806,16 @@
       for (const t of group) {
         const lockClass = t.unlocked ? '' : 'locked';
         const badge = t.unlocked ? '<div class="unlock-badge">✓</div>' : '';
+        let progressHtml = '';
+        if (!t.unlocked && TROPHY_PROGRESS[t.id]) {
+          const p = TROPHY_PROGRESS[t.id](computed);
+          const cur = Math.min(p.cur, p.max);
+          const pct = Math.round(cur / p.max * 100);
+          progressHtml = `<div class="trophy-progress">
+            <div class="trophy-progress-text">${cur} / ${p.max}</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }
         trophiesHtml += `
           <div class="trophy-card ${t.rarity} ${lockClass}" title="${t.desc}">
             ${badge}
@@ -782,6 +823,7 @@
             <span class="trophy-icon">${t.icon}</span>
             <div class="trophy-name">${t.name}</div>
             <div class="trophy-desc">${t.desc}</div>
+            ${progressHtml}
             <span class="rarity-tag ${t.rarity}">${t.rarity}</span>
           </div>`;
       }
