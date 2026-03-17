@@ -18,6 +18,8 @@ const PIPE_SPEED = 2.5;
 const BIRD_SIZE = 24;
 
 let bird, pipes, score, bestScore, gameState, animId;
+let wingPhase = 0;   // 0..1 ciclo da animação de asa
+let shakeFrames = 0; // frames restantes de screen shake
 
 bestScore = parseInt(localStorage.getItem('flappy_best') || '0');
 bestDisplay.textContent = bestScore;
@@ -27,6 +29,8 @@ function init() {
   pipes = [];
   score = 0;
   gameState = 'waiting'; // waiting, playing, dead
+  wingPhase = 0;
+  shakeFrames = 0;
   startMsg.classList.remove('hidden');
   if (animId) cancelAnimationFrame(animId);
   loop();
@@ -97,6 +101,7 @@ function update() {
 
 function die() {
   gameState = 'dead';
+  shakeFrames = 12; // screen shake por 12 frames
   if (score > bestScore) {
     bestScore = score;
     localStorage.setItem('flappy_best', bestScore);
@@ -106,6 +111,23 @@ function die() {
 }
 
 function draw() {
+  // Screen shake ao morrer
+  ctx.save();
+  if (shakeFrames > 0) {
+    const intensity = shakeFrames * 0.5;
+    ctx.translate(
+      (Math.random() - 0.5) * intensity * 2,
+      (Math.random() - 0.5) * intensity * 2
+    );
+    shakeFrames--;
+  }
+
+  // Atualiza fase da asa
+  if (gameState === 'playing') {
+    wingPhase += 0.18;
+    if (wingPhase > Math.PI * 2) wingPhase -= Math.PI * 2;
+  }
+
   // Sky
   ctx.fillStyle = '#70c5ce';
   ctx.fillRect(0, 0, W, H);
@@ -136,6 +158,19 @@ function draw() {
   ctx.save();
   ctx.translate(bird.x + BIRD_SIZE / 2, bird.y + BIRD_SIZE / 2);
   ctx.rotate((bird.rotation * Math.PI) / 180);
+
+  // Asa animada (bate quando sobe, descansa quando cai)
+  const wingY = Math.sin(wingPhase) * 5; // oscilação vertical da asa
+  ctx.fillStyle = '#e6a800';
+  ctx.save();
+  ctx.translate(-3, 2 + wingY);
+  ctx.scale(1, 0.4 + Math.abs(Math.sin(wingPhase)) * 0.3);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 8, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Corpo
   ctx.fillStyle = '#f9c22e';
   ctx.beginPath();
   ctx.arc(0, 0, BIRD_SIZE / 2, 0, Math.PI * 2);
@@ -179,6 +214,8 @@ function draw() {
     ctx.font = '16px Nunito';
     ctx.fillText('Toque para jogar novamente', W / 2, H / 2 + 50);
   }
+
+  ctx.restore(); // fecha o save do screen shake
 }
 
 function loop() {

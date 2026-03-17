@@ -93,6 +93,20 @@ function draw() {
     for (let c = 0; c < COLS; c++)
       if (board[r][c]) drawBlock(ctx, c, r, board[r][c], BLOCK);
 
+  // Ghost piece (silhueta de destino)
+  if (current) {
+    const ghostY = getGhostY();
+    if (ghostY !== current.y) {
+      ctx.save();
+      ctx.globalAlpha = 0.22;
+      for (let r = 0; r < current.shape.length; r++)
+        for (let c = 0; c < current.shape[r].length; c++)
+          if (current.shape[r][c])
+            drawBlock(ctx, current.x + c, ghostY + r, current.color, BLOCK);
+      ctx.restore();
+    }
+  }
+
   // Current piece
   if (current) {
     for (let r = 0; r < current.shape.length; r++)
@@ -119,6 +133,12 @@ function drawBlock(context, x, y, color, size) {
   context.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
   context.fillStyle = 'rgba(255,255,255,0.15)';
   context.fillRect(x * size + 1, y * size + 1, size - 2, 3);
+}
+
+function getGhostY() {
+  let ghostY = current.y;
+  while (!collides({ ...current, y: ghostY + 1 }, 0, 0)) ghostY++;
+  return ghostY;
 }
 
 function collides(piece, dx, dy, shape) {

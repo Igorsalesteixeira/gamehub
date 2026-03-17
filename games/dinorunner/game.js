@@ -30,6 +30,9 @@ const SPEED_INCREMENT = 0.001;
 // ===== ESTADO =====
 let dino, obstacles, clouds, score, bestScore, speed, gameState, animId, frameCount;
 let isDucking = false;
+let shakeFrames = 0;      // screen shake ao morrer
+let obstaclesCrossed = 0; // contador para combo
+let comboPopup = null;    // { text, x, y, alpha, frame }
 
 bestScore = parseInt(localStorage.getItem('dino_best') || '0');
 bestDisplay.textContent = bestScore;
@@ -82,6 +85,9 @@ function init() {
   speed = INITIAL_SPEED;
   frameCount = 0;
   isDucking = false;
+  shakeFrames = 0;
+  obstaclesCrossed = 0;
+  comboPopup = null;
   scoreDisplay.textContent = '0';
 
   // Nuvens iniciais
@@ -167,6 +173,14 @@ function update() {
     if (obstacles[i].type === 'ptero') {
       obstacles[i].wingFrame++;
     }
+    // Detecta obstáculo ultrapassado para combo
+    if (!obstacles[i].passed && obstacles[i].x + obstacles[i].w < dino.x) {
+      obstacles[i].passed = true;
+      obstaclesCrossed++;
+      if (obstaclesCrossed > 0 && obstaclesCrossed % 5 === 0) {
+        comboPopup = { text: `🔥 ${obstaclesCrossed} seguidos!`, x: W / 2, y: H / 2 - 40, alpha: 1, frame: 0 };
+      }
+    }
     if (obstacles[i].x + obstacles[i].w < -20) {
       obstacles.splice(i, 1);
     }
@@ -201,6 +215,8 @@ function update() {
 
 function die() {
   gameState = 'dead';
+  shakeFrames = 14;
+  obstaclesCrossed = 0;
   if (score > bestScore) {
     bestScore = score;
     localStorage.setItem('dino_best', bestScore);
@@ -213,6 +229,14 @@ function die() {
 
 // ===== DRAW =====
 function draw() {
+  ctx.save();
+  // Screen shake ao morrer
+  if (shakeFrames > 0) {
+    const intensity = shakeFrames * 0.4;
+    ctx.translate((Math.random() - 0.5) * intensity * 2, (Math.random() - 0.5) * intensity);
+    shakeFrames--;
+  }
+
   // Ceu
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#1a1a3e');
@@ -279,6 +303,24 @@ function draw() {
     ctx.fillStyle = 'rgba(255,255,255,0.08)';
     ctx.fillRect(0, 0, W, H);
   }
+
+  // Combo popup flutuante
+  if (comboPopup) {
+    comboPopup.frame++;
+    comboPopup.y -= 0.8;
+    comboPopup.alpha = Math.max(0, 1 - comboPopup.frame / 55);
+    ctx.save();
+    ctx.globalAlpha = comboPopup.alpha;
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 22px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText(comboPopup.text, comboPopup.x, comboPopup.y);
+    ctx.textAlign = 'left';
+    ctx.restore();
+    if (comboPopup.frame > 55) comboPopup = null;
+  }
+
+  ctx.restore(); // fecha o save do screen shake
 }
 
 function drawDino() {

@@ -2,6 +2,7 @@ import { supabase } from '../../supabase.js';
 
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
+let lastDrop = null; // { row, col } da última jogada para animação
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
 const modal = document.getElementById('modal');
@@ -11,6 +12,7 @@ function init() {
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   currentPlayer = 1;
   gameOver = false;
+  lastDrop = null;
   statusEl.textContent = 'Sua vez! Clique em uma coluna.';
   modal.style.display = 'none';
   render();
@@ -24,12 +26,28 @@ function render() {
       cell.className = 'cell';
       if (board[r][c] === 1) cell.classList.add('red');
       if (board[r][c] === 2) cell.classList.add('yellow');
+
+      // Animação de queda para a peça recém colocada
+      if (lastDrop && lastDrop.row === r && lastDrop.col === c) {
+        cell.style.setProperty('--rows', r + 1);
+        cell.classList.add('dropping');
+      }
+
       cell.addEventListener('click', () => handleClick(c));
+      cell.addEventListener('mouseenter', () => highlightCol(c, true));
+      cell.addEventListener('mouseleave', () => highlightCol(c, false));
       cell.dataset.row = r;
       cell.dataset.col = c;
       boardEl.appendChild(cell);
     }
   }
+}
+
+function highlightCol(col, on) {
+  if (gameOver || currentPlayer !== 1) return;
+  boardEl.querySelectorAll('[data-col="' + col + '"]').forEach(el => {
+    el.classList.toggle('col-hover', on && !el.classList.contains('red') && !el.classList.contains('yellow'));
+  });
 }
 
 function getAvailableRow(col) {
@@ -43,6 +61,7 @@ function drop(col, player) {
   const row = getAvailableRow(col);
   if (row === -1) return -1;
   board[row][col] = player;
+  lastDrop = { row, col };
   return row;
 }
 

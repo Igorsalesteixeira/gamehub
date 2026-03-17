@@ -30,6 +30,8 @@ let bestScore = parseInt(localStorage.getItem('snake_best') || '0');
 let gameLoop  = null;
 let running   = false;
 let cellSize  = 0;
+let eatRipple = null;   // animação de ondulação ao comer
+let headTrail = [];     // rastro de posições recentes da cabeça
 
 bestDisplay.textContent = bestScore;
 
@@ -67,6 +69,8 @@ function initGame() {
   nextDir   = { x: 1, y: 0 };
   score     = 0;
   scoreDisplay.textContent = 0;
+  eatRipple = null;
+  headTrail = [];
   spawnFood();
 }
 
@@ -103,10 +107,15 @@ function tick() {
 
   snake.unshift(head);
 
+  // Trail de movimento: guarda as últimas 5 posições da cabeça
+  headTrail.push({ x: head.x, y: head.y });
+  if (headTrail.length > 5) headTrail.shift();
+
   // Eat food
   if (head.x === food.x && head.y === food.y) {
     score++;
     scoreDisplay.textContent = score;
+    eatRipple = { x: food.x, y: food.y, frame: 0 }; // dispara animação
     spawnFood();
   } else {
     snake.pop();
@@ -172,6 +181,29 @@ function draw() {
     ctx.moveTo(0, i * cs); ctx.lineTo(canvas.width, i * cs);
     ctx.stroke();
   }
+
+  // Ripple ao comer
+  if (eatRipple) {
+    const p = eatRipple.frame / 14;
+    ctx.save();
+    ctx.strokeStyle = `rgba(233, 69, 96, ${(1 - p) * 0.8})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(eatRipple.x * cs + cs / 2, eatRipple.y * cs + cs / 2, cs * 0.4 * (1 + p * 1.5), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    eatRipple.frame++;
+    if (eatRipple.frame > 14) eatRipple = null;
+  }
+
+  // Trail de movimento (rastro da cabeça)
+  headTrail.forEach((pos, i) => {
+    const alpha = ((i + 1) / headTrail.length) * 0.18;
+    ctx.fillStyle = `rgba(83, 215, 105, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(pos.x * cs + cs / 2, pos.y * cs + cs / 2, cs * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
   // Food
   if (food) {

@@ -245,7 +245,28 @@ function renderBoard() {
     cell.dataset.idx = i;
 
     if (board[i] !== EMPTY) {
-      cell.textContent = PIECE_SYMBOLS[board[i]];
+      const pieceSpan = document.createElement('span');
+      pieceSpan.textContent = PIECE_SYMBOLS[board[i]];
+      // Aplica animação de chegada apenas na peça que acabou de se mover
+      if (lastMove && lastMove.to === i) {
+        pieceSpan.className = 'piece-anim';
+        cell.classList.add('piece-moved');
+      }
+      cell.appendChild(pieceSpan);
+    }
+
+    // Coordenadas: arquivo (a-h) na linha 7, rank (1-8) na coluna 0
+    if (r === 7) {
+      const fl = document.createElement('span');
+      fl.className = 'coord-file';
+      fl.textContent = 'abcdefgh'[c];
+      cell.appendChild(fl);
+    }
+    if (c === 0) {
+      const rk = document.createElement('span');
+      rk.className = 'coord-rank';
+      rk.textContent = 8 - r;
+      cell.appendChild(rk);
     }
 
     if (selected === i) cell.classList.add('selected');

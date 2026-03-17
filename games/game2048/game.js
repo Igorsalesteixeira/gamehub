@@ -72,48 +72,48 @@ function updateScore() {
 
 function slide(row) {
   let arr = row.filter(v => v !== 0);
-  const merged = [];
   for (let i = 0; i < arr.length - 1; i++) {
     if (arr[i] === arr[i + 1]) {
       arr[i] *= 2;
       score += arr[i];
-      arr[i + 1] = 0;
-      merged.push(arr[i]);
       if (arr[i] === 2048 && !won) won = true;
+      arr[i + 1] = 0;
+      i++; // pula o próximo (já consumido)
     }
   }
   arr = arr.filter(v => v !== 0);
   while (arr.length < SIZE) arr.push(0);
-  return { result: arr, merged };
+  return arr;
 }
 
 function move(direction) {
   if (gameOver) return;
-  const prev = JSON.stringify(grid);
+  const prevGrid = grid.map(r => [...r]);
+  const prev = JSON.stringify(prevGrid);
   const mergedCells = [];
 
   if (direction === 'left') {
-    for (let r = 0; r < SIZE; r++) {
-      const { result, merged } = slide(grid[r]);
-      grid[r] = result;
-    }
+    for (let r = 0; r < SIZE; r++) grid[r] = slide(grid[r]);
   } else if (direction === 'right') {
-    for (let r = 0; r < SIZE; r++) {
-      const { result } = slide([...grid[r]].reverse());
-      grid[r] = result.reverse();
-    }
+    for (let r = 0; r < SIZE; r++) grid[r] = slide([...grid[r]].reverse()).reverse();
   } else if (direction === 'up') {
     for (let c = 0; c < SIZE; c++) {
-      const col = [grid[0][c], grid[1][c], grid[2][c], grid[3][c]];
-      const { result } = slide(col);
+      const result = slide([grid[0][c], grid[1][c], grid[2][c], grid[3][c]]);
       for (let r = 0; r < SIZE; r++) grid[r][c] = result[r];
     }
   } else if (direction === 'down') {
     for (let c = 0; c < SIZE; c++) {
-      const col = [grid[3][c], grid[2][c], grid[1][c], grid[0][c]];
-      const { result } = slide(col);
-      const rev = result.reverse();
-      for (let r = 0; r < SIZE; r++) grid[r][c] = rev[r];
+      const result = slide([grid[3][c], grid[2][c], grid[1][c], grid[0][c]]).reverse();
+      for (let r = 0; r < SIZE; r++) grid[r][c] = result[r];
+    }
+  }
+
+  // Detectar células que dobraram (merged): valor novo é o dobro do valor anterior
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      if (grid[r][c] !== 0 && grid[r][c] !== prevGrid[r][c] && grid[r][c] === prevGrid[r][c] * 2) {
+        mergedCells.push([r, c]);
+      }
     }
   }
 
@@ -169,7 +169,7 @@ document.addEventListener('touchend', (e) => {
   const dy = e.changedTouches[0].clientY - touchStartY;
   const absDx = Math.abs(dx);
   const absDy = Math.abs(dy);
-  if (Math.max(absDx, absDy) < 30) return;
+  if (Math.max(absDx, absDy) < 20) return;
 
   if (absDx > absDy) {
     move(dx > 0 ? 'right' : 'left');

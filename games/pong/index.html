@@ -37,8 +37,13 @@
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
     <h1 class="game-title">🏓 Pong</h1>
-    <div class="stats">
+    <div class="stats" style="display:flex;gap:0.7rem;align-items:center">
       <span>Primeiro a <strong>5</strong></span>
+      <select id="difficulty-select" style="font-family:Nunito,sans-serif;font-weight:700;font-size:0.8rem;background:#fff3;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:2px 6px;cursor:pointer">
+        <option value="easy">Fácil</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Difícil</option>
+      </select>
     </div>
   </header>
 

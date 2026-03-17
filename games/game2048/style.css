@@ -65,17 +65,22 @@ body {
 .cell[data-value="1024"] { background: #edc53f; color: #f9f6f2; font-size: clamp(0.85rem, 3.5vw, 1.5rem); }
 .cell[data-value="2048"] { background: #edc22e; color: #f9f6f2; font-size: clamp(0.85rem, 3.5vw, 1.5rem); }
 
-.cell.new { animation: appear 0.2s ease; }
-.cell.merged { animation: pop 0.2s ease; }
+.cell.new { animation: appear 0.18s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.cell.merged { animation: pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.cell[data-value="2048"] { animation: glow2048 1s ease-in-out infinite alternate; }
 
 @keyframes appear {
-  0% { transform: scale(0); }
-  100% { transform: scale(1); }
+  0%   { transform: scale(0) rotate(-8deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 @keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); }
   100% { transform: scale(1); }
+}
+@keyframes glow2048 {
+  from { box-shadow: 0 0 10px #edc22e, 0 0 20px #edc22e; }
+  to   { box-shadow: 0 0 20px #f59563, 0 0 40px #f59563; }
 }
 
 .btn-orange {

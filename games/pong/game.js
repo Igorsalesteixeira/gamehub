@@ -16,10 +16,20 @@ canvas.height = H;
 const PADDLE_W = 10, PADDLE_H = 60;
 const BALL_SIZE = 8;
 const WIN_SCORE = 5;
-const CPU_SPEED = 3.5;
+// Dificuldade: easy=2.2, normal=3.5, hard=5
+const DIFFICULTY_SPEEDS = { easy: 2.2, normal: 3.5, hard: 5.0 };
+// Imprecisão da IA: easy=35px, normal=12px, hard=0px
+const DIFFICULTY_ERROR  = { easy: 35, normal: 12, hard: 0 };
 
 let player, cpu, ball, playerScore, cpuScore, gameOver, animId;
 let keysDown = {};
+let ballTrail = []; // posições recentes da bola para efeito trail
+let cpuTargetError = 12; // offset de erro atual da IA
+
+function getDifficulty() {
+  const sel = document.getElementById('difficulty-select');
+  return sel ? sel.value : 'normal';
+}
 
 function init() {
   player = { x: 15, y: H / 2 - PADDLE_H / 2 };
@@ -27,6 +37,8 @@ function init() {
   playerScore = 0;
   cpuScore = 0;
   gameOver = false;
+  ballTrail = [];
+  cpuTargetError = DIFFICULTY_ERROR[getDifficulty()] ?? 12;
   modalOverlay.classList.remove('show');
   resetBall();
   if (animId) cancelAnimationFrame(animId);
@@ -53,17 +65,25 @@ function update() {
     player.y = Math.min(H - PADDLE_H, player.y + 5);
   }
 
-  // CPU AI
+  // CPU AI com dificuldade ajustável
+  const diff = getDifficulty();
+  const cpuSpeed = DIFFICULTY_SPEEDS[diff] ?? 3.5;
   const cpuCenter = cpu.y + PADDLE_H / 2;
-  if (ball.vx > 0) { // ball coming towards CPU
-    if (cpuCenter < ball.y - 10) cpu.y += CPU_SPEED;
-    else if (cpuCenter > ball.y + 10) cpu.y -= CPU_SPEED;
+  // Target com "erro" baseado na dificuldade (IA se move para posição ligeiramente errada)
+  const cpuTarget = ball.y + (ball.vx > 0 ? cpuTargetError : 0);
+  if (ball.vx > 0) { // bola vindo em direção à CPU
+    if (cpuCenter < cpuTarget - 8) cpu.y += cpuSpeed;
+    else if (cpuCenter > cpuTarget + 8) cpu.y -= cpuSpeed;
   } else {
-    // Return to center slowly
-    if (cpuCenter < H / 2 - 20) cpu.y += CPU_SPEED * 0.5;
-    else if (cpuCenter > H / 2 + 20) cpu.y -= CPU_SPEED * 0.5;
+    // Retornar ao centro vagarosamente
+    if (cpuCenter < H / 2 - 20) cpu.y += cpuSpeed * 0.5;
+    else if (cpuCenter > H / 2 + 20) cpu.y -= cpuSpeed * 0.5;
   }
   cpu.y = Math.max(0, Math.min(H - PADDLE_H, cpu.y));
+
+  // Atualizar trail da bola
+  ballTrail.push({ x: ball.x, y: ball.y });
+  if (ballTrail.length > 7) ballTrail.shift();
 
   // Ball movement
   ball.x += ball.vx;
@@ -128,6 +148,16 @@ function draw() {
   ctx.fillRect(player.x, player.y, PADDLE_W, PADDLE_H);
   ctx.fillStyle = '#4dabf7';
   ctx.fillRect(cpu.x, cpu.y, PADDLE_W, PADDLE_H);
+
+  // Ball trail
+  ballTrail.forEach((pos, i) => {
+    const alpha = (i / ballTrail.length) * 0.35;
+    const r = (BALL_SIZE / 2) * ((i + 1) / ballTrail.length);
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(pos.x + BALL_SIZE / 2, pos.y + BALL_SIZE / 2, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
 
   // Ball
   ctx.fillStyle = '#fff';

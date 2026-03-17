@@ -247,8 +247,10 @@ function applyPowerUp(type) {
   if (type === 'wide') {
     wideTimer = 600; // 10 seconds at 60fps
   } else if (type === 'multi') {
-    // Add 2 extra balls
-    for (let i = 0; i < 2; i++) {
+    // Add extra balls (max 4 total para evitar lag)
+    const maxExtra = 3;
+    const toAdd = Math.min(2, maxExtra - extraBalls.length);
+    for (let i = 0; i < toAdd; i++) {
       const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.2;
       extraBalls.push({
         x: ballX, y: ballY,

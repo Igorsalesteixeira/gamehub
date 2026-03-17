@@ -9,7 +9,12 @@ let pyramid, stock, waste, selected, moves, timerInterval, seconds;
 function createDeck() {
   const deck = [];
   for (const s of SUITS) for (const r of RANKS) deck.push({ rank: r, suit: s, value: VALUES[r] });
-  return deck.sort(() => Math.random() - 0.5);
+  // Fisher-Yates shuffle (distribuição uniforme)
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
 }
 
 function isRed(suit) { return suit === '♥' || suit === '♦'; }

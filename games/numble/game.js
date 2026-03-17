@@ -52,8 +52,8 @@ function generateEquation() {
       return eq;
     }
   }
-  // Fallback
-  return '12+34=46';
+  // Fallback (garantidamente 8 chars e matematicamente correto)
+  return '15+20=35';
 }
 
 function isValidEquation(str) {
@@ -281,7 +281,6 @@ function newGame() {
     }
   }
   targetEquation = generateEquation();
-  console.log('Target:', targetEquation); // Debug
   renderBoard();
   renderKeyboard();
 }

@@ -93,7 +93,7 @@ function isFree(tile) {
 
   // Check if tile on top
   const topBlocked = tiles.some(t => !t.removed && t.l === tile.l + 1 &&
-    Math.abs(t.r - tile.r) < 1 && Math.abs(t.c - tile.c) < 1);
+    Math.abs(t.r - tile.r) <= 1 && Math.abs(t.c - tile.c) <= 1);
   if (topBlocked) return false;
 
   return true;
