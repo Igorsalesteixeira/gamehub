@@ -73,11 +73,39 @@
       border-color: #ff6b35;
     }
 
+    .ranking-tab[data-game="overall"] {
+      border-color: #ffd700;
+      color: #7a6200;
+      font-weight: 800;
+    }
+
+    .ranking-tab[data-game="overall"]:hover {
+      background: #ffd700;
+      color: #7a6200;
+      border-color: #ffd700;
+    }
+
+    .ranking-tab[data-game="overall"].active {
+      background: #ffd700;
+      color: #7a6200;
+      border-color: #ffd700;
+    }
+
     .ranking-table {
       background: #fff;
       border-radius: 18px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       overflow: hidden;
+    }
+
+    .ranking-criterion {
+      text-align: center;
+      padding: 0.6rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #888;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .ranking-row {
@@ -129,6 +157,13 @@
       white-space: nowrap;
     }
 
+    .ranking-sub {
+      font-size: 0.78rem;
+      color: #aaa;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
     .ranking-empty {
       text-align: center;
       padding: 3rem 1rem;
@@ -177,44 +212,45 @@
     </div>
 
     <div class="ranking-tabs">
-      <button class="ranking-tab active" data-game="solitaire">🃏 Paciência</button>
-      <button class="ranking-tab" data-game="snake">🐍 Cobrinha</button>
+      <button class="ranking-tab active" data-game="overall">🏆 Geral</button>
+      <button class="ranking-tab" data-game="solitaire">🃏 Paciência</button>
+      <button class="ranking-tab" data-game="freecell">🂡 Freecell</button>
+      <button class="ranking-tab" data-game="spider">🕷️ Spider Solitaire</button>
       <button class="ranking-tab" data-game="checkers">⚫ Dama</button>
       <button class="ranking-tab" data-game="memory">🧠 Memória</button>
-      <button class="ranking-tab" data-game="blackjack">🃏 Blackjack</button>
-      <button class="ranking-tab" data-game="freecell">🂡 Freecell</button>
-      <button class="ranking-tab" data-game="tictactoe">❌ Velha</button>
-      <button class="ranking-tab" data-game="reversi">⚪ Reversi</button>
       <button class="ranking-tab" data-game="minesweeper">💣 Campo Minado</button>
-      <button class="ranking-tab" data-game="termo">📝 Termo</button>
-      <button class="ranking-tab" data-game="hangman">🔤 Forca</button>
-      <button class="ranking-tab" data-game="game2048">🔢 2048</button>
       <button class="ranking-tab" data-game="sudoku">🔢 Sudoku</button>
       <button class="ranking-tab" data-game="puzzle15">🧩 Puzzle 15</button>
-      <button class="ranking-tab" data-game="tetris">🧱 Tetris</button>
-      <button class="ranking-tab" data-game="flappybird">🐦 Flappy Bird</button>
-      <button class="ranking-tab" data-game="pong">🏓 Pong</button>
-      <button class="ranking-tab" data-game="pacman">🟡 Pac-Man</button>
-      <button class="ranking-tab" data-game="breakout">🧱 Breakout</button>
-      <button class="ranking-tab" data-game="dinorunner">🦕 Dino Runner</button>
-      <button class="ranking-tab" data-game="spaceinvaders">👾 Space Invaders</button>
-      <button class="ranking-tab" data-game="chess">♟️ Xadrez</button>
-      <button class="ranking-tab" data-game="connect4">🔴 Conecte 4</button>
-      <button class="ranking-tab" data-game="battleship">🚢 Batalha Naval</button>
-      <button class="ranking-tab" data-game="go">⚫ Go</button>
-      <button class="ranking-tab" data-game="spider">🕷️ Spider Solitaire</button>
-      <button class="ranking-tab" data-game="pyramid">🔺 Pirâmide</button>
-      <button class="ranking-tab" data-game="truco">🂠 Truco</button>
-      <button class="ranking-tab" data-game="uno">🟥 Uno</button>
       <button class="ranking-tab" data-game="mahjong">🀄 Mahjong</button>
       <button class="ranking-tab" data-game="sokoban">📦 Sokoban</button>
       <button class="ranking-tab" data-game="nonogram">🖼️ Nonogram</button>
       <button class="ranking-tab" data-game="lightsout">💡 Lights Out</button>
       <button class="ranking-tab" data-game="wordsearch">🔍 Caça-Palavras</button>
-      <button class="ranking-tab" data-game="anagram">🔀 Anagrama</button>
-      <button class="ranking-tab" data-game="stopgame">✋ Stop!</button>
-      <button class="ranking-tab" data-game="numble">🔣 Numble</button>
+      <button class="ranking-tab" data-game="chess">♟️ Xadrez</button>
+      <button class="ranking-tab" data-game="reversi">⚪ Reversi</button>
+      <button class="ranking-tab" data-game="go">⚫ Go</button>
+      <button class="ranking-tab" data-game="battleship">🚢 Batalha Naval</button>
+      <button class="ranking-tab" data-game="connect4">🔴 Conecte 4</button>
+      <button class="ranking-tab" data-game="tetris">🧱 Tetris</button>
+      <button class="ranking-tab" data-game="flappybird">🐦 Flappy Bird</button>
+      <button class="ranking-tab" data-game="pacman">🟡 Pac-Man</button>
+      <button class="ranking-tab" data-game="breakout">🧱 Breakout</button>
+      <button class="ranking-tab" data-game="dinorunner">🦕 Dino Runner</button>
+      <button class="ranking-tab" data-game="spaceinvaders">👾 Space Invaders</button>
+      <button class="ranking-tab" data-game="snake">🐍 Cobrinha</button>
+      <button class="ranking-tab" data-game="game2048">🔢 2048</button>
       <button class="ranking-tab" data-game="cookieclicker">🍪 Cookie Clicker</button>
+      <button class="ranking-tab" data-game="pong">🏓 Pong</button>
+      <button class="ranking-tab" data-game="blackjack">🃏 Blackjack</button>
+      <button class="ranking-tab" data-game="truco">🂠 Truco</button>
+      <button class="ranking-tab" data-game="uno">🟥 Uno</button>
+      <button class="ranking-tab" data-game="tictactoe">❌ Velha</button>
+      <button class="ranking-tab" data-game="hangman">🔤 Forca</button>
+      <button class="ranking-tab" data-game="termo">📝 Termo</button>
+      <button class="ranking-tab" data-game="anagram">🔀 Anagrama</button>
+      <button class="ranking-tab" data-game="numble">🔣 Numble</button>
+      <button class="ranking-tab" data-game="stopgame">✋ Stop!</button>
+      <button class="ranking-tab" data-game="pyramid">🔺 Pirâmide</button>
     </div>
 
     <div class="ranking-table" id="ranking-table">
@@ -240,7 +276,7 @@
 
     const tableEl = document.getElementById('ranking-table');
     const timerEl = document.getElementById('timer');
-    let currentGame = 'solitaire';
+    let currentGame = 'overall';
     let currentUserId = null;
 
     // Auth check
@@ -300,24 +336,76 @@
     }
 
     const GAME_LABELS = {
-      solitaire: 'Paciência', snake: 'Cobrinha', checkers: 'Dama', memory: 'Memória',
-      blackjack: 'Blackjack', freecell: 'Freecell', tictactoe: 'Jogo da Velha',
-      reversi: 'Reversi', minesweeper: 'Campo Minado', termo: 'Termo', hangman: 'Forca',
-      game2048: '2048', sudoku: 'Sudoku', puzzle15: 'Puzzle 15',
-      tetris: 'Tetris', flappybird: 'Flappy Bird', pong: 'Pong', pacman: 'Pac-Man',
-      breakout: 'Breakout', dinorunner: 'Dino Runner', spaceinvaders: 'Space Invaders',
-      chess: 'Xadrez', connect4: 'Conecte 4', battleship: 'Batalha Naval', go: 'Go',
-      spider: 'Spider Solitaire', pyramid: 'Pirâmide', truco: 'Truco', uno: 'Uno',
-      mahjong: 'Mahjong', sokoban: 'Sokoban', nonogram: 'Nonogram', lightsout: 'Lights Out',
-      wordsearch: 'Caça-Palavras', anagram: 'Anagrama', stopgame: 'Stop!',
-      numble: 'Numble', cookieclicker: 'Cookie Clicker'
+      solitaire: 'Paciência',
+      freecell: 'Freecell',
+      spider: 'Spider Solitaire',
+      checkers: 'Dama',
+      memory: 'Memória',
+      minesweeper: 'Campo Minado',
+      sudoku: 'Sudoku',
+      puzzle15: 'Puzzle 15',
+      mahjong: 'Mahjong',
+      sokoban: 'Sokoban',
+      nonogram: 'Nonogram',
+      lightsout: 'Lights Out',
+      wordsearch: 'Caça-Palavras',
+      chess: 'Xadrez',
+      reversi: 'Reversi',
+      go: 'Go',
+      battleship: 'Batalha Naval',
+      connect4: 'Conecte 4',
+      tetris: 'Tetris',
+      flappybird: 'Flappy Bird',
+      pacman: 'Pac-Man',
+      breakout: 'Breakout',
+      dinorunner: 'Dino Runner',
+      spaceinvaders: 'Space Invaders',
+      snake: 'Cobrinha',
+      game2048: '2048',
+      cookieclicker: 'Cookie Clicker',
+      pong: 'Pong',
+      blackjack: 'Blackjack',
+      truco: 'Truco',
+      uno: 'Uno',
+      tictactoe: 'Jogo da Velha',
+      hangman: 'Forca',
+      termo: 'Termo',
+      anagram: 'Anagrama',
+      numble: 'Numble',
+      stopgame: 'Stop!',
+      pyramid: 'Pirâmide'
     };
 
-    // Jogos rankeados por tempo (menor = melhor)
-    const TIME_RANKED = ['checkers', 'memory', 'freecell', 'minesweeper', 'sudoku', 'puzzle15', 'mahjong', 'sokoban', 'nonogram', 'lightsout', 'wordsearch'];
+    // Jogos rankeados por tempo mais rápido (vitórias apenas)
+    const TIME_RANKED = [
+      'solitaire', 'freecell', 'spider', 'checkers', 'memory', 'minesweeper',
+      'sudoku', 'puzzle15', 'mahjong', 'sokoban', 'nonogram', 'lightsout',
+      'wordsearch', 'chess', 'reversi', 'go', 'battleship', 'connect4'
+    ];
 
-    // Jogos rankeados por score (maior = melhor, usa campo moves)
-    const SCORE_RANKED = ['game2048', 'tetris', 'flappybird', 'pacman', 'breakout', 'dinorunner', 'spaceinvaders', 'stopgame', 'anagram', 'numble', 'cookieclicker'];
+    // Jogos rankeados por maior pontuação (campo score)
+    const SCORE_RANKED = [
+      'tetris', 'flappybird', 'pacman', 'breakout', 'dinorunner',
+      'spaceinvaders', 'snake', 'game2048', 'cookieclicker', 'pong'
+    ];
+
+    // Jogos rankeados por número de vitórias
+    const WINS_RANKED = [
+      'blackjack', 'truco', 'uno', 'tictactoe', 'hangman',
+      'termo', 'anagram', 'numble', 'stopgame', 'pyramid'
+    ];
+
+    // Todos os jogos (38 no total)
+    const ALL_GAMES = [...TIME_RANKED, ...SCORE_RANKED, ...WINS_RANKED];
+
+    // Tabela de pontos por posição
+    const POSITION_POINTS = [100, 85, 75, 60, 50, 42, 35, 28, 22, 16];
+    function getPoints(pos) {
+      if (pos <= 0) return 0;
+      if (pos <= 10) return POSITION_POINTS[pos - 1];
+      if (pos <= 20) return 10;
+      return 0;
+    }
 
     function formatRankTime(secs) {
       const m = Math.floor(secs / 60);
@@ -325,116 +413,122 @@
       return `${m}:${s.toString().padStart(2, '0')}`;
     }
 
-    async function loadRanking() {
-      tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Carregando...</div>';
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || 'Jogador';
+      return div.innerHTML;
+    }
 
-      let data, error;
-
-      if (currentGame === 'snake') {
-        ({ data, error } = await supabase.rpc('get_weekly_ranking_snake'));
-      } else if (TIME_RANKED.includes(currentGame)) {
-        // Ranking por tempo mais rapido (vitórias apenas)
-        ({ data, error } = await supabase.rpc('get_weekly_ranking_time', { game_filter: currentGame }));
-
-        // Fallback: se a RPC não existir, buscar direto
-        if (error && error.message && error.message.includes('function')) {
-          const weekAgo = new Date();
-          weekAgo.setDate(weekAgo.getDate() - 7);
-          const { data: rawData, error: rawError } = await supabase
-            .from('game_stats')
-            .select('user_id, time_seconds')
-            .eq('game', currentGame)
-            .eq('result', 'win')
-            .gte('created_at', weekAgo.toISOString())
-            .order('time_seconds', { ascending: true });
-
-          if (rawError) {
-            error = rawError;
-          } else {
-            // Agrupar: menor tempo por usuario
-            const best = {};
-            for (const row of rawData || []) {
-              if (!best[row.user_id] || row.time_seconds < best[row.user_id]) {
-                best[row.user_id] = row.time_seconds;
-              }
-            }
-            // Buscar nomes
-            const userIds = Object.keys(best);
-            if (userIds.length > 0) {
-              const { data: profiles } = await supabase
-                .from('profiles')
-                .select('user_id, display_name')
-                .in('user_id', userIds);
-              const nameMap = {};
-              for (const p of profiles || []) nameMap[p.user_id] = p.display_name;
-              data = userIds
-                .map(uid => ({ user_id: uid, display_name: nameMap[uid] || 'Jogador', best_time: best[uid] }))
-                .sort((a, b) => a.best_time - b.best_time)
-                .slice(0, 20);
-            } else {
-              data = [];
-            }
-            error = null;
-          }
-        }
-      } else if (SCORE_RANKED.includes(currentGame)) {
-        // Ranking por maior score (campo moves)
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        const { data: rawData, error: rawError } = await supabase
-          .from('game_stats')
-          .select('user_id, moves')
-          .eq('game', currentGame)
-          .gte('created_at', weekAgo.toISOString())
-          .order('moves', { ascending: false });
-
-        if (rawError) {
-          error = rawError;
-        } else {
-          const best = {};
-          for (const row of rawData || []) {
-            if (!best[row.user_id] || row.moves > best[row.user_id]) {
-              best[row.user_id] = row.moves;
-            }
-          }
-          const userIds = Object.keys(best);
-          if (userIds.length > 0) {
-            const { data: profiles } = await supabase
-              .from('profiles')
-              .select('user_id, display_name')
-              .in('user_id', userIds);
-            const nameMap = {};
-            for (const p of profiles || []) nameMap[p.user_id] = p.display_name;
-            data = userIds
-              .map(uid => ({ user_id: uid, display_name: nameMap[uid] || 'Jogador', best_score: best[uid] }))
-              .sort((a, b) => b.best_score - a.best_score)
-              .slice(0, 20);
-          } else {
-            data = [];
-          }
-          error = null;
-        }
+    // Calcula início da semana atual (segunda-feira às 9h BRT = UTC-3)
+    function getWeekStart() {
+      const now = new Date();
+      const brt = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      const dow = brt.getDay(); // 0=dom
+      let daysBack;
+      if (dow === 0) daysBack = 6;
+      else if (dow === 1) {
+        daysBack = brt.getHours() < 9 ? 7 : 0;
       } else {
-        ({ data, error } = await supabase.rpc('get_weekly_ranking', { game_filter: currentGame }));
+        daysBack = dow - 1;
       }
+      const weekStart = new Date(brt);
+      weekStart.setDate(weekStart.getDate() - daysBack);
+      weekStart.setHours(9, 0, 0, 0);
+      // Converter de volta para UTC para a query
+      const offsetMs = -3 * 60 * 60 * 1000; // BRT = UTC-3
+      return new Date(weekStart.getTime() - offsetMs);
+    }
 
-      if (error) {
-        console.error('Erro ao carregar ranking:', error);
-        tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div>Erro ao carregar ranking</div>';
-        return;
+    // Busca ranking de um jogo específico por tempo (TIME_RANKED)
+    async function fetchTimeRanking(gameId, weekStart) {
+      const { data: rawData, error } = await supabase
+        .from('game_stats')
+        .select('user_id, time_seconds, profiles(display_name)')
+        .eq('game', gameId)
+        .eq('result', 'win')
+        .gte('created_at', weekStart.toISOString())
+        .order('time_seconds', { ascending: true });
+
+      if (error || !rawData) return [];
+
+      const best = {};
+      const nameMap = {};
+      for (const row of rawData) {
+        if (!best[row.user_id] || row.time_seconds < best[row.user_id]) {
+          best[row.user_id] = row.time_seconds;
+          nameMap[row.user_id] = row.profiles?.display_name || 'Jogador';
+        }
       }
+      return Object.keys(best)
+        .map(uid => ({ user_id: uid, display_name: nameMap[uid], best_time: best[uid] }))
+        .sort((a, b) => a.best_time - b.best_time)
+        .slice(0, 20);
+    }
 
+    // Busca ranking de um jogo específico por score (SCORE_RANKED)
+    async function fetchScoreRanking(gameId, weekStart) {
+      const { data: rawData, error } = await supabase
+        .from('game_stats')
+        .select('user_id, score, profiles(display_name)')
+        .eq('game', gameId)
+        .gt('score', 0)
+        .gte('created_at', weekStart.toISOString())
+        .order('score', { ascending: false });
+
+      if (error || !rawData) return [];
+
+      const best = {};
+      const nameMap = {};
+      for (const row of rawData) {
+        if (!best[row.user_id] || row.score > best[row.user_id]) {
+          best[row.user_id] = row.score;
+          nameMap[row.user_id] = row.profiles?.display_name || 'Jogador';
+        }
+      }
+      return Object.keys(best)
+        .map(uid => ({ user_id: uid, display_name: nameMap[uid], best_score: best[uid] }))
+        .sort((a, b) => b.best_score - a.best_score)
+        .slice(0, 20);
+    }
+
+    // Busca ranking de um jogo específico por vitórias (WINS_RANKED)
+    async function fetchWinsRanking(gameId, weekStart) {
+      const { data: rawData, error } = await supabase
+        .from('game_stats')
+        .select('user_id, profiles(display_name)')
+        .eq('game', gameId)
+        .eq('result', 'win')
+        .gte('created_at', weekStart.toISOString());
+
+      if (error || !rawData) return [];
+
+      const wins = {};
+      const nameMap = {};
+      for (const row of rawData) {
+        wins[row.user_id] = (wins[row.user_id] || 0) + 1;
+        nameMap[row.user_id] = row.profiles?.display_name || 'Jogador';
+      }
+      return Object.keys(wins)
+        .map(uid => ({ user_id: uid, display_name: nameMap[uid], wins: wins[uid] }))
+        .sort((a, b) => b.wins - a.wins)
+        .slice(0, 20);
+    }
+
+    // Renderiza o ranking na tela
+    function renderRanking(data, gameId, criterionHtml) {
       if (!data || data.length === 0) {
-        const gameLabel = GAME_LABELS[currentGame] || currentGame;
-        tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>Nenhuma partida essa semana em ${gameLabel}.<br>Seja o primeiro!</div>`;
+        const gameLabel = GAME_LABELS[gameId] || gameId;
+        tableEl.innerHTML = `
+          <div class="ranking-criterion">${criterionHtml}</div>
+          <div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>Nenhuma partida essa semana em ${gameLabel}.<br>Seja o primeiro!</div>
+        `;
         return;
       }
 
-      const isSnake = currentGame === 'snake';
-      const isTimeRanked = TIME_RANKED.includes(currentGame);
-      const isScoreRanked = SCORE_RANKED.includes(currentGame);
+      const isTimeRanked = TIME_RANKED.includes(gameId);
+      const isScoreRanked = SCORE_RANKED.includes(gameId);
 
-      tableEl.innerHTML = data.map((row, i) => {
+      const rows = data.map((row, i) => {
         const pos = i + 1;
         const posClass = pos <= 3 ? `pos-${pos}` : 'pos-other';
         const rowClass = pos <= 3 ? `top-${pos}` : '';
@@ -444,13 +538,11 @@
         let label;
         if (isTimeRanked) {
           label = `⏱ ${formatRankTime(row.best_time)}`;
-        } else if (isSnake) {
-          label = `${row.best_score} 🍎`;
         } else if (isScoreRanked) {
-          label = `⭐ ${row.best_score} pts`;
+          label = `🎯 ${row.best_score} pts`;
         } else {
-          const score = row.wins;
-          label = `${score} ${score === 1 ? 'vitória' : 'vitórias'}`;
+          const w = row.wins;
+          label = `${w} ${w === 1 ? 'vitória' : 'vitórias'}`;
         }
 
         return `
@@ -461,12 +553,124 @@
           </div>
         `;
       }).join('');
+
+      tableEl.innerHTML = `<div class="ranking-criterion">${criterionHtml}</div>${rows}`;
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
+    // Renderiza o ranking geral
+    function renderOverallRanking(playerPoints) {
+      const sorted = Object.entries(playerPoints)
+        .map(([uid, info]) => ({ user_id: uid, display_name: info.name, points: info.points, games: info.games }))
+        .sort((a, b) => b.points - a.points)
+        .slice(0, 20);
+
+      if (sorted.length === 0) {
+        tableEl.innerHTML = `
+          <div class="ranking-criterion">🏆 Pontuação total entre jogos</div>
+          <div class="ranking-empty"><div class="ranking-empty-icon">🏜️</div>Nenhuma partida essa semana ainda.<br>Seja o primeiro!</div>
+        `;
+        return;
+      }
+
+      const rows = sorted.map((row, i) => {
+        const pos = i + 1;
+        const posClass = pos <= 3 ? `pos-${pos}` : 'pos-other';
+        const rowClass = pos <= 3 ? `top-${pos}` : '';
+        const isMe = row.user_id === currentUserId;
+        const medal = pos === 1 ? '🥇' : pos === 2 ? '🥈' : pos === 3 ? '🥉' : pos;
+
+        return `
+          <div class="ranking-row ${rowClass}">
+            <div class="ranking-pos ${posClass}">${medal}</div>
+            <div class="ranking-name ${isMe ? 'is-me' : ''}">${escapeHtml(row.display_name)}${isMe ? ' (você)' : ''}</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
+              <div class="ranking-wins">🏆 ${row.points} pts</div>
+              <div class="ranking-sub">${row.games} ${row.games === 1 ? 'jogo' : 'jogos'}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      tableEl.innerHTML = `<div class="ranking-criterion">🏆 Pontuação total entre jogos</div>${rows}`;
+    }
+
+    async function loadRanking() {
+      tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Carregando...</div>';
+
+      const weekStart = getWeekStart();
+
+      if (currentGame === 'overall') {
+        await loadOverallRanking(weekStart);
+        return;
+      }
+
+      if (TIME_RANKED.includes(currentGame)) {
+        const data = await fetchTimeRanking(currentGame, weekStart);
+        renderRanking(data, currentGame, '⏱ Menor tempo (vitórias)');
+        return;
+      }
+
+      if (SCORE_RANKED.includes(currentGame)) {
+        const data = await fetchScoreRanking(currentGame, weekStart);
+        renderRanking(data, currentGame, '🎯 Maior pontuação');
+        return;
+      }
+
+      if (WINS_RANKED.includes(currentGame)) {
+        const data = await fetchWinsRanking(currentGame, weekStart);
+        renderRanking(data, currentGame, '🏅 Mais vitórias');
+        return;
+      }
+
+      // Fallback: usa RPC legada se existir
+      const { data, error } = await supabase.rpc('get_weekly_ranking', { game_filter: currentGame });
+      if (error) {
+        console.error('Erro ao carregar ranking:', error);
+        tableEl.innerHTML = '<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div>Erro ao carregar ranking</div>';
+        return;
+      }
+      renderRanking(data, currentGame, '🏅 Mais vitórias');
+    }
+
+    async function loadOverallRanking(weekStart) {
+      tableEl.innerHTML = `
+        <div class="ranking-criterion">🏆 Pontuação total entre jogos</div>
+        <div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Calculando ranking geral...<br><small style="color:#bbb">Isso pode levar alguns segundos</small></div>
+      `;
+
+      const playerPoints = {}; // uid -> { name, points, games }
+
+      function addPoints(uid, name, pos) {
+        const pts = getPoints(pos);
+        if (pts === 0) return;
+        if (!playerPoints[uid]) playerPoints[uid] = { name: name || 'Jogador', points: 0, games: 0 };
+        playerPoints[uid].points += pts;
+        playerPoints[uid].games += 1;
+        // Manter o nome mais recente que não seja genérico
+        if (name && name !== 'Jogador') playerPoints[uid].name = name;
+      }
+
+      // Buscar todos os jogos em paralelo com Promise.allSettled
+      const allFetches = ALL_GAMES.map(async (gameId) => {
+        try {
+          let ranked = [];
+          if (TIME_RANKED.includes(gameId)) {
+            ranked = await fetchTimeRanking(gameId, weekStart);
+          } else if (SCORE_RANKED.includes(gameId)) {
+            ranked = await fetchScoreRanking(gameId, weekStart);
+          } else if (WINS_RANKED.includes(gameId)) {
+            ranked = await fetchWinsRanking(gameId, weekStart);
+          }
+          ranked.forEach((row, i) => {
+            addPoints(row.user_id, row.display_name, i + 1);
+          });
+        } catch (e) {
+          console.warn(`Erro ao buscar ranking de ${gameId}:`, e);
+        }
+      });
+
+      await Promise.allSettled(allFetches);
+      renderOverallRanking(playerPoints);
     }
 
     // Init
