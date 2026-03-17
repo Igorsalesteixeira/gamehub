@@ -215,6 +215,13 @@ function showColorPicker() {
       pendingWildCard = null;
     };
   });
+  // Fechar ao clicar fora do painel
+  colorPickerOverlay.onclick = (e) => {
+    if (e.target === colorPickerOverlay) {
+      colorPickerOverlay.style.display = 'none';
+      pendingWildCard = null;
+    }
+  };
 }
 
 function playCardEffect(card, player) {

@@ -109,7 +109,7 @@ function startHand() {
   if(active.length<2){endGame();return;}
 
   // Advance blind level every 5 hands
-  blindLevel=Math.min(Math.floor(handCount/5),BLIND_LEVELS.length-1);
+  blindLevel=Math.min(Math.floor(handCount/10),BLIND_LEVELS.length-1);
   const {sb,bb}=BLIND_LEVELS[blindLevel];
 
   deck=shuffle(createDeck());

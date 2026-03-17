@@ -15,6 +15,8 @@ let timerSeconds = 0;
 let timerInterval = null;
 let gameStarted = false;
 let gameOver = false;
+let lastMovedIndex = -1; // índice de destino da peça que acabou de mover
+let lastMoveDir = '';    // direção da animação
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -56,11 +58,15 @@ function render() {
   boardEl.innerHTML = '';
   tiles.forEach((val, i) => {
     const tile = document.createElement('div');
-    tile.className = 'tile' + (val === 0 ? ' empty' : '');
+    let cls = 'tile' + (val === 0 ? ' empty' : '');
+    if (i === lastMovedIndex && lastMoveDir) cls += ' ' + lastMoveDir;
+    tile.className = cls;
     if (val !== 0) tile.textContent = val;
     tile.addEventListener('click', () => handleClick(i));
     boardEl.appendChild(tile);
   });
+  lastMovedIndex = -1;
+  lastMoveDir = '';
 }
 
 function handleClick(index) {
@@ -76,6 +82,13 @@ function handleClick(index) {
   if (!isAdjacent) return;
 
   if (!gameStarted) { gameStarted = true; startTimer(); }
+
+  // Calcular direção da animação (tile vai do index para emptyIndex)
+  if (row < eRow) lastMoveDir = 'slide-up';
+  else if (row > eRow) lastMoveDir = 'slide-down';
+  else if (col < eCol) lastMoveDir = 'slide-left';
+  else lastMoveDir = 'slide-right';
+  lastMovedIndex = emptyIndex; // o tile vai parar no emptyIndex
 
   // Swap
   [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];

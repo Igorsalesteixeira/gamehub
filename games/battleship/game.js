@@ -366,10 +366,12 @@ function cpuTurn() {
   // Random if no valid target
   if (r === undefined) {
     cpuMode = 'random';
+    let attempts = 0;
     do {
       r = Math.floor(Math.random() * ROWS);
       c = Math.floor(Math.random() * COLS);
-    } while (playerBoard[r][c] === 2 || playerBoard[r][c] === 3);
+      attempts++;
+    } while ((playerBoard[r][c] === 2 || playerBoard[r][c] === 3) && attempts < ROWS * COLS);
   }
 
   const cell = getCell(playerGrid, r, c);

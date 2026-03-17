@@ -33,6 +33,7 @@ resize();
 
 // ===== GAME STATE =====
 let state = 'idle'; // idle | playing | gameover
+let paused = false;
 let score = 0;
 let lives = 3;
 let wave = 1;
@@ -255,7 +256,7 @@ function drawStars() {
 
 // ===== UPDATE =====
 function update() {
-  if (state !== 'playing') return;
+  if (state !== 'playing' || paused) return;
 
   // Player movement
   let dx = 0;
@@ -470,6 +471,23 @@ function render() {
 
   // Explosions
   drawExplosions();
+
+  // Pausa overlay
+  if (paused) {
+    ctx.save();
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 0, BASE_W, BASE_H);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.font = 'bold 32px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText('⏸ PAUSADO', BASE_W / 2, BASE_H / 2 - 15);
+    ctx.font = '16px Nunito';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('Pressione P para continuar', BASE_W / 2, BASE_H / 2 + 20);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
 }
 
 // ===== GAME LOOP =====
@@ -481,6 +499,9 @@ function gameLoop() {
 
 // ===== INPUT: KEYBOARD =====
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (state === 'playing') { paused = !paused; e.preventDefault(); return; }
+  }
   keys[e.key] = true;
   if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault();

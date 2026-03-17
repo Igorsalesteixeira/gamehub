@@ -29,6 +29,7 @@ let score     = 0;
 let bestScore = parseInt(localStorage.getItem('snake_best') || '0');
 let gameLoop  = null;
 let running   = false;
+let paused    = false;
 let cellSize  = 0;
 let eatRipple = null;   // animação de ondulação ao comer
 let headTrail = [];     // rastro de posições recentes da cabeça
@@ -132,15 +133,22 @@ function startGame() {
   initGame();
   overlay.classList.add('hidden');
   running = true;
+  paused = false;
   scheduleNext();
 }
 
 function scheduleNext() {
   if (!running) return;
   gameLoop = setTimeout(() => {
-    tick();
+    if (!paused) tick();
     scheduleNext();
   }, getSpeed());
+}
+
+function togglePause() {
+  if (!running) return;
+  paused = !paused;
+  draw();
 }
 
 function gameOver() {
@@ -272,6 +280,20 @@ function draw() {
       ctx.fill();
     }
   });
+
+  // Pausa overlay
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${cs * 1.2}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillText('⏸ PAUSADO', canvas.width / 2, canvas.height / 2 - cs * 0.3);
+    ctx.font = `${cs * 0.55}px Nunito`;
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('Pressione P para continuar', canvas.width / 2, canvas.height / 2 + cs * 0.7);
+    ctx.textAlign = 'left';
+  }
 }
 
 // =============================================
@@ -282,6 +304,8 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { startGame(); e.preventDefault(); }
     return;
   }
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { e.preventDefault(); togglePause(); return; }
+  if (paused) return;
   switch (e.key) {
     case 'ArrowUp':    case 'w': case 'W': if (direction.y !== 1)  nextDir = { x: 0, y:-1 }; break;
     case 'ArrowDown':  case 's': case 'S': if (direction.y !== -1) nextDir = { x: 0, y: 1 }; break;

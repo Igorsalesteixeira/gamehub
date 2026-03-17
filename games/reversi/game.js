@@ -252,7 +252,9 @@ function cpuMove() {
       endGame();
       return;
     }
-    render();
+    turnEl.textContent = 'CPU sem jogadas! Sua vez';
+    turnEl.className = 'turn-indicator player-turn';
+    setTimeout(() => render(), 800);
     return;
   }
 

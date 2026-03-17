@@ -309,7 +309,7 @@ function startTimer() {
 
 // ===== UI UPDATES =====
 function updateMineCounter() {
-  mineCounterEl.textContent = totalMines - flagCount;
+  mineCounterEl.textContent = Math.max(0, totalMines - flagCount);
 }
 
 function showModal(won) {

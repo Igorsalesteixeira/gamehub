@@ -67,6 +67,7 @@ let bestScore = parseInt(localStorage.getItem('pacman_best') || '0');
 let totalDots = 0;
 let dotsEaten = 0;
 let running = false;
+let paused = false;
 let gameLoop = null;
 let tickCount = 0;
 let frightenedTimer = 0;
@@ -438,7 +439,8 @@ function startGame() {
   initGame();
   overlay.classList.add('hidden');
   running = true;
-  gameLoop = setInterval(tick, TICK_MS);
+  paused = false;
+  gameLoop = setInterval(() => { if (!paused) tick(); }, TICK_MS);
 }
 
 function gameOver() {
@@ -525,6 +527,20 @@ function draw() {
   ctx.textAlign = 'right';
   ctx.fillText(`Nivel ${level}`, COLS * cs - 4, lifeY + cs * 0.7);
   ctx.textAlign = 'left';
+
+  // Pausa overlay
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffe082';
+    ctx.font = `bold ${cs * 1.6}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillText('⏸ PAUSADO', canvas.width / 2, canvas.height / 2 - cs * 0.5);
+    ctx.font = `${cs * 0.65}px Nunito`;
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText('Pressione P para continuar', canvas.width / 2, canvas.height / 2 + cs * 0.8);
+    ctx.textAlign = 'left';
+  }
 }
 
 function drawPacman() {
@@ -654,6 +670,10 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { startGame(); e.preventDefault(); }
     return;
   }
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    paused = !paused; e.preventDefault(); draw(); return;
+  }
+  if (paused) return;
   switch (e.key) {
     case 'ArrowUp':    case 'w': case 'W': pacman.nextDir = { x: 0, y: -1 }; break;
     case 'ArrowDown':  case 's': case 'S': pacman.nextDir = { x: 0, y: 1 };  break;

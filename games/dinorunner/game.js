@@ -30,6 +30,7 @@ const SPEED_INCREMENT = 0.001;
 // ===== ESTADO =====
 let dino, obstacles, clouds, score, bestScore, speed, gameState, animId, frameCount;
 let isDucking = false;
+let paused = false;
 let shakeFrames = 0;      // screen shake ao morrer
 let obstaclesCrossed = 0; // contador para combo
 let comboPopup = null;    // { text, x, y, alpha, frame }
@@ -321,6 +322,20 @@ function draw() {
   }
 
   ctx.restore(); // fecha o save do screen shake
+
+  // Pausa overlay
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 28px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText('⏸ PAUSADO', W / 2, H / 2 - 10);
+    ctx.font = '14px Nunito';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('Pressione P para continuar', W / 2, H / 2 + 20);
+    ctx.textAlign = 'left';
+  }
 }
 
 function drawDino() {
@@ -425,7 +440,7 @@ function drawPtero(obs) {
 }
 
 function loop() {
-  update();
+  if (!paused) update();
   draw();
   animId = requestAnimationFrame(loop);
 }
@@ -464,6 +479,10 @@ function duckEnd() {
 
 // Teclado
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (gameState === 'playing') { paused = !paused; e.preventDefault(); return; }
+  }
+  if (paused) return;
   if (e.key === ' ' || e.key === 'ArrowUp') {
     e.preventDefault();
     jump();

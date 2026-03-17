@@ -31,7 +31,7 @@ const SHAPES = [
   [[1,1,0],[0,1,1]],             // Z
 ];
 
-let board, current, next, score, level, lines, dropInterval, dropTimer, gameOver, animId;
+let board, current, next, score, level, lines, dropInterval, dropTimer, gameOver, paused, animId;
 
 function createPiece(shapeIdx) {
   const shape = SHAPES[shapeIdx];
@@ -53,6 +53,7 @@ function init() {
   score = 0; level = 1; lines = 0;
   dropInterval = 1000; dropTimer = 0;
   gameOver = false;
+  paused = false;
   modalOverlay.classList.remove('show');
   current = randomPiece();
   next = randomPiece();
@@ -63,10 +64,12 @@ function init() {
     const dt = time - lastTime;
     lastTime = time;
     if (!gameOver) {
-      dropTimer += dt;
-      if (dropTimer >= dropInterval) {
-        dropTimer = 0;
-        moveDown();
+      if (!paused) {
+        dropTimer += dt;
+        if (dropTimer >= dropInterval) {
+          dropTimer = 0;
+          moveDown();
+        }
       }
       draw();
       animId = requestAnimationFrame(loop);
@@ -125,6 +128,20 @@ function draw() {
       for (let c = 0; c < next.shape[r].length; c++)
         if (next.shape[r][c])
           drawBlock(nextCtx, ox + c, oy + r, next.color, 20);
+  }
+
+  // Pausa overlay
+  if (paused) {
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 28px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText('⏸ PAUSADO', canvas.width / 2, canvas.height / 2 - 10);
+    ctx.font = '14px Nunito';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('Pressione P para continuar', canvas.width / 2, canvas.height / 2 + 20);
+    ctx.textAlign = 'left';
   }
 }
 
@@ -235,6 +252,10 @@ function updateUI() {
 // Keyboard
 document.addEventListener('keydown', (e) => {
   if (gameOver) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (!gameOver) { paused = !paused; e.preventDefault(); return; }
+  }
+  if (paused) return;
   switch (e.key) {
     case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); moveLeft(); break;
     case 'ArrowRight': case 'd': case 'D': e.preventDefault(); moveRight(); break;
@@ -245,10 +266,10 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Mobile controls
-document.getElementById('btn-left').addEventListener('click', () => { if (!gameOver) moveLeft(); });
-document.getElementById('btn-right').addEventListener('click', () => { if (!gameOver) moveRight(); });
-document.getElementById('btn-down').addEventListener('click', () => { if (!gameOver) hardDrop(); });
-document.getElementById('btn-rotate').addEventListener('click', () => { if (!gameOver) rotate(); });
+document.getElementById('btn-left').addEventListener('click', () => { if (!gameOver && !paused) moveLeft(); });
+document.getElementById('btn-right').addEventListener('click', () => { if (!gameOver && !paused) moveRight(); });
+document.getElementById('btn-down').addEventListener('click', () => { if (!gameOver && !paused) hardDrop(); });
+document.getElementById('btn-rotate').addEventListener('click', () => { if (!gameOver && !paused) rotate(); });
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
