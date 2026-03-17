@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Jogo da Memoria =====
 import { supabase } from '../../supabase.js';
 

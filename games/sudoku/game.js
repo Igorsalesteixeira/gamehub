@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Sudoku =====
 import { supabase } from '../../supabase.js';
 

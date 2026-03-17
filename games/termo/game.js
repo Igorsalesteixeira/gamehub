@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Termo (Wordle BR) =====
 import { supabase } from '../../supabase.js';
 

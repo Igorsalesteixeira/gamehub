@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 
 // === DOM ===

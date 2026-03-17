@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 
 const ROWS = 6, COLS = 7;

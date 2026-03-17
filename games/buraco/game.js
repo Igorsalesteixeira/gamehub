@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 
 // ===== DECK (2 baralhos + 4 coringas) =====

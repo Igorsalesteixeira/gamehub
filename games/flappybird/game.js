@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Flappy Bird =====
 import { supabase } from '../../supabase.js';
 

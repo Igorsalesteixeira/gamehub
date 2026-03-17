@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 
 const CATEGORIES = ['Nome', 'Animal', 'Fruta', 'Cidade', 'Objeto', 'Cor'];

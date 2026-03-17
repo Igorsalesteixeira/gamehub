@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Pong =====
 import { supabase } from '../../supabase.js';
 

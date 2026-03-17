@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
 

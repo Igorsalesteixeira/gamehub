@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Tetris =====
 import { supabase } from '../../supabase.js';
 

@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Caça-Palavras =====
 import { supabase } from '../../supabase.js';
 

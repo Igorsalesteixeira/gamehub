@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Anagrama =====
 import { supabase } from '../../supabase.js';
 

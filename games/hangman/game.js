@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
 

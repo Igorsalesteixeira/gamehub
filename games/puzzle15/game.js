@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== Puzzle 15 =====
 import { supabase } from '../../supabase.js';
 

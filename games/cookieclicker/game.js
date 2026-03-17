@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 
 let cookies = 0, cps = 0, cpc = 1, totalEarned = 0;

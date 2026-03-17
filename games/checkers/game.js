@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // Jogo de Dama (Checkers) - Dama Brasileira
 // Player = 'player' (dark pieces, bottom), CPU = 'cpu' (orange pieces, top)
 import { supabase } from '../../supabase.js';

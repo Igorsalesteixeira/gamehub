@@ -1,3 +1,4 @@
+﻿import '../../auth-check.js';
 // ===== 2048 =====
 import { supabase } from '../../supabase.js';
 
