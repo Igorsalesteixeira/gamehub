@@ -412,6 +412,7 @@ async function saveGameStat() {
       result: 'end',
       moves: score,
       time_seconds: elapsed,
+      score: score,
     });
   } catch (e) {
     console.warn('Erro ao salvar stats:', e);

@@ -322,6 +322,7 @@ async function saveGameStat() {
       result: 'loss', // snake always ends in loss
       moves: score,
       time_seconds: 0,
+      score: score,
     });
   } catch (e) {
     console.warn('Erro ao salvar stats:', e);

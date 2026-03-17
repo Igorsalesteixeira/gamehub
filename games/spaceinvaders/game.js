@@ -430,6 +430,7 @@ async function gameOver() {
         game: 'spaceinvaders',
         result: 'end',
         moves: score,
+        score: score,
       });
     }
   } catch (e) {

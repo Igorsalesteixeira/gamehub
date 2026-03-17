@@ -169,7 +169,8 @@ async function showModal(title, message, result) {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'pyramid', result, moves, time_seconds: seconds
+      user_id: session.user.id, game: 'pyramid', result, moves, time_seconds: seconds,
+      score: moves,
     });
   }
 }

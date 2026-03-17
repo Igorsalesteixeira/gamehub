@@ -490,6 +490,7 @@ async function saveGameStat() {
       result: 'end',
       moves: score,
       time_seconds: 0,
+      score: score,
     });
   } catch (e) {
     console.warn('Erro ao salvar stats:', e);

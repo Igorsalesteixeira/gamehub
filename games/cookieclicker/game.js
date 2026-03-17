@@ -137,7 +137,8 @@ setInterval(async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'cookieclicker', result: 'end', moves: Math.floor(totalEarned), time_seconds: 0
+      user_id: session.user.id, game: 'cookieclicker', result: 'end', moves: Math.floor(totalEarned), time_seconds: 0,
+      score: Math.floor(totalEarned),
     });
   }
 }, 300000); // Every 5 min

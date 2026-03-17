@@ -205,6 +205,7 @@ async function saveGameStat(result) {
     await supabase.from('game_stats').insert({
       user_id: session.user.id, game: 'pong',
       result: result, moves: 0, time_seconds: 0,
+      score: playerScore,
     });
   } catch (e) { console.warn('Erro ao salvar stats:', e); }
 }
