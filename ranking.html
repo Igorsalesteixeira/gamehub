@@ -263,7 +263,10 @@
   <main>
     <div class="rank-hero">
       <h1>🏆 Ranking</h1>
-      <p class="rank-timer" id="timer">Semanal reseta em: --</p>
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+        <p class="rank-timer" id="timer">Semanal reseta em: --</p>
+        <button id="btn-refresh" title="Atualizar ranking" style="background:rgba(255,255,255,0.15);border:none;border-radius:999px;color:#fff;padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">🔄 Atualizar</button>
+      </div>
     </div>
 
     <!-- Main category tabs -->
@@ -444,51 +447,65 @@
     }
 
     // ===== FETCH HELPERS =====
+
+    // Busca nomes em lote — query separada evita problemas de RLS no embedded join
+    async function fetchNames(uids) {
+      if (!uids.length) return {};
+      const { data } = await supabase.from('profiles')
+        .select('id, display_name').in('id', uids);
+      if (!data) return {};
+      const map = {};
+      for (const p of data) map[p.id] = p.display_name || 'Jogador';
+      return map;
+    }
+
     async function fetchTime(gameId, since) {
       const { data } = await supabase.from('game_stats')
-        .select('user_id, time_seconds, profiles(display_name)')
+        .select('user_id, time_seconds')
         .eq('game', gameId).eq('result', 'win').gte('created_at', since.toISOString())
-        .order('time_seconds', { ascending: true }).limit(200);
-      if (!data) return [];
-      const best = {}, names = {};
+        .order('time_seconds', { ascending: true }).limit(500);
+      if (!data || !data.length) return [];
+      const best = {};
       for (const r of data) {
-        if (!best[r.user_id] || r.time_seconds < best[r.user_id]) {
+        if (!best[r.user_id] || r.time_seconds < best[r.user_id])
           best[r.user_id] = r.time_seconds;
-          names[r.user_id] = r.profiles?.display_name || 'Jogador';
-        }
       }
-      return Object.keys(best).map(uid => ({ user_id: uid, name: names[uid], val: best[uid] }))
+      const names = await fetchNames(Object.keys(best));
+      return Object.keys(best)
+        .map(uid => ({ user_id: uid, name: names[uid] || 'Jogador', val: best[uid] }))
         .sort((a, b) => a.val - b.val).slice(0, 20);
     }
+
     async function fetchScore(gameId, since) {
       const { data } = await supabase.from('game_stats')
-        .select('user_id, score, profiles(display_name)')
+        .select('user_id, score')
         .eq('game', gameId).gt('score', 0).gte('created_at', since.toISOString())
-        .order('score', { ascending: false }).limit(200);
-      if (!data) return [];
-      const best = {}, names = {};
+        .order('score', { ascending: false }).limit(500);
+      if (!data || !data.length) return [];
+      const best = {};
       for (const r of data) {
-        if (!best[r.user_id] || r.score > best[r.user_id]) {
+        if (!best[r.user_id] || r.score > best[r.user_id])
           best[r.user_id] = r.score;
-          names[r.user_id] = r.profiles?.display_name || 'Jogador';
-        }
       }
-      return Object.keys(best).map(uid => ({ user_id: uid, name: names[uid], val: best[uid] }))
+      const names = await fetchNames(Object.keys(best));
+      return Object.keys(best)
+        .map(uid => ({ user_id: uid, name: names[uid] || 'Jogador', val: best[uid] }))
         .sort((a, b) => b.val - a.val).slice(0, 20);
     }
+
     async function fetchWins(gameId, since) {
       const { data } = await supabase.from('game_stats')
-        .select('user_id, profiles(display_name)')
-        .eq('game', gameId).eq('result', 'win').gte('created_at', since.toISOString()).limit(500);
-      if (!data) return [];
-      const wins = {}, names = {};
-      for (const r of data) {
-        wins[r.user_id] = (wins[r.user_id] || 0) + 1;
-        names[r.user_id] = r.profiles?.display_name || 'Jogador';
-      }
-      return Object.keys(wins).map(uid => ({ user_id: uid, name: names[uid], val: wins[uid] }))
+        .select('user_id')
+        .eq('game', gameId).eq('result', 'win').gte('created_at', since.toISOString()).limit(1000);
+      if (!data || !data.length) return [];
+      const wins = {};
+      for (const r of data) wins[r.user_id] = (wins[r.user_id] || 0) + 1;
+      const names = await fetchNames(Object.keys(wins));
+      return Object.keys(wins)
+        .map(uid => ({ user_id: uid, name: names[uid] || 'Jogador', val: wins[uid] }))
         .sort((a, b) => b.val - a.val).slice(0, 20);
     }
+
     async function fetchGame(gameId, since) {
       const type = GAME_META[gameId]?.type || 'wins';
       if (type === 'time')  return { rows: await fetchTime(gameId, since),  type };
@@ -603,7 +620,7 @@
         <div class="ranking-empty"><div class="ranking-empty-icon">⏳</div>Calculando níveis...</div>`;
       // Step 1: aggregate stats (no join to avoid large-result join issues)
       const { data, error } = await supabase.from('game_stats')
-        .select('user_id, result').limit(5000);
+        .select('user_id, result').limit(50000);
       if (error || !data) {
         tableEl.innerHTML = `<div class="ranking-empty"><div class="ranking-empty-icon">⚠️</div>Erro ao carregar ranking de nível</div>`;
         return;
@@ -780,10 +797,23 @@
       });
     });
 
+    // ===== REFRESH BUTTON =====
+    const btnRefresh = document.getElementById('btn-refresh');
+    btnRefresh.addEventListener('click', () => {
+      btnRefresh.textContent = '⏳';
+      btnRefresh.disabled = true;
+      loadRanking().finally(() => {
+        btnRefresh.textContent = '🔄 Atualizar';
+        btnRefresh.disabled = false;
+      });
+    });
+
     // ===== INIT =====
     loadRanking();
     updateTimer();
     setInterval(updateTimer, 60000);
+    // Auto-refresh a cada 2 minutos
+    setInterval(() => loadRanking(), 120000);
   </script>
 </body>
 </html>
