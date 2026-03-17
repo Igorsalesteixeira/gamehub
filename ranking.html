@@ -324,8 +324,8 @@
     const CATEGORIES = {
       cartas:     { label: '🃏 Cartas',     games: ['solitaire','freecell','spider','blackjack','poker','truco','buraco','uno','pyramid'] },
       puzzle:     { label: '🧩 Puzzle',     games: ['memory','minesweeper','game2048','sudoku','puzzle15','nonogram','mahjong','numble','lightsout','sokoban'] },
-      arcade:     { label: '🕹️ Arcade',    games: ['snake','tetris','flappybird','pong','breakout','dinorunner','spaceinvaders','pacman','cookieclicker'] },
-      estrategia: { label: '♟️ Estratégia', games: ['checkers','tictactoe','reversi','chess','battleship','connect4','go'] },
+      arcade:     { label: '🕹️ Arcade',    games: ['snake','tetris','flappybird','pong','breakout','dinorunner','spaceinvaders','pacman','cookieclicker','bubble-shooter'] },
+      estrategia: { label: '♟️ Estratégia', games: ['checkers','tictactoe','reversi','chess','battleship','connect4','go','ludo','domino'] },
       palavras:   { label: '📝 Palavras',   games: ['termo','hangman','wordsearch','anagram','stopgame'] },
     };
 
@@ -369,7 +369,10 @@
       hangman:      { label: '🔤 Forca',           type: 'wins' },
       wordsearch:   { label: '🔍 Caça-Palavras',   type: 'time' },
       anagram:      { label: '🔀 Anagrama',        type: 'wins' },
-      stopgame:     { label: '✋ Stop!',           type: 'wins' },
+      stopgame:          { label: '✋ Stop!',           type: 'wins' },
+      'bubble-shooter':  { label: '🫧 Bubble Shooter',  type: 'score' },
+      ludo:              { label: '🎲 Ludo',             type: 'wins' },
+      domino:            { label: '🁣 Dominó',           type: 'wins' },
     };
 
     // ===== STATE =====

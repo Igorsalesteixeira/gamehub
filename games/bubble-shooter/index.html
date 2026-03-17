@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Bubble Shooter Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Bubble Shooter online e de graca. Estoure bolhas coloridas combinando 3 ou mais da mesma cor! Sem download, direto no navegador." />
+  <meta name="keywords" content="bubble shooter online, jogo bubble shooter gratis, estoura bolhas, bolhas coloridas" />
+  <link rel="canonical" href="https://gameshub.com.br/games/bubble-shooter/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bubble Shooter Online Gratis - Games Hub" />
+  <meta property="og:description" content="Jogue Bubble Shooter online e de graca. Estoure bolhas coloridas combinando 3 ou mais da mesma cor!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/bubble-shooter/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bubble Shooter Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Jogue Bubble Shooter online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Bubble Shooter",
+    "description": "Jogue Bubble Shooter online grátis. Estoure bolhas coloridas combinando 3 ou mais da mesma cor e limpe o campo para vencer.",
+    "url": "https://gameshub.com.br/games/bubble-shooter/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="game-title">&#129511; Bubble Shooter</h1>
+    <div class="stats">
+      <span>Pts: <span id="score-display">0</span></span>
+      <span>Tiros: <span id="shots-display">0</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-content">
+        <div class="overlay-icon" id="overlay-icon">&#129511;</div>
+        <h2 id="overlay-title">Bubble Shooter</h2>
+        <p id="overlay-msg">Mire com o mouse ou toque e clique para atirar bolhas</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-primary" id="btn-start">Jogar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'bubble-shooter' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Bubble Shooter Online</h2>
+    <p>Bubble Shooter é um clássico dos jogos de puzzle casual. Seu objetivo é limpar toda a tela estourando grupos de 3 ou mais bolhas da mesma cor. Mire com o mouse ou o dedo e clique (ou toque) para disparar a bolha. Quando 3 ou mais bolhas da mesma cor se conectam, elas estouram e valem pontos. Bolhas que ficam soltas (sem conexão com o topo) também caem e valem bônus!</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Mova o mouse (ou arraste o dedo) para apontar a direção do tiro.</li>
+      <li>Clique ou toque para disparar a bolha colorida da base.</li>
+      <li>Conecte 3 ou mais bolhas da mesma cor para estourá-las e marcar pontos.</li>
+      <li>A cada 5 tiros, uma nova fileira de bolhas aparece no topo, empurrando as demais para baixo.</li>
+      <li>Se as bolhas chegarem à linha do atirador, o jogo acaba.</li>
+      <li>Limpe todas as bolhas do campo para vencer!</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Use as paredes laterais para ricochetes e alcançar bolhas difíceis.</li>
+      <li>Planeje seus tiros para derrubada em cadeia — bolhas soltas valem bônus!</li>
+      <li>Fique de olho na próxima bolha (preview) para planejar seus movimentos.</li>
+      <li>Tente estoura bolhas no topo para fazer cair grupos inteiros de uma vez.</li>
+    </ul>
+  </section>
+
+</body>
+</html>

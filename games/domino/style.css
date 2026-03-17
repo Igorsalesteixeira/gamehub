@@ -1,0 +1,492 @@
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #1a1a2e;
+  background-image: radial-gradient(circle at 30% 70%, #16213e 0%, #1a1a2e 60%);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  user-select: none;
+}
+
+/* ===== TOPBAR ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  gap: 0.5rem;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.btn-back {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: rgba(255,255,255,0.15);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-back:hover { background: rgba(255,255,255,0.3); }
+
+.game-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.topbar-info {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.info-badge {
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ===== GAME LAYOUT ===== */
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0.6rem;
+  gap: 0.6rem;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ===== CHAIN SECTION ===== */
+.chain-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.chain-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.chain-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.end-badge {
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.left-badge {
+  background: #e94560;
+  color: #fff;
+}
+
+.right-badge {
+  background: #0f3460;
+  color: #fff;
+  border: 1px solid #4a90e2;
+}
+
+.chain-scroll-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.6rem 0.8rem;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+}
+
+.chain-scroll-wrap::-webkit-scrollbar { height: 4px; }
+.chain-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+.chain-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+.chain-area {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: max-content;
+}
+
+.chain-empty {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.3);
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* ===== CONTROLS SECTION ===== */
+.controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.turn-indicator {
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e94560, #c23152);
+  color: #fff;
+  letter-spacing: 0.5px;
+  transition: background 0.3s;
+}
+
+.turn-indicator.ai-turn {
+  background: linear-gradient(135deg, #0f3460, #1a5276);
+}
+
+.turn-indicator.thinking {
+  background: linear-gradient(135deg, #6c4a9e, #4a2c72);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.score-display {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+}
+.score-display strong {
+  color: #ffd700;
+  font-size: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { filter: brightness(1.15); }
+.btn:active { transform: scale(0.96); }
+.btn.hidden { display: none !important; }
+
+.btn-draw {
+  background: linear-gradient(135deg, #27ae60, #1e8449);
+  color: #fff;
+}
+
+.btn-pass {
+  background: linear-gradient(135deg, #e67e22, #ca6f1e);
+  color: #fff;
+}
+
+.btn-place-left {
+  background: linear-gradient(135deg, #e94560, #c23152);
+  color: #fff;
+}
+
+.btn-place-right {
+  background: linear-gradient(135deg, #4a90e2, #2471a3);
+  color: #fff;
+}
+
+.btn-new-game {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  margin-left: auto;
+}
+.btn-new-game:hover { background: rgba(255,255,255,0.2); }
+
+/* ===== HAND SECTION ===== */
+.hand-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.hand-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.35rem 0.8rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.hand-scroll-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.7rem 0.8rem;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+}
+
+.hand-scroll-wrap::-webkit-scrollbar { height: 4px; }
+.hand-scroll-wrap::-webkit-scrollbar-track { background: transparent; }
+.hand-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+.hand-area {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: max-content;
+}
+
+/* ===== DOMINO TILE ===== */
+.domino {
+  display: flex;
+  align-items: center;
+  background: #fdfcf0;
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  border: 1.5px solid #c8c5a8;
+  flex-shrink: 0;
+}
+
+.domino:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.domino.selected {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(233,69,96,0.7), inset 0 1px 0 rgba(255,255,255,0.8);
+  border-color: #e94560;
+  z-index: 5;
+}
+
+.domino.valid-move {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 0 2px #27ae60, inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.domino.selected.valid-move {
+  box-shadow: 0 10px 20px rgba(233,69,96,0.7), 0 0 0 2px #e94560, inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Tile in hand: 72x36px */
+.domino.hand-tile {
+  width: 72px;
+  height: 36px;
+  flex-direction: row;
+}
+
+/* Tile in chain: 52x26px */
+.domino.chain-tile {
+  width: 52px;
+  height: 26px;
+  flex-direction: row;
+  cursor: default;
+}
+.domino.chain-tile:hover {
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Divider between halves */
+.domino .divider-h {
+  width: 1.5px;
+  height: 70%;
+  background: #a09b7a;
+  flex-shrink: 0;
+}
+
+/* Half of domino */
+.domino .half {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 2px;
+  gap: 1px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Dot */
+.domino .dot {
+  border-radius: 50%;
+  background: #2c2c2c;
+  width: 100%;
+  height: 100%;
+}
+
+.domino .dot.hidden-dot {
+  visibility: hidden;
+}
+
+/* Chain tile new placement highlight */
+.domino.chain-tile.new-tile {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.hidden { display: none; }
+
+.modal-content {
+  background: linear-gradient(145deg, #1e2a4a, #0f1626);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-content h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: #ffd700;
+}
+
+.modal-content p {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 0.4rem;
+}
+
+#modal-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffd700;
+  margin-bottom: 1.2rem;
+}
+
+.modal-content .btn-new-game {
+  background: linear-gradient(135deg, #e94560, #c23152);
+  color: #fff;
+  border: none;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.5rem;
+  margin-left: 0;
+}
+
+/* ===== GAME INFO ===== */
+.game-info {
+  padding: 2rem 1.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+  color: rgba(255,255,255,0.75);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: 1rem;
+}
+
+.game-info h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.game-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin: 1rem 0 0.5rem;
+}
+
+.game-info p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.game-info ul {
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+.game-info li { margin-bottom: 0.2rem; }
+.game-info strong { color: #ffd700; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .chain-scroll-wrap { min-height: 90px; padding: 0.5rem 0.6rem; }
+  .hand-scroll-wrap { padding: 0.5rem 0.6rem; min-height: 80px; }
+  .domino.hand-tile { width: 64px; height: 32px; }
+  .domino.chain-tile { width: 44px; height: 22px; }
+  .topbar-info { gap: 0.25rem; }
+  .info-badge { font-size: 0.72rem; padding: 0.15rem 0.4rem; }
+}

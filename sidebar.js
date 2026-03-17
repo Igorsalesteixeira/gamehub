@@ -266,6 +266,7 @@ export function initSidebar(options = {}) {
       <a href="${base}games/dinorunner/index.html" class="sidebar-link ${isActive('dino')}"><span class="sidebar-icon">🦕</span><span>Dino Runner</span></a>
       <a href="${base}games/spaceinvaders/index.html" class="sidebar-link ${isActive('invaders')}"><span class="sidebar-icon">👾</span><span>Space Invaders</span></a>
       <a href="${base}games/pacman/index.html" class="sidebar-link ${isActive('pacman')}"><span class="sidebar-icon">🟡</span><span>Pac-Man</span></a>
+      <a href="${base}games/bubble-shooter/index.html" class="sidebar-link ${isActive('bubble-shooter')}"><span class="sidebar-icon">🫧</span><span>Bubble Shooter</span></a>
       <span class="sidebar-section-label">Tabuleiro</span>
       <a href="${base}games/checkers/index.html" class="sidebar-link ${isActive('dama')}"><span class="sidebar-icon">⚫</span><span>Dama</span></a>
       <a href="${base}games/tictactoe/index.html" class="sidebar-link ${isActive('velha')}"><span class="sidebar-icon">❌</span><span>Jogo da Velha</span></a>
@@ -274,6 +275,8 @@ export function initSidebar(options = {}) {
       <a href="${base}games/battleship/index.html" class="sidebar-link ${isActive('batalha')}"><span class="sidebar-icon">🚢</span><span>Batalha Naval</span></a>
       <a href="${base}games/connect4/index.html" class="sidebar-link ${isActive('connect4')}"><span class="sidebar-icon">🔴</span><span>Conecte 4</span></a>
       <a href="${base}games/go/index.html" class="sidebar-link ${isActive('go')}"><span class="sidebar-icon">⚫</span><span>Go</span></a>
+      <a href="${base}games/ludo/index.html" class="sidebar-link ${isActive('ludo')}"><span class="sidebar-icon">🎲</span><span>Ludo</span></a>
+      <a href="${base}games/domino/index.html" class="sidebar-link ${isActive('domino')}"><span class="sidebar-icon">🁣</span><span>Dominó</span></a>
       <span class="sidebar-section-label">Palavras</span>
       <a href="${base}games/termo/index.html" class="sidebar-link ${isActive('termo')}"><span class="sidebar-icon">📝</span><span>Termo</span></a>
       <a href="${base}games/hangman/index.html" class="sidebar-link ${isActive('forca')}"><span class="sidebar-icon">🔤</span><span>Forca</span></a>

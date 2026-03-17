@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Dominó Online Grátis - Games Hub</title>
+  <meta name="description" content="Jogue Dominó online e de graça contra o computador. Dominó double-6 com regras brasileiras, IA inteligente e design moderno!" />
+  <meta name="keywords" content="dominó online, domino gratis, jogar domino, domino online, dominó brasileiro" />
+  <link rel="canonical" href="https://gameshub.com.br/games/domino/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Dominó Online Grátis - Games Hub" />
+  <meta property="og:description" content="Jogue Dominó online e de graça contra o computador. Double-6 com regras brasileiras!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/domino/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dominó Online Grátis - Games Hub" />
+  <meta name="twitter:description" content="Jogue Dominó online e de graça contra o computador!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Dominó",
+    "description": "Jogue Dominó online grátis contra o computador. Double-6 com regras brasileiras.",
+    "url": "https://gameshub.com.br/games/domino/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">&#127025; Dominó</h1>
+    <div class="topbar-info">
+      <span class="info-badge" id="boneyard-count-top">🁣 14</span>
+      <span class="info-badge" id="ai-count-top">🤖 7</span>
+      <span class="info-badge" id="timer-display">⏱ 00:00</span>
+    </div>
+  </header>
+
+  <div class="game-layout">
+
+    <!-- Chain area -->
+    <div class="chain-section">
+      <div class="chain-header">
+        <span class="end-badge left-badge" id="left-end-badge">— ?</span>
+        <span class="chain-label">Cadeia</span>
+        <span class="end-badge right-badge" id="right-end-badge">? —</span>
+      </div>
+      <div class="chain-scroll-wrap">
+        <div class="chain-area" id="chain-area">
+          <div class="chain-empty" id="chain-empty">Inicie colocando a primeira peça</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle controls -->
+    <div class="controls-section">
+      <div class="status-row">
+        <div class="turn-indicator" id="turn-indicator">Sua vez</div>
+        <div class="score-display">
+          <span>Placar: <strong id="score-val">0</strong></span>
+          <span>Vit: <strong id="wins-val">0</strong></span>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-draw hidden" id="btn-draw">Comprar</button>
+        <button class="btn btn-pass hidden" id="btn-pass">Passar</button>
+        <button class="btn btn-place-left hidden" id="btn-place-left">⬅ Esquerda</button>
+        <button class="btn btn-place-right hidden" id="btn-place-right">Direita ➡</button>
+        <button class="btn btn-new-game" id="btn-new-game">Novo Jogo</button>
+      </div>
+    </div>
+
+    <!-- Player hand -->
+    <div class="hand-section">
+      <div class="hand-label">Suas peças (<span id="player-count">7</span>)</div>
+      <div class="hand-scroll-wrap">
+        <div class="hand-area" id="hand-area"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Game over modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon" id="modal-icon">🏆</div>
+      <h2 id="modal-title">Fim de jogo</h2>
+      <p id="modal-msg">Resultado</p>
+      <p id="modal-score"></p>
+      <button class="btn btn-new-game" id="btn-play-again">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'domino' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Dominó Online</h2>
+    <p>O Dominó é um dos jogos de mesa mais tradicionais do Brasil. Nesta versão digital você joga com as regras do Dominó Double-6 (duplo-seis) contra o computador. Cada jogador começa com 7 peças e o objetivo é ser o primeiro a esvaziar a mão.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Quem possui o <strong>[6|6]</strong> começa o jogo (ou o maior duplo disponível).</li>
+      <li>Cada peça colocada deve ter um lado que bata com a ponta aberta da cadeia.</li>
+      <li>Se não tiver peça válida, clique em <strong>Comprar</strong> para tirar do estoque.</li>
+      <li>Se o estoque acabar e não tiver jogada, clique em <strong>Passar</strong>.</li>
+      <li>Ganha quem esvaziar a mão primeiro. Se a partida travar (ambos passam), ganha quem tiver menos pontos na mão.</li>
+    </ul>
+    <h3>Como jogar</h3>
+    <ul>
+      <li>Clique em uma peça para selecioná-la (fica destacada).</li>
+      <li>Se a peça caber apenas em um lado, ela é colocada automaticamente.</li>
+      <li>Se couber nos dois lados, use os botões <strong>⬅ Esquerda</strong> ou <strong>Direita ➡</strong>.</li>
+    </ul>
+    <h3>Pontuação</h3>
+    <ul>
+      <li>Ao vencer, sua pontuação é o total de pinos que o adversário ainda tem na mão.</li>
+      <li>Quanto maior a pontuação, melhor sua vitória!</li>
+    </ul>
+  </section>
+
+</body>
+</html>

@@ -332,6 +332,15 @@
         <span class="badge badge-play">Jogar</span>
       </a>
 
+      <a href="games/bubble-shooter/index.html" class="game-card" data-category="arcade" data-name="Bubble Shooter Bolhas" data-game="bubble-shooter">
+        <div class="game-icon">🫧</div>
+        <div class="game-info"><h3>Bubble Shooter</h3><p>Estoure bolhas coloridas em grupo</p></div>
+        <span class="game-category-tag" data-cat="arcade">Arcade</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-bubble-shooter"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
       <!-- ====== TABULEIRO ====== -->
       <a href="games/checkers/index.html" class="game-card" data-category="tabuleiro" data-name="Dama Checkers" data-game="checkers">
         <div class="game-icon">⚫</div>
@@ -390,6 +399,24 @@
         <span class="game-category-tag" data-cat="tabuleiro">Tabuleiro</span>
         <span class="badge badge-new">Novo</span>
         <div class="game-stats" id="stats-go"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <a href="games/ludo/index.html" class="game-card" data-category="tabuleiro" data-name="Ludo Nao Bate Nao" data-game="ludo">
+        <div class="game-icon">🎲</div>
+        <div class="game-info"><h3>Ludo</h3><p>Mova seus peons e chegue ao centro</p></div>
+        <span class="game-category-tag" data-cat="tabuleiro">Tabuleiro</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-ludo"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <a href="games/domino/index.html" class="game-card" data-category="tabuleiro" data-name="Domino Classico" data-game="domino">
+        <div class="game-icon">🁣</div>
+        <div class="game-info"><h3>Dominó</h3><p>Encaixe as pedras e esvazie a mao</p></div>
+        <span class="game-category-tag" data-cat="tabuleiro">Tabuleiro</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-domino"></div>
         <span class="badge badge-play">Jogar</span>
       </a>
 
@@ -650,7 +677,10 @@
       renderWinStats('chess', 'stats-chess');
       renderWinStats('battleship', 'stats-battleship');
       renderWinStats('connect4', 'stats-connect4');
+      renderScoreStats('bubble-shooter', 'stats-bubble-shooter');
       renderWinStats('go', 'stats-go');
+      renderWinStats('ludo', 'stats-ludo');
+      renderWinStats('domino', 'stats-domino');
 
       // Palavras
       renderWinStats('termo', 'stats-termo');
