@@ -91,6 +91,22 @@ body {
   font-size: 0.9rem;
 }
 
+.user-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem 0.2rem 0.2rem;
+  transition: background 0.2s;
+}
+.user-profile-link:hover {
+  background: rgba(255,255,255,0.1);
+}
+.user-profile-link:hover .user-name {
+  color: #fff;
+}
+
 .btn-logout {
   background: rgba(255,255,255,0.08);
   color: rgba(255,255,255,0.7);

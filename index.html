@@ -632,8 +632,10 @@
                   || session.user.email.split('@')[0];
         authEl.innerHTML = `
           <div class="user-info">
-            <span class="user-avatar">${name[0].toUpperCase()}</span>
-            <span class="user-name">Ola, ${name}!</span>
+            <a href="profile.html" class="user-profile-link">
+              <span class="user-avatar">${name[0].toUpperCase()}</span>
+              <span class="user-name">Ola, ${name}!</span>
+            </a>
             <button class="btn-logout" id="btn-logout">Sair</button>
           </div>
         `;
