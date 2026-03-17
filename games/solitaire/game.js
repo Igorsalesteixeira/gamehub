@@ -566,6 +566,21 @@ document.addEventListener('dragover', e => {
   if (desktopGhost) moveDesktopGhost(e.clientX, e.clientY);
 });
 
+// Limpa drag travado quando o toque é cancelado (ex: ligação entrando, iOS home button)
+document.addEventListener('touchcancel', () => {
+  if (!touchDrag) return;
+  const { ghost, stackEls } = touchDrag;
+  touchDrag = null;
+  if (ghost) ghost.remove();
+  removeDesktopGhost();
+  stackEls.forEach(el => {
+    if (!el.isConnected) return;
+    el.style.opacity = '';
+    el.style.visibility = '';
+  });
+  render();
+});
+
 document.addEventListener('touchend', e => {
   if (!touchDrag) return;
   const touch = e.changedTouches[0];
@@ -624,7 +639,18 @@ function makeFaceUpCard(card) {
 //  CLICK HANDLERS
 // =============================================
 stockEl.addEventListener('click', drawFromStock);
-stockEl.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); drawFromStock(); });
+stockEl.addEventListener('touchstart', e => {
+  // Se há um drag em andamento, não acionar o stock
+  if (touchDrag) return;
+  e.preventDefault();
+  e.stopPropagation();
+}, { passive: false });
+stockEl.addEventListener('touchend', e => {
+  if (touchDrag) return; // ignora se há drag ativo
+  e.preventDefault();
+  e.stopPropagation();
+  drawFromStock();
+});
 
 function drawFromStock() {
   if (state.stock.length === 0) {

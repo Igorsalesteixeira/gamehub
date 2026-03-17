@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testes — Paciência Klondike</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+      color: #f8fafc;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+    #summary {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #1e293b;
+      border-radius: 10px;
+      letter-spacing: 0.5px;
+    }
+    #results {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 720px;
+    }
+    .test-row {
+      display: grid;
+      grid-template-columns: 1.5rem 1fr;
+      gap: 0.5rem;
+      align-items: start;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+    }
+    .test-row.pass { background: #052e16; border: 1px solid #166534; }
+    .test-row.fail { background: #2d0707; border: 1px solid #7f1d1d; }
+    .icon {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .test-row.pass .icon { color: #4ade80; }
+    .test-row.fail .icon { color: #f87171; }
+    .name { color: #cbd5e1; line-height: 1.4; }
+    .error {
+      grid-column: 2;
+      color: #fca5a5;
+      font-size: 0.8rem;
+      font-family: 'Courier New', monospace;
+      background: rgba(255,0,0,0.1);
+      padding: 0.3rem 0.5rem;
+      border-radius: 5px;
+      margin-top: 3px;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>🃏 Sistema de Testes — Paciência Klondike</h1>
+  <p class="subtitle">Executa testes automáticos das regras e lógica do jogo</p>
+  <div id="summary">Executando testes…</div>
+  <div id="results"></div>
+  <script src="test.js"></script>
+</body>
+</html>
