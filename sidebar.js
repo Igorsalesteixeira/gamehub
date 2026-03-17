@@ -241,6 +241,7 @@ export function initSidebar(options = {}) {
       <a href="${base}games/freecell/index.html" class="sidebar-link ${isActive('freecell')}"><span class="sidebar-icon">🂡</span><span>Freecell</span></a>
       <a href="${base}games/spider-solitaire/index.html" class="sidebar-link ${isActive('spider')}"><span class="sidebar-icon">🕷️</span><span>Spider Solitaire</span></a>
       <a href="${base}games/blackjack/index.html" class="sidebar-link ${isActive('blackjack')}"><span class="sidebar-icon">🃏</span><span>Blackjack</span></a>
+      <a href="${base}games/poker/index.html" class="sidebar-link ${isActive('poker')}"><span class="sidebar-icon">🃏</span><span>Poker</span></a>
       <a href="${base}games/truco/index.html" class="sidebar-link ${isActive('truco')}"><span class="sidebar-icon">🂠</span><span>Truco</span></a>
       <a href="${base}games/uno/index.html" class="sidebar-link ${isActive('uno')}"><span class="sidebar-icon">🟥</span><span>Uno</span></a>
       <a href="${base}games/pyramid/index.html" class="sidebar-link ${isActive('piramide')}"><span class="sidebar-icon">🔺</span><span>Piramide</span></a>

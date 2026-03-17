@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Poker Texas Hold'em Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Poker Texas Hold'em online e de graca contra o computador. Fichas, apostas, blefe e muito mais!" />
+  <meta name="keywords" content="poker online gratis, texas holdem online, poker brasil, jogar poker" />
+  <link rel="canonical" href="https://gameshub.com.br/games/poker/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Poker Texas Hold'em Online Gratis - Games Hub" />
+  <meta property="og:description" content="Jogue Poker Texas Hold'em online e de graca contra o computador!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/poker/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Poker Texas Hold'em Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Jogue Poker Texas Hold'em online e de graca!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Poker Texas Hold'em",
+    "description": "Jogue Poker Texas Hold'em online gratis contra o computador com fichas, apostas e blefe.",
+    "url": "https://gameshub.com.br/games/poker/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🃏 Poker Texas Hold'em</h1>
+    <div class="stats">
+      <span id="blind-info">Blinds: 10/20</span>
+    </div>
+  </header>
+
+  <div class="game-wrapper">
+    <div class="poker-table">
+      <!-- CPU opponents -->
+      <div class="opponents-row">
+        <div class="opponent" id="opp-1">
+          <div class="opp-name" id="opp-name-1">Ana 🤖</div>
+          <div class="opp-chips" id="opp-chips-1">1000 fichas</div>
+          <div class="opp-bet" id="opp-bet-1"></div>
+          <div class="opp-cards" id="opp-cards-1"></div>
+          <div class="opp-status" id="opp-status-1"></div>
+        </div>
+        <div class="opponent" id="opp-2">
+          <div class="opp-name" id="opp-name-2">Bob 🤖</div>
+          <div class="opp-chips" id="opp-chips-2">1000 fichas</div>
+          <div class="opp-bet" id="opp-bet-2"></div>
+          <div class="opp-cards" id="opp-cards-2"></div>
+          <div class="opp-status" id="opp-status-2"></div>
+        </div>
+        <div class="opponent" id="opp-3">
+          <div class="opp-name" id="opp-name-3">Cris 🤖</div>
+          <div class="opp-chips" id="opp-chips-3">1000 fichas</div>
+          <div class="opp-bet" id="opp-bet-3"></div>
+          <div class="opp-cards" id="opp-cards-3"></div>
+          <div class="opp-status" id="opp-status-3"></div>
+        </div>
+      </div>
+
+      <!-- Community cards -->
+      <div class="community-area">
+        <div class="community-label">Mesa</div>
+        <div class="community-cards" id="community-cards"></div>
+      </div>
+
+      <!-- Pot -->
+      <div class="pot-area">
+        <div class="pot-display" id="pot-display">💰 Pote: 0</div>
+      </div>
+
+      <!-- Message -->
+      <div class="message-bar" id="message"></div>
+
+      <!-- Player -->
+      <div class="player-area" id="player-area">
+        <div class="player-info-row">
+          <span class="player-name" id="player-name">Você</span>
+          <span class="player-chips" id="player-chips">1000 fichas</span>
+          <span style="font-size:0.78rem;font-weight:700;color:#81c784" id="player-bet"></span>
+        </div>
+        <div class="player-hand" id="player-hand"></div>
+        <div class="player-hand-label" id="hand-label"></div>
+        <div class="action-area" id="action-area"></div>
+      </div>
+    </div>
+
+    <button class="btn-orange" id="btn-new-game" style="display:none">Novo Jogo</button>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon" id="modal-icon">🏆</div>
+      <h2 class="modal-title" id="modal-title">Fim de jogo</h2>
+      <p class="modal-msg" id="modal-msg"></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'poker' });
+  </script>
+  <script type="module" src="game.js"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Poker Texas Hold'em Online</h2>
+    <p>O Poker Texas Hold'em é o estilo de poker mais popular do mundo. Cada jogador recebe 2 cartas privativas (hole cards) e usa 5 cartas comunitárias para formar a melhor mão de 5 cartas possível. Jogue poker online grátis contra 3 adversários controlados pelo computador.</p>
+    <h3>Ordem das mãos (do maior para o menor)</h3>
+    <ul>
+      <li><strong>Royal Flush</strong> — A-K-Q-J-10 do mesmo naipe</li>
+      <li><strong>Straight Flush</strong> — 5 cartas consecutivas do mesmo naipe</li>
+      <li><strong>Quadra</strong> — 4 cartas do mesmo valor</li>
+      <li><strong>Full House</strong> — Trinca + Par</li>
+      <li><strong>Flush</strong> — 5 cartas do mesmo naipe</li>
+      <li><strong>Sequência</strong> — 5 cartas consecutivas</li>
+      <li><strong>Trinca</strong> — 3 cartas do mesmo valor</li>
+      <li><strong>Dois Pares</strong> — 2 pares de cartas iguais</li>
+      <li><strong>Par</strong> — 2 cartas do mesmo valor</li>
+      <li><strong>Carta Alta</strong> — A carta mais alta da mão</li>
+    </ul>
+    <h3>Ações disponíveis</h3>
+    <ul>
+      <li><strong>Passar (Check)</strong> — Não aposta, passa a vez (só quando não há aposta)</li>
+      <li><strong>Pagar (Call)</strong> — Iguala a aposta atual</li>
+      <li><strong>Apostar/Aumentar (Raise)</strong> — Aumenta a aposta</li>
+      <li><strong>All-In</strong> — Aposta todas as fichas</li>
+      <li><strong>Desistir (Fold)</strong> — Abandona a mão</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Jogue apenas mãos fortes no pré-flop: pares altos (AA, KK, QQ), cartas altas conectadas</li>
+      <li>Observe as apostas dos adversários — apostas altas geralmente indicam mãos fortes</li>
+      <li>Use o blefe com moderação — faça apostas grandes quando o board favorece você</li>
+    </ul>
+  </section>
+</body>
+</html>
