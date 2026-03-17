@@ -442,6 +442,110 @@
     .stop-score-display { text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.6); }
     .stop-waiting { text-align: center; padding: 1rem; color: rgba(255,255,255,0.4); font-size: 0.9rem; font-weight: 700; }
 
+    /* HANGMAN */
+    .hm-wrap { max-width: 440px; margin: 0 auto 1.5rem; }
+    .hm-gallows {
+      display: flex; justify-content: center; margin-bottom: 1rem;
+      font-family: monospace; font-size: 0.85rem; color: rgba(255,255,255,0.6);
+      white-space: pre; line-height: 1.3;
+    }
+    .hm-word { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .hm-letter {
+      width: 32px; height: 40px; border-bottom: 3px solid rgba(255,255,255,0.5);
+      display: flex; align-items: flex-end; justify-content: center;
+      font-size: 1.3rem; font-weight: 800; color: #fff; padding-bottom: 2px;
+    }
+    .hm-keyboard { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-bottom: 1rem; }
+    .hm-key {
+      width: 36px; height: 36px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8);
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .hm-key:hover:not(:disabled) { border-color: #ff6b35; color: #ff8f5e; }
+    .hm-key:disabled { opacity: 0.3; cursor: default; }
+    .hm-key.correct { background: rgba(76,175,80,0.25); border-color: #4caf50; color: #81c784; }
+    .hm-key.wrong { background: rgba(244,67,54,0.15); border-color: rgba(244,67,54,0.3); color: rgba(244,67,54,0.6); }
+    .hm-info { text-align: center; font-size: 0.82rem; color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 0.8rem; }
+
+    /* ANAGRAM */
+    .ag-wrap { max-width: 440px; margin: 0 auto 1.5rem; text-align: center; }
+    .ag-category { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.35); margin-bottom: 0.5rem; }
+    .ag-scrambled { font-size: 2rem; font-weight: 800; color: #ff8f5e; letter-spacing: 4px; margin-bottom: 1.2rem; word-break: break-all; }
+    .ag-input-wrap { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .ag-input {
+      padding: 0.7rem 1rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07); color: #fff; font-family: 'Nunito', sans-serif;
+      font-weight: 800; font-size: 1rem; text-align: center; text-transform: uppercase; width: 200px;
+    }
+    .ag-input:focus { outline: none; border-color: rgba(255,107,53,0.6); }
+    .ag-submit {
+      padding: 0.7rem 1.4rem; border-radius: 999px; background: #ff6b35; border: none;
+      color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .ag-submit:hover { background: #e85d2a; }
+    .ag-submit:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; }
+    .ag-score { display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.8rem; font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.5); }
+    .ag-result { text-align: center; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.8rem; }
+    .ag-result.win { color: #81c784; }
+    .ag-result.lose { color: #ef9a9a; }
+    .ag-round { text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* TERMO (competitive Wordle) */
+    .termo-wrap { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .termo-side { flex: 1; min-width: 180px; max-width: 220px; }
+    .termo-side-label { text-align: center; font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.6rem; }
+    .termo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 0.6rem; }
+    .termo-cell {
+      aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: clamp(0.9rem,3vw,1.1rem); color: #fff; border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05); transition: background 0.2s;
+    }
+    .termo-cell.correct { background: #4caf50; border-color: #4caf50; }
+    .termo-cell.present { background: #ff9800; border-color: #ff9800; }
+    .termo-cell.absent  { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08); }
+    .termo-cell.current { border-color: rgba(255,107,53,0.6); }
+    .termo-input-row { display: flex; gap: 0.4rem; justify-content: center; }
+    .termo-guess-input {
+      padding: 0.5rem; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.07); color: #fff; font-family: 'Nunito', sans-serif;
+      font-weight: 800; font-size: 0.9rem; text-align: center; text-transform: uppercase; width: 120px; letter-spacing: 3px;
+    }
+    .termo-guess-input:focus { outline: none; border-color: rgba(255,107,53,0.6); }
+    .termo-go-btn {
+      padding: 0.5rem 0.9rem; border-radius: 8px; background: #ff6b35; border: none;
+      color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.82rem; cursor: pointer;
+    }
+    .termo-go-btn:hover { background: #e85d2a; }
+    .termo-go-btn:disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; }
+    .termo-score { display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.8rem; font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.5); }
+    .termo-round-info { text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.3); font-weight: 700; margin-bottom: 0.5rem; }
+
+    /* NUMBLE */
+    .numble-wrap { max-width: 440px; margin: 0 auto 1.5rem; }
+    .numble-target { text-align: center; font-size: 1.6rem; font-weight: 800; color: rgba(255,255,255,0.85); margin-bottom: 0.4rem; font-family: monospace; }
+    .numble-sub { text-align: center; font-size: 0.78rem; color: rgba(255,255,255,0.35); margin-bottom: 1rem; }
+    .numble-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; margin-bottom: 0.8rem; }
+    .numble-cell {
+      aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.85rem; color: #fff; border: 2px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05); font-family: monospace;
+    }
+    .numble-cell.correct { background: #4caf50; border-color: #4caf50; }
+    .numble-cell.present { background: #ff9800; border-color: #ff9800; }
+    .numble-cell.absent  { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.08); }
+    .numble-keyboard { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; margin-bottom: 0.8rem; }
+    .numble-key {
+      height: 40px; min-width: 36px; padding: 0 8px; border-radius: 7px; border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85);
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .numble-key:hover:not(:disabled) { border-color: #ff6b35; color: #ff8f5e; }
+    .numble-key:disabled { opacity: 0.3; cursor: default; }
+    .numble-score { display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.6rem; font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.5); }
+
     /* RESULT */
     .result-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
@@ -502,6 +606,10 @@
         <button class="filter-btn" data-filter="chess">♟️ Xadrez</button>
         <button class="filter-btn" data-filter="go">⚫ Go</button>
         <button class="filter-btn" data-filter="stopgame">🛑 Stop!</button>
+        <button class="filter-btn" data-filter="hangman">🪢 Forca</button>
+        <button class="filter-btn" data-filter="anagram">🔤 Anagrama</button>
+        <button class="filter-btn" data-filter="termo">🟩 Termo</button>
+        <button class="filter-btn" data-filter="numble">🔢 Numble</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -582,6 +690,18 @@
         </button>
         <button class="game-option" data-game="stopgame">
           <span class="game-option-icon">🛑</span>Stop!
+        </button>
+        <button class="game-option" data-game="hangman">
+          <span class="game-option-icon">🪢</span>Forca
+        </button>
+        <button class="game-option" data-game="anagram">
+          <span class="game-option-icon">🔤</span>Anagrama
+        </button>
+        <button class="game-option" data-game="termo">
+          <span class="game-option-icon">🟩</span>Termo
+        </button>
+        <button class="game-option" data-game="numble">
+          <span class="game-option-icon">🔢</span>Numble
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -742,6 +862,71 @@
           return { letter, phase:'playing', ans1:null, ans2:null, scores:{1:0,2:0}, round:1 };
         }
       },
+      hangman: {
+        name: 'Forca', icon: '🪢',
+        initState: () => {
+          const BANKS={
+            'Animais':['GATO','CACHORRO','ELEFANTE','GIRAFA','TIGRE','LEAO','MACACO','COBRA','AGUIA','BALEIA','CAVALO','COELHO','PAPAGAIO','PINGUIM','TARTARUGA'],
+            'Frutas':['BANANA','MORANGO','ABACAXI','LARANJA','MELANCIA','MANGA','GOIABA','PESSEGO','CEREJA','AMORA','LIMAO','MAMAO'],
+            'Paises':['BRASIL','PORTUGAL','ESPANHA','FRANCA','ALEMANHA','ITALIA','JAPAO','ARGENTINA','AUSTRALIA','MEXICO'],
+            'Objetos':['CADEIRA','TELEVISAO','COMPUTADOR','RELOGIO','ESPELHO','LAMPADA','BICICLETA','GUITARRA','MARTELO','TESOURA'],
+            'Esportes':['FUTEBOL','BASQUETE','VOLEIBOL','NATACAO','TENIS','ATLETISMO','CICLISMO','BOXE','SURFE'],
+          };
+          const cats=Object.keys(BANKS);
+          const cat=cats[Math.floor(Math.random()*cats.length)];
+          const words=BANKS[cat];
+          const wordIdx=Math.floor(Math.random()*words.length);
+          return{wordIdx,category:cat,words:BANKS[cat],guessed:[],wrongs:0,phase:'playing',scores:{1:0,2:0}};
+        }
+      },
+      anagram: {
+        name: 'Anagrama', icon: '🔤',
+        initState: () => {
+          const BANKS={
+            'Animais':['GATO','LOBO','URSO','PATO','RATO','VACA','COBRA','TIGRE','LEAO','AGUIA','MACACO','CAVALO','COELHO','RAPOSA','GALINHA','CORUJA','JACARE','CAMELO','TUCANO'],
+            'Frutas':['UVA','PERA','COCO','KIWI','AMORA','MANGA','CAQUI','LIMAO','MAMAO','CEREJA','GOIABA','BANANA','MORANGO','ABACAXI','LARANJA'],
+            'Objetos':['MESA','VASO','BOLA','FACA','SINO','RODA','COPO','CHAVE','LIVRO','RELOGIO','ESPELHO','TAPETE','CORTINA','JANELA','CADEIRA','PANELA','CANETA','MOCHILA','TESOURA'],
+            'Paises':['PERU','CUBA','CHILE','CHINA','INDIA','JAPAO','EGITO','FRANCA','ITALIA','CANADA','MEXICO','RUSSIA','BRASIL','ESPANHA'],
+            'Esportes':['BOXE','GOLFE','SURFE','TENIS','RUGBY','FUTEBOL','NATACAO','VOLEIBOL','BASQUETE','CICLISMO'],
+          };
+          const cats=Object.keys(BANKS);
+          const cat=cats[Math.floor(Math.random()*cats.length)];
+          const words=BANKS[cat];
+          const wordIdx=Math.floor(Math.random()*words.length);
+          const word=words[wordIdx];
+          const arr=[...word];
+          for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+          if(arr.join('')===word){const t=arr[0];arr[0]=arr[1];arr[1]=t;}
+          return{wordIdx,category:cat,wordBank:BANKS[cat],scrambled:arr.join(''),solved:null,scores:{1:0,2:0},round:1};
+        }
+      },
+      termo: {
+        name: 'Termo', icon: '🟩',
+        initState: () => {
+          const WORDS=['ABRIR','AGORA','AINDA','ALEGA','AMIGO','ANDAR','ANTES','APOIO','AREIA','AROMA','ARROZ','AVIAO','AVISO','BANCO','BANDA','BANHO','BARCO','BICHO','BLOCO','BOLHA','BOMBA','BRACO','BRAVO','BRISA','BURRO','BUSCA','CABRA','CALMO','CAMPO','CANTO','CARNE','CASCO','CHAVE','CHEFE','CHORO','CHUVA','CINCO','CISNE','COBRA','COURO','CONTE','CONTO','CORPO','COSTA','CRIME','CRUEL','CURVA','DARDO','DELTA','DENSO','DISCO','DOIDO','DUPLO','ELITE','ENJOO','FALAR','FATAL','FAUNA','FAVOR','FEBRE','FELIZ','FERRO','FESTA','FILHO','FLORA','FOBIA','FOLHA','FONTE','FORCA','FORMA','FORTE','FRACO','FRASE','FRUTA','GUIAR','HAVIA','HEROI','HONRA','HUMOR','IDEAL','ILHAS','INDIA','JAULA','JOGOS','JOVEM','JUSTO','LABIO','LAGOA','LANCE','LASER','LEGAL','LEITE','LETAL','LIMAO','LINDO','LINHA','LITRO','LIVRO','LOUCO','MACRO','MAGRO','MALHA','MANTO','MARCO','MASSA','MEIGO','MELAO','MENOR','METRO','MILHO','MOLDE','MOLHO','MONTE','MORAL','MORTO','MOTOR','MUNDO','MUSEU','NADAR','NAVIO','NERVO','NINHO','NIVEL','NOITE','NORMA','NOVOS','NUVEM','OBVIO','OLHAR','ONDAS','ONTEM','OPERA','ORDEM','OUTRO','OUVIR','PACTO','PALCO','PALMA','PANDA','PARTO','PASTA','PATIO','PAUSA','PEDRA','PEGAR','PEIXE','PERDA','PIANO','PILHA','PISTA','PLANO','PODER','POLVO','POMAR','PONTO','PORTA','POSSE','POUCO','PRAIA','PRATA','PRECO','PRESA','PRIMO','PROVA','PULSO','PUNHO','RAIVA','RAMOS','RASTO','RAZAO','REGRA','REINO','RENDA','RESTO','REZAR','RIGOR','RITMO','RIVAL','ROCHA','ROLHA','RONCO','ROUPA','RURAL','SABER','SALAO','SALSA','SALTO','SALVA','SANTO','SAUDE','SENSO','SERRA','SIGLA','SINAL','SOBRE','SOLAR','SONHO','SORTE','SULCO','SUMIR','SURDO','TEMPO','TENSO','TERRA','TIGRE','TINTA','TOLDO','TOQUE','TOTAL','TRAJE','TREVO','TRIBO','TRIGO','TROCA','TRONO','TROPA','TURMA','VALER','VALOR','VAPOR','VAZIO','VEADO'];
+          const wordIdx=Math.floor(Math.random()*WORDS.length);
+          return{wordIdx,words:WORDS,guesses1:[],guesses2:[],finished1:false,finished2:false,scores:{1:0,2:0},round:1};
+        }
+      },
+      numble: {
+        name: 'Numble', icon: '🔢',
+        initState: () => {
+          function genEq(){
+            const ops=['+','-','*'];
+            for(let i=0;i<500;i++){
+              const op=ops[Math.floor(Math.random()*ops.length)];
+              let a,b,r;
+              if(op==='+'){a=Math.floor(Math.random()*90)+1;b=Math.floor(Math.random()*90)+1;r=a+b;}
+              else if(op==='-'){a=Math.floor(Math.random()*90)+10;b=Math.floor(Math.random()*a)+1;r=a-b;}
+              else{a=Math.floor(Math.random()*9)+2;b=Math.floor(Math.random()*9)+2;r=a*b;}
+              const eq=`${a}${op}${b}=${r}`;
+              if(eq.length===8)return eq;
+            }
+            return'12+34=46';
+          }
+          return{equation:genEq(),guesses1:[],guesses2:[],finished1:false,finished2:false,scores:{1:0,2:0},round:1};
+        }
+      },
     };
 
     // ===== WIN: TICTACTOE =====
@@ -859,6 +1044,18 @@
       if (currentRoom.game === 'stopgame' && newData.state?.phase === 'playing' && prevRoom?.state?.phase === 'reveal') {
         stopLocalAnswers = {}; stopSubmitted = false; stopSeconds = 60;
       }
+      // Reset anagram submitted flag when new round starts (solved goes from non-null to null)
+      if (currentRoom.game === 'anagram' && prevRoom?.state?.solved !== null && newData.state?.solved === null) {
+        agSubmitted = false;
+      }
+      // Reset termo input when new round starts (guesses1 becomes empty again)
+      if (currentRoom.game === 'termo' && prevRoom?.state?.guesses1?.length > 0 && newData.state?.guesses1?.length === 0) {
+        termoInput = '';
+      }
+      // Reset numble input when new round starts (guesses1 becomes empty again)
+      if (currentRoom.game === 'numble' && prevRoom?.state?.guesses1?.length > 0 && newData.state?.guesses1?.length === 0) {
+        numbleInput = '';
+      }
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
       if (currentRoom.status==='playing' && isWaiting) { showView('playing'); renderPlaying(currentRoom); }
       else if (currentRoom.status==='playing') { renderPlaying(currentRoom); }
@@ -936,6 +1133,10 @@
       else if (room.game==='chess') renderChess(room);
       else if (room.game==='go') renderGo(room);
       else if (room.game==='stopgame') renderStop(room);
+      else if (room.game==='hangman') renderHangman(room);
+      else if (room.game==='anagram') renderAnagram(room);
+      else if (room.game==='termo') renderTermo(room);
+      else if (room.game==='numble') renderNumble(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -1849,6 +2050,439 @@
       }
     }
 
+    // ===== HANGMAN =====
+    const HM_STAGES=[
+      `
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+      `
+  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`
+    ];
+
+    function renderHangman(room) {
+      const st = room.state;
+      const word = st.words[st.wordIdx];
+      const guessed = st.guessed||[];
+      const wrongs = st.wrongs||0;
+      const el = document.getElementById('game-board');
+      const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+      const wordHtml = [...word].map(l=>{
+        const shown = guessed.includes(l) || st.phase==='finished';
+        return `<div class="hm-letter">${shown?l:''}</div>`;
+      }).join('');
+
+      const keysHtml = ALPHA.map(l=>{
+        const used=guessed.includes(l);
+        const isCorrect=used&&word.includes(l);
+        const isWrong=used&&!word.includes(l);
+        const cls='hm-key'+(isCorrect?' correct':isWrong?' wrong':'');
+        return `<button class="${cls}" data-l="${l}" ${used||!isMyTurn||st.phase!=='playing'?'disabled':''}>${l}</button>`;
+      }).join('');
+
+      const sc=st.scores||{1:0,2:0};
+      el.innerHTML=`
+        <div class="hm-wrap">
+          <div class="hm-info">Categoria: ${st.category} | Erros: ${wrongs}/6 | ${sc[1]}×${sc[2]}</div>
+          <div class="hm-gallows">${HM_STAGES[Math.min(wrongs,6)]}</div>
+          <div class="hm-word">${wordHtml}</div>
+          <div class="hm-keyboard">${keysHtml}</div>
+        </div>`;
+
+      if(isMyTurn&&st.phase==='playing'){
+        el.querySelectorAll('.hm-key:not([disabled])').forEach(btn=>{
+          btn.addEventListener('click',()=>makeHmGuess(btn.dataset.l));
+        });
+      }
+    }
+
+    async function makeHmGuess(letter) {
+      if(!isMyTurn||!currentRoom) return;
+      const st = currentRoom.state;
+      const word = st.words[st.wordIdx];
+      const guessed=[...(st.guessed||[]),letter];
+      const wrongs=(st.wrongs||0)+(word.includes(letter)?0:1);
+      const revealed=[...word].every(l=>guessed.includes(l));
+      const failed=wrongs>=6;
+      isMyTurn=false;
+      const opp=myNum===1?2:1;
+      let scores={...st.scores};
+      let status='playing',winner=null,phase='playing',nextTurn=opp;
+      if(revealed){scores={...scores,[myNum]:(scores[myNum]||0)+1};status='finished';winner=myNum;phase='finished';}
+      else if(failed){status='finished';winner=0;phase='finished';}
+      await supabase.from('game_rooms').update({
+        state:{...st,guessed,wrongs,phase},
+        turn:nextTurn,status,winner
+      }).eq('id',currentRoom.id);
+    }
+
+    // ===== ANAGRAM =====
+    let agSubmitted=false;
+
+    function renderAnagram(room) {
+      const st=room.state;
+      const el=document.getElementById('game-board');
+      const sc=st.scores||{1:0,2:0};
+      const word=st.wordBank[st.wordIdx];
+
+      if(st.solved!==null){
+        // Show result
+        el.innerHTML=`
+          <div class="ag-wrap">
+            <div class="ag-round">Rodada ${st.round}/5</div>
+            <div class="ag-score"><span>${room.player1_name||'J1'}: ${sc[1]||0}</span><span>${room.player2_name||'J2'}: ${sc[2]||0}</span></div>
+            <div class="ag-scrambled">${st.scrambled}</div>
+            <div class="ag-result win">✅ A palavra era: <strong>${word}</strong></div>
+            <div class="ag-result win">${st.solved===myNum?'🏆 Você acertou!':'😔 Adversário acertou primeiro!'}</div>
+            <div style="text-align:center;color:rgba(255,255,255,0.35);font-size:0.8rem;margin-top:0.5rem">Próxima rodada em instantes...</div>
+          </div>`;
+        return;
+      }
+
+      el.innerHTML=`
+        <div class="ag-wrap">
+          <div class="ag-round">Rodada ${st.round}/5</div>
+          <div class="ag-score"><span>${room.player1_name||'J1'}: ${sc[1]||0}</span><span>${room.player2_name||'J2'}: ${sc[2]||0}</span></div>
+          <div class="ag-category">Categoria: ${st.category}</div>
+          <div class="ag-scrambled">${st.scrambled}</div>
+          <div class="ag-input-wrap">
+            <input class="ag-input" id="ag-answer" maxlength="20" placeholder="Digite a palavra..." ${agSubmitted?'disabled':''}>
+            <button class="ag-submit" id="ag-btn" ${agSubmitted?'disabled':''}>Enviar</button>
+          </div>
+          ${agSubmitted?`<div style="text-align:center;color:rgba(255,255,255,0.4);font-size:0.85rem;font-weight:700">✅ Aguardando adversário...</div>`:''}
+        </div>`;
+
+      if(!agSubmitted){
+        const input=el.querySelector('#ag-answer');
+        const btn=el.querySelector('#ag-btn');
+        const submit=()=>submitAnagram(input.value);
+        btn.addEventListener('click',submit);
+        input.addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
+        input.focus();
+      }
+    }
+
+    async function submitAnagram(answer) {
+      if(agSubmitted||!currentRoom) return;
+      const st=currentRoom.state;
+      const word=st.wordBank[st.wordIdx];
+      if(answer.trim().toUpperCase()!==word) return; // wrong answer, don't submit
+      agSubmitted=true;
+      const newScores={...st.scores,[myNum]:(st.scores[myNum]||0)+1};
+
+      // Next round setup
+      const nextRound=(st.round||1)+1;
+      if(nextRound>5){
+        // Game over
+        const winner=newScores[1]>newScores[2]?1:newScores[2]>newScores[1]?2:0;
+        await supabase.from('game_rooms').update({
+          state:{...st,solved:myNum,scores:newScores},
+          status:'finished',winner,
+        }).eq('id',currentRoom.id);
+      } else {
+        await supabase.from('game_rooms').update({
+          state:{...st,solved:myNum,scores:newScores}
+        }).eq('id',currentRoom.id);
+        // Auto-advance after 3s
+        setTimeout(async()=>{
+          const newWord=st.wordBank[Math.floor(Math.random()*st.wordBank.length)];
+          const arr=[...newWord];
+          for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+          if(arr.join('')===newWord){const t=arr[0];arr[0]=arr[1];arr[1]=t;}
+          const newWordIdx=st.wordBank.indexOf(newWord);
+          agSubmitted=false;
+          await supabase.from('game_rooms').update({
+            state:{...st,wordIdx:newWordIdx<0?0:newWordIdx,scrambled:arr.join(''),solved:null,scores:newScores,round:nextRound}
+          }).eq('id',currentRoom.id);
+        },3000);
+      }
+    }
+
+    // ===== TERMO =====
+    let termoInput='';
+
+    function termoGetColors(guess,word){
+      const res=Array(5).fill('absent');
+      const wArr=[...word],used=Array(5).fill(false);
+      for(let i=0;i<5;i++)if(guess[i]===word[i]){res[i]='correct';used[i]=true;}
+      for(let i=0;i<5;i++){
+        if(res[i]==='correct')continue;
+        for(let j=0;j<5;j++){
+          if(!used[j]&&guess[i]===wArr[j]){res[i]='present';used[j]=true;break;}
+        }
+      }
+      return res;
+    }
+
+    function renderTermoGrid(guesses,word,myTurn){
+      const MAX=6;
+      let html='';
+      for(let r=0;r<MAX;r++){
+        const g=guesses[r]||'';
+        for(let c=0;c<5;c++){
+          const ch=g[c]||'';
+          let cls='termo-cell';
+          if(g.length===5&&word){
+            const colors=termoGetColors(g,word);
+            cls+=' '+colors[c];
+          } else if(r===guesses.length&&myTurn&&c<termoInput.length){
+            // current typing
+            cls+=' current';
+          }
+          html+=`<div class="${cls}">${g[c]||''}</div>`;
+        }
+      }
+      return html;
+    }
+
+    function renderTermo(room){
+      const st=room.state;
+      const word=st.words[st.wordIdx];
+      const el=document.getElementById('game-board');
+      const g1=st.guesses1||[], g2=st.guesses2||[];
+      const f1=st.finished1, f2=st.finished2;
+      const myGuesses=myNum===1?g1:g2;
+      const oppGuesses=myNum===1?g2:g1;
+      const myFinished=myNum===1?f1:f2;
+      const sc=st.scores||{1:0,2:0};
+      const myWord=myFinished||room.status==='finished'?word:null;
+
+      const myGrid=renderTermoGrid(myGuesses,myWord,!myFinished);
+      const oppGrid=renderTermoGrid(oppGuesses,room.status==='finished'?word:null,false);
+
+      const canGuess=!myFinished&&room.status==='playing';
+      el.innerHTML=`
+        <div class="termo-score"><span>${room.player1_name||'J1'}: ${sc[1]||0}</span><span>Rodada ${st.round}/3</span><span>${room.player2_name||'J2'}: ${sc[2]||0}</span></div>
+        <div class="termo-wrap">
+          <div class="termo-side">
+            <div class="termo-side-label">${myNum===1?(room.player1_name||'Você'):(room.player2_name||'Você')}</div>
+            <div class="termo-grid">${myGrid}</div>
+            ${canGuess?`<div class="termo-input-row">
+              <input class="termo-guess-input" id="termo-input" maxlength="5" placeholder="XXXXX" value="${termoInput}">
+              <button class="termo-go-btn" id="termo-go">→</button>
+            </div>`:'<div style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.3);font-weight:700;padding:0.3rem">' + (myFinished?'✅ Enviado':'') + '</div>'}
+          </div>
+          <div class="termo-side">
+            <div class="termo-side-label">${myNum===2?(room.player1_name||'Adversário'):(room.player2_name||'Adversário')}</div>
+            <div class="termo-grid">${oppGrid}</div>
+          </div>
+        </div>`;
+
+      if(canGuess){
+        const inp=el.querySelector('#termo-input');
+        const go=el.querySelector('#termo-go');
+        inp.addEventListener('input',()=>{termoInput=inp.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,5);inp.value=termoInput;});
+        const submit=()=>submitTermo();
+        go.addEventListener('click',submit);
+        inp.addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
+        inp.focus();
+      }
+    }
+
+    async function submitTermo(){
+      if(!currentRoom||termoInput.length!==5) return;
+      const st=currentRoom.state;
+      const word=st.words[st.wordIdx];
+      const guess=termoInput.toUpperCase();
+      termoInput='';
+      const myGuessKey=myNum===1?'guesses1':'guesses2';
+      const myFinKey=myNum===1?'finished1':'finished2';
+      const myGuesses=[...(st[myGuessKey]||[]),guess];
+      const won=guess===word;
+      const maxed=myGuesses.length>=6;
+      const myFinished=won||maxed;
+      const newSt={...st,[myGuessKey]:myGuesses,[myFinKey]:myFinished};
+      const otherFin=myNum===1?st.finished2:st.finished1;
+
+      if(myFinished&&otherFin){
+        // Both finished — compute scores
+        const g1=myNum===1?myGuesses:st.guesses1;
+        const g2=myNum===2?myGuesses:st.guesses2;
+        const won1=g1.includes(word),won2=g2.includes(word);
+        const sc=st.scores||{1:0,2:0};
+        let add1=0,add2=0;
+        if(won1&&won2){const s1=g1.indexOf(word),s2=g2.indexOf(word);if(s1<s2){add1=2;}else if(s2<s1){add2=2;}else{add1=1;add2=1;}}
+        else if(won1)add1=2;
+        else if(won2)add2=2;
+        const scores={1:(sc[1]||0)+add1,2:(sc[2]||0)+add2};
+        const nextRound=(st.round||1)+1;
+        if(nextRound>3){
+          const winner=scores[1]>scores[2]?1:scores[2]>scores[1]?2:0;
+          await supabase.from('game_rooms').update({state:{...newSt,scores},status:'finished',winner}).eq('id',currentRoom.id);
+        } else {
+          await supabase.from('game_rooms').update({state:{...newSt,scores}}).eq('id',currentRoom.id);
+          setTimeout(async()=>{
+            const newWordIdx=Math.floor(Math.random()*st.words.length);
+            const nextSt={wordIdx:newWordIdx,words:st.words,guesses1:[],guesses2:[],finished1:false,finished2:false,scores,round:nextRound};
+            await supabase.from('game_rooms').update({state:nextSt,turn:1}).eq('id',currentRoom.id);
+          },4000);
+        }
+      } else {
+        await supabase.from('game_rooms').update({state:newSt}).eq('id',currentRoom.id);
+      }
+    }
+
+    // ===== NUMBLE =====
+    let numbleInput='';
+
+    function numbleGetColors(guess,target){
+      const res=Array(8).fill('absent');
+      const tArr=[...target],used=Array(8).fill(false);
+      for(let i=0;i<8;i++)if(guess[i]===target[i]){res[i]='correct';used[i]=true;}
+      for(let i=0;i<8;i++){
+        if(res[i]==='correct')continue;
+        for(let j=0;j<8;j++){
+          if(!used[j]&&guess[i]===tArr[j]){res[i]='present';used[j]=true;break;}
+        }
+      }
+      return res;
+    }
+
+    function renderNumble(room){
+      const st=room.state;
+      const eq=st.equation;
+      const el=document.getElementById('game-board');
+      const myKey=myNum===1?'guesses1':'guesses2';
+      const myFinKey=myNum===1?'finished1':'finished2';
+      const myGuesses=st[myKey]||[];
+      const myFinished=st[myFinKey];
+      const sc=st.scores||{1:0,2:0};
+      const canGuess=!myFinished&&room.status==='playing';
+      const revealEq=myFinished||room.status==='finished';
+
+      let gridHtml='';
+      for(let r=0;r<6;r++){
+        const g=myGuesses[r]||'';
+        for(let c=0;c<8;c++){
+          let cls='numble-cell';
+          if(g.length===8&&revealEq){const colors=numbleGetColors(g,eq);cls+=' '+colors[c];}
+          gridHtml+=`<div class="${cls}">${g[c]||''}</div>`;
+        }
+      }
+
+      const KEYS=['1','2','3','4','5','6','7','8','9','0','+','-','*','=','⌫','↵'];
+      const keysHtml=KEYS.map(k=>`<button class="numble-key" data-k="${k}">${k}</button>`).join('');
+
+      el.innerHTML=`
+        <div class="numble-wrap">
+          <div class="numble-score"><span>${room.player1_name||'J1'}: ${sc[1]||0}</span><span>Rodada ${st.round||1}/3</span><span>${room.player2_name||'J2'}: ${sc[2]||0}</span></div>
+          <div class="numble-target">${revealEq?eq:'? + ? = ?'}</div>
+          <div class="numble-sub">Adivinhe a equação de 8 caracteres</div>
+          <div class="numble-grid">${gridHtml}</div>
+          <div style="text-align:center;font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.5);font-family:monospace;margin-bottom:0.5rem;letter-spacing:2px">${numbleInput}${canGuess?'_':''}</div>
+          <div class="numble-keyboard">${keysHtml}</div>
+        </div>`;
+
+      if(canGuess){
+        el.querySelectorAll('.numble-key').forEach(btn=>{
+          btn.addEventListener('click',()=>onNumbleKey(btn.dataset.k));
+        });
+      }
+    }
+
+    function onNumbleKey(k){
+      if(!currentRoom) return;
+      const st=currentRoom.state;
+      const myFinKey=myNum===1?'finished1':'finished2';
+      if(st[myFinKey]) return;
+      if(k==='⌫'){numbleInput=numbleInput.slice(0,-1);}
+      else if(k==='↵'){submitNumble();}
+      else if(numbleInput.length<8){numbleInput+=k;}
+      renderNumble(currentRoom);
+    }
+
+    async function submitNumble(){
+      if(!currentRoom||numbleInput.length!==8) return;
+      const st=currentRoom.state;
+      const eq=st.equation;
+      const guess=numbleInput;
+      numbleInput='';
+      const myGuessKey=myNum===1?'guesses1':'guesses2';
+      const myFinKey=myNum===1?'finished1':'finished2';
+      const myGuesses=[...(st[myGuessKey]||[]),guess];
+      const won=guess===eq;
+      const maxed=myGuesses.length>=6;
+      const myFinished=won||maxed;
+      const newSt={...st,[myGuessKey]:myGuesses,[myFinKey]:myFinished};
+      const otherFin=myNum===1?st.finished2:st.finished1;
+
+      if(myFinished&&otherFin){
+        const g1=myNum===1?myGuesses:st.guesses1;
+        const g2=myNum===2?myGuesses:st.guesses2;
+        const won1=g1.includes(eq),won2=g2.includes(eq);
+        const sc=st.scores||{1:0,2:0};
+        let add1=0,add2=0;
+        if(won1&&won2){const s1=g1.indexOf(eq),s2=g2.indexOf(eq);if(s1<s2)add1=2;else if(s2<s1)add2=2;else{add1=1;add2=1;}}
+        else if(won1)add1=2; else if(won2)add2=2;
+        const scores={1:(sc[1]||0)+add1,2:(sc[2]||0)+add2};
+        const nextRound=(st.round||1)+1;
+        if(nextRound>3){
+          const winner=scores[1]>scores[2]?1:scores[2]>scores[1]?2:0;
+          await supabase.from('game_rooms').update({state:{...newSt,scores},status:'finished',winner}).eq('id',currentRoom.id);
+        } else {
+          await supabase.from('game_rooms').update({state:{...newSt,scores}}).eq('id',currentRoom.id);
+          setTimeout(async()=>{
+            function genEq(){const ops=['+','-','*'];for(let i=0;i<500;i++){const op=ops[Math.floor(Math.random()*ops.length)];let a,b,r;if(op==='+'){a=Math.floor(Math.random()*90)+1;b=Math.floor(Math.random()*90)+1;r=a+b;}else if(op==='-'){a=Math.floor(Math.random()*90)+10;b=Math.floor(Math.random()*a)+1;r=a-b;}else{a=Math.floor(Math.random()*9)+2;b=Math.floor(Math.random()*9)+2;r=a*b;}const eq=`${a}${op}${b}=${r}`;if(eq.length===8)return eq;}return'12+34=46';}
+            const nextSt={equation:genEq(),guesses1:[],guesses2:[],finished1:false,finished2:false,scores,round:nextRound};
+            await supabase.from('game_rooms').update({state:nextSt,turn:1}).eq('id',currentRoom.id);
+          },4000);
+        }
+      } else {
+        await supabase.from('game_rooms').update({state:newSt}).eq('id',currentRoom.id);
+      }
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -2004,13 +2638,12 @@
           blackjack:'Blackjack', truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
           minesweeper:'Campo Minado', game2048:'2048',
           sudoku:'Sudoku', puzzle15:'Puzzle 15', nonogram:'Nonogram',
-          mahjong:'Mahjong', numble:'Numble', lightsout:'Lights Out', sokoban:'Sokoban',
+          mahjong:'Mahjong', lightsout:'Lights Out', sokoban:'Sokoban',
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
           pacman:'Pac-Man', cookieclicker:'Cookie Clicker',
           connect4:'Conecte 4',
-          termo:'Termo', hangman:'Forca', wordsearch:'Caça-Palavras',
-          anagram:'Anagrama',
+          wordsearch:'Caça-Palavras',
         };
         const gameName = LABELS[urlGame] || urlGame;
         const banner = document.createElement('div');
