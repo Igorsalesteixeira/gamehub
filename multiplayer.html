@@ -50,6 +50,17 @@
       text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
     }
 
+    /* ROOM FILTERS */
+    .room-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .filter-btn {
+      padding: 0.4rem 1rem; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5);
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.82rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: rgba(255,107,53,0.4); color: rgba(255,255,255,0.8); }
+    .filter-btn.sel { background: rgba(255,107,53,0.15); border-color: #ff6b35; color: #ff8f5e; }
+
     /* ROOM CARDS */
     .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
     .room-card {
@@ -138,6 +149,15 @@
       font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
     }
     .btn-copy:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .share-link-box {
+      background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 1rem 1.5rem; display: inline-block; margin-bottom: 1rem;
+      max-width: 360px; width: 100%;
+    }
+    .share-link-value {
+      font-size: 0.8rem; color: rgba(255,255,255,0.5); word-break: break-all;
+      margin-bottom: 0.5rem; font-family: monospace;
+    }
     .btn-abandon {
       background: transparent; border: 1.5px solid rgba(255,255,255,0.12);
       color: rgba(255,255,255,0.35); border-radius: 999px; padding: 0.5rem 1.2rem;
@@ -269,6 +289,12 @@
         </div>
       </div>
       <div class="section-title">Salas públicas aguardando jogador</div>
+      <div class="room-filters">
+        <button class="filter-btn sel" data-filter="all">🎮 Todos</button>
+        <button class="filter-btn" data-filter="tictactoe">❌ Velha</button>
+        <button class="filter-btn" data-filter="connect4">🔴 Conecte 4</button>
+        <button class="filter-btn" data-filter="checkers">⚫ Dama</button>
+      </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
       </div>
@@ -289,7 +315,12 @@
           </div>
           <button class="btn-copy" id="btn-copy-code">📋 Copiar código</button>
         </div>
-        <br><br>
+        <div class="share-link-box" style="margin:1rem auto 0">
+          <div class="room-code-label">Link para compartilhar</div>
+          <div class="share-link-value" id="share-link-display">—</div>
+          <button class="btn-copy" id="btn-copy-link">🔗 Copiar link</button>
+        </div>
+        <br>
         <button class="btn-abandon" id="btn-cancel-room">Cancelar sala</button>
       </div>
     </div>
@@ -552,6 +583,8 @@
         document.getElementById('code-box').style.display = 'none';
         document.getElementById('waiting-sub').textContent = 'Sala pública — aguardando alguém entrar...';
       }
+      const shareLink = location.origin + location.pathname + '?room=' + data.id;
+      document.getElementById('share-link-display').textContent = shareLink;
       subscribeToRoom(data.id);
     }
 
@@ -786,10 +819,12 @@
     // ===== PUBLIC ROOMS =====
     async function loadPublicRooms() {
       const cutoff=new Date(Date.now()-30*60000).toISOString();
-      const { data } = await supabase.from('game_rooms')
+      let q = supabase.from('game_rooms')
         .select('*').eq('mode','public').eq('status','waiting')
         .neq('player1_id',me.id).gte('created_at',cutoff)
-        .order('created_at',{ascending:false}).limit(12);
+        .order('created_at',{ascending:false}).limit(20);
+      if (activeFilter !== 'all') q = q.eq('game', activeFilter);
+      const { data } = await q;
       const el=document.getElementById('public-rooms-list');
       if (!data||!data.length) {
         el.innerHTML=`<div class="empty-rooms"><div class="ei">🕹️</div>Nenhuma sala pública aberta agora.<br>Crie uma e espere alguém entrar!</div>`;
@@ -849,6 +884,26 @@
       });
     });
 
+    document.getElementById('btn-copy-link').addEventListener('click',()=>{
+      const link=document.getElementById('share-link-display').textContent;
+      navigator.clipboard.writeText(link).then(()=>{
+        const btn=document.getElementById('btn-copy-link');
+        btn.textContent='✅ Copiado!';
+        setTimeout(()=>{btn.textContent='🔗 Copiar link';},2000);
+      });
+    });
+
+    // ===== ROOM FILTERS =====
+    let activeFilter = 'all';
+    document.querySelectorAll('.filter-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('sel'));
+        btn.classList.add('sel');
+        activeFilter = btn.dataset.filter;
+        loadPublicRooms();
+      });
+    });
+
     document.getElementById('btn-cancel-room').addEventListener('click',async()=>{
       if (currentRoom) {
         await supabase.from('game_rooms').delete().eq('id',currentRoom.id).eq('player1_id',me.id);
@@ -877,6 +932,10 @@
     setInterval(()=>{
       if (document.getElementById('view-lobby').style.display!=='none') loadPublicRooms();
     },15000);
+
+    // ===== URL PARAM: ?room=ID (direct join) =====
+    const urlRoom = new URLSearchParams(window.location.search).get('room');
+    if (urlRoom) { joinRoom(urlRoom); }
 
     // ===== URL PARAM: ?game=xxx =====
     const urlParams = new URLSearchParams(window.location.search);

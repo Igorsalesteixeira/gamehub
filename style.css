@@ -552,6 +552,72 @@ body {
 }
 .footer-links a:hover { color: #ff6b35; }
 
+/* ===== LIVE ROOMS WIDGET ===== */
+.live-rooms-section {
+  max-width: 1100px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+}
+.live-rooms-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+.live-rooms-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 6px #4caf50;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.live-rooms-grid {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.live-room-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem 0.45rem 0.6rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+.live-room-chip:hover {
+  border-color: rgba(255,107,53,0.5);
+  background: rgba(255,107,53,0.08);
+}
+.live-room-icon { font-size: 1rem; }
+.live-room-info { display: flex; flex-direction: column; line-height: 1.2; }
+.live-room-game { font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+.live-room-player { font-size: 0.7rem; color: rgba(255,255,255,0.4); font-weight: 600; }
+.live-room-enter {
+  font-size: 0.72rem; font-weight: 800; color: #ff8f5e;
+  background: rgba(255,107,53,0.15); border-radius: 999px;
+  padding: 0.2rem 0.6rem; white-space: nowrap;
+}
+.live-see-all {
+  font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.35);
+  text-decoration: none; padding: 0.45rem 0.5rem;
+  align-self: center; transition: color 0.2s;
+}
+.live-see-all:hover { color: #ff8f5e; }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .hero-title { font-size: 1.4rem; }

@@ -87,6 +87,15 @@
 
   <div class="game-count" id="game-count"></div>
 
+  <!-- Live Rooms Widget (only shown when there are open rooms) -->
+  <div class="live-rooms-section" id="live-rooms-section" style="display:none">
+    <div class="live-rooms-header">
+      <span class="live-dot"></span>
+      <span class="live-rooms-title">Salas abertas agora</span>
+    </div>
+    <div class="live-rooms-grid" id="live-rooms-grid"></div>
+  </div>
+
   <main class="main">
     <div class="games-grid" id="games-grid">
 
@@ -654,6 +663,47 @@
         authEl.innerHTML = `<a href="auth.html" class="btn-login">Entrar / Criar conta</a>`;
       }
     }
+
+    // ===== LIVE ROOMS WIDGET =====
+    const GAME_LABELS = {
+      tictactoe: { icon: '❌', name: 'Jogo da Velha' },
+      connect4:  { icon: '🔴', name: 'Conecte 4' },
+      checkers:  { icon: '⚫', name: 'Dama' },
+    };
+
+    async function loadLiveRooms() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const cutoff = new Date(Date.now() - 30 * 60000).toISOString();
+      const { data } = await supabase
+        .from('game_rooms')
+        .select('id, game, player1_name, mode')
+        .eq('status', 'waiting')
+        .eq('mode', 'public')
+        .neq('player1_id', session.user.id)
+        .gte('created_at', cutoff)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const section = document.getElementById('live-rooms-section');
+      const grid = document.getElementById('live-rooms-grid');
+      if (!data || !data.length) { section.style.display = 'none'; return; }
+
+      section.style.display = '';
+      grid.innerHTML = data.map(room => {
+        const g = GAME_LABELS[room.game] || { icon: '🎮', name: room.game };
+        return `<a class="live-room-chip" href="multiplayer.html?room=${room.id}">
+          <span class="live-room-icon">${g.icon}</span>
+          <span class="live-room-info">
+            <span class="live-room-game">${g.name}</span>
+            <span class="live-room-player">${room.player1_name || 'Jogador'} aguardando</span>
+          </span>
+          <span class="live-room-enter">Entrar →</span>
+        </a>`;
+      }).join('') + `<a class="live-see-all" href="multiplayer.html">Ver todas →</a>`;
+    }
+
+    loadLiveRooms();
   </script>
 </body>
 </html>
