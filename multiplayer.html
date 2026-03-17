@@ -672,6 +672,26 @@
       font-family: 'Nunito', sans-serif; font-weight: 800; cursor: pointer; transition: background 0.2s;
     }
     .btn-back-lobby:hover { background: #e85d2a; }
+    .btn-play-again {
+      background: transparent; border: 2px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.7); border-radius: 999px; padding: 0.7rem 1.5rem;
+      font-family: 'Nunito', sans-serif; font-weight: 800; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-play-again:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .result-scoreboard {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 0.8rem 1.2rem; margin-bottom: 1.2rem;
+    }
+    .result-score-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.7);
+      padding: 0.2rem 0;
+    }
+    .result-score-row .wins { font-size: 1.1rem; font-weight: 800; color: #ff8f5e; }
+    .result-round-label {
+      font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.3); margin-bottom: 0.6rem; text-align: center;
+    }
 
     @media (max-width: 480px) {
       .ttt-cell { font-size: 2rem; }
@@ -994,9 +1014,11 @@
       <div class="result-emoji" id="result-emoji">🏆</div>
       <div class="result-title" id="result-title">Vitória!</div>
       <div class="result-sub" id="result-sub"></div>
+      <div class="result-scoreboard" id="result-scoreboard" style="display:none"></div>
       <a href="doacao.html" style="display:block;margin:0.8rem auto 1.2rem;font-size:0.82rem;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#ff8f5e'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">❤️ Gostou? Apoie o Games Hub com PIX</a>
       <div class="result-actions">
-        <button class="btn-back-lobby" id="btn-to-lobby">← Voltar ao lobby</button>
+        <button class="btn-play-again" id="btn-play-again">▶ Jogar de novo</button>
+        <button class="btn-back-lobby" id="btn-to-lobby">✕ Encerrar</button>
       </div>
     </div>
   </div>
@@ -1530,11 +1552,20 @@
         numbleInput = '';
       }
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
+      const isResultOpen = document.getElementById('result-overlay').style.display !== 'none';
       if (currentRoom.status==='playing' && isWaiting) {
         stopPoll(); // transition detected — stop waiting poll
         g2048Board=null; p15Tiles=null; loBoard=null; sdkGrid=null; sdkSel=-1; wsSelStart=null; wsSelEnd=null;
         showView('playing'); renderPlaying(currentRoom);
         startPoll(currentRoom.id); // continue polling during gameplay as backup
+      }
+      else if (currentRoom.status==='playing' && isResultOpen) {
+        // New round started — close result overlay and reset
+        document.getElementById('result-overlay').style.display = 'none';
+        ckSelected=null; ckValidMoves=[]; ckLastMove=null;
+        g2048Board=null; p15Tiles=null; loBoard=null; sdkGrid=null; sdkSel=-1; wsSelStart=null; wsSelEnd=null;
+        renderPlaying(currentRoom);
+        startPoll(currentRoom.id);
       }
       else if (currentRoom.status==='playing') { renderPlaying(currentRoom); }
       else if (currentRoom.status==='finished') { stopPoll(); renderPlaying(currentRoom); showResult(currentRoom); }
@@ -4152,19 +4183,52 @@
     }
 
     // ===== RESULT =====
+    function buildScoreboard(room) {
+      const history = room.state?._rounds || [];
+      const allRounds = [...history, { w: room.winner ?? 0 }];
+      const p1 = allRounds.filter(r => r.w === 1).length;
+      const p2 = allRounds.filter(r => r.w === 2).length;
+      const draws = allRounds.filter(r => r.w === 0).length;
+      return { p1, p2, draws, total: allRounds.length };
+    }
+
     function showResult(room) {
-      const w=room.winner;
-      let emoji,title,sub;
-      if (w===0) { emoji='🤝'; title='Empate!'; sub='Partida muito equilibrada!'; }
-      else if (w===myNum) { emoji='🏆'; title='Você venceu!'; sub='Parabéns, excelente jogada!'; }
+      const w = room.winner;
+      let emoji, title, sub;
+      if (w === 0) { emoji = '🤝'; title = 'Empate!'; sub = 'Partida muito equilibrada!'; }
+      else if (w === myNum) { emoji = '🏆'; title = 'Você venceu!'; sub = 'Parabéns, excelente jogada!'; }
       else {
-        const op=myNum===1?room.player2_name:room.player1_name;
-        emoji='😢'; title='Você perdeu!'; sub=`${op||'Adversário'} ganhou dessa vez.`;
+        const op = myNum === 1 ? room.player2_name : room.player1_name;
+        emoji = '😢'; title = 'Você perdeu!'; sub = `${op || 'Adversário'} ganhou dessa vez.`;
       }
-      document.getElementById('result-emoji').textContent=emoji;
-      document.getElementById('result-title').textContent=title;
-      document.getElementById('result-sub').textContent=sub;
-      document.getElementById('result-overlay').style.display='flex';
+      document.getElementById('result-emoji').textContent = emoji;
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-sub').textContent = sub;
+
+      const sc = buildScoreboard(room);
+      const sbEl = document.getElementById('result-scoreboard');
+      const p1n = room.player1_name || 'Jogador 1';
+      const p2n = room.player2_name || 'Jogador 2';
+      sbEl.style.display = '';
+      sbEl.innerHTML = `
+        <div class="result-round-label">Placar — Rodada ${sc.total}</div>
+        <div class="result-score-row"><span>${p1n}</span><span class="wins">${sc.p1}</span></div>
+        <div class="result-score-row"><span>${p2n}</span><span class="wins">${sc.p2}</span></div>
+        ${sc.draws > 0 ? `<div class="result-score-row"><span>Empates</span><span class="wins">${sc.draws}</span></div>` : ''}
+      `;
+
+      document.getElementById('result-overlay').style.display = 'flex';
+    }
+
+    async function playAgain() {
+      if (!currentRoom || currentRoom.status !== 'finished') return;
+      const history = currentRoom.state?._rounds || [];
+      const newRounds = [...history, { w: currentRoom.winner ?? 0 }];
+      const freshState = { ...GAMES[currentRoom.game].initState(), _rounds: newRounds };
+      const { error } = await supabase.from('game_rooms')
+        .update({ state: freshState, turn: 1, status: 'playing', winner: null })
+        .eq('id', currentRoom.id).eq('status', 'finished');
+      if (error) alert('Erro ao reiniciar. Tente novamente.');
     }
 
     // ===== PUBLIC ROOMS =====
@@ -4277,6 +4341,8 @@
         status:'finished', winner:myNum===1?2:1,
       }).eq('id',currentRoom.id);
     });
+
+    document.getElementById('btn-play-again').addEventListener('click', playAgain);
 
     document.getElementById('btn-to-lobby').addEventListener('click',()=>{
       document.getElementById('result-overlay').style.display='none';
