@@ -546,6 +546,111 @@
     .numble-key:disabled { opacity: 0.3; cursor: default; }
     .numble-score { display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.6rem; font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.5); }
 
+    /* WORDSEARCH MULTI */
+    .ws-wrap { max-width: 500px; margin: 0 auto 1.5rem; }
+    .ws-grid {
+      display: grid; grid-template-columns: repeat(12, 1fr);
+      gap: 2px; margin-bottom: 1rem; user-select: none;
+    }
+    .ws-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: clamp(0.55rem, 2vw, 0.75rem); font-weight: 800; font-family: monospace;
+      background: rgba(255,255,255,0.06); border-radius: 4px; cursor: pointer; color: rgba(255,255,255,0.8);
+      transition: background 0.1s; border: 1px solid transparent;
+    }
+    .ws-cell:hover { background: rgba(255,107,53,0.2); }
+    .ws-cell.sel { background: rgba(255,107,53,0.35); border-color: #ff6b35; }
+    .ws-cell.found1 { background: rgba(76,175,80,0.3); color: #81c784; }
+    .ws-cell.found2 { background: rgba(33,150,243,0.3); color: #64b5f6; }
+    .ws-word-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
+    .ws-word-chip {
+      padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800;
+      background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1);
+    }
+    .ws-word-chip.found1 { background: rgba(76,175,80,0.2); color: #81c784; text-decoration: line-through; }
+    .ws-word-chip.found2 { background: rgba(33,150,243,0.2); color: #64b5f6; text-decoration: line-through; }
+    .ws-score { display: flex; gap: 2rem; justify-content: center; margin-bottom: 0.8rem; font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.5); }
+
+    /* 2048 MULTI */
+    .g2048-wrap { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.5rem; }
+    .g2048-side { text-align: center; }
+    .g2048-label { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.4rem; }
+    .g2048-score-disp { font-size: 1rem; font-weight: 800; color: #ff8f5e; margin-bottom: 0.5rem; }
+    .g2048-board { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 8px; width: min(200px,44vw); }
+    .g2048-cell {
+      aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: clamp(0.7rem,2.5vw,1rem); background: rgba(255,255,255,0.06);
+    }
+    .g2048-cell[data-v="2"]    { background:#eee4da; color:#776e65; }
+    .g2048-cell[data-v="4"]    { background:#ede0c8; color:#776e65; }
+    .g2048-cell[data-v="8"]    { background:#f2b179; color:#fff; }
+    .g2048-cell[data-v="16"]   { background:#f59563; color:#fff; }
+    .g2048-cell[data-v="32"]   { background:#f67c5f; color:#fff; }
+    .g2048-cell[data-v="64"]   { background:#f65e3b; color:#fff; }
+    .g2048-cell[data-v="128"]  { background:#edcf72; color:#fff; }
+    .g2048-cell[data-v="256"]  { background:#edcc61; color:#fff; }
+    .g2048-cell[data-v="512"]  { background:#edc850; color:#fff; }
+    .g2048-cell[data-v="1024"] { background:#edc53f; color:#fff; font-size:0.7rem; }
+    .g2048-cell[data-v="2048"] { background:#edc22e; color:#fff; font-size:0.65rem; }
+    .g2048-controls { display:flex; gap:0.4rem; justify-content:center; flex-wrap:wrap; margin-top:0.5rem; }
+    .g2048-btn {
+      width:40px; height:40px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.15);
+      background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.7); font-size:1.1rem;
+      cursor:pointer; transition:all 0.15s; font-family:'Nunito',sans-serif;
+    }
+    .g2048-btn:hover { border-color:#ff6b35; color:#ff8f5e; }
+
+    /* PUZZLE15 MULTI */
+    .p15-wrap { display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:1.5rem; }
+    .p15-side { text-align:center; }
+    .p15-label { font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem; }
+    .p15-board { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; width:min(200px,44vw); }
+    .p15-tile {
+      aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center;
+      font-size:clamp(0.9rem,3vw,1.3rem); font-weight:800; cursor:pointer;
+      background:rgba(255,107,53,0.2); color:#ff8f5e; border:2px solid rgba(255,107,53,0.3); transition:all 0.15s;
+    }
+    .p15-tile.empty { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.05); cursor:default; }
+    .p15-tile:not(.empty):hover { background:rgba(255,107,53,0.35); }
+    .p15-moves { font-size:0.78rem; color:rgba(255,255,255,0.35); font-weight:700; margin-top:0.4rem; }
+
+    /* LIGHTSOUT MULTI */
+    .lo-wrap { display:flex; gap:2rem; flex-wrap:wrap; justify-content:center; margin-bottom:1.5rem; }
+    .lo-side { text-align:center; }
+    .lo-label { font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.5rem; }
+    .lo-board { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; width:min(220px,46vw); }
+    .lo-cell {
+      aspect-ratio:1; border-radius:8px; cursor:pointer; transition:background 0.15s;
+      background:rgba(255,255,255,0.06); border:2px solid rgba(255,255,255,0.08);
+    }
+    .lo-cell.on { background:#ffd700; border-color:#ffb700; box-shadow:0 0 8px rgba(255,215,0,0.5); }
+    .lo-cell:hover { opacity:0.8; }
+    .lo-clicks { font-size:0.78rem; color:rgba(255,255,255,0.35); font-weight:700; margin-top:0.4rem; }
+
+    /* SUDOKU MULTI */
+    .sdk-wrap { display:flex; gap:1.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:1.5rem; }
+    .sdk-side { text-align:center; }
+    .sdk-label { font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem; }
+    .sdk-board { display:grid; grid-template-columns:repeat(9,1fr); gap:1px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.3); border-radius:6px; overflow:hidden; width:min(220px,46vw); }
+    .sdk-cell {
+      aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+      font-size:clamp(0.6rem,2vw,0.85rem); font-weight:700; background:rgba(15,15,26,0.9);
+      cursor:pointer; transition:background 0.1s; border:none;
+    }
+    .sdk-cell.given { color:rgba(255,255,255,0.85); font-weight:800; cursor:default; }
+    .sdk-cell.user { color:#ff8f5e; }
+    .sdk-cell.sel { background:rgba(255,107,53,0.2); }
+    .sdk-cell.error { color:#ef5350; }
+    .sdk-cell.box-right { border-right:2px solid rgba(255,255,255,0.3); }
+    .sdk-cell.box-bottom { border-bottom:2px solid rgba(255,255,255,0.3); }
+    .sdk-numpad { display:flex; gap:0.3rem; justify-content:center; flex-wrap:wrap; margin-top:0.5rem; }
+    .sdk-num {
+      width:28px; height:28px; border-radius:6px; border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); font-size:0.78rem;
+      font-family:'Nunito',sans-serif; font-weight:800; cursor:pointer; transition:all 0.15s;
+    }
+    .sdk-num:hover { border-color:#ff6b35; color:#ff8f5e; }
+
     /* RESULT */
     .result-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78); display: flex;
@@ -610,6 +715,11 @@
         <button class="filter-btn" data-filter="anagram">🔤 Anagrama</button>
         <button class="filter-btn" data-filter="termo">🟩 Termo</button>
         <button class="filter-btn" data-filter="numble">🔢 Numble</button>
+        <button class="filter-btn" data-filter="wordsearch">🔍 Caça-Palavras</button>
+        <button class="filter-btn" data-filter="game2048">🎲 2048</button>
+        <button class="filter-btn" data-filter="puzzle15">🧩 Puzzle 15</button>
+        <button class="filter-btn" data-filter="lightsout">💡 Lights Out</button>
+        <button class="filter-btn" data-filter="sudoku">📊 Sudoku</button>
       </div>
       <div id="public-rooms-list">
         <div class="empty-rooms"><div class="ei">⏳</div>Carregando salas...</div>
@@ -702,6 +812,21 @@
         </button>
         <button class="game-option" data-game="numble">
           <span class="game-option-icon">🔢</span>Numble
+        </button>
+        <button class="game-option" data-game="wordsearch">
+          <span class="game-option-icon">🔍</span>Caça-Palavras
+        </button>
+        <button class="game-option" data-game="game2048">
+          <span class="game-option-icon">🔢</span>2048
+        </button>
+        <button class="game-option" data-game="puzzle15">
+          <span class="game-option-icon">🧩</span>Puzzle 15
+        </button>
+        <button class="game-option" data-game="lightsout">
+          <span class="game-option-icon">💡</span>Lights Out
+        </button>
+        <button class="game-option" data-game="sudoku">
+          <span class="game-option-icon">🔢</span>Sudoku
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -927,6 +1052,101 @@
           return{equation:genEq(),guesses1:[],guesses2:[],finished1:false,finished2:false,scores:{1:0,2:0},round:1};
         }
       },
+      wordsearch: {
+        name: 'Caça-Palavras', icon: '🔍',
+        initState: () => {
+          const CATS={
+            'Animais':['GATO','CACHORRO','ELEFANTE','GIRAFA','TIGRE','LEAO','MACACO','COBRA','AGUIA','BALEIA','CAVALO','COELHO','GALINHA','JACARE','LOBO','URSO','RAPOSA','TUCANO'],
+            'Frutas':['BANANA','MORANGO','LARANJA','MELANCIA','MANGA','GOIABA','LIMAO','MAMAO','CEREJA','AMORA','COCO','FIGO','PERA'],
+            'Paises':['BRASIL','FRANCA','ALEMANHA','ITALIA','JAPAO','CHINA','CANADA','MEXICO','ARGENTINA','CHILE','AUSTRALIA','INDIA','RUSSIA'],
+            'Esportes':['FUTEBOL','BASQUETE','VOLEIBOL','NATACAO','TENIS','ATLETISMO','CICLISMO','BOXE','SURFE','GOLFE','RUGBY'],
+          };
+          const cats=Object.keys(CATS);
+          const cat=cats[Math.floor(Math.random()*cats.length)];
+          const pool=[...CATS[cat]].sort(()=>Math.random()-0.5);
+          const words=pool.slice(0,8).filter(w=>w.length<=12);
+          const DIRS=[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+          const SZ=12;
+          const g=Array(SZ).fill(null).map(()=>Array(SZ).fill(''));
+          const placed=[];
+          words.forEach(word=>{
+            let ok=false;
+            for(let t=0;t<200&&!ok;t++){
+              const dir=DIRS[Math.floor(Math.random()*DIRS.length)];
+              const r=Math.floor(Math.random()*SZ),c=Math.floor(Math.random()*SZ);
+              let can=true;
+              for(let i=0;i<word.length;i++){
+                const nr=r+dir[0]*i,nc=c+dir[1]*i;
+                if(nr<0||nr>=SZ||nc<0||nc>=SZ){can=false;break;}
+                if(g[nr][nc]!==''&&g[nr][nc]!==word[i]){can=false;break;}
+              }
+              if(can){for(let i=0;i<word.length;i++)g[r+dir[0]*i][c+dir[1]*i]=word[i];placed.push({word,r,c,dr:dir[0],dc:dir[1]});ok=true;}
+            }
+          });
+          const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          for(let r=0;r<SZ;r++)for(let c=0;c<SZ;c++)if(!g[r][c])g[r][c]=ALPHA[Math.floor(Math.random()*26)];
+          return{grid:g,placed,found1:[],found2:[],category:cat};
+        }
+      },
+      game2048: {
+        name: '2048', icon: '🎲',
+        initState: () => {
+          function mkBoard(){
+            const b=Array(4).fill(null).map(()=>Array(4).fill(0));
+            function addTile(bd){const e=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(!bd[r][c])e.push([r,c]);if(!e.length)return;const[r,c]=e[Math.floor(Math.random()*e.length)];bd[r][c]=Math.random()<0.9?2:4;}
+            addTile(b);addTile(b);return b;
+          }
+          return{board1:mkBoard(),board2:mkBoard(),score1:0,score2:0,over1:false,over2:false};
+        }
+      },
+      puzzle15: {
+        name: 'Puzzle 15', icon: '🧩',
+        initState: () => {
+          function mkTiles(){
+            let t;
+            do{t=[...Array(15).keys()].map(i=>i+1).concat([0]);for(let i=t.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[t[i],t[j]]=[t[j],t[i]];}}
+            while(!isSolv15(t)||isSolved15(t));
+            return t;
+          }
+          function isSolv15(arr){let inv=0;const f=arr.filter(v=>v);for(let i=0;i<f.length;i++)for(let j=i+1;j<f.length;j++)if(f[i]>f[j])inv++;return(inv+(3-Math.floor(arr.indexOf(0)/4)))%2===0;}
+          function isSolved15(arr){return arr.every((v,i)=>i===15?v===0:v===i+1);}
+          const tiles=mkTiles();
+          return{tiles:[...tiles],tiles1:[...tiles],tiles2:[...tiles],moves1:0,moves2:0,solved:null};
+        }
+      },
+      lightsout: {
+        name: 'Lights Out', icon: '💡',
+        initState: () => {
+          function mkBoard(){
+            const b=Array(5).fill(null).map(()=>Array(5).fill(false));
+            const presses=Math.floor(Math.random()*6)+4;
+            for(let i=0;i<presses;i++){
+              const r=Math.floor(Math.random()*5),c=Math.floor(Math.random()*5);
+              [[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(nr>=0&&nr<5&&nc>=0&&nc<5)b[nr][nc]=!b[nr][nc];});
+            }
+            if(b.every(row=>row.every(v=>!v))){b[2][2]=true;}
+            return b;
+          }
+          const board=mkBoard();
+          return{board,board1:board.map(r=>[...r]),board2:board.map(r=>[...r]),clicks1:0,clicks2:0,solved:null};
+        }
+      },
+      sudoku: {
+        name: 'Sudoku', icon: '📊',
+        initState: () => {
+          function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+          function isVal(g,r,c,n){for(let i=0;i<9;i++)if(g[r][i]===n||g[i][c]===n)return false;const br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;for(let dr=0;dr<3;dr++)for(let dc=0;dc<3;dc++)if(g[br+dr][bc+dc]===n)return false;return true;}
+          function solve(g){for(let r=0;r<9;r++)for(let c=0;c<9;c++){if(!g[r][c]){for(const n of shuffle([1,2,3,4,5,6,7,8,9])){if(isVal(g,r,c,n)){g[r][c]=n;if(solve(g))return true;g[r][c]=0;}}return false;}}return true;}
+          const sol=Array(9).fill(null).map(()=>Array(9).fill(0));
+          for(let b=0;b<9;b+=3){const nums=shuffle([1,2,3,4,5,6,7,8,9]);let i=0;for(let r=b;r<b+3;r++)for(let c=b;c<b+3;c++)sol[r][c]=nums[i++];}
+          solve(sol);
+          const puz=sol.map(r=>[...r]);
+          let rem=40;const cells=shuffle([...Array(81).keys()]);
+          for(const idx of cells){if(!rem)break;puz[Math.floor(idx/9)][idx%9]=0;rem--;}
+          const flat=puz.flat(),sflat=sol.flat();
+          return{puzzle:flat,solution:sflat,grid1:[...flat],grid2:[...flat],solved:null,sel1:-1,sel2:-1};
+        }
+      },
     };
 
     // ===== WIN: TICTACTOE =====
@@ -1057,7 +1277,10 @@
         numbleInput = '';
       }
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
-      if (currentRoom.status==='playing' && isWaiting) { showView('playing'); renderPlaying(currentRoom); }
+      if (currentRoom.status==='playing' && isWaiting) {
+        g2048Board=null; p15Tiles=null; loBoard=null; sdkGrid=null; sdkSel=-1; wsSelStart=null; wsSelEnd=null;
+        showView('playing'); renderPlaying(currentRoom);
+      }
       else if (currentRoom.status==='playing') { renderPlaying(currentRoom); }
       else if (currentRoom.status==='finished') { renderPlaying(currentRoom); showResult(currentRoom); }
     }
@@ -1137,6 +1360,11 @@
       else if (room.game==='anagram') renderAnagram(room);
       else if (room.game==='termo') renderTermo(room);
       else if (room.game==='numble') renderNumble(room);
+      else if (room.game==='wordsearch') renderWordsearch(room);
+      else if (room.game==='game2048') render2048(room);
+      else if (room.game==='puzzle15') renderPuzzle15(room);
+      else if (room.game==='lightsout') renderLightsout(room);
+      else if (room.game==='sudoku') renderSudoku(room);
     }
 
     // ===== TICTACTOE RENDER =====
@@ -2483,6 +2711,377 @@
       }
     }
 
+    // ===== WORDSEARCH =====
+    let wsSelStart=null, wsSelEnd=null;
+
+    function wsCells(start,end,sz=12){
+      if(!start||!end)return[];
+      const dr=Math.sign(end.r-start.r),dc=Math.sign(end.c-start.c);
+      if(dr===0&&dc===0)return[start];
+      const cells=[];let r=start.r,c=start.c;
+      for(let i=0;i<=Math.max(Math.abs(end.r-start.r),Math.abs(end.c-start.c));i++){
+        if(r<0||r>=sz||c<0||c>=sz)break;
+        cells.push({r,c});r+=dr;c+=dc;
+      }
+      return cells;
+    }
+
+    function wsWordFromCells(cells,grid){return cells.map(({r,c})=>grid[r][c]).join('');}
+
+    function renderWordsearch(room){
+      const st=room.state;
+      const grid=st.grid,placed=st.placed;
+      const f1=st.found1||[],f2=st.found2||[];
+      const allFound=[...f1,...f2];
+      const el=document.getElementById('game-board');
+
+      // Build foundCells map
+      const cellState={};
+      placed.forEach(({word,r,c,dr,dc})=>{
+        if(!allFound.includes(word))return;
+        const byMe=f1.includes(word)?1:2;
+        for(let i=0;i<word.length;i++){const key=`${r+dr*i},${c+dc*i}`;cellState[key]=byMe;}
+      });
+      const selCells=new Set(wsCells(wsSelStart,wsSelEnd).map(({r,c})=>`${r},${c}`));
+
+      const gridHtml=grid.flat().map((letter,i)=>{
+        const r=Math.floor(i/12),c=i%12;
+        const key=`${r},${c}`;
+        let cls='ws-cell';
+        if(cellState[key]===1)cls+=' found1';
+        else if(cellState[key]===2)cls+=' found2';
+        else if(selCells.has(key))cls+=' sel';
+        return `<div class="${cls}" data-r="${r}" data-c="${c}">${letter}</div>`;
+      }).join('');
+
+      const wordListHtml=placed.map(({word})=>{
+        let cls='ws-word-chip';
+        if(f1.includes(word))cls+=' found1';
+        else if(f2.includes(word))cls+=' found2';
+        return `<span class="${cls}">${word}</span>`;
+      }).join('');
+
+      const myFound=myNum===1?f1.length:f2.length;
+      const oppFound=myNum===1?f2.length:f1.length;
+
+      el.innerHTML=`
+        <div class="ws-wrap">
+          <div class="ws-score">
+            <span>Você: ${myFound} palavras</span>
+            <span>${myNum===1?(room.player2_name||'J2'):(room.player1_name||'J1')}: ${oppFound} palavras</span>
+          </div>
+          <div class="ws-grid">${gridHtml}</div>
+          <div class="ws-word-list">${wordListHtml}</div>
+        </div>`;
+
+      // Click to select
+      el.querySelectorAll('.ws-cell').forEach(cell=>{
+        cell.addEventListener('click',()=>{
+          const r=parseInt(cell.dataset.r),c=parseInt(cell.dataset.c);
+          if(!wsSelStart){wsSelStart={r,c};}
+          else{
+            wsSelEnd={r,c};
+            const cells=wsCells(wsSelStart,wsSelEnd);
+            const word=wsWordFromCells(cells,grid);
+            const revWord=[...word].reverse().join('');
+            const match=placed.find(p=>p.word===word||p.word===revWord);
+            if(match&&![...f1,...f2].includes(match.word)){
+              submitWsWord(match.word);
+            }
+            wsSelStart=null;wsSelEnd=null;
+          }
+          renderWordsearch(currentRoom);
+        });
+      });
+    }
+
+    async function submitWsWord(word){
+      if(!currentRoom)return;
+      const st=currentRoom.state;
+      const f1=[...(st.found1||[])],f2=[...(st.found2||[])];
+      if([...f1,...f2].includes(word))return;
+      if(myNum===1)f1.push(word);else f2.push(word);
+      const total=st.placed.length;
+      const allDone=f1.length+f2.length>=total;
+      let status='playing',winner=null;
+      if(allDone){
+        status='finished';winner=f1.length>f2.length?1:f2.length>f1.length?2:0;
+      }
+      await supabase.from('game_rooms').update({state:{...st,found1:f1,found2:f2},status,winner}).eq('id',currentRoom.id);
+    }
+
+    // ===== 2048 =====
+    let g2048Board=null,g2048Score=0;
+
+    function g2048Move(board,dir){
+      const b=board.map(r=>[...r]);let score=0,moved=false;
+      function slide(row){const f=row.filter(v=>v);const r=[];let i=0;while(i<f.length){if(i+1<f.length&&f[i]===f[i+1]){r.push(f[i]*2);score+=f[i]*2;i+=2;moved=true;}else{r.push(f[i]);i++;}}while(r.length<4)r.push(0);if(r.join(',')!==row.join(','))moved=true;return r;}
+      if(dir==='l')for(let r=0;r<4;r++)b[r]=slide(b[r]);
+      if(dir==='r')for(let r=0;r<4;r++)b[r]=slide([...b[r]].reverse()).reverse();
+      if(dir==='u')for(let c=0;c<4;c++){const col=b.map(r=>r[c]);const s=slide(col);s.forEach((v,r)=>b[r][c]=v);if(s.join(',')!==col.join(','))moved=true;}
+      if(dir==='d')for(let c=0;c<4;c++){const col=b.map(r=>r[c]).reverse();const s=slide(col).reverse();s.forEach((v,r)=>b[r][c]=v);}
+      return{board:b,score,moved};
+    }
+    function g2048AddTile(b){const e=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++)if(!b[r][c])e.push([r,c]);if(!e.length)return false;const[r,c]=e[Math.floor(Math.random()*e.length)];b[r][c]=Math.random()<0.9?2:4;return true;}
+    function g2048HasMoves(b){for(let r=0;r<4;r++)for(let c=0;c<4;c++){if(!b[r][c])return true;if(c<3&&b[r][c]===b[r][c+1])return true;if(r<3&&b[r][c]===b[r+1][c])return true;}return false;}
+
+    function render2048Board(board){
+      return board.flat().map(v=>`<div class="g2048-cell"${v?` data-v="${v}"`:''}>${v||''}</div>`).join('');
+    }
+
+    function render2048(room){
+      const st=room.state;
+      const myBoard=myNum===1?st.board1:st.board2;
+      const oppBoard=myNum===1?st.board2:st.board1;
+      const myScore=myNum===1?st.score1:st.score2;
+      const oppScore=myNum===1?st.score2:st.score1;
+      const myOver=myNum===1?st.over1:st.over2;
+      const el=document.getElementById('game-board');
+
+      if(!g2048Board)g2048Board=myBoard.map(r=>[...r]);
+
+      el.innerHTML=`
+        <div class="g2048-wrap">
+          <div class="g2048-side">
+            <div class="g2048-label">Você</div>
+            <div class="g2048-score-disp">${myScore}</div>
+            <div class="g2048-board" id="my2048">${render2048Board(g2048Board)}</div>
+            ${!myOver?`<div class="g2048-controls">
+              <button class="g2048-btn" data-dir="u">↑</button>
+              <button class="g2048-btn" data-dir="l">←</button>
+              <button class="g2048-btn" data-dir="d">↓</button>
+              <button class="g2048-btn" data-dir="r">→</button>
+            </div>`:'<div style="color:rgba(255,255,255,0.3);font-size:0.8rem;margin-top:0.3rem">Game over!</div>'}
+          </div>
+          <div class="g2048-side">
+            <div class="g2048-label">${myNum===1?(room.player2_name||'J2'):(room.player1_name||'J1')}</div>
+            <div class="g2048-score-disp">${oppScore}</div>
+            <div class="g2048-board">${render2048Board(oppBoard)}</div>
+          </div>
+        </div>`;
+
+      el.querySelectorAll('.g2048-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>make2048Move(btn.dataset.dir));
+      });
+    }
+
+    async function make2048Move(dir){
+      if(!currentRoom||!g2048Board)return;
+      const st=currentRoom.state;
+      const myOverKey=myNum===1?'over1':'over2';
+      if(st[myOverKey])return;
+      const{board,score,moved}=g2048Move(g2048Board,dir);
+      if(!moved)return;
+      const added=g2048AddTile(board);
+      const over=!added||!g2048HasMoves(board);
+      g2048Board=board;
+      const myBoardKey=myNum===1?'board1':'board2';
+      const myScoreKey=myNum===1?'score1':'score2';
+      const newScore=(st[myScoreKey]||0)+score;
+      const newSt={...st,[myBoardKey]:board,[myScoreKey]:newScore,[myOverKey]:over};
+      const bothOver=(myNum===1?over:st.over1)&&(myNum===2?over:st.over2);
+      let status='playing',winner=null;
+      if(bothOver){
+        status='finished';
+        winner=newSt.score1>newSt.score2?1:newSt.score2>newSt.score1?2:0;
+      }
+      await supabase.from('game_rooms').update({state:newSt,status,winner}).eq('id',currentRoom.id);
+    }
+
+    // ===== PUZZLE 15 =====
+    let p15Tiles=null;
+
+    function p15CanMove(tiles,idx){const emp=tiles.indexOf(0);const r=Math.floor(idx/4),c=idx%4,er=Math.floor(emp/4),ec=emp%4;return(r===er&&Math.abs(c-ec)===1)||(c===ec&&Math.abs(r-er)===1);}
+    function p15IsSolved(tiles){return tiles.every((v,i)=>i===15?v===0:v===i+1);}
+
+    function renderPuzzle15(room){
+      const st=room.state;
+      if(!p15Tiles)p15Tiles=[...(myNum===1?st.tiles1:st.tiles2)];
+      const myTiles=p15Tiles;
+      const oppTiles=myNum===1?st.tiles2:st.tiles1;
+      const myMoves=myNum===1?st.moves1:st.moves2;
+      const oppMoves=myNum===1?st.moves2:st.moves1;
+      const el=document.getElementById('game-board');
+
+      const myGrid=myTiles.map((v,i)=>{
+        const cls='p15-tile'+(v===0?' empty':'');
+        return `<div class="${cls}" data-i="${i}">${v||''}</div>`;
+      }).join('');
+      const oppGrid=oppTiles.map((v,i)=>
+        `<div class="p15-tile${v===0?' empty':''}">${v||''}</div>`
+      ).join('');
+
+      el.innerHTML=`
+        <div class="p15-wrap">
+          <div class="p15-side">
+            <div class="p15-label">Você</div>
+            <div class="p15-board" id="my-p15">${myGrid}</div>
+            <div class="p15-moves">${myMoves} movimentos</div>
+          </div>
+          <div class="p15-side">
+            <div class="p15-label">${myNum===1?(room.player2_name||'J2'):(room.player1_name||'J1')}</div>
+            <div class="p15-board">${oppGrid}</div>
+            <div class="p15-moves">${oppMoves} movimentos</div>
+          </div>
+        </div>`;
+
+      if(room.status==='playing'){
+        el.querySelectorAll('#my-p15 .p15-tile:not(.empty)').forEach(tile=>{
+          tile.addEventListener('click',()=>makeP15Move(parseInt(tile.dataset.i)));
+        });
+      }
+    }
+
+    async function makeP15Move(idx){
+      if(!currentRoom||!p15Tiles)return;
+      if(!p15CanMove(p15Tiles,idx))return;
+      const emp=p15Tiles.indexOf(0);
+      [p15Tiles[idx],p15Tiles[emp]]=[p15Tiles[emp],p15Tiles[idx]];
+      const st=currentRoom.state;
+      const myKey=myNum===1?'tiles1':'tiles2';
+      const myMovKey=myNum===1?'moves1':'moves2';
+      const newMoves=(st[myMovKey]||0)+1;
+      const solved=p15IsSolved(p15Tiles);
+      const newSt={...st,[myKey]:[...p15Tiles],[myMovKey]:newMoves,solved:solved?myNum:st.solved};
+      let status='playing',winner=null;
+      if(solved){status='finished';winner=myNum;}
+      await supabase.from('game_rooms').update({state:newSt,status,winner}).eq('id',currentRoom.id);
+      renderPuzzle15(currentRoom);
+    }
+
+    // ===== LIGHTS OUT =====
+    let loBoard=null;
+
+    function loToggle(board,r,c){
+      const b=board.map(row=>[...row]);
+      [[r,c],[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc])=>{if(nr>=0&&nr<5&&nc>=0&&nc<5)b[nr][nc]=!b[nr][nc];});
+      return b;
+    }
+    function loSolved(board){return board.every(row=>row.every(v=>!v));}
+
+    function renderLightsout(room){
+      const st=room.state;
+      if(!loBoard)loBoard=(myNum===1?st.board1:st.board2).map(r=>[...r]);
+      const myClicks=myNum===1?st.clicks1:st.clicks2;
+      const oppClicks=myNum===1?st.clicks2:st.clicks1;
+      const el=document.getElementById('game-board');
+
+      const myGrid=loBoard.flat().map((on,i)=>{
+        const r=Math.floor(i/5),c=i%5;
+        return `<div class="lo-cell${on?' on':''}" data-r="${r}" data-c="${c}"></div>`;
+      }).join('');
+
+      const oppBoard=(myNum===1?st.board2:st.board1)||st.board;
+      const oppGrid=oppBoard.flat().map(on=>`<div class="lo-cell${on?' on':''}"></div>`).join('');
+
+      el.innerHTML=`
+        <div class="lo-wrap">
+          <div class="lo-side">
+            <div class="lo-label">Você</div>
+            <div class="lo-board" id="my-lo">${myGrid}</div>
+            <div class="lo-clicks">${myClicks} cliques</div>
+          </div>
+          <div class="lo-side">
+            <div class="lo-label">${myNum===1?(room.player2_name||'J2'):(room.player1_name||'J1')}</div>
+            <div class="lo-board">${oppGrid}</div>
+            <div class="lo-clicks">${oppClicks} cliques</div>
+          </div>
+        </div>`;
+
+      if(room.status==='playing'){
+        el.querySelectorAll('#my-lo .lo-cell').forEach(cell=>{
+          cell.addEventListener('click',()=>makeLoMove(parseInt(cell.dataset.r),parseInt(cell.dataset.c)));
+        });
+      }
+    }
+
+    async function makeLoMove(r,c){
+      if(!currentRoom||!loBoard)return;
+      loBoard=loToggle(loBoard,r,c);
+      const st=currentRoom.state;
+      const myBKey=myNum===1?'board1':'board2';
+      const myClkKey=myNum===1?'clicks1':'clicks2';
+      const newClicks=(st[myClkKey]||0)+1;
+      const solved=loSolved(loBoard);
+      const newSt={...st,[myBKey]:loBoard.map(row=>[...row]),[myClkKey]:newClicks};
+      let status='playing',winner=null;
+      if(solved){status='finished';winner=myNum;}
+      await supabase.from('game_rooms').update({state:newSt,status,winner}).eq('id',currentRoom.id);
+      renderLightsout(currentRoom);
+    }
+
+    // ===== SUDOKU =====
+    let sdkGrid=null,sdkSel=-1;
+
+    function sdkIsComplete(grid,solution){return grid.every((v,i)=>v===solution[i]);}
+
+    function renderSudoku(room){
+      const st=room.state;
+      if(!sdkGrid)sdkGrid=[...(myNum===1?st.grid1:st.grid2)];
+      const puzzle=st.puzzle,solution=st.solution;
+      const el=document.getElementById('game-board');
+
+      const myGridHtml=sdkGrid.map((v,i)=>{
+        const r=Math.floor(i/9),c=i%9;
+        const given=puzzle[i]!==0;
+        let cls='sdk-cell'+(given?' given':v?' user':'')+( sdkSel===i?' sel':'');
+        if(c===2||c===5)cls+=' box-right';
+        if(r===2||r===5)cls+=' box-bottom';
+        if(!given&&v&&v!==solution[i])cls+=' error';
+        return `<div class="${cls}" data-i="${i}">${v||''}</div>`;
+      }).join('');
+
+      const oppGrid=myNum===1?st.grid2:st.grid1;
+      const oppGridHtml=oppGrid.map((v,i)=>{
+        const r=Math.floor(i/9),c=i%9;
+        const given=puzzle[i]!==0;
+        let cls='sdk-cell'+(given?' given':v?' user':'');
+        if(c===2||c===5)cls+=' box-right';
+        if(r===2||r===5)cls+=' box-bottom';
+        return `<div class="${cls}">${v||''}</div>`;
+      }).join('');
+
+      const numpad=[1,2,3,4,5,6,7,8,9].map(n=>`<button class="sdk-num" data-n="${n}">${n}</button>`).join('')+`<button class="sdk-num" data-n="0">✕</button>`;
+
+      el.innerHTML=`
+        <div class="sdk-wrap">
+          <div class="sdk-side">
+            <div class="sdk-label">Você</div>
+            <div class="sdk-board" id="my-sdk">${myGridHtml}</div>
+            <div class="sdk-numpad" id="sdk-numpad">${numpad}</div>
+          </div>
+          <div class="sdk-side">
+            <div class="sdk-label">${myNum===1?(room.player2_name||'J2'):(room.player1_name||'J1')}</div>
+            <div class="sdk-board">${oppGridHtml}</div>
+          </div>
+        </div>`;
+
+      el.querySelectorAll('#my-sdk .sdk-cell').forEach(cell=>{
+        cell.addEventListener('click',()=>{
+          const i=parseInt(cell.dataset.i);
+          if(puzzle[i])return;
+          sdkSel=i;renderSudoku(currentRoom);
+        });
+      });
+      el.querySelectorAll('#sdk-numpad .sdk-num').forEach(btn=>{
+        btn.addEventListener('click',()=>makeSdkInput(parseInt(btn.dataset.n)));
+      });
+    }
+
+    async function makeSdkInput(num){
+      if(sdkSel<0||!currentRoom||!sdkGrid)return;
+      const st=currentRoom.state;
+      if(st.puzzle[sdkSel])return;
+      sdkGrid[sdkSel]=num||0;
+      const myGridKey=myNum===1?'grid1':'grid2';
+      const complete=sdkIsComplete(sdkGrid,st.solution);
+      const newSt={...st,[myGridKey]:[...sdkGrid]};
+      let status='playing',winner=null;
+      if(complete){status='finished';winner=myNum;}
+      await supabase.from('game_rooms').update({state:newSt,status,winner}).eq('id',currentRoom.id);
+      renderSudoku(currentRoom);
+    }
+
     // ===== RESULT =====
     function showResult(room) {
       const w=room.winner;
@@ -2636,14 +3235,13 @@
         const LABELS = {
           solitaire:'Paciência', freecell:'Freecell', spider:'Spider Solitaire',
           blackjack:'Blackjack', truco:'Truco', uno:'Uno', pyramid:'Pirâmide',
-          minesweeper:'Campo Minado', game2048:'2048',
-          sudoku:'Sudoku', puzzle15:'Puzzle 15', nonogram:'Nonogram',
-          mahjong:'Mahjong', lightsout:'Lights Out', sokoban:'Sokoban',
+          minesweeper:'Campo Minado',
+          nonogram:'Nonogram',
+          mahjong:'Mahjong', sokoban:'Sokoban',
           snake:'Cobrinha', tetris:'Tetris', flappybird:'Flappy Bird', pong:'Pong',
           breakout:'Breakout', dinorunner:'Dino Runner', spaceinvaders:'Space Invaders',
           pacman:'Pac-Man', cookieclicker:'Cookie Clicker',
           connect4:'Conecte 4',
-          wordsearch:'Caça-Palavras',
         };
         const gameName = LABELS[urlGame] || urlGame;
         const banner = document.createElement('div');
