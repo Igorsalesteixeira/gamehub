@@ -574,39 +574,39 @@
     const TROPHIES = [
       // Primeiros Passos
       { id:'first_game',    icon:'🎮', name:'Bem-vindo!',          desc:'Jogue sua primeira partida',                     cat:'🌱 Primeiros Passos', rarity:'comum',    xp:50,   check: s => s.total >= 1 },
-      { id:'first_win',     icon:'🏆', name:'Primeira Vitória',    desc:'Vença pela primeira vez',                        cat:'🌱 Primeiros Passos', rarity:'comum',    xp:75,   check: s => s.wins >= 1 },
       { id:'named',         icon:'✨', name:'Com Identidade',      desc:'Tem nome de usuário definido',                   cat:'🌱 Primeiros Passos', rarity:'comum',    xp:50,   check: s => s.hasName },
+      { id:'first_win',     icon:'🏆', name:'Primeira Vitória',    desc:'Vença pela primeira vez',                        cat:'🌱 Primeiros Passos', rarity:'comum',    xp:75,   check: s => s.wins >= 1 },
       // Explorador
-      { id:'curious',       icon:'🗺️', name:'Curioso',            desc:'Jogue 3 jogos diferentes',                       cat:'🗺️ Explorador',      rarity:'comum',    xp:50,   check: s => s.unique >= 3 },
-      { id:'explorer',      icon:'🌍', name:'Explorador',          desc:'Jogue 10 jogos diferentes',                      cat:'🗺️ Explorador',      rarity:'incomum',  xp:100,  check: s => s.unique >= 10 },
       { id:'adventurer',    icon:'🌟', name:'Aventureiro',         desc:'Jogue 20 jogos diferentes',                      cat:'🗺️ Explorador',      rarity:'raro',     xp:200,  check: s => s.unique >= 20 },
       { id:'collector',     icon:'🎪', name:'Colecionador',        desc:'Jogue 30 jogos diferentes',                      cat:'🗺️ Explorador',      rarity:'epico',    xp:400,  check: s => s.unique >= 30 },
+      { id:'curious',       icon:'🗺️', name:'Curioso',            desc:'Jogue 3 jogos diferentes',                       cat:'🗺️ Explorador',      rarity:'comum',    xp:50,   check: s => s.unique >= 3 },
+      { id:'explorer',      icon:'🌍', name:'Explorador',          desc:'Jogue 10 jogos diferentes',                      cat:'🗺️ Explorador',      rarity:'incomum',  xp:100,  check: s => s.unique >= 10 },
       { id:'master_all',    icon:'🏟️', name:'Mestre dos Jogos',   desc:'Jogue todos os 38 jogos!',                       cat:'🗺️ Explorador',      rarity:'lendario', xp:1000, check: s => s.unique >= 38 },
       // Dedicação
       { id:'games10',       icon:'🎯', name:'10 Partidas',         desc:'Jogue 10 partidas no total',                     cat:'💪 Dedicação',        rarity:'comum',    xp:50,   check: s => s.total >= 10 },
       { id:'games50',       icon:'💪', name:'50 Partidas',         desc:'Jogue 50 partidas no total',                     cat:'💪 Dedicação',        rarity:'incomum',  xp:100,  check: s => s.total >= 50 },
-      { id:'games200',      icon:'🔥', name:'Veterano',            desc:'Jogue 200 partidas no total',                    cat:'💪 Dedicação',        rarity:'raro',     xp:200,  check: s => s.total >= 200 },
       { id:'games500',      icon:'⚡', name:'Implacável',          desc:'Jogue 500 partidas no total',                    cat:'💪 Dedicação',        rarity:'epico',    xp:400,  check: s => s.total >= 500 },
       { id:'games1000',     icon:'💀', name:'Sem Vida',            desc:'Jogue 1000 partidas no total',                   cat:'💪 Dedicação',        rarity:'lendario', xp:800,  check: s => s.total >= 1000 },
+      { id:'games200',      icon:'🔥', name:'Veterano',            desc:'Jogue 200 partidas no total',                    cat:'💪 Dedicação',        rarity:'raro',     xp:200,  check: s => s.total >= 200 },
       // Campeão
+      { id:'wins100',       icon:'💎', name:'100 Vitórias',        desc:'Vença 100 vezes no total',                       cat:'🏅 Campeão',          rarity:'raro',     xp:300,  check: s => s.wins >= 100 },
       { id:'wins10',        icon:'🥇', name:'10 Vitórias',         desc:'Vença 10 vezes no total',                        cat:'🏅 Campeão',          rarity:'comum',    xp:75,   check: s => s.wins >= 10 },
       { id:'wins50',        icon:'🏅', name:'50 Vitórias',         desc:'Vença 50 vezes no total',                        cat:'🏅 Campeão',          rarity:'incomum',  xp:150,  check: s => s.wins >= 50 },
-      { id:'wins100',       icon:'💎', name:'100 Vitórias',        desc:'Vença 100 vezes no total',                       cat:'🏅 Campeão',          rarity:'raro',     xp:300,  check: s => s.wins >= 100 },
       { id:'wins500',       icon:'👑', name:'Dominador',           desc:'Vença 500 vezes no total',                       cat:'🏅 Campeão',          rarity:'epico',    xp:600,  check: s => s.wins >= 500 },
       { id:'wins1000',      icon:'🌈', name:'Imbatível',           desc:'Vença 1000 vezes no total',                      cat:'🏅 Campeão',          rarity:'lendario', xp:1500, check: s => s.wins >= 1000 },
       // Especialista
-      { id:'card_master',   icon:'🃏', name:'Rei das Cartas',      desc:'20 vitórias em jogos de cartas',                 cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.cartas >= 20 },
-      { id:'puzzle_master', icon:'🧩', name:'Mestre dos Puzzles',  desc:'20 vitórias em puzzles',                         cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.puzzle >= 20 },
-      { id:'arcade_king',   icon:'🕹️', name:'Rei do Arcade',      desc:'20 partidas em jogos arcade',                    cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catGames.arcade >= 20 },
       { id:'strategist',    icon:'♟️', name:'Estrategista',        desc:'20 vitórias em jogos de tabuleiro',              cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.estrategia >= 20 },
       { id:'word_master',   icon:'📝', name:'Mestre das Palavras', desc:'20 vitórias em palavras',                        cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.palavras >= 20 },
+      { id:'puzzle_master', icon:'🧩', name:'Mestre dos Puzzles',  desc:'20 vitórias em puzzles',                         cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.puzzle >= 20 },
+      { id:'card_master',   icon:'🃏', name:'Rei das Cartas',      desc:'20 vitórias em jogos de cartas',                 cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catWins.cartas >= 20 },
+      { id:'arcade_king',   icon:'🕹️', name:'Rei do Arcade',      desc:'20 partidas em jogos arcade',                    cat:'🎯 Especialista',     rarity:'raro',     xp:200,  check: s => s.catGames.arcade >= 20 },
       // Especiais
+      { id:'consistent',    icon:'📊', name:'Consistente',         desc:'60%+ de vitórias com pelo menos 20 partidas',    cat:'⚡ Especiais',         rarity:'epico',    xp:350,  check: s => s.total >= 20 && (s.wins / s.total) >= 0.6 },
       { id:'night_owl',     icon:'🦉', name:'Coruja',              desc:'Jogue uma partida após meia-noite',              cat:'⚡ Especiais',         rarity:'incomum',  xp:100,  check: s => s.playedAtNight },
+      { id:'devoted',       icon:'❤️', name:'Fiel',               desc:'Jogue o mesmo jogo 50 vezes',                    cat:'⚡ Especiais',         rarity:'raro',     xp:200,  check: s => s.maxGameCount >= 50 },
       { id:'early_bird',    icon:'🌅', name:'Madrugador',          desc:'Jogue uma partida antes das 7h da manhã',        cat:'⚡ Especiais',         rarity:'incomum',  xp:100,  check: s => s.playedEarly },
       { id:'speedrunner',   icon:'⚡', name:'Speedrunner',         desc:'Complete qualquer jogo em menos de 1 minuto',    cat:'⚡ Especiais',         rarity:'raro',     xp:250,  check: s => s.fastestWin > 0 && s.fastestWin < 60 },
-      { id:'consistent',    icon:'📊', name:'Consistente',         desc:'60%+ de vitórias com pelo menos 20 partidas',    cat:'⚡ Especiais',         rarity:'epico',    xp:350,  check: s => s.total >= 20 && (s.wins / s.total) >= 0.6 },
       { id:'versatile',     icon:'🎭', name:'Versátil',            desc:'Vença em todas as 5 categorias de jogos',        cat:'⚡ Especiais',         rarity:'epico',    xp:400,  check: s => Object.values(s.catWins).every(v => v >= 1) },
-      { id:'devoted',       icon:'❤️', name:'Fiel',               desc:'Jogue o mesmo jogo 50 vezes',                    cat:'⚡ Especiais',         rarity:'raro',     xp:200,  check: s => s.maxGameCount >= 50 },
     ];
 
     // ===== TROPHY PROGRESS MAPPING =====

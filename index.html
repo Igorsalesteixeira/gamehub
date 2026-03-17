@@ -520,10 +520,16 @@
     const searchClear = document.getElementById('search-clear');
     const categoryBtns = document.querySelectorAll('.category-btn');
     const gameCards = document.querySelectorAll('.game-card');
+    const gamesGrid = document.getElementById('games-grid');
     const gameCountEl = document.getElementById('game-count');
     const noResults = document.getElementById('no-results');
 
     let currentCategory = 'all';
+    const originalOrder = [...gameCards];
+
+    function gameTitle(card) {
+      return (card.querySelector('h3')?.textContent || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
 
     // ---- Filter & Search ----
     function filterGames() {
@@ -543,6 +549,14 @@
           card.classList.add('hidden');
         }
       });
+
+      // Sort globally alphabetical when "Todos" is selected
+      if (currentCategory === 'all' && !query) {
+        const sorted = originalOrder.slice().sort((a, b) => gameTitle(a).localeCompare(gameTitle(b), 'pt-BR'));
+        sorted.forEach(c => gamesGrid.appendChild(c));
+      } else {
+        originalOrder.forEach(c => gamesGrid.appendChild(c));
+      }
 
       gameCountEl.textContent = `${visible} jogo${visible !== 1 ? 's' : ''} encontrado${visible !== 1 ? 's' : ''}`;
       noResults.classList.toggle('visible', visible === 0);

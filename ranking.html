@@ -322,11 +322,11 @@
 
     // ===== GAME CATEGORIES =====
     const CATEGORIES = {
-      cartas:     { label: '🃏 Cartas',     games: ['solitaire','freecell','spider','blackjack','poker','truco','buraco','uno','pyramid'] },
-      puzzle:     { label: '🧩 Puzzle',     games: ['memory','minesweeper','game2048','sudoku','puzzle15','nonogram','mahjong','numble','lightsout','sokoban'] },
-      arcade:     { label: '🕹️ Arcade',    games: ['snake','tetris','flappybird','pong','breakout','dinorunner','spaceinvaders','pacman','cookieclicker','bubble-shooter'] },
-      estrategia: { label: '♟️ Estratégia', games: ['checkers','tictactoe','reversi','chess','battleship','connect4','go','ludo','domino'] },
-      palavras:   { label: '📝 Palavras',   games: ['termo','hangman','wordsearch','anagram','stopgame'] },
+      cartas:     { label: '🃏 Cartas',     games: ['blackjack','buraco','freecell','solitaire','pyramid','poker','spider','truco','uno'] },
+      puzzle:     { label: '🧩 Puzzle',     games: ['game2048','minesweeper','lightsout','mahjong','memory','nonogram','numble','puzzle15','sokoban','sudoku'] },
+      arcade:     { label: '🕹️ Arcade',    games: ['breakout','bubble-shooter','snake','cookieclicker','dinorunner','flappybird','pacman','pong','spaceinvaders','tetris'] },
+      estrategia: { label: '♟️ Estratégia', games: ['battleship','connect4','checkers','domino','go','tictactoe','ludo','reversi','chess'] },
+      palavras:   { label: '📝 Palavras',   games: ['anagram','wordsearch','hangman','stopgame','termo'] },
     };
 
     const GAME_META = {
@@ -455,10 +455,10 @@
     async function fetchNames(uids) {
       if (!uids.length) return {};
       const { data } = await supabase.from('profiles')
-        .select('id, display_name').in('id', uids);
+        .select('user_id, display_name').in('user_id', uids);
       if (!data) return {};
       const map = {};
-      for (const p of data) map[p.id] = p.display_name || 'Jogador';
+      for (const p of data) map[p.user_id] = p.display_name || 'Jogador';
       return map;
     }
 
