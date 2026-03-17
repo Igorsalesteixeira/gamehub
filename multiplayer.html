@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -17,7 +16,6 @@
   </script>
   <style>
     body { background: #0f0f1a; }
-
     .multi-container { max-width: 760px; margin: 0 auto; padding: 0 1rem 4rem; }
 
     /* HERO */
@@ -47,7 +45,6 @@
     }
     .btn-join-code:hover { border-color: #ff6b35; color: #ff8f5e; }
 
-    /* SECTION */
     .section-title {
       font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.4);
       text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1rem;
@@ -85,20 +82,20 @@
     }
     .modal {
       background: #1a1a2e; border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px; padding: 2rem; width: 100%; max-width: 400px;
+      border-radius: 20px; padding: 2rem; width: 100%; max-width: 420px;
     }
     .modal h3 { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 1.5rem; }
     .modal-label { font-size: 0.75rem; font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
-    .game-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.2rem; }
+    .game-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
     .game-option {
-      padding: 0.75rem 0.5rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
+      padding: 0.75rem 0.4rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.83rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.78rem;
       cursor: pointer; text-align: center; transition: all 0.15s;
     }
     .game-option:hover { border-color: #ff6b35; color: #ff8f5e; }
     .game-option.sel { border-color: #ff6b35; background: rgba(255,107,53,0.15); color: #ff8f5e; }
-    .game-option-icon { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+    .game-option-icon { font-size: 1.4rem; display: block; margin-bottom: 0.3rem; }
     .mode-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.5rem; }
     .mode-option {
       padding: 0.7rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
@@ -149,10 +146,10 @@
     }
     .btn-abandon:hover { border-color: #e53935; color: #ef5350; }
 
-    /* PLAYING */
+    /* PLAYING HEADER */
     .game-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;
     }
     .game-vs { font-size: 0.88rem; font-weight: 700; color: rgba(255,255,255,0.45); }
     .game-vs strong { color: rgba(255,255,255,0.9); }
@@ -165,7 +162,7 @@
     .ttt-cell {
       aspect-ratio: 1; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1);
       border-radius: 14px; display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem; cursor: pointer; transition: background 0.15s, border-color 0.15s; user-select: none;
+      font-size: 2.5rem; cursor: pointer; transition: background 0.15s; user-select: none;
     }
     .ttt-cell:hover:not(.taken) { background: rgba(255,107,53,0.1); border-color: rgba(255,107,53,0.3); }
     .ttt-cell.taken { cursor: default; }
@@ -176,22 +173,52 @@
     .c4-col-btns { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 4px; width: 100%; max-width: 360px; }
     .c4-col-btn {
       background: rgba(255,255,255,0.04); border: none; padding: 0.3rem 0;
-      cursor: pointer; border-radius: 6px; transition: background 0.15s;
-      font-size: 0.8rem; color: rgba(255,255,255,0.3); font-family: 'Nunito', sans-serif; font-weight: 700;
+      cursor: pointer; border-radius: 6px; font-size: 0.8rem;
+      color: rgba(255,255,255,0.3); font-family: 'Nunito', sans-serif; font-weight: 700; transition: background 0.15s;
     }
     .c4-col-btn:hover:not(:disabled) { background: rgba(255,107,53,0.15); color: #ff8f5e; }
     .c4-col-btn:disabled { opacity: 0.25; cursor: default; }
-    .c4-board {
-      background: rgba(33,150,243,0.12); border: 2px solid rgba(33,150,243,0.25);
-      border-radius: 14px; padding: 10px; width: 100%; max-width: 360px;
-    }
+    .c4-board { background: rgba(33,150,243,0.12); border: 2px solid rgba(33,150,243,0.25); border-radius: 14px; padding: 10px; width: 100%; max-width: 360px; }
     .c4-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-    .c4-cell {
-      aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.07); transition: background 0.2s;
-    }
+    .c4-cell { aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.07); transition: background 0.2s; }
     .c4-cell.p1 { background: #ff6b35; box-shadow: 0 0 8px rgba(255,107,53,0.5); }
     .c4-cell.p2 { background: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
     .c4-cell.win-cell { box-shadow: 0 0 16px rgba(255,255,255,0.7); outline: 2px solid #fff; }
+
+    /* CHECKERS */
+    .ck-board-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+    .ck-board {
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      border: 3px solid #5a3a1a; border-radius: 8px; overflow: hidden;
+      width: min(400px, 92vw);
+    }
+    .ck-cell {
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative;
+    }
+    .ck-cell.light { background: #f0d9b5; }
+    .ck-cell.dark  { background: #b58863; }
+    .ck-cell.vm    { background: rgba(80,200,80,0.55) !important; }
+    .ck-cell.vc    { background: rgba(230,60,60,0.55) !important; }
+    .ck-cell.lf    { background: rgba(255,210,0,0.4) !important; }
+    .ck-cell.lt    { background: rgba(255,210,0,0.6) !important; }
+    .ck-piece {
+      width: 78%; height: 78%; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.2); transition: transform 0.12s; user-select: none;
+    }
+    .ck-piece.ck1 { background: radial-gradient(circle at 35% 35%, #555, #111); color: #fff; }
+    .ck-piece.ck2 { background: radial-gradient(circle at 35% 35%, #ff9866, #cc4400); color: #fff; }
+    .ck-piece.ck-sel { transform: scale(1.12); box-shadow: 0 0 0 3px #ffcc00, 0 2px 8px rgba(0,0,0,0.5); }
+
+    .ck-legend {
+      display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 1rem;
+      font-size: 0.82rem; font-weight: 700; color: rgba(255,255,255,0.5);
+    }
+    .ck-legend span { display: flex; align-items: center; gap: 0.4rem; }
+    .ck-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+    .ck-dot.d1 { background: #333; border: 1px solid #555; }
+    .ck-dot.d2 { background: #cc4400; border: 1px solid #ff9866; }
 
     /* RESULT */
     .result-overlay {
@@ -214,8 +241,8 @@
     .btn-back-lobby:hover { background: #e85d2a; }
 
     @media (max-width: 480px) {
-      .c4-cell { min-width: 0; }
       .ttt-cell { font-size: 2rem; }
+      .c4-cell { min-width: 0; }
     }
   </style>
 </head>
@@ -254,7 +281,7 @@
       <div class="waiting-view">
         <span class="waiting-spinner">⏳</span>
         <div class="waiting-title">Aguardando adversário...</div>
-        <div class="waiting-sub" id="waiting-sub">Sua sala está pública. Qualquer jogador pode entrar.</div>
+        <div class="waiting-sub" id="waiting-sub">Sala pública. Qualquer jogador pode entrar.</div>
         <div id="code-box" style="display:none">
           <div class="room-code-box">
             <div class="room-code-label">Código da sala</div>
@@ -295,6 +322,9 @@
         </button>
         <button class="game-option" data-game="connect4">
           <span class="game-option-icon">🔴</span>Conecte 4
+        </button>
+        <button class="game-option" data-game="checkers">
+          <span class="game-option-icon">⚫</span>Dama
         </button>
       </div>
       <div class="modal-label">Tipo de sala</div>
@@ -344,6 +374,11 @@
     let selMode = 'public';
     let isMyTurn = false;
 
+    // Checkers UI state (local only)
+    let ckSelected = null;
+    let ckValidMoves = [];
+    let ckLastMove = null;
+
     // ===== VIEWS =====
     function showView(v) {
       ['lobby','waiting','playing'].forEach(id => {
@@ -351,13 +386,34 @@
       });
     }
 
-    // ===== GAMES =====
+    // ===== GAME DEFINITIONS =====
     const GAMES = {
-      tictactoe: { name: 'Jogo da Velha', icon: '❌', initState: () => ({ board: Array(9).fill(null) }) },
-      connect4:  { name: 'Conecte 4',     icon: '🔴', initState: () => ({ board: Array(6).fill(null).map(() => Array(7).fill(0)) }) },
+      tictactoe: {
+        name: 'Jogo da Velha', icon: '❌',
+        initState: () => ({ board: Array(9).fill(null) })
+      },
+      connect4: {
+        name: 'Conecte 4', icon: '🔴',
+        initState: () => ({ board: Array(6).fill(null).map(() => Array(7).fill(0)) })
+      },
+      checkers: {
+        name: 'Dama', icon: '⚫',
+        initState: () => {
+          const board = Array(8).fill(null).map(() => Array(8).fill(null));
+          for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+              if ((r + c) % 2 === 1) {
+                if (r < 3) board[r][c] = { o: 2, k: false };
+                else if (r > 4) board[r][c] = { o: 1, k: false };
+              }
+            }
+          }
+          return { board };
+        }
+      },
     };
 
-    // ===== WIN DETECTION =====
+    // ===== WIN: TICTACTOE =====
     function checkTTT(board) {
       const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
       for (const [a,b,c] of lines) {
@@ -367,30 +423,92 @@
       if (board.every(c => c !== null)) return { winner: 0 };
       return null;
     }
+
+    // ===== WIN: CONNECT 4 =====
     function checkC4(board) {
-      const R = 6, C = 7, dirs = [[0,1],[1,0],[1,1],[1,-1]];
-      for (let r = 0; r < R; r++) {
-        for (let c = 0; c < C; c++) {
-          const p = board[r][c];
-          if (!p) continue;
-          for (const [dr,dc] of dirs) {
-            const cells = [[r,c]];
-            for (let i = 1; i < 4; i++) {
-              const nr = r+dr*i, nc = c+dc*i;
-              if (nr<0||nr>=R||nc<0||nc>=C||board[nr][nc]!==p) break;
-              cells.push([nr,nc]);
-            }
-            if (cells.length === 4) return { winner: p, cells };
+      const R=6, C=7, dirs=[[0,1],[1,0],[1,1],[1,-1]];
+      for (let r=0;r<R;r++) for (let c=0;c<C;c++) {
+        const p=board[r][c]; if (!p) continue;
+        for (const [dr,dc] of dirs) {
+          const cells=[[r,c]];
+          for (let i=1;i<4;i++) {
+            const nr=r+dr*i, nc=c+dc*i;
+            if (nr<0||nr>=R||nc<0||nc>=C||board[nr][nc]!==p) break;
+            cells.push([nr,nc]);
           }
+          if (cells.length===4) return { winner:p, cells };
         }
       }
-      if (board[0].every(c => c !== 0)) return { winner: 0 };
+      if (board[0].every(c=>c!==0)) return { winner:0 };
+      return null;
+    }
+
+    // ===== CHECKERS LOGIC =====
+    function ckClone(b) { return b.map(r=>r.map(c=>c?{...c}:null)); }
+
+    function ckGetMoves(r, c, b) {
+      const p = b[r][c]; if (!p) return {simple:[],captures:[]};
+      const dirs=[];
+      if (p.o===1||p.k) dirs.push([-1,-1],[-1,1]);
+      if (p.o===2||p.k) dirs.push([1,-1],[1,1]);
+      const simple=[], captures=[];
+      for (const [dr,dc] of dirs) {
+        const nr=r+dr, nc=c+dc;
+        if (nr<0||nr>7||nc<0||nc>7) continue;
+        if (!b[nr][nc]) {
+          simple.push({row:nr,col:nc,captures:[]});
+        } else if (b[nr][nc].o!==p.o) {
+          const jr=nr+dr, jc=nc+dc;
+          if (jr>=0&&jr<8&&jc>=0&&jc<8&&!b[jr][jc])
+            captures.push({row:jr,col:jc,captures:[{row:nr,col:nc}]});
+        }
+      }
+      return {simple,captures};
+    }
+
+    function ckChains(r, c, b, p) {
+      const {captures}=ckGetMoves(r,c,b);
+      if (!captures.length) return [];
+      const chains=[];
+      for (const cap of captures) {
+        const nb=ckClone(b);
+        nb[cap.row][cap.col]={...p};
+        nb[r][c]=null;
+        nb[cap.captures[0].row][cap.captures[0].col]=null;
+        let promo=false;
+        if (!p.k&&((p.o===1&&cap.row===0)||(p.o===2&&cap.row===7))) { nb[cap.row][cap.col].k=true; promo=true; }
+        if (promo) { chains.push([{row:cap.row,col:cap.col,captures:[...cap.captures]}]); continue; }
+        const sub=ckChains(cap.row,cap.col,nb,nb[cap.row][cap.col]);
+        if (!sub.length) chains.push([{row:cap.row,col:cap.col,captures:[...cap.captures]}]);
+        else for (const s of sub) chains.push([{row:cap.row,col:cap.col,captures:[...cap.captures]},...s]);
+      }
+      return chains;
+    }
+
+    function ckAllMoves(owner, b) {
+      const caps=[], simple=[];
+      for (let r=0;r<8;r++) for (let c=0;c<8;c++) {
+        if (!b[r][c]||b[r][c].o!==owner) continue;
+        const ch=ckChains(r,c,b,b[r][c]);
+        if (ch.length) for (const chain of ch) caps.push({from:{row:r,col:c},chain});
+        else { const {simple:s}=ckGetMoves(r,c,b); for (const m of s) simple.push({from:{row:r,col:c},chain:[m]}); }
+      }
+      if (caps.length) { const mx=Math.max(...caps.map(m=>m.chain.length)); return caps.filter(m=>m.chain.length===mx); }
+      return simple;
+    }
+
+    function ckWinner(b, nextTurn) {
+      let p1=0,p2=0;
+      for (const row of b) for (const c of row) { if(c){if(c.o===1)p1++;else p2++;} }
+      if (p1===0) return 2;
+      if (p2===0) return 1;
+      if (ckAllMoves(nextTurn,b).length===0) return nextTurn===1?2:1;
       return null;
     }
 
     // ===== UTILS =====
     function genCode() {
-      return Array.from({length:6}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
+      return Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)]).join('');
     }
 
     // ===== REALTIME =====
@@ -398,26 +516,21 @@
       if (rtChannel) supabase.removeChannel(rtChannel);
       rtChannel = supabase.channel(`room-${roomId}`)
         .on('postgres_changes', {
-          event: 'UPDATE', schema: 'public', table: 'game_rooms', filter: `id=eq.${roomId}`
-        }, payload => handleRoomUpdate(payload.new))
+          event:'UPDATE', schema:'public', table:'game_rooms', filter:`id=eq.${roomId}`
+        }, p => handleRoomUpdate(p.new))
         .subscribe();
     }
 
     function handleRoomUpdate(room) {
       currentRoom = room;
+      ckSelected = null; ckValidMoves = [];
       const isWaiting = document.getElementById('view-waiting').style.display !== 'none';
-      if (room.status === 'playing' && isWaiting) {
-        showView('playing');
-        renderPlaying(room);
-      } else if (room.status === 'playing') {
-        renderPlaying(room);
-      } else if (room.status === 'finished') {
-        renderPlaying(room);
-        showResult(room);
-      }
+      if (room.status==='playing' && isWaiting) { showView('playing'); renderPlaying(room); }
+      else if (room.status==='playing') { renderPlaying(room); }
+      else if (room.status==='finished') { renderPlaying(room); showResult(room); }
     }
 
-    // ===== CREATE =====
+    // ===== CREATE ROOM =====
     async function createRoom() {
       document.getElementById('btn-confirm-create').textContent = 'Criando...';
       const code = genCode();
@@ -427,11 +540,11 @@
         state: GAMES[selGame].initState(), turn: 1, status: 'waiting',
       }).select().single();
       document.getElementById('btn-confirm-create').textContent = 'Criar sala';
-      if (error) { alert('Erro ao criar sala: ' + error.message); return; }
+      if (error) { alert('Erro: ' + error.message); return; }
       currentRoom = data; myNum = 1;
       document.getElementById('create-modal').style.display = 'none';
       showView('waiting');
-      if (selMode === 'private') {
+      if (selMode==='private') {
         document.getElementById('code-box').style.display = 'block';
         document.getElementById('room-code-display').textContent = code;
         document.getElementById('waiting-sub').textContent = 'Sala privada — compartilhe o código com seu amigo.';
@@ -442,239 +555,328 @@
       subscribeToRoom(data.id);
     }
 
-    // ===== JOIN =====
+    // ===== JOIN ROOM =====
     async function joinRoom(roomId) {
-      const { data: room } = await supabase.from('game_rooms').select('*').eq('id', roomId).single();
-      if (!room || room.status !== 'waiting') { alert('Sala indisponível.'); loadPublicRooms(); return; }
-      if (room.player1_id === me.id) { alert('Você criou essa sala! Aguarde um adversário.'); return; }
+      const { data: room } = await supabase.from('game_rooms').select('*').eq('id',roomId).single();
+      if (!room||room.status!=='waiting') { alert('Sala indisponível.'); loadPublicRooms(); return; }
+      if (room.player1_id===me.id) { alert('Você criou essa sala! Aguarde um adversário.'); return; }
       const { data: updated, error } = await supabase.from('game_rooms')
-        .update({ player2_id: me.id, player2_name: myName, status: 'playing' })
-        .eq('id', roomId).eq('status', 'waiting').is('player2_id', null)
+        .update({ player2_id:me.id, player2_name:myName, status:'playing' })
+        .eq('id',roomId).eq('status','waiting').is('player2_id',null)
         .select().single();
-      if (error || !updated) { alert('Não foi possível entrar. Tente outra sala.'); return; }
-      currentRoom = updated; myNum = 2;
-      showView('playing');
-      renderPlaying(updated);
-      subscribeToRoom(updated.id);
+      if (error||!updated) { alert('Não foi possível entrar. Tente outra sala.'); return; }
+      currentRoom=updated; myNum=2;
+      showView('playing'); renderPlaying(updated); subscribeToRoom(updated.id);
     }
 
     async function joinByCode(code) {
       const { data } = await supabase.from('game_rooms')
-        .select('*').eq('code', code.toUpperCase()).eq('status', 'waiting').single();
+        .select('*').eq('code',code.toUpperCase()).eq('status','waiting').single();
       if (!data) { alert('Código inválido ou sala já encerrada.'); return; }
       await joinRoom(data.id);
     }
 
-    // ===== PLAYING =====
+    // ===== PLAYING HEADER =====
     function renderPlaying(room) {
       document.getElementById('p1-name').textContent = room.player1_name || 'Jogador 1';
       document.getElementById('p2-name').textContent = room.player2_name || 'Jogador 2';
-      isMyTurn = room.turn === myNum && room.status === 'playing';
+      isMyTurn = room.turn===myNum && room.status==='playing';
       const ti = document.getElementById('turn-indicator');
-      if (room.status === 'finished') {
-        ti.textContent = 'Partida encerrada';
-        ti.className = 'turn-indicator turn-theirs';
+      if (room.status==='finished') {
+        ti.textContent='Partida encerrada'; ti.className='turn-indicator turn-theirs';
       } else if (isMyTurn) {
-        ti.textContent = 'Sua vez!';
-        ti.className = 'turn-indicator turn-mine';
+        ti.textContent='Sua vez!'; ti.className='turn-indicator turn-mine';
       } else {
-        const op = myNum === 1 ? room.player2_name : room.player1_name;
-        ti.textContent = `Vez de ${op || 'adversário'}`;
-        ti.className = 'turn-indicator turn-theirs';
+        const op=myNum===1?room.player2_name:room.player1_name;
+        ti.textContent=`Vez de ${op||'adversário'}`; ti.className='turn-indicator turn-theirs';
       }
-      if (room.game === 'tictactoe') renderTTT(room);
-      else renderC4(room);
+      if (room.game==='tictactoe') renderTTT(room);
+      else if (room.game==='connect4') renderC4(room);
+      else if (room.game==='checkers') renderCheckers(room);
     }
 
-    // ===== TICTACTOE =====
+    // ===== TICTACTOE RENDER =====
     function renderTTT(room) {
-      const board = room.state.board;
-      const result = checkTTT(board);
-      const winLine = result?.line || [];
-      const el = document.getElementById('game-board');
-      el.innerHTML = `<div class="ttt-board">${
-        board.map((cell, i) => {
-          const icon = cell === 1 ? '❌' : cell === 2 ? '⭕' : '';
-          const cls = ['ttt-cell', cell ? 'taken' : '', winLine.includes(i) ? 'win-cell' : ''].join(' ').trim();
-          return `<div class="${cls}" data-idx="${i}">${icon}</div>`;
-        }).join('')
-      }</div>`;
-      if (!result && isMyTurn) {
-        el.querySelectorAll('.ttt-cell:not(.taken)').forEach(c => {
-          c.addEventListener('click', () => makeTTTMove(parseInt(c.dataset.idx)));
+      const board=room.state.board, result=checkTTT(board), winLine=result?.line||[];
+      const el=document.getElementById('game-board');
+      el.innerHTML=`<div class="ttt-board">${board.map((cell,i)=>{
+        const icon=cell===1?'❌':cell===2?'⭕':'';
+        const cls=['ttt-cell',cell?'taken':'',winLine.includes(i)?'win-cell':''].join(' ').trim();
+        return `<div class="${cls}" data-idx="${i}">${icon}</div>`;
+      }).join('')}</div>`;
+      if (!result&&isMyTurn) {
+        el.querySelectorAll('.ttt-cell:not(.taken)').forEach(c=>{
+          c.addEventListener('click',()=>makeTTTMove(parseInt(c.dataset.idx)));
         });
       }
     }
     async function makeTTTMove(idx) {
-      if (!isMyTurn || !currentRoom) return;
-      isMyTurn = false;
-      const board = [...currentRoom.state.board];
+      if (!isMyTurn||!currentRoom) return;
+      isMyTurn=false;
+      const board=[...currentRoom.state.board];
       if (board[idx]) return;
-      board[idx] = myNum;
-      const result = checkTTT(board);
+      board[idx]=myNum;
+      const result=checkTTT(board);
       await supabase.from('game_rooms').update({
-        state: { board }, turn: myNum === 1 ? 2 : 1,
-        status: result ? 'finished' : 'playing',
-        winner: result ? result.winner : null,
-      }).eq('id', currentRoom.id);
+        state:{board}, turn:myNum===1?2:1,
+        status:result?'finished':'playing', winner:result?result.winner:null,
+      }).eq('id',currentRoom.id);
     }
 
-    // ===== CONNECT 4 =====
+    // ===== CONNECT 4 RENDER =====
     function renderC4(room) {
-      const board = room.state.board;
-      const result = checkC4(board);
-      const winSet = new Set((result?.cells || []).map(([r,c]) => `${r},${c}`));
-      const el = document.getElementById('game-board');
-      const colBtns = Array.from({length:7}, (_,c) => {
-        const full = board[0][c] !== 0;
-        const dis = !isMyTurn || !!result || full;
+      const board=room.state.board, result=checkC4(board);
+      const winSet=new Set((result?.cells||[]).map(([r,c])=>`${r},${c}`));
+      const el=document.getElementById('game-board');
+      const colBtns=Array.from({length:7},(_,c)=>{
+        const full=board[0][c]!==0, dis=!isMyTurn||!!result||full;
         return `<button class="c4-col-btn" data-col="${c}" ${dis?'disabled':''}>▼</button>`;
       }).join('');
-      const cells = board.map((row, r) =>
-        row.map((cell, c) => {
-          const cls = ['c4-cell', cell===1?'p1':cell===2?'p2':'', winSet.has(`${r},${c}`)?'win-cell':''].join(' ').trim();
-          return `<div class="${cls}"></div>`;
-        }).join('')
-      ).join('');
-      el.innerHTML = `
-        <div class="c4-wrap">
-          <div class="c4-col-btns">${colBtns}</div>
-          <div class="c4-board"><div class="c4-grid">${cells}</div></div>
-        </div>`;
-      if (isMyTurn && !result) {
-        el.querySelectorAll('.c4-col-btn:not([disabled])').forEach(btn => {
-          btn.addEventListener('click', () => makeC4Move(parseInt(btn.dataset.col)));
+      const cells=board.map((row,r)=>row.map((cell,c)=>{
+        const cls=['c4-cell',cell===1?'p1':cell===2?'p2':'',winSet.has(`${r},${c}`)?'win-cell':''].join(' ').trim();
+        return `<div class="${cls}"></div>`;
+      }).join('')).join('');
+      el.innerHTML=`<div class="c4-wrap"><div class="c4-col-btns">${colBtns}</div><div class="c4-board"><div class="c4-grid">${cells}</div></div></div>`;
+      if (isMyTurn&&!result) {
+        el.querySelectorAll('.c4-col-btn:not([disabled])').forEach(btn=>{
+          btn.addEventListener('click',()=>makeC4Move(parseInt(btn.dataset.col)));
         });
       }
     }
     async function makeC4Move(col) {
-      if (!isMyTurn || !currentRoom) return;
-      isMyTurn = false;
-      const board = currentRoom.state.board.map(r => [...r]);
-      let row = -1;
-      for (let r = 5; r >= 0; r--) { if (board[r][col] === 0) { row = r; break; } }
-      if (row === -1) return;
-      board[row][col] = myNum;
-      const result = checkC4(board);
+      if (!isMyTurn||!currentRoom) return;
+      isMyTurn=false;
+      const board=currentRoom.state.board.map(r=>[...r]);
+      let row=-1; for (let r=5;r>=0;r--) { if(board[r][col]===0){row=r;break;} }
+      if (row===-1) return;
+      board[row][col]=myNum;
+      const result=checkC4(board);
       await supabase.from('game_rooms').update({
-        state: { board }, turn: myNum === 1 ? 2 : 1,
-        status: result ? 'finished' : 'playing',
-        winner: result ? result.winner : null,
-      }).eq('id', currentRoom.id);
+        state:{board}, turn:myNum===1?2:1,
+        status:result?'finished':'playing', winner:result?result.winner:null,
+      }).eq('id',currentRoom.id);
+    }
+
+    // ===== CHECKERS RENDER =====
+    function renderCheckers(room) {
+      const board=room.state.board;
+      const el=document.getElementById('game-board');
+
+      // Count pieces for header
+      let p1=0,p2=0; for(const r of board) for(const c of r){if(c){if(c.o===1)p1++;else p2++;}}
+
+      // Build valid move highlights
+      const vmSet=new Set(), vcSet=new Set();
+      if (isMyTurn&&ckSelected) {
+        for (const m of ckValidMoves) {
+          if (m.captures.length) vcSet.add(`${m.row},${m.col}`);
+          else vmSet.add(`${m.row},${m.col}`);
+        }
+      }
+
+      // Selectable pieces (all that have moves)
+      const selectableSet=new Set();
+      if (isMyTurn&&!ckSelected) {
+        const allMoves=ckAllMoves(myNum,board);
+        for (const m of allMoves) selectableSet.add(`${m.from.row},${m.from.col}`);
+      }
+
+      const rows=board.map((row,r)=>row.map((cell,c)=>{
+        const isLight=(r+c)%2===0;
+        let cls=`ck-cell ${isLight?'light':'dark'}`;
+        const key=`${r},${c}`;
+        if (vmSet.has(key)) cls+=' vm';
+        else if (vcSet.has(key)) cls+=' vc';
+        if (ckLastMove) {
+          if(ckLastMove.from.row===r&&ckLastMove.from.col===c) cls+=' lf';
+          if(ckLastMove.to.row===r&&ckLastMove.to.col===c) cls+=' lt';
+        }
+        let piece='';
+        if (cell) {
+          const isSel=ckSelected&&ckSelected.r===r&&ckSelected.c===c;
+          const pcls=`ck-piece ck${cell.o}${isSel?' ck-sel':''}`;
+          piece=`<div class="${pcls}">${cell.k?'♛':''}</div>`;
+        }
+        return `<div class="${cls}" data-r="${r}" data-c="${c}">${piece}</div>`;
+      }).join('')).join('');
+
+      el.innerHTML=`
+        <div class="ck-legend">
+          <span><span class="ck-dot d1"></span> ${room.player1_name||'Jogador 1'} (${p1} peças)</span>
+          <span><span class="ck-dot d2"></span> ${room.player2_name||'Jogador 2'} (${p2} peças)</span>
+        </div>
+        <div class="ck-board-wrap"><div class="ck-board">${rows}</div></div>`;
+
+      el.querySelectorAll('.ck-cell').forEach(cell=>{
+        cell.addEventListener('click',()=>{
+          onCkClick(parseInt(cell.dataset.r), parseInt(cell.dataset.c));
+        });
+      });
+    }
+
+    function onCkClick(r, c) {
+      if (!isMyTurn||!currentRoom) return;
+      const board=currentRoom.state.board;
+
+      // Click on valid move destination
+      const target=ckValidMoves.find(m=>m.row===r&&m.col===c);
+      if (target&&ckSelected) { makeCkMove(ckSelected.r, ckSelected.c, target); return; }
+
+      // Click on own piece
+      const cell=board[r][c];
+      if (cell&&cell.o===myNum) {
+        const allMoves=ckAllMoves(myNum,board);
+        const forPiece=allMoves.filter(m=>m.from.row===r&&m.from.col===c);
+        if (forPiece.length) {
+          ckSelected={r,c};
+          ckValidMoves=forPiece.map(m=>({
+            row:m.chain[0].row, col:m.chain[0].col,
+            captures:m.chain[0].captures, fullChain:m.chain
+          }));
+        } else { ckSelected=null; ckValidMoves=[]; }
+        renderCheckers(currentRoom); return;
+      }
+
+      // Deselect
+      ckSelected=null; ckValidMoves=[];
+      renderCheckers(currentRoom);
+    }
+
+    async function makeCkMove(fromR, fromC, target) {
+      if (!isMyTurn||!currentRoom) return;
+      isMyTurn=false;
+      const board=ckClone(currentRoom.state.board);
+      const chain=target.fullChain;
+      let curR=fromR, curC=fromC;
+      let lastStep=null;
+      for (const step of chain) {
+        const piece=board[curR][curC];
+        for (const cap of step.captures) board[cap.row][cap.col]=null;
+        board[step.row][step.col]=piece;
+        board[curR][curC]=null;
+        if (!piece.k&&((piece.o===1&&step.row===0)||(piece.o===2&&step.row===7))) piece.k=true;
+        curR=step.row; curC=step.col; lastStep=step;
+      }
+      ckLastMove={ from:{row:fromR,col:fromC}, to:{row:curR,col:curC} };
+      ckSelected=null; ckValidMoves=[];
+      const nextTurn=myNum===1?2:1;
+      const winner=ckWinner(board, nextTurn);
+      await supabase.from('game_rooms').update({
+        state:{board}, turn:nextTurn,
+        status:winner!==null?'finished':'playing', winner,
+      }).eq('id',currentRoom.id);
     }
 
     // ===== RESULT =====
     function showResult(room) {
-      const w = room.winner;
-      let emoji, title, sub;
-      if (w === 0) {
-        emoji = '🤝'; title = 'Empate!'; sub = 'Partida muito equilibrada!';
-      } else if (w === myNum) {
-        emoji = '🏆'; title = 'Você venceu!'; sub = 'Parabéns, excelente jogada!';
-      } else {
-        const op = myNum === 1 ? room.player2_name : room.player1_name;
-        emoji = '😢'; title = 'Você perdeu!'; sub = `${op || 'Adversário'} ganhou dessa vez.`;
+      const w=room.winner;
+      let emoji,title,sub;
+      if (w===0) { emoji='🤝'; title='Empate!'; sub='Partida muito equilibrada!'; }
+      else if (w===myNum) { emoji='🏆'; title='Você venceu!'; sub='Parabéns, excelente jogada!'; }
+      else {
+        const op=myNum===1?room.player2_name:room.player1_name;
+        emoji='😢'; title='Você perdeu!'; sub=`${op||'Adversário'} ganhou dessa vez.`;
       }
-      document.getElementById('result-emoji').textContent = emoji;
-      document.getElementById('result-title').textContent = title;
-      document.getElementById('result-sub').textContent = sub;
-      document.getElementById('result-overlay').style.display = 'flex';
+      document.getElementById('result-emoji').textContent=emoji;
+      document.getElementById('result-title').textContent=title;
+      document.getElementById('result-sub').textContent=sub;
+      document.getElementById('result-overlay').style.display='flex';
     }
 
     // ===== PUBLIC ROOMS =====
     async function loadPublicRooms() {
-      const cutoff = new Date(Date.now() - 30 * 60000).toISOString();
+      const cutoff=new Date(Date.now()-30*60000).toISOString();
       const { data } = await supabase.from('game_rooms')
         .select('*').eq('mode','public').eq('status','waiting')
-        .neq('player1_id', me.id).gte('created_at', cutoff)
-        .order('created_at', { ascending: false }).limit(12);
-      const el = document.getElementById('public-rooms-list');
-      if (!data || !data.length) {
-        el.innerHTML = `<div class="empty-rooms"><div class="ei">🕹️</div>Nenhuma sala pública aberta agora.<br>Crie uma e espere alguém entrar!</div>`;
+        .neq('player1_id',me.id).gte('created_at',cutoff)
+        .order('created_at',{ascending:false}).limit(12);
+      const el=document.getElementById('public-rooms-list');
+      if (!data||!data.length) {
+        el.innerHTML=`<div class="empty-rooms"><div class="ei">🕹️</div>Nenhuma sala pública aberta agora.<br>Crie uma e espere alguém entrar!</div>`;
         return;
       }
-      el.innerHTML = `<div class="room-grid">${data.map(room => {
-        const g = GAMES[room.game] || { icon: '🎮', name: room.game };
+      el.innerHTML=`<div class="room-grid">${data.map(room=>{
+        const g=GAMES[room.game]||{icon:'🎮',name:room.game};
         return `<div class="room-card">
           <div class="room-card-game">${g.icon}</div>
           <div class="room-card-name">${g.name}</div>
-          <div class="room-card-sub">por ${room.player1_name || 'Jogador'}</div>
+          <div class="room-card-sub">por ${room.player1_name||'Jogador'}</div>
           <button class="btn-enter" data-id="${room.id}">Entrar →</button>
         </div>`;
       }).join('')}</div>`;
-      el.querySelectorAll('.btn-enter').forEach(btn => {
-        btn.addEventListener('click', () => joinRoom(btn.dataset.id));
+      el.querySelectorAll('.btn-enter').forEach(btn=>{
+        btn.addEventListener('click',()=>joinRoom(btn.dataset.id));
       });
     }
 
     // ===== EVENTS =====
-    document.getElementById('btn-open-create').addEventListener('click', () => {
-      document.getElementById('create-modal').style.display = 'flex';
+    document.getElementById('btn-open-create').addEventListener('click',()=>{
+      document.getElementById('create-modal').style.display='flex';
     });
-    document.getElementById('btn-close-modal').addEventListener('click', () => {
-      document.getElementById('create-modal').style.display = 'none';
+    document.getElementById('btn-close-modal').addEventListener('click',()=>{
+      document.getElementById('create-modal').style.display='none';
     });
-    document.getElementById('btn-confirm-create').addEventListener('click', createRoom);
+    document.getElementById('btn-confirm-create').addEventListener('click',createRoom);
 
-    document.querySelectorAll('.game-option').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.game-option').forEach(b => b.classList.remove('sel'));
-        btn.classList.add('sel'); selGame = btn.dataset.game;
+    document.querySelectorAll('.game-option').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.game-option').forEach(b=>b.classList.remove('sel'));
+        btn.classList.add('sel'); selGame=btn.dataset.game;
       });
     });
-    document.querySelectorAll('.mode-option').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.mode-option').forEach(b => b.classList.remove('sel'));
-        btn.classList.add('sel'); selMode = btn.dataset.mode;
+    document.querySelectorAll('.mode-option').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.mode-option').forEach(b=>b.classList.remove('sel'));
+        btn.classList.add('sel'); selMode=btn.dataset.mode;
       });
     });
 
-    document.getElementById('btn-join-code').addEventListener('click', () => {
-      const code = document.getElementById('code-input').value.trim();
-      if (code.length !== 6) { alert('Digite um código de 6 letras.'); return; }
+    document.getElementById('btn-join-code').addEventListener('click',()=>{
+      const code=document.getElementById('code-input').value.trim();
+      if (code.length!==6){alert('Digite um código de 6 letras.');return;}
       joinByCode(code);
     });
-    document.getElementById('code-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('btn-join-code').click();
+    document.getElementById('code-input').addEventListener('keydown',e=>{
+      if(e.key==='Enter') document.getElementById('btn-join-code').click();
     });
 
-    document.getElementById('btn-copy-code').addEventListener('click', () => {
-      const code = document.getElementById('room-code-display').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        const btn = document.getElementById('btn-copy-code');
-        btn.textContent = '✅ Copiado!';
-        setTimeout(() => { btn.textContent = '📋 Copiar código'; }, 2000);
+    document.getElementById('btn-copy-code').addEventListener('click',()=>{
+      const code=document.getElementById('room-code-display').textContent;
+      navigator.clipboard.writeText(code).then(()=>{
+        const btn=document.getElementById('btn-copy-code');
+        btn.textContent='✅ Copiado!';
+        setTimeout(()=>{btn.textContent='📋 Copiar código';},2000);
       });
     });
 
-    document.getElementById('btn-cancel-room').addEventListener('click', async () => {
+    document.getElementById('btn-cancel-room').addEventListener('click',async()=>{
       if (currentRoom) {
-        await supabase.from('game_rooms').delete().eq('id', currentRoom.id).eq('player1_id', me.id);
+        await supabase.from('game_rooms').delete().eq('id',currentRoom.id).eq('player1_id',me.id);
         if (rtChannel) supabase.removeChannel(rtChannel);
-        currentRoom = null;
+        currentRoom=null;
       }
       showView('lobby'); loadPublicRooms();
     });
 
-    document.getElementById('btn-abandon').addEventListener('click', async () => {
+    document.getElementById('btn-abandon').addEventListener('click',async()=>{
       if (!currentRoom) return;
       await supabase.from('game_rooms').update({
-        status: 'finished', winner: myNum === 1 ? 2 : 1,
-      }).eq('id', currentRoom.id);
+        status:'finished', winner:myNum===1?2:1,
+      }).eq('id',currentRoom.id);
     });
 
-    document.getElementById('btn-to-lobby').addEventListener('click', () => {
-      document.getElementById('result-overlay').style.display = 'none';
+    document.getElementById('btn-to-lobby').addEventListener('click',()=>{
+      document.getElementById('result-overlay').style.display='none';
       if (rtChannel) supabase.removeChannel(rtChannel);
-      currentRoom = null; myNum = null;
+      currentRoom=null; myNum=null; ckSelected=null; ckValidMoves=[];
       showView('lobby'); loadPublicRooms();
     });
 
     // ===== INIT =====
     loadPublicRooms();
-    setInterval(() => {
-      if (document.getElementById('view-lobby').style.display !== 'none') loadPublicRooms();
-    }, 15000);
+    setInterval(()=>{
+      if (document.getElementById('view-lobby').style.display!=='none') loadPublicRooms();
+    },15000);
   </script>
 </body>
 </html>
