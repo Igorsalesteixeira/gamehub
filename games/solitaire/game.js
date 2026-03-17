@@ -318,6 +318,7 @@ function renderTableau() {
         el.draggable = true;
         el.addEventListener('dragstart', e => {
           if (!canPickFromTableau(c, i)) { e.preventDefault(); return; }
+          selected = null;
           e.dataTransfer.setData('text/plain', JSON.stringify({ source: 'tableau', colIndex: c, cardIndex: i }));
           const emptyImg = document.createElement('canvas');
           emptyImg.width = 1; emptyImg.height = 1;
@@ -711,7 +712,7 @@ function handleTableauCardClick(colIndex, cardIndex) {
 
   // Try auto-move single card to foundation
   const isLast = cardIndex === state.tableau[colIndex].length - 1;
-  if (isLast && tryAutoToFoundation(card, 'tableau', colIndex)) return;
+  if (isLast && tryAutoToFoundation(card, 'tableau', colIndex, cardIndex)) return;
 
   // Select
   if (canPickFromTableau(colIndex, cardIndex)) {
@@ -818,8 +819,8 @@ function tryAutoMove(card, source, colIndex, cardIndex) {
 }
 
 // Mantém compatibilidade — alias antigo
-function tryAutoToFoundation(card, source, colIndex) {
-  return tryAutoMove(card, source, colIndex);
+function tryAutoToFoundation(card, source, colIndex, cardIndex) {
+  return tryAutoMove(card, source, colIndex, cardIndex);
 }
 
 // =============================================
