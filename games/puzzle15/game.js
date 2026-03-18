@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Puzzle 15 =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const boardEl = document.getElementById('board');
 const movesDisplay = document.getElementById('moves-display');

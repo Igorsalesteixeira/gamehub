@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Sudoku =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const boardEl = document.getElementById('board');
 const timerDisplay = document.getElementById('timer-display');
