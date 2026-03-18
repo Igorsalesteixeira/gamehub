@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Jogo da Memoria =====
 import { supabase } from '../../supabase.js';
 
@@ -158,11 +158,13 @@ function handleCardFlip(card) {
   if (!gameStarted) {
     gameStarted = true;
     startTimer();
+    initAudio();
   }
 
   // Flip card
   card.classList.add('flipped');
   flippedCards.push(card);
+  playSound('click'); // som ao virar carta
   // Mobile: feedback tátil ao virar carta
   if (navigator.vibrate) navigator.vibrate(10);
 
@@ -182,6 +184,7 @@ function checkMatch() {
     b.classList.add('matched');
     flippedCards = [];
     matchedPairs++;
+    playSound('win'); // som curto ao acertar par
     // Mobile: feedback tátil ao fazer match (sucesso)
     if (navigator.vibrate) navigator.vibrate([15, 8, 25]);
 

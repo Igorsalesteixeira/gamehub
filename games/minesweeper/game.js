@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -229,6 +229,7 @@ function handleClick(r, c, e) {
     firstClick = false;
     placeMines(r, c);
     startTimer();
+    initAudio();
   }
 
   if (cell.mine) {
@@ -238,6 +239,7 @@ function handleClick(r, c, e) {
     gameOver = true;
     clearInterval(timerInterval);
     renderBoard();
+    playSound('explosion');
     showModal(false);
     saveGameStat('loss');
     return;
@@ -260,6 +262,7 @@ function reveal(r, c) {
 
   cell.revealed = true;
   revealedCount++;
+  playSound('click');
 
   // Flood fill if no adjacent mines
   if (cell.adjacentMines === 0) {

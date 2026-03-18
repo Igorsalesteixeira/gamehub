@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
 // ===== Pong =====
 import { supabase } from '../../supabase.js';
 
@@ -34,6 +34,7 @@ function getDifficulty() {
 }
 
 function init() {
+  initAudio();
   player = { x: 15, y: H / 2 - PADDLE_H / 2 };
   cpu = { x: W - 15 - PADDLE_W, y: H / 2 - PADDLE_H / 2 };
   playerScore = 0;
@@ -113,6 +114,7 @@ function update() {
     ball.vx = -Math.abs(ball.vx) * 1.05;
     ball.vy += (ball.y - (cpu.y + PADDLE_H / 2)) * 0.15;
     ball.x = cpu.x - BALL_SIZE;
+    playSound('move');
   }
 
   // Speed cap
@@ -123,11 +125,13 @@ function update() {
   // Score
   if (ball.x < -20) {
     cpuScore++;
+    playSound('click');
     if (cpuScore >= WIN_SCORE) endGame('cpu');
     else resetBall();
   }
   if (ball.x > W + 20) {
     playerScore++;
+    playSound('click');
     if (playerScore >= WIN_SCORE) endGame('player');
     else resetBall();
   }

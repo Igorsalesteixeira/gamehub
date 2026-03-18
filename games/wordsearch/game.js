@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 // ===== Caça-Palavras =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -215,7 +215,7 @@ function checkSelection(cells) {
   for (const pw of placedWords) {
     if (foundWords.has(pw.word)) continue;
     if (selectedWord === pw.word || reversedWord === pw.word) {
-      playSound('move');
+      playSound('place');
       foundWords.add(pw.word);
       foundLines.push({ cells: [...cells] });
       const li = document.querySelector(`[data-word="${pw.word}"]`);
@@ -229,8 +229,18 @@ function checkSelection(cells) {
   return false;
 }
 
+let audioInitialized = false;
+
+function initAudioOnFirstInteraction() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
+
 // Mouse events
 canvas.addEventListener('mousedown', e => {
+  initAudioOnFirstInteraction();
   const pos = getGridPos(e);
   if (!pos) return;
   selecting = true;
@@ -259,6 +269,7 @@ canvas.addEventListener('mouseup', () => {
 // Touch events
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
+  initAudioOnFirstInteraction();
   const pos = getGridPos(e);
   if (!pos) return;
   selecting = true;
@@ -359,7 +370,13 @@ function newGame() {
   startTimer();
 }
 
-document.getElementById('btn-new').addEventListener('click', newGame);
-document.getElementById('btn-modal-new').addEventListener('click', newGame);
+document.getElementById('btn-new').addEventListener('click', () => {
+  playSound('click');
+  newGame();
+});
+document.getElementById('btn-modal-new').addEventListener('click', () => {
+  playSound('click');
+  newGame();
+});
 
 newGame();

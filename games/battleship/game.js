@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  Batalha Naval — Games Hub
 // =============================================
@@ -184,6 +184,8 @@ function clearPreview() {
 
 function placeShip(r, c) {
   if (currentShipIdx >= SHIPS.length) return;
+  initAudio();
+  playSound('place');
   const ship = playerShips[currentShipIdx];
   const cells = getShipCells(r, c, ship.size, orientation);
   if (!canPlace(playerBoard, cells)) return;
@@ -224,11 +226,15 @@ function randomPlacement(board, ships) {
 }
 
 btnRotate.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
   orientation = orientation === 'H' ? 'V' : 'H';
   btnRotate.textContent = `Girar (${orientation})`;
 });
 
 btnRandom.addEventListener('click', () => {
+  initAudio();
+  playSound('shuffle');
   randomPlacement(playerBoard, playerShips);
   currentShipIdx = SHIPS.length;
   renderPlacementBoard();
@@ -247,7 +253,7 @@ function renderPlacementBoard() {
 }
 
 // ===== START BATTLE =====
-btnStart.addEventListener('click', startBattle);
+btnStart.addEventListener('click', () => { initAudio(); playSound('click'); startBattle(); });
 
 function startBattle() {
   // Place CPU ships
@@ -328,19 +334,22 @@ function fireAt(r, c) {
   if (cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('sunk')) return;
 
   playerTurn = false;
-  playSound('move');
-  haptic(15);
+  initAudio();
 
-  if (cpuBoard[r][c] === 1) {
+  const wasHit = cpuBoard[r][c] === 1;
+  if (wasHit) {
     cpuBoard[r][c] = 3; // hit
     cell.classList.add('hit');
     cell.textContent = '●';
+    playSound('hit');
     checkSunk(cpuShips, cpuBoard, enemyGrid);
   } else {
     cpuBoard[r][c] = 2; // miss
     cell.classList.add('miss');
     cell.textContent = '•';
+    playSound('move');
   }
+  haptic(15);
 
   updateCounters();
 
@@ -380,7 +389,7 @@ function cpuTurn() {
 
   const cell = getCell(playerGrid, r, c);
 
-  if (playerBoard[r][c] === 1) {
+  if (wasHit) {
     playerBoard[r][c] = 3;
     cell.classList.remove('ship');
     cell.classList.add('hit');
@@ -393,6 +402,7 @@ function cpuTurn() {
     // Check if a ship was sunk => remove those hits and clear targets for that ship
     const sunkShip = checkSunkCpu(playerShips, playerBoard, playerGrid);
     if (sunkShip) {
+      playSound('explosion');
       // Remove sunk ship cells from cpuHits
       cpuHits = cpuHits.filter(([hr, hc]) =>
         !sunkShip.cells.some(([sr, sc]) => sr === hr && sc === hc)
@@ -436,10 +446,12 @@ function addAdjacentTargets(r, c) {
 
 // ===== SUNK CHECK =====
 function checkSunk(ships, board, grid) {
+  let anySunk = false;
   ships.forEach(ship => {
     if (ship.sunk) return;
     if (ship.cells.every(([r, c]) => board[r][c] === 3)) {
       ship.sunk = true;
+      anySunk = true;
       ship.cells.forEach(([r, c]) => {
         const cell = getCell(grid, r, c);
         cell.classList.remove('hit');
@@ -448,6 +460,7 @@ function checkSunk(ships, board, grid) {
       });
     }
   });
+  if (anySunk) playSound('explosion');
   renderShipStatus();
 }
 
@@ -522,6 +535,8 @@ async function saveStats(result) {
 
 // ===== PLAY AGAIN =====
 btnPlayAgain.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
   init();
 });
 

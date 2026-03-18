@@ -1,5 +1,5 @@
 import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  BUBBLE SHOOTER — game.js
 // =============================================
@@ -253,6 +253,8 @@ function processPop(row, col) {
   const matched = findConnectedSameColor(row, col);
   if (matched.length < 3) return 0;
 
+  playSound('pop');
+
   let pts = 0;
   for (const [r, c] of matched) {
     spawnPopParticles(bubbleX(c, r), bubbleY(r), grid[r][c], false);
@@ -358,6 +360,8 @@ function landBubble(bx, by, color) {
 function shootBubble() {
   if (flyingBubble || !gameRunning) return;
 
+  playSound('shoot');
+
   const speed = 10;
   const dx = Math.cos(aimAngle) * speed;
   const dy = -Math.sin(aimAngle) * speed; // canvas Y is inverted
@@ -416,12 +420,14 @@ function triggerGameOver() {
   overlayScore.textContent = `Pontuação: ${score} | Tiros: ${shotsFired}`;
   btnStart.textContent     = 'Tentar Novamente';
   overlay.classList.remove('hidden');
+  playSound('gameover');
 }
 
 // =============================================
 //  NEW GAME
 // =============================================
 function newGame() {
+  initAudio();
   score        = 0;
   shotsFired   = 0;
   shotsUntilNewRow = SHOTS_PER_ROW;

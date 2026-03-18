@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // =============================================
 //  SOKOBAN — game.js
 // =============================================
@@ -308,6 +308,7 @@ function tryMove(dr, dc) {
     boxes[boxIdx] = { r: br, c: bc };
     player = { r: nr, c: nc };
     moves++;
+    playSound('place'); // som ao empurrar caixa
 
     render();
     checkWin();
@@ -321,6 +322,7 @@ function tryMove(dr, dc) {
 
     player = { r: nr, c: nc };
     moves++;
+    playSound('move'); // som ao andar
 
     render();
   }
@@ -381,6 +383,7 @@ function startLevel() {
   render();
   playing = true;
   overlay.classList.add('hidden');
+  initAudio();
 }
 
 // =============================================

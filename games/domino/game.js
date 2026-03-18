@@ -1,5 +1,5 @@
 import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 // ===== CONSTANTS =====
@@ -89,6 +89,7 @@ function initGame() {
   rightEnd = null;
 
   const all = shuffle(buildFullSet());
+  playSound('shuffle');
   playerHand = all.slice(0, 7);
   aiHand = all.slice(7, 14);
   boneyard = all.slice(14);
@@ -356,6 +357,7 @@ function placeTile(tile, tileIndex, hand, side) {
 // ===== PLAYER ACTIONS =====
 function onTileClick(idx) {
   if (gameOver || currentTurn !== 'player') return;
+  initAudio();
 
   const tile = playerHand[idx];
 
@@ -441,11 +443,15 @@ btnPass.addEventListener('click', () => {
 });
 
 btnNewGame.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
   stopTimer();
   initGame();
 });
 
 btnPlayAgain.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
   modalOverlay.classList.add('hidden');
   stopTimer();
   initGame();

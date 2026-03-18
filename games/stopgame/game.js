@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -21,6 +21,15 @@ function init() {
   totalScore = 0;
   scoreEl.textContent = '0';
   newRound();
+}
+
+let audioInitialized = false;
+
+function initAudioOnFirstInteraction() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
 }
 
 function newRound() {
@@ -52,7 +61,8 @@ function newRound() {
   const inputs = catsEl.querySelectorAll('.cat-input');
   inputs.forEach((input, i) => {
     input.addEventListener('keydown', (e) => {
-      playSound('move');
+      initAudioOnFirstInteraction();
+      playSound('type');
       if (e.key === 'Enter') {
         if (i < inputs.length - 1) inputs[i + 1].focus();
         else stopRound();
@@ -64,7 +74,10 @@ function newRound() {
   timerInterval = setInterval(() => {
     timerSeconds--;
     timerEl.textContent = timerSeconds;
-    if (timerSeconds <= 10) timerEl.classList.add('urgent');
+    if (timerSeconds <= 10) {
+      timerEl.classList.add('urgent');
+      if (timerSeconds > 0) playSound('tick');
+    }
     if (timerSeconds <= 0) stopRound();
   }, 1000);
 }
@@ -119,8 +132,12 @@ function stopRound() {
   }
 }
 
-document.getElementById('stop-btn').addEventListener('click', stopRound);
+document.getElementById('stop-btn').addEventListener('click', () => {
+  playSound('click');
+  stopRound();
+});
 document.getElementById('new-round').addEventListener('click', () => {
+  playSound('click');
   if (roundActive) stopRound();
   saveStats();
   newRound();

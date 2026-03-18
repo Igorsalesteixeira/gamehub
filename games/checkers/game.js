@@ -1,5 +1,5 @@
 import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // Jogo de Dama (Checkers) - Dama Brasileira
 // Player = 'player' (dark pieces, bottom), CPU = 'cpu' (orange pieces, top)
 import { supabase } from '../../supabase.js';
@@ -73,38 +73,6 @@ function showTutorialHint() {
 }
 function hideTutorialHint() {
   if (tutorialHint) tutorialHint.classList.add('hidden');
-}
-
-// ==================== SOUND (Improvement #5 + Web Games - Audio Resilience) ====================
-let audioCtx = null;
-let audioResumed = false;
-function getAudio() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  // Web Games: Resume context if suspended (browser autoplay policy)
-  if (audioCtx.state === 'suspended' && !audioResumed) {
-    audioCtx.resume().then(() => { audioResumed = true; }).catch(() => {});
-  }
-  return audioCtx;
-}
-function playSound(type) {
-  try {
-    const ctx = getAudio();
-    // Ensure audio context is running
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    const now = ctx.currentTime;
-    if (type === 'select')  { osc.frequency.setValueAtTime(440,now); gain.gain.setValueAtTime(0.08,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.12); osc.type='sine'; }
-    if (type === 'move')    { osc.frequency.setValueAtTime(330,now); osc.frequency.linearRampToValueAtTime(440,now+0.08); gain.gain.setValueAtTime(0.07,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.12); osc.type='triangle'; }
-    if (type === 'capture') { osc.frequency.setValueAtTime(220,now); osc.frequency.linearRampToValueAtTime(110,now+0.15); gain.gain.setValueAtTime(0.15,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.2); osc.type='sawtooth'; }
-    if (type === 'king')    { osc.frequency.setValueAtTime(523,now); osc.frequency.linearRampToValueAtTime(784,now+0.2); gain.gain.setValueAtTime(0.1,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.4); osc.type='sine'; }
-    if (type === 'win')     { osc.frequency.setValueAtTime(523,now); osc.frequency.linearRampToValueAtTime(659,now+0.1); osc.frequency.linearRampToValueAtTime(784,now+0.2); gain.gain.setValueAtTime(0.12,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.5); osc.type='sine'; }
-    if (type === 'lose')    { osc.frequency.setValueAtTime(330,now); osc.frequency.linearRampToValueAtTime(220,now+0.3); gain.gain.setValueAtTime(0.1,now); gain.gain.exponentialRampToValueAtTime(0.001,now+0.4); osc.type='triangle'; }
-    osc.start(now); osc.stop(now+0.5);
-  } catch(e) {}
 }
 
 // ==================== INIT ====================
@@ -445,6 +413,7 @@ function undoMove() {
 
 function onCellClick(r, c) {
   if (gameOver || currentTurn !== PLAYER) return;
+  initAudio();
 
   // Start timer on first player action
   if (!timerStarted) {
@@ -892,8 +861,8 @@ async function saveGameStat(result) {
 
 // ==================== EVENTS ====================
 
-btnNewGame.addEventListener('click', initGame);
-btnPlayAgain.addEventListener('click', initGame);
+btnNewGame.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
+btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
 if (btnUndo) btnUndo.addEventListener('click', undoMove);
 
 // ==================== START ====================

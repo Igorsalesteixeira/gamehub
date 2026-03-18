@@ -1,11 +1,20 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 // =============================================
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // ---- Constants ----
 const SUITS_1 = ['♠','♠','♠','♠'];
@@ -80,6 +89,7 @@ function shuffle(arr) {
 //  NEW GAME
 // =============================================
 function newGame() {
+  ensureAudio();
   selectedCard = null;
   clearInterval(timerInterval);
   secondsElapsed = 0;
@@ -120,6 +130,7 @@ function newGame() {
     suitCount,
   };
 
+  playSound('shuffle');
   startTimer();
   render();
 }
@@ -294,6 +305,7 @@ for (let c = 0; c < 10; c++) {
 //  CLICK TO MOVE
 // =============================================
 function handleCardClick(colIndex, cardIndex) {
+  ensureAudio();
   const col = state.columns[colIndex];
   const card = col[cardIndex];
   if (!card.faceUp) return;
@@ -370,10 +382,12 @@ function tryMove(fromCol, fromCardIdx, toCol) {
   const srcCol = state.columns[fromCol];
   if (srcCol.length > 0 && !srcCol[srcCol.length - 1].faceUp) {
     srcCol[srcCol.length - 1].faceUp = true;
+    playSound('deal');
   }
 
   state.moves++;
   selectedCard = null;
+  playSound('place');
 
   // Check for completed sequences
   checkCompletedSequences();
@@ -423,6 +437,7 @@ function checkWin() {
 //  DEAL FROM STOCK
 // =============================================
 function dealFromStock() {
+  ensureAudio();
   if (state.stock.length === 0) return;
   // Check all columns non-empty (rule: can't deal if any column empty)
   // Actually Spider allows dealing even with empty columns in some variants — we'll allow it
@@ -432,6 +447,7 @@ function dealFromStock() {
   for (let c = 0; c < 10; c++) {
     group[c].faceUp = true;
     state.columns[c].push(group[c]);
+    playSound('deal');
   }
 
   state.moves++;

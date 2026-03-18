@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
 
@@ -117,6 +117,7 @@ function hideOverlay() {
 }
 
 function startGame() {
+  initAudio();
   hideOverlay();
   gameState = 'playing';
   if (animId) cancelAnimationFrame(animId);
@@ -226,6 +227,8 @@ function die() {
     bestDisplay.textContent = bestScore;
     launchConfetti();
     playSound('win');
+  } else {
+    playSound('gameover');
   }
   saveGameStat();
   showOverlay('Fim de Jogo!', `Pontos: ${score}`, score === bestScore ? 'Novo recorde!' : `Melhor: ${bestScore}`, 'Jogar Novamente');
@@ -461,6 +464,7 @@ function jump() {
     dino.grounded = false;
     isDucking = false;
     dino.h = DINO_H;
+    playSound('jump');
   }
 }
 

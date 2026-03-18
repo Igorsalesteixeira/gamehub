@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 // ===== Anagrama =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -130,12 +130,22 @@ function renderScramble() {
   }
 }
 
+let audioInitialized = false;
+
+function initAudioOnFirstInteraction() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
+
 function addToAnswer(srcIdx) {
+  initAudioOnFirstInteraction();
   // Find first empty non-hint slot
   const emptyIdx = answerSlots.findIndex(s => s === null);
   if (emptyIdx === -1) return;
   answerSlots[emptyIdx] = { letter: scrambled[srcIdx], srcIdx, hint: false };
-  playSound('move');
+  playSound('place');
   renderAnswer();
   renderScramble();
 
@@ -147,6 +157,7 @@ function addToAnswer(srcIdx) {
 
 function removeFromAnswer(idx) {
   if (answerSlots[idx] && answerSlots[idx].hint) return;
+  initAudioOnFirstInteraction();
   answerSlots[idx] = null;
   renderAnswer();
   renderScramble();
@@ -188,6 +199,8 @@ function nextRound() {
 }
 
 function useHint() {
+  initAudioOnFirstInteraction();
+  playSound('click');
   if (hints <= 0) return;
   // Find a position that isn't filled or hinted
   const emptyPositions = [];
@@ -230,6 +243,8 @@ function useHint() {
 }
 
 function reshuffleLetters() {
+  initAudioOnFirstInteraction();
+  playSound('shuffle');
   scrambled = scrambleWord(currentWord);
   // Re-map answer slots srcIdx
   for (let i = 0; i < answerSlots.length; i++) {
@@ -242,6 +257,8 @@ function reshuffleLetters() {
 }
 
 function skipWord() {
+  initAudioOnFirstInteraction();
+  playSound('click');
   score = Math.max(0, score - 20);
   scoreEl.textContent = score;
   nextRound();
@@ -316,6 +333,9 @@ function newGame() {
 document.getElementById('btn-hint').addEventListener('click', useHint);
 document.getElementById('btn-shuffle').addEventListener('click', reshuffleLetters);
 document.getElementById('btn-skip').addEventListener('click', skipWord);
-document.getElementById('btn-new-game').addEventListener('click', newGame);
+document.getElementById('btn-new-game').addEventListener('click', () => {
+  playSound('click');
+  newGame();
+});
 
 newGame();

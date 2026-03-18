@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -127,10 +127,22 @@ function renderKeyboard() {
         }
       }
 
-      btn.addEventListener('click', () => handleGuess(key));
+      btn.addEventListener('click', () => {
+        playSound('click');
+        handleGuess(key);
+      });
       rowEl.appendChild(btn);
     }
     keyboardEl.appendChild(rowEl);
+  }
+}
+
+let audioInitialized = false;
+
+function initAudioOnFirstInteraction() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
   }
 }
 
@@ -138,11 +150,12 @@ function handleGuess(letter) {
   if (gameOver) return;
   if (guessedLetters.has(letter)) return;
 
+  initAudioOnFirstInteraction();
   guessedLetters.add(letter);
 
   if (targetWord.includes(letter)) {
     // Correct
-    playSound('move');
+    playSound('place');
     renderWord();
     updateKeyButton(letter, 'correct');
 
@@ -162,6 +175,7 @@ function handleGuess(letter) {
     }
   } else {
     // Wrong
+    playSound('error');
     updateKeyButton(letter, 'wrong');
     document.getElementById(BODY_PARTS[wrongGuesses]).classList.add('show');
     wrongGuesses++;
@@ -169,6 +183,7 @@ function handleGuess(letter) {
 
     if (wrongGuesses >= MAX_WRONG) {
       gameOver = true;
+      playSound('gameover');
       // Reveal word
       const slots = wordDisplay.querySelectorAll('.letter-slot');
       [...targetWord].forEach((l, i) => {
@@ -211,15 +226,20 @@ function showModal(title, message) {
 // Physical keyboard
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && gameOver) {
+    playSound('click');
     init();
     return;
   }
   if (/^[a-zA-Z]$/.test(e.key)) {
+    initAudioOnFirstInteraction();
     handleGuess(e.key.toUpperCase());
   }
 });
 
-btnNewGame.addEventListener('click', init);
+btnNewGame.addEventListener('click', () => {
+  playSound('click');
+  init();
+});
 
 // Supabase
 async function saveGameStat(result) {

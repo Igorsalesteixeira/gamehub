@@ -1,8 +1,17 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // === DOM ===
 const playerHandEl = document.getElementById('player-hand');
@@ -178,9 +187,11 @@ function hasPlayableCard(hand) {
 
 function playerPlayCard(index) {
   if (currentPlayer !== 0 || !gameActive) return;
+  ensureAudio();
   const card = hands[0][index];
   if (!canPlay(card)) {
     messageEl.textContent = 'Carta invalida! Jogue uma carta compativel.';
+    playSound('error');
     return;
   }
 
@@ -384,9 +395,11 @@ function cpuPlayIndex(index) {
 // === DRAW BUTTON ===
 btnDraw.addEventListener('click', () => {
   if (currentPlayer !== 0 || !gameActive) return;
+  ensureAudio();
   const c = drawCard();
   if (c) {
     hands[0].push(c);
+    playSound('deal');
     messageEl.textContent = 'Voce comprou uma carta.';
 
     // Can play the drawn card?
@@ -427,6 +440,8 @@ function endGame(winner) {
   if (won) {
     launchConfetti();
     playSound('win');
+  } else {
+    playSound('error');
   }
 
   btnDraw.disabled = true;
@@ -451,6 +466,7 @@ async function saveStats(result) {
 
 // === START GAME ===
 function startGame() {
+  ensureAudio();
   drawPile = shuffle(createDeck());
   discardPile = [];
   hands = [[], [], [], []];
@@ -465,6 +481,7 @@ function startGame() {
   for (let round = 0; round < 7; round++) {
     for (let p = 0; p < 4; p++) {
       hands[p].push(drawCard());
+      playSound('deal');
     }
   }
 

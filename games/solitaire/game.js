@@ -1,9 +1,19 @@
 ﻿import '../../auth-check.js';
+import { initAudio, playSound } from '../shared/game-design-utils.js';
 // =============================================
 //  PACIÊNCIA (Klondike Solitaire) — game.js
 //  Mobile-optimized: touch targets, feedback, performance
 // =============================================
 import { supabase } from '../../supabase.js';
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 const SUITS  = ['♠','♥','♦','♣'];
 const RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -118,6 +128,7 @@ function newGame() {
     drawCount,
   };
 
+  playSound('shuffle');
   startTimer();
   render();
 }
@@ -663,6 +674,7 @@ stockEl.addEventListener('touchend', e => {
 });
 
 function drawFromStock() {
+  ensureAudio();
   if (state.stock.length === 0) {
     // Recycle waste → stock
     if (state.waste.length === 0) return;
@@ -670,6 +682,7 @@ function drawFromStock() {
     state.stock = [...state.waste].reverse().map(c => ({ ...c, faceUp: false }));
     state.waste = [];
     state.moves++;
+    playSound('shuffle');
     render();
     return;
   }
@@ -679,6 +692,7 @@ function drawFromStock() {
     const card = state.stock.pop();
     card.faceUp = true;
     state.waste.push(card);
+    playSound('deal');
   }
   state.moves++;
   selected = null;
@@ -686,6 +700,7 @@ function drawFromStock() {
 }
 
 function handleWasteClick() {
+  ensureAudio();
   if (state.waste.length === 0) return;
   if (selected && selected.source === 'waste') {
     selected = null;
@@ -701,6 +716,7 @@ function handleWasteClick() {
 }
 
 function handleTableauCardClick(colIndex, cardIndex) {
+  ensureAudio();
   const card = state.tableau[colIndex][cardIndex];
   if (!card.faceUp) return;
 
@@ -869,6 +885,7 @@ function dropOnTableau(toCol, data) {
   state.tableau[toCol].push(...cards.map(c => ({ ...c, faceUp: true })));
   state.moves++;
   selected = null;
+  playSound('place');
   render();
 }
 
@@ -909,6 +926,7 @@ function dropOnFoundation(suit, data) {
   state.foundations[suit].push({ ...card });
   state.moves++;
   selected = null;
+  playSound('place');
   render();
   if (checkWin()) showWin();
 }
@@ -973,6 +991,7 @@ function showWin() {
   const s = String(secondsElapsed % 60).padStart(2,'0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
+  playSound('win');
 }
 
 // =============================================

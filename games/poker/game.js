@@ -1,7 +1,17 @@
 ﻿import '../../auth-check.js';
+import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // ===== CONSTANTS =====
 const SUITS = ['♠', '♥', '♦', '♣'];
@@ -106,6 +116,7 @@ async function init() {
 }
 
 function startHand() {
+  ensureAudio();
   if(gameOver)return;
   // Check if only 1 player has chips
   const active=players.filter(p=>p.chips>0);
@@ -132,6 +143,7 @@ function startHand() {
 
   // Deal 2 cards to each active player
   players.forEach(p=>{if(p.chips>0||p.allIn){p.hand=[deck.pop(),deck.pop()];}});
+  playSound('deal');
 
   phase='preflop';
   currentIdx=nextActive(bbIdx);
@@ -167,9 +179,9 @@ function allBetsEqual(){
 function nextPhase(){
   players.forEach(p=>p.bet=0);
   currentBet=0;lastRaise=0;
-  if(phase==='preflop'){phase='flop';communityCards=[deck.pop(),deck.pop(),deck.pop()];}
-  else if(phase==='flop'){phase='turn';communityCards.push(deck.pop());}
-  else if(phase==='turn'){phase='river';communityCards.push(deck.pop());}
+  if(phase==='preflop'){phase='flop';communityCards=[deck.pop(),deck.pop(),deck.pop()];playSound('deal');}
+  else if(phase==='flop'){phase='turn';communityCards.push(deck.pop());playSound('deal');}
+  else if(phase==='turn'){phase='river';communityCards.push(deck.pop());playSound('deal');}
   else{phase='showdown';showdown();return;}
 
   // First active after dealer
@@ -186,6 +198,7 @@ function nextPhase(){
 }
 
 function playerAction(action, amount=0){
+  ensureAudio();
   const p=players[currentIdx];
   if(action==='fold'){p.folded=true;}
   else if(action==='check'){/* nothing */}
@@ -329,6 +342,8 @@ function showdown(){
     `${humanWon?'Seu ':winnerNames+' — '}${handName} · Pote: ${pot}`
   );
 
+  if(humanWon)playSound('win');
+
   // Save stats
   saveStats(humanWon?'win':'loss',players[0].chips);
 
@@ -348,6 +363,7 @@ function awardPot(winnerIdx){
   render(true);
   const w=players[winnerIdx];
   showModal(humanWon?'🏆':'😔',humanWon?'Você venceu!':w.name+' venceu!',`Todos desistiram · Pote: ${pot}`);
+  if(humanWon)playSound('win');
   saveStats(humanWon?'win':'loss',players[0].chips);
   setTimeout(()=>{
     closeModal();

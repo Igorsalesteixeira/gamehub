@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Flappy Bird =====
 import { supabase } from '../../supabase.js';
 
@@ -42,13 +42,14 @@ function flap() {
   if (gameState === 'waiting') {
     gameState = 'playing';
     startMsg.classList.add('hidden');
+    initAudio();
   }
   if (gameState === 'dead') {
     init();
     return;
   }
   bird.vy = FLAP;
-  playSound('move');
+  playSound('jump');
   haptic(15);
 }
 
@@ -110,12 +111,15 @@ function die() {
   shakeFrames = 12; // screen shake por 12 frames
   // Mobile: feedback tátil na morte (impacto)
   if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
+  playSound('error');
   if (score > bestScore) {
     bestScore = score;
     localStorage.setItem('flappy_best', bestScore);
     bestDisplay.textContent = bestScore;
     launchConfetti();
     playSound('win');
+  } else {
+    playSound('gameover');
   }
   saveGameStat();
 }

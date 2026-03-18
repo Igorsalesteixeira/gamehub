@@ -1,6 +1,15 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // === DOM Elements ===
 const dealerHandEl = document.getElementById('dealer-hand');
@@ -167,6 +176,7 @@ function updateBalanceDisplay() {
 
 // === Game Flow ===
 function startRound() {
+  ensureAudio();
   const bet = parseInt(betInput.value) || 10;
   if (bet < 1) { betInput.value = 1; return; }
   if (bet > balance) {
@@ -178,6 +188,7 @@ function startRound() {
   deck = shuffleDeck(createDeck());
   playerHand = [drawCard(), drawCard()];
   dealerHand = [drawCard(), drawCard()];
+  playSound('deal');
   gameActive = true;
   roundOver = false;
 
@@ -208,8 +219,10 @@ function startRound() {
 
 function hit() {
   if (!gameActive) return;
+  ensureAudio();
   if (navigator.vibrate) navigator.vibrate(10);
   playerHand.push(drawCard());
+  playSound('deal');
   renderHand(playerHand, playerHandEl);
   updateScores(true);
 
@@ -237,11 +250,13 @@ function stand() {
 
 function doubleDown() {
   if (!gameActive || playerHand.length !== 2) return;
+  ensureAudio();
   if (navigator.vibrate) navigator.vibrate(15);
   currentBet *= 2;
   updateBalanceDisplay();
 
   playerHand.push(drawCard());
+  playSound('deal');
   renderHand(playerHand, playerHandEl);
   updateScores(true);
 
@@ -268,6 +283,7 @@ function dealerPlay() {
     const dv = handValue(dealerHand);
     if (dv < 17 || isSoft17(dealerHand)) {
       dealerHand.push(drawCard());
+      playSound('deal');
       renderHand(dealerHand, dealerHandEl);
       updateScores(false);
       setTimeout(dealerStep, 600);
@@ -310,6 +326,8 @@ function endRound(result, title, message) {
   if (result === 'win' || result === 'blackjack') {
     launchConfetti();
     playSound('win');
+  } else if (result === 'loss') {
+    playSound('error');
   }
 
   btnHit.disabled = true;

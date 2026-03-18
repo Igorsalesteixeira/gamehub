@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 // --- Constants ---
@@ -178,11 +178,13 @@ function applyMove(pos, player) {
 
 function playerMove(pos) {
   if (gameOver || currentPlayer !== BLACK) return;
+  initAudio();
   const flips = getFlips(board, pos, BLACK);
   if (flips.length === 0) return;
 
   // Place piece
   board[pos] = BLACK;
+  playSound('place');
   render();
 
   // Flip captured pieces with animation
@@ -422,8 +424,8 @@ function newGame() {
   render();
 }
 
-btnNewGame.addEventListener('click', newGame);
-btnPlayAgain.addEventListener('click', newGame);
+btnNewGame.addEventListener('click', () => { initAudio(); playSound('click'); newGame(); });
+btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); newGame(); });
 
 // Start
 newGame();

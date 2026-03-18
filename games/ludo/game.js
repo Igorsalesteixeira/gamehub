@@ -1,5 +1,5 @@
 import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 // =============================================
@@ -580,6 +580,7 @@ function startTurn(ci) {
 
 function handleRoll() {
   if (rolled || gameOver || currentPlayer !== 0) return;
+  initAudio();
   btnRoll.disabled = true;
   rolled = true;
   diceValue = rollDice();
@@ -610,6 +611,7 @@ function handleRoll() {
 
 function handleCanvasClick(e) {
   if (!rolled || gameOver || currentPlayer !== 0 || highlightedPieces.size === 0) return;
+  initAudio();
 
   const rect = canvas.getBoundingClientRect();
   const scaleX = CANVAS_SIZE / rect.width;
@@ -835,8 +837,8 @@ function aiChooseMove(ci, dice, moves) {
 // ---- Events ----
 btnRoll.addEventListener('click', handleRoll);
 canvas.addEventListener('click', handleCanvasClick);
-btnNew.addEventListener('click', initGame);
-btnPlayAgain.addEventListener('click', initGame);
+btnNew.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
+btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
 
 // ---- Start ----
 initGame();

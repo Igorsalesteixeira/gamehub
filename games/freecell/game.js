@@ -1,11 +1,20 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 // =============================================
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 //  FREECELL — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 const SUITS  = ['♠','♥','♦','♣'];
 const RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
@@ -67,6 +76,7 @@ function shuffle(arr) {
 //  NEW GAME
 // =============================================
 function newGame() {
+  ensureAudio();
   if (gameStarted && !checkWin()) {
     saveGameStat('loss');
   }
@@ -98,6 +108,7 @@ function newGame() {
     moves: 0,
   };
 
+  playSound('shuffle');
   render();
 }
 
@@ -534,6 +545,7 @@ function findSequenceStart(colIndex, cardIndex) {
 //  CLICK HANDLERS
 // =============================================
 function handleTableauCardClick(colIndex, cardIndex) {
+  ensureAudio();
   if (selected) {
     const isSelf = selected.source === 'tableau' &&
                    selected.colIndex === colIndex &&
@@ -557,6 +569,7 @@ function handleTableauCardClick(colIndex, cardIndex) {
 }
 
 function handleCellClick(cellIndex) {
+  ensureAudio();
   if (selected) {
     if (selected.source === 'cell' && selected.cellIndex === cellIndex) {
       selected = null;
@@ -580,6 +593,7 @@ function handleCellClick(cellIndex) {
 }
 
 function handleFoundationClick(suit) {
+  ensureAudio();
   if (selected) {
     dropOnFoundationSelected(suit);
     return;
@@ -762,6 +776,7 @@ function dropOnTableau(toCol, data) {
   state.tableau[toCol].push(...cards.map(c => ({ ...c })));
   state.moves++;
   selected = null;
+  playSound('place');
   render();
 }
 
@@ -798,6 +813,7 @@ function dropOnFoundation(suit, data) {
   state.foundations[suit].push({ ...card });
   state.moves++;
   selected = null;
+  playSound('place');
   render();
   if (checkWin()) showWin();
 }
@@ -836,6 +852,7 @@ function dropOnCell(cellIndex, data) {
   state.cells[cellIndex] = { ...card };
   state.moves++;
   selected = null;
+  playSound('place');
   render();
 }
 

@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Sudoku =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -172,6 +172,7 @@ function selectCell(r, c) {
   if (puzzle[r][c] !== 0) return; // can't select given cells
   selectedCell = [r, c];
   if (!timerInterval) startTimer();
+  initAudio();
   render();
 }
 
@@ -181,6 +182,7 @@ function placeNumber(num) {
   if (puzzle[r][c] !== 0) return;
 
   userGrid[r][c] = num;
+  playSound('place');
   render();
 
   // Check win

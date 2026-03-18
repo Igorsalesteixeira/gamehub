@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 // ========== CONSTANTS ==========
@@ -303,6 +303,7 @@ function setTurnIndicator() {
 // ========== PLAYER INPUT ==========
 async function onCellClick(i) {
   if (gameOver || turn !== 'w') return;
+  initAudio();
 
   // If clicking a valid move destination
   const move = validMoves.find(m => m.to === i);
@@ -324,6 +325,7 @@ async function onCellClick(i) {
 }
 
 async function executePlayerMove(move) {
+  initAudio();
   // Handle promotion
   let promoPiece = null;
   if (move.promo) {
@@ -348,11 +350,16 @@ async function executePlayerMove(move) {
 // ========== MOVE EXECUTION ==========
 function doMove(move, promoPiece) {
   const color = pieceColor(board[move.from]);
+  const captured = board[move.to] !== 0 || move.enPassant;
   const result = applyMove(board, move, castleRights, color);
   board = result.board;
   castleRights = result.castleRights;
   enPassantTarget = result.enPassant;
   lastMove = move;
+
+  // Play sound: capture or place
+  if (captured) playSound('capture');
+  else playSound('place');
 
   // Promotion
   if (move.promo && promoPiece) {
@@ -584,8 +591,8 @@ function init() {
   startTimer();
 }
 
-btnNewGame.addEventListener('click', init);
-btnPlayAgain.addEventListener('click', init);
+btnNewGame.addEventListener('click', () => { initAudio(); playSound('click'); init(); });
+btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); init(); });
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) init(); });
 
 // ========== SUPABASE ==========

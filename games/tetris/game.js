@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
 // ===== Tetris =====
 import { supabase } from '../../supabase.js';
 
@@ -51,6 +51,7 @@ function randomPiece() {
 }
 
 function init() {
+  initAudio();
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   score = 0; level = 1; lines = 0;
   dropInterval = 1000; dropTimer = 0;
@@ -181,6 +182,7 @@ function lock() {
         if (y < 0) { endGame(); return; }
         board[y][current.x + c] = current.color;
       }
+  playSound('lock');
   clearLines();
   current = next;
   next = randomPiece();
@@ -204,6 +206,7 @@ function clearLines() {
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 80);
     updateUI();
+    playSound('clear');
     // Mobile: feedback tátil ao limpar linhas (mais intenso = mais linhas)
     if (navigator.vibrate) {
       const pattern = cleared === 4 ? [30, 20, 40, 20, 50] : cleared === 3 ? [25, 15, 35] : [20, 10, 25];
@@ -228,17 +231,17 @@ function rotate() {
   const rotated = shape[0].map((_, c) => shape.map(row => row[c]).reverse());
   if (!collides(current, 0, 0, rotated)) {
     current.shape = rotated;
-    playSound('move');
+    playSound('rotate');
     haptic(15);
   } else if (!collides(current, -1, 0, rotated)) {
     current.x--;
     current.shape = rotated;
-    playSound('move');
+    playSound('rotate');
     haptic(15);
   } else if (!collides(current, 1, 0, rotated)) {
     current.x++;
     current.shape = rotated;
-    playSound('move');
+    playSound('rotate');
     haptic(15);
   }
 }
@@ -258,7 +261,7 @@ function endGame() {
   saveGameStat();
   // Mobile: feedback tátil no game over
   if (navigator.vibrate) navigator.vibrate([60, 30, 100]);
-  playSound('win');
+  playSound('gameover');
 }
 
 function updateUI() {

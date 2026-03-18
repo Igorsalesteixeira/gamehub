@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -166,6 +166,7 @@ function toggleFill(r, c) {
   if (!startTime) startTimer();
   if (playerGrid[r][c] === 1) playerGrid[r][c] = 0;
   else { playerGrid[r][c] = 1; }
+  playSound('place'); // som ao marcar célula
   render();
   checkWin();
 }
@@ -174,12 +175,14 @@ function toggleMark(r, c) {
   if (!startTime) startTimer();
   if (playerGrid[r][c] === 2) playerGrid[r][c] = 0;
   else playerGrid[r][c] = 2;
+  playSound('click'); // som ao marcar X
   render();
 }
 
 // ===== TIMER =====
 function startTimer() {
   startTime = Date.now();
+  initAudio();
   timerInterval = setInterval(() => {
     timerSeconds = Math.floor((Date.now() - startTime) / 1000);
     const m = Math.floor(timerSeconds / 60);

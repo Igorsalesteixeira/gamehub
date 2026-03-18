@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { playSound, initAudio } from '../shared/game-design-utils.js';
 // ===== Termo (Wordle BR) =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -136,7 +137,10 @@ function renderKeyboard() {
       if (keyStates[key]) btn.classList.add(keyStates[key]);
       btn.textContent = key === 'ENTER' ? 'ENTER' : key;
       btn.dataset.key = key;
-      btn.addEventListener('click', () => handleKey(key));
+      btn.addEventListener('click', () => {
+        playSound('click');
+        handleKey(key);
+      });
       rowEl.appendChild(btn);
     }
     keyboardEl.appendChild(rowEl);
@@ -152,8 +156,19 @@ function updateKeyboard() {
   });
 }
 
+let audioInitialized = false;
+
+function initAudioOnFirstInteraction() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
+
 function handleKey(key) {
   if (gameOver) return;
+
+  initAudioOnFirstInteraction();
 
   if (key === '⌫') {
     if (currentCol > 0) {
@@ -172,12 +187,14 @@ function handleKey(key) {
       shakeRow(currentRow);
       return;
     }
+    playSound('place');
     submitGuess();
     return;
   }
 
   // Letter
   if (currentCol < WORD_LENGTH) {
+    playSound('type');
     board[currentRow][currentCol] = key;
     const tile = document.getElementById(`tile-${currentRow}-${currentCol}`);
     tile.textContent = key;
@@ -227,6 +244,7 @@ function submitGuess() {
       tiles.forEach((tile, i) => {
         setTimeout(() => tile.classList.add('bounce'), i * 100);
       });
+      playSound('win');
       setTimeout(() => {
         showModal('Parabens! 🎉', `Voce acertou em ${currentRow + 1} tentativa${currentRow > 0 ? 's' : ''}!`);
         saveGameStat('win');
@@ -236,6 +254,7 @@ function submitGuess() {
       currentCol = 0;
       if (currentRow >= MAX_GUESSES) {
         gameOver = true;
+        playSound('error');
         showModal('Que pena! 😔', 'Voce nao conseguiu adivinhar.');
         saveGameStat('loss');
       }
@@ -310,7 +329,10 @@ document.addEventListener('keydown', (e) => {
 });
 
 // New game button
-btnNewGame.addEventListener('click', init);
+btnNewGame.addEventListener('click', () => {
+  playSound('click');
+  init();
+});
 
 // Supabase stats
 async function saveGameStat(result) {

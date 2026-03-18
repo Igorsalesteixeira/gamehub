@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -181,6 +181,7 @@ function onTileClick(tile) {
 
   if (!selectedTile) {
     selectedTile = tile;
+    playSound('click'); // som ao selecionar peça
     renderBoard();
     return;
   }
@@ -196,10 +197,12 @@ function onTileClick(tile) {
     selectedTile.removed = true;
     tile.removed = true;
     selectedTile = null;
+    playSound('win'); // som curto ao fazer par
     renderBoard();
     checkEndCondition();
   } else {
     selectedTile = tile;
+    playSound('click'); // som ao trocar seleção
     renderBoard();
   }
 }
@@ -249,6 +252,7 @@ function showHint() {
 // ===== TIMER =====
 function startTimer() {
   startTime = Date.now();
+  initAudio();
   timerInterval = setInterval(() => {
     timerSeconds = Math.floor((Date.now() - startTime) / 1000);
     const m = Math.floor(timerSeconds / 60);

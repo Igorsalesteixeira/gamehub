@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 const ROWS = 6, COLS = 7;
@@ -64,7 +64,7 @@ function drop(col, player) {
   if (row === -1) return -1;
   board[row][col] = player;
   lastDrop = { row, col };
-  playSound('move');
+  playSound('place');
   haptic(15);
   return row;
 }
@@ -94,6 +94,7 @@ function isFull() {
 
 function handleClick(col) {
   if (gameOver || currentPlayer !== 1) return;
+  initAudio();
   const row = drop(col, 1);
   if (row === -1) return;
   render();
@@ -180,7 +181,7 @@ async function endGame(result, winCells) {
   }
 }
 
-document.getElementById('restart').addEventListener('click', init);
-document.getElementById('modal-btn').addEventListener('click', init);
+document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
+document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
 
 init();

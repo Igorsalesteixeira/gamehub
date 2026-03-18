@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -31,6 +31,7 @@ function init() {
     toggle(2, 2, true);
   }
   render();
+  initAudio();
 }
 
 function toggle(r, c, silent) {
@@ -60,6 +61,7 @@ function render() {
 
 function handleClick(r, c) {
   toggle(r, c);
+  playSound('click'); // som ao apertar luz
   render();
   if (grid.every(row => row.every(v => !v))) {
     win();

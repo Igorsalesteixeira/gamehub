@@ -3,7 +3,7 @@
 //  COBRINHA (Snake) — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20; // cells
@@ -136,6 +136,7 @@ function getSpeed() {
 }
 
 function startGame() {
+  initAudio();
   initGame();
   overlay.classList.add('hidden');
   // Game Design: esconder botão compartilhar ao iniciar
@@ -174,6 +175,8 @@ function gameOver() {
     // Game Design: confetes ao bater recorde
     launchConfetti();
     playSound('win');
+  } else {
+    playSound('gameover');
   }
 
   saveGameStat();

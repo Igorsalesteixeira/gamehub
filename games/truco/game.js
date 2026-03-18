@@ -1,8 +1,17 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // === DOM ===
 const playerHandEl = document.getElementById('player-hand');
@@ -104,9 +113,11 @@ function startMatch() {
 }
 
 function startHand() {
+  ensureAudio();
   deck = shuffle(createDeck());
   playerHand = [deck.pop(), deck.pop(), deck.pop()];
   cpuHand = [deck.pop(), deck.pop(), deck.pop()];
+  playSound('deal');
   roundWinsPlayer = 0;
   roundWinsCpu = 0;
   currentRound = 0;
@@ -169,6 +180,7 @@ function updateRoundInfo() {
 function playCard(index) {
   if (!playerTurn || waitingForTrucoResponse || gameOver) return;
   if (index < 0 || index >= playerHand.length) return;
+  ensureAudio();
 
   const card = playerHand.splice(index, 1)[0];
   playerPlayedEl.innerHTML = '';
@@ -354,6 +366,8 @@ function endMatch() {
   if (won) {
     launchConfetti();
     playSound('win');
+  } else {
+    playSound('error');
   }
 
   saveStats(won ? 'win' : 'loss');
@@ -460,6 +474,7 @@ btnDecline.addEventListener('click', () => {
   trucoLevel = Math.max(0, trucoLevel - 1);
   cpuScore += prevVal;
   messageEl.textContent = `Voce correu! CPU ganhou ${prevVal} ponto(s)`;
+  playSound('error');
   updateScores();
   firstToPlay = firstToPlay === 'player' ? 'cpu' : 'player';
   if (cpuScore >= 12) {

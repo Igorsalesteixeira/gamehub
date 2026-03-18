@@ -1,7 +1,7 @@
 ﻿import '../../auth-check.js';
 // ===== 2048 =====
 import { supabase } from '../../supabase.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 
 const SIZE = 4;
 const boardEl = document.getElementById('board');
@@ -124,9 +124,11 @@ function move(direction) {
     updateScore();
     render(newTile, mergedCells);
 
-    // Game Design: som ao combinar
+    // Game Design: som ao combinar (mais grave) e ao mover
     if (mergedCells.length > 0) {
-      playSound('move');
+      playSound('place'); // som mais grave para merge
+    } else {
+      playSound('move'); // som ao deslizar
     }
 
     // Game Design: confetes ao atingir 2048
@@ -179,6 +181,7 @@ boardEl.addEventListener('touchstart', (e) => {
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
   touchStartTime = Date.now();
+  initAudio();
 }, { passive: true });
 
 boardEl.addEventListener('touchend', (e) => {

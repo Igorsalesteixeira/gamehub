@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -157,6 +157,7 @@ function handleInput(key) {
     if (!grid[currentRow]) grid[currentRow] = [];
     grid[currentRow][currentCol] = { char: key, state: null };
     currentCol++;
+    playSound('type'); // som ao digitar
     renderBoard();
   }
 }
@@ -173,6 +174,8 @@ function submitGuess() {
     shakeRow();
     return;
   }
+
+  playSound('place'); // som ao confirmar
 
   // Check each character
   const targetChars = targetEquation.split('');
@@ -287,6 +290,7 @@ function newGame() {
     }
   }
   targetEquation = generateEquation();
+  initAudio();
   renderBoard();
   renderKeyboard();
 }

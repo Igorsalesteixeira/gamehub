@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
 // =============================================
 //  BREAKOUT — game.js
 // =============================================
@@ -166,6 +166,7 @@ function update() {
       b.dx = Math.cos(angle) * spd;
       b.dy = Math.sin(angle) * spd;
       b.y = H - 30 - PADDLE_HEIGHT - BALL_RADIUS;
+      playSound('move');
     }
 
     // Brick collision
@@ -178,11 +179,14 @@ function update() {
           brick.alive = false;
           score += brick.points;
           scoreDisplay.textContent = score;
+          playSound('explosion');
           // chance to spawn power-up
           if (Math.random() < 0.15) {
             const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
             powerUps.push({ x: brick.x + brick.w / 2, y: brick.y, type, dy: 2 });
           }
+        } else {
+          playSound('hit');
         }
         // Bounce ball
         const overlapX = Math.min(b.x + BALL_RADIUS - brick.x, brick.x + brick.w - (b.x - BALL_RADIUS));
@@ -377,6 +381,7 @@ document.querySelectorAll('.ctrl-btn').forEach(btn => {
 //  GAME FLOW
 // =============================================
 function startGame() {
+  initAudio();
   initGame();
   overlay.classList.add('hidden');
   running = true;
@@ -401,7 +406,7 @@ function gameOver() {
   overlayScore.textContent = `Pontuacao: ${score}`;
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
-  playSound('win');
+  playSound('gameover');
 }
 
 btnStart.addEventListener('click', startGame);

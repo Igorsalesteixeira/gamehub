@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Puzzle 15 =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -85,7 +85,7 @@ function handleClick(index) {
   const isAdjacent = (Math.abs(row - eRow) + Math.abs(col - eCol)) === 1;
   if (!isAdjacent) return;
 
-  if (!gameStarted) { gameStarted = true; startTimer(); }
+  if (!gameStarted) { gameStarted = true; startTimer(); initAudio(); }
 
   // Calcular direção da animação (tile vai do index para emptyIndex)
   if (row < eRow) lastMoveDir = 'slide-up';
@@ -98,6 +98,7 @@ function handleClick(index) {
   [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
   moves++;
   movesDisplay.textContent = moves;
+  playSound('move'); // som ao mover peça
   render();
 
   if (isWon()) {

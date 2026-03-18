@@ -4,7 +4,11 @@
       "Bash(ls -d \"c:/Users/igor-/Downloads/Site de jogos/games/\"*/)",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(node --check games/go/game.js)",
+      "Bash(node --check games/connect4/game.js)",
+      "Bash(node --check games/reversi/game.js)",
+      "Bash(node --check games/battleship/game.js)"
     ]
   }
 }

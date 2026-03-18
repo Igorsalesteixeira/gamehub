@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 const SIZE = 9;
@@ -87,6 +87,8 @@ function playMove(r, c) {
   lastBoard = clone(board);
   board[r][c] = current;
   const captured = removeCaptures(board, current);
+  if (captured > 0) playSound('capture');
+  else playSound('place');
   captures[current] += captured;
   lastMove = [r, c];
   consecutivePasses = 0;
@@ -194,6 +196,7 @@ function cpuMove() {
 
 function handleClick(r, c) {
   if (current !== BLACK) return;
+  initAudio();
   if (!playMove(r, c)) return;
   playSound('move');
   haptic(15);
@@ -228,6 +231,8 @@ function render() {
 
 document.getElementById('pass-btn').addEventListener('click', () => {
   if (current !== BLACK) return;
+  initAudio();
+  playSound('click');
   consecutivePasses++;
   lastBoard = clone(board);
   lastMove = null;
@@ -237,7 +242,7 @@ document.getElementById('pass-btn').addEventListener('click', () => {
   setTimeout(cpuMove, 400);
 });
 
-document.getElementById('restart').addEventListener('click', init);
-document.getElementById('modal-btn').addEventListener('click', init);
+document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
+document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
 
 init();

@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  Space Invaders — Games Hub
 // =============================================
@@ -142,6 +142,7 @@ function initAliens() {
 
 // ===== START / RESET =====
 function startGame() {
+  initAudio();
   score = 0;
   lives = 3;
   wave = 1;
@@ -272,6 +273,7 @@ function update() {
   if ((keys[' '] || keys['ArrowUp'] || mobileShoot) && now - lastShotTime > PLAYER_SHOOT_CD) {
     lastShotTime = now;
     playerBullets.push({ x: playerX, y: playerY - PLAYER_H / 2 - 8 });
+    playSound('shoot');
   }
 
   // Player bullets
@@ -356,6 +358,7 @@ function update() {
           life: 15,
           maxLife: 15,
         });
+        playSound('explosion');
         updateHUD();
 
         // Speed up as fewer aliens remain
@@ -423,7 +426,7 @@ async function gameOver() {
   overlayScore.textContent = `Pontuacao: ${score}`;
   btnStart.textContent = 'Jogar de Novo';
   overlay.classList.remove('hidden');
-  playSound('win');
+  playSound('gameover');
 
   // Save stats to Supabase
   try {

@@ -1,7 +1,17 @@
 ﻿import '../../auth-check.js';
+import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Initialize audio on first user interaction
+let audioInitialized = false;
+function ensureAudio() {
+  if (!audioInitialized) {
+    initAudio();
+    audioInitialized = true;
+  }
+}
 
 // ===== DECK (2 baralhos + 4 coringas) =====
 const SUITS = ['♠','♥','♦','♣'];
@@ -44,6 +54,7 @@ async function init(){
 }
 
 function startRound(){
+  ensureAudio();
   roundNum++;
   const deck=shuffle(createDeck());
   // Deal: 11 to each, 11 to morto1, 11 to morto2
@@ -59,6 +70,7 @@ function startRound(){
   gameOver=false;
   // First discard to start pile
   if(stock.length>0)discardPile.push(stock.pop());
+  playSound('deal');
   render();
   setMsg('Sua vez! Compre do monte ou pegue o descarte.');
 }
@@ -117,21 +129,25 @@ function calcScore(playerMelds, playerHand){
 
 // ===== PLAYER ACTIONS =====
 function drawFromStock(){
+  ensureAudio();
   if(drawnThisTurn){setMsg('Já comprou esta rodada. Descarte uma carta.');return;}
   if(stock.length===0){endRound();return;}
   hand.push(stock.pop());
   drawnThisTurn=true;
+  playSound('deal');
   // Pickup morto if hand was emptied and now drawing (shouldn't happen here, handled on discard)
   render();setMsg('Carta comprada. Agora descarte ou jogue uma combinação.');
 }
 
 function drawFromDiscard(){
+  ensureAudio();
   if(drawnThisTurn){setMsg('Já comprou esta rodada.');return;}
   if(discardPile.length===0){setMsg('Descarte vazio.');return;}
   // Can only take discard if can meld it immediately
   const top=discardPile[discardPile.length-1];
   hand.push(discardPile.pop());
   drawnThisTurn=true;
+  playSound('deal');
   render();setMsg('Pegou o descarte! Use a carta em uma combinação e depois descarte.');
 }
 
@@ -143,10 +159,11 @@ function toggleSelect(idx){
 }
 
 function tryMeld(){
-  if(selectedCards.size<3){setMsg('Selecione pelo menos 3 cartas para combinar.');return;}
+  ensureAudio();
+  if(selectedCards.size<3){setMsg('Selecione pelo menos 3 cartas para combinar.');playSound('error');return;}
   const sel=Array.from(selectedCards).sort((a,b)=>a-b);
   const cards=sel.map(i=>hand[i]);
-  if(!isValidMeld(cards)){setMsg('Combinação inválida! Precisa ser grupo (mesma figura) ou sequência (mesmo naipe, ordem).');return;}
+  if(!isValidMeld(cards)){setMsg('Combinação inválida! Precisa ser grupo (mesma figura) ou sequência (mesmo naipe, ordem).');playSound('error');return;}
   // Remove from hand
   const remaining=hand.filter((_,i)=>!selectedCards.has(i));
   melds.push([...cards]);
@@ -157,11 +174,12 @@ function tryMeld(){
 }
 
 function tryAddToMeld(meldIdx){
+  ensureAudio();
   if(selectedCards.size===0){setMsg('Selecione cartas da mão primeiro.');return;}
   const sel=Array.from(selectedCards).sort((a,b)=>a-b);
   const cards=sel.map(i=>hand[i]);
   const target=[...melds[meldIdx],...cards];
-  if(!isValidMeld(target)){setMsg('Não é possível adicionar essas cartas a esta combinação.');return;}
+  if(!isValidMeld(target)){setMsg('Não é possível adicionar essas cartas a esta combinação.');playSound('error');return;}
   melds[meldIdx]=target;
   hand=hand.filter((_,i)=>!selectedCards.has(i));
   selectedCards=new Set();
@@ -178,8 +196,9 @@ function checkMorto(){
 }
 
 function discardCard(){
-  if(!drawnThisTurn){setMsg('Compre uma carta primeiro!');return;}
-  if(selectedCards.size!==1){setMsg('Selecione exatamente 1 carta para descartar.');return;}
+  ensureAudio();
+  if(!drawnThisTurn){setMsg('Compre uma carta primeiro!');playSound('error');return;}
+  if(selectedCards.size!==1){setMsg('Selecione exatamente 1 carta para descartar.');playSound('error');return;}
   const idx=Array.from(selectedCards)[0];
   const card=hand[idx];
   discardPile.push(card);
@@ -290,6 +309,8 @@ function endRound(playerDown=false,cpuDown=false){
 
   const won=score>cpuScore;
   const tied=score===cpuScore;
+
+  if(won)playSound('win');
 
   saveStats(won?'win':tied?'draw':'loss',score);
 

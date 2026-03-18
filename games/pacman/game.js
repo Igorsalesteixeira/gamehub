@@ -1,5 +1,5 @@
 ﻿import '../../auth-check.js';
-import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  PAC-MAN — game.js
 // =============================================
@@ -331,11 +331,13 @@ function tick() {
     maze[pacman.y][pacman.x] = E;
     score += 10;
     dotsEaten++;
+    playSound('eat');
   } else if (tile === P) {
     maze[pacman.y][pacman.x] = E;
     score += 50;
     dotsEaten++;
     activateFrightened();
+    playSound('eat');
   }
 
   scoreDisplay.textContent = score;
@@ -412,6 +414,7 @@ function checkGhostCollisions() {
         g.mode = MODE_EATEN;
         score += 200;
         scoreDisplay.textContent = score;
+        playSound('eat');
       } else if (g.mode !== MODE_EATEN) {
         // Pac-man dies
         lives--;
@@ -438,6 +441,7 @@ function levelUp() {
 //  START / GAME OVER
 // =============================================
 function startGame() {
+  initAudio();
   initGame();
   overlay.classList.add('hidden');
   running = true;
@@ -463,7 +467,7 @@ function gameOver() {
   overlayScore.textContent = `Pontuacao: ${score} ⭐`;
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
-  playSound('win');
+  playSound('gameover');
 }
 
 // =============================================
