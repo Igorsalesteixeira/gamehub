@@ -3,6 +3,8 @@
 //  Batalha Naval — Games Hub
 // =============================================
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const ROWS = 10;
 const COLS = 10;

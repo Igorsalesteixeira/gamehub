@@ -1,5 +1,7 @@
 ﻿import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // --- Constants ---
 const EMPTY = 0, BLACK = 1, WHITE = 2;
