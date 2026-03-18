@@ -383,6 +383,21 @@ export function initSidebar(options = {}) {
         transform: scale(1.05);
         box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
       }
+      /* Mobile: move button to avoid game controls */
+      @media (max-width: 768px) {
+        .friend-play-float {
+          bottom: 100px;
+          left: 10px;
+          padding: 0.45rem 0.9rem;
+          font-size: 0.75rem;
+        }
+      }
+      /* Landscape mobile: hide button to not interfere with controls */
+      @media (max-height: 500px) and (orientation: landscape) {
+        .friend-play-float {
+          display: none;
+        }
+      }
     `;
     document.head.appendChild(friendStyle);
   }

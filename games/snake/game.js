@@ -418,9 +418,8 @@ document.querySelectorAll('.ctrl-btn').forEach(btn => {
 });
 
 // =============================================
-//  START BUTTON
+//  START BUTTON (registrado na função init)
 // =============================================
-btnStart.addEventListener('click', startGame);
 
 // =============================================
 //  STATS — Supabase
@@ -445,5 +444,19 @@ async function saveGameStat() {
 // =============================================
 //  INIT
 // =============================================
-initGame();
-draw();
+function init() {
+  initGame();
+  draw();
+
+  // Re-registra event listener do botão após DOM garantido
+  if (btnStart) {
+    btnStart.addEventListener('click', startGame);
+  }
+}
+
+// Aguarda DOM estar pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
