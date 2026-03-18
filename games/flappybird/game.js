@@ -1,4 +1,4 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Flappy Bird =====
 import { supabase } from '../../supabase.js';

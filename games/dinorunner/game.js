@@ -1,4 +1,4 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
