@@ -1,5 +1,20 @@
 const { test, expect } = require('@playwright/test');
 
+
+// Mock do supabase para testes
+const mockSupabaseCode = `
+export const supabase = {
+  auth: {
+    getSession: async () => ({ data: { session: { user: { id: 'test-user' } } }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+  },
+  from: () => ({
+    select: () => ({ data: [], error: null }),
+    insert: () => ({ data: null, error: null }),
+  }),
+};
+`;
+
 // Lista de todos os jogos
 const GAMES = [
   // Arcade
@@ -57,6 +72,17 @@ const GAMES = [
   { name: 'pyramid', path: '/games/pyramid/', hasCanvas: false },
   { name: 'cookieclicker', path: '/games/cookieclicker/', hasCanvas: false },
 ];
+
+// Intercepta o supabase.js e retorna mock
+test.beforeEach(async ({ page }) => {
+  await page.route('**/supabase.js', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: mockSupabaseCode,
+    });
+  });
+});
 
 // Teste para cada jogo
 for (const game of GAMES) {
