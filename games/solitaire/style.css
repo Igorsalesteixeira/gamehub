@@ -258,7 +258,27 @@ body {
   border: 1px solid rgba(0,0,0,0.15);
   flex-shrink: 0;
   -webkit-touch-callout: none;
+  touch-action: manipulation; /* Mobile: prevent double-tap zoom */
+  -webkit-tap-highlight-color: transparent; /* Mobile: remove tap highlight */
   container-type: inline-size;
+}
+
+/* Mobile: active state feedback */
+.card.face-up:active {
+  transform: scale(0.96);
+  transition: transform 0.08s;
+}
+
+/* Mobile: larger touch targets */
+@media (max-width: 380px) {
+  .card {
+    width: 48px;
+    height: 68px;
+  }
+  .stock-pile, .waste-pile, .foundation {
+    width: 48px;
+    height: 68px;
+  }
 }
 
 .card.face-down {

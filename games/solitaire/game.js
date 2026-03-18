@@ -1,10 +1,10 @@
 ﻿import '../../auth-check.js';
 // =============================================
 //  PACIÊNCIA (Klondike Solitaire) — game.js
+//  Mobile-optimized: touch targets, feedback, performance
 // =============================================
 import { supabase } from '../../supabase.js';
 
-const IS_TOUCH = 'ontouchstart' in window;
 const SUITS  = ['♠','♥','♦','♣'];
 const RANKS  = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS   = new Set(['♥','♦']);
@@ -391,9 +391,10 @@ const tapTimes = {};
 function getCardDims() {
   const w = window.innerWidth;
   const h = window.innerHeight;
-  if (h < 500) return { w: 50, h: 60, fanOff: 14, offsetUp: 14, offsetDown: 10 }; // landscape
-  if (w <= 380) return { w: 44, h: 62, fanOff: 13, offsetUp: 15, offsetDown: 10 };
-  if (w <= 580) return { w: 50, h: 70, fanOff: 16, offsetUp: 18, offsetDown: 12 };
+  // Mobile: minimum 48px width for touch targets (mobile-games: 44px minimum)
+  if (h < 500) return { w: 52, h: 72, fanOff: 16, offsetUp: 16, offsetDown: 12 }; // landscape
+  if (w <= 380) return { w: 48, h: 68, fanOff: 14, offsetUp: 16, offsetDown: 12 };
+  if (w <= 580) return { w: 54, h: 76, fanOff: 18, offsetUp: 20, offsetDown: 14 };
   return { w: 72, h: 100, fanOff: 18, offsetUp: 24, offsetDown: 20 };
 }
 
