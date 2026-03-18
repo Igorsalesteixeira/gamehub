@@ -360,17 +360,25 @@ export function initSidebar(options = {}) {
     friendBtn.innerHTML = '🎮 Jogar com Amigos';
     document.body.appendChild(friendBtn);
 
+    // Lista de jogos que suportam multiplayer
+    const multiplayerGames = ['truco', 'uno', 'poker', 'buraco', 'chess', 'checkers', 'ludo', 'domino', 'go', 'connect4', 'reversi', 'battleship', 'tictactoe'];
+
+    // So mostra o botao para jogos multiplayer
+    if (!multiplayerGames.includes(gameName)) {
+      return;
+    }
+
     const friendStyle = document.createElement('style');
     friendStyle.textContent = `
       .friend-play-float {
         position: fixed;
-        bottom: 20px;
-        left: 20px;
+        top: 80px;
+        right: 10px;
         background: linear-gradient(135deg, #7c3aed, #a855f7);
         color: #fff;
         border-radius: 999px;
-        padding: 0.55rem 1.1rem;
-        font-size: 0.82rem;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.75rem;
         font-weight: 800;
         font-family: 'Nunito', sans-serif;
         text-decoration: none;
@@ -383,19 +391,13 @@ export function initSidebar(options = {}) {
         transform: scale(1.05);
         box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
       }
-      /* Mobile: move button to avoid game controls */
-      @media (max-width: 768px) {
+      /* Desktop: ajusta posicao */
+      @media (min-width: 769px) {
         .friend-play-float {
-          bottom: 100px;
-          left: 10px;
-          padding: 0.45rem 0.9rem;
-          font-size: 0.75rem;
-        }
-      }
-      /* Landscape mobile: hide button to not interfere with controls */
-      @media (max-height: 500px) and (orientation: landscape) {
-        .friend-play-float {
-          display: none;
+          top: 90px;
+          right: 20px;
+          padding: 0.55rem 1.1rem;
+          font-size: 0.82rem;
         }
       }
     `;
