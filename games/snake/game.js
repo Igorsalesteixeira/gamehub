@@ -3,7 +3,7 @@
 //  COBRINHA (Snake) — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
-import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
+import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
 
 // ---- Config ----
 const GRID_SIZE  = 20; // cells
