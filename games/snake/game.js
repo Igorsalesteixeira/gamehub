@@ -43,20 +43,40 @@ bestDisplay.textContent = bestScore;
 // =============================================
 function resizeCanvas() {
   const container = canvas.parentElement;
-  const maxW = container.clientWidth - 16;
-  const maxH = container.clientHeight - 16;
+  if (!container) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const maxW = Math.max(containerRect.width - 16, 100);
+  const maxH = Math.max(containerRect.height - 16, 100);
+
   const maxCell = Math.floor(Math.min(maxW, maxH) / GRID_SIZE);
   cellSize = Math.max(maxCell, 10);
   const size = cellSize * GRID_SIZE;
-  canvas.width  = size;
-  canvas.height = size;
-  canvas.style.width  = size + 'px';
-  canvas.style.height = size + 'px';
-  draw();
+
+  // Only update if size changed and is valid
+  if (size > 0) {
+    canvas.width  = size;
+    canvas.height = size;
+    canvas.style.width  = size + 'px';
+    canvas.style.height = size + 'px';
+    draw();
+  }
+}
+
+// Ensure canvas has minimum size on init
+function ensureCanvasSize() {
+  if (canvas.width === 0 || canvas.height === 0) {
+    const minSize = 200;
+    canvas.width = minSize;
+    canvas.height = minSize;
+    canvas.style.width = minSize + 'px';
+    canvas.style.height = minSize + 'px';
+  }
 }
 
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
+ensureCanvasSize();
 
 // =============================================
 //  GAME LOGIC
