@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
-import { ParticlePool, Trail, FloatingText } from '../shared/game-2d-utils.js';
 // ===== Flappy Bird =====
 import { supabase } from '../../supabase.js';
 
@@ -24,11 +23,6 @@ let bird, pipes, score, bestScore, gameState, animId;
 let wingPhase = 0;   // 0..1 ciclo da animação de asa
 let shakeFrames = 0; // frames restantes de screen shake
 
-// 2D Effects
-const particles = new ParticlePool(100);
-const birdTrail = new Trail(10);
-const floatingTexts = new FloatingText();
-
 bestScore = parseInt(localStorage.getItem('flappy_best') || '0');
 bestDisplay.textContent = bestScore;
 
@@ -39,9 +33,6 @@ function init() {
   gameState = 'waiting'; // waiting, playing, dead
   wingPhase = 0;
   shakeFrames = 0;
-  particles.clear();
-  birdTrail.clear();
-  floatingTexts.clear();
   startMsg.classList.remove('hidden');
   if (animId) cancelAnimationFrame(animId);
   loop();
@@ -70,24 +61,12 @@ function spawnPipe() {
 }
 
 function update() {
-  // Update 2D effects
-  particles.update();
-  birdTrail.update();
-  floatingTexts.update();
-
   if (gameState !== 'playing') return;
 
   // Bird physics
   bird.vy += GRAVITY;
-  bird.y += bird.y;
+  bird.y += bird.vy;
   bird.rotation = Math.min(bird.vy * 3, 90);
-
-  // Add trail point
-  birdTrail.addPoint(bird.x, bird.y + BIRD_SIZE / 2, {
-    color: '#f9c22e',
-    size: 4,
-    life: 12
-  });
 
   // Pipes
   if (pipes.length === 0 || pipes[pipes.length - 1].x < W - 200) {
@@ -130,18 +109,6 @@ function update() {
 function die() {
   gameState = 'dead';
   shakeFrames = 12; // screen shake por 12 frames
-  // Particles ao bater
-  particles.spawnBurst(bird.x + BIRD_SIZE / 2, bird.y + BIRD_SIZE / 2, 15, {
-    colors: ['#f9c22e', '#e6a800', '#fff', '#ff6b35'],
-    speed: 5,
-    life: 30
-  });
-  // Floating text
-  floatingTexts.add(bird.x, bird.y - 20, 'OUCH!', {
-    color: '#ff5252',
-    vy: -1,
-    life: 30
-  });
   // Mobile: feedback tátil na morte (impacto)
   if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
   playSound('error');
@@ -186,25 +153,6 @@ function draw() {
   ctx.fillRect(0, H - 50, W, 8);
 
   // Pipes
-  for (const pipe of pipes) {
-    // Top pipe
-    ctx.fillStyle = '#4caf50';
-    ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.topH);
-    ctx.fillStyle = '#388e3c';
-    ctx.fillRect(pipe.x - 3, pipe.topH - 20, PIPE_WIDTH + 6, 20);
-
-    // Bottom pipe
-    const botY = pipe.topH + PIPE_GAP;
-    ctx.fillStyle = '#4caf50';
-    ctx.fillRect(pipe.x, botY, PIPE_WIDTH, H - botY - 50);
-    ctx.fillStyle = '#388e3c';
-    ctx.fillRect(pipe.x - 3, botY, PIPE_WIDTH + 6, 20);
-  }
-
-  // Draw trail
-  birdTrail.draw(ctx);
-
-  // Bird
   ctx.save();
   ctx.translate(bird.x + BIRD_SIZE / 2, bird.y + BIRD_SIZE / 2);
   ctx.rotate((bird.rotation * Math.PI) / 180);
@@ -264,10 +212,6 @@ function draw() {
     ctx.font = '16px Nunito';
     ctx.fillText('Toque para jogar novamente', W / 2, H / 2 + 50);
   }
-
-  // Draw 2D effects
-  particles.draw(ctx);
-  floatingTexts.draw(ctx);
 
   ctx.restore(); // fecha o save do screen shake
 }

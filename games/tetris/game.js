@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { ParticlePool, ScreenShake, FloatingText } from '../shared/game-2d-utils.js';
 // ===== Tetris =====
 import { supabase } from '../../supabase.js';
 
@@ -35,11 +34,6 @@ const SHAPES = [
 ];
 
 let board, current, next, score, level, lines, dropInterval, dropTimer, gameOver, paused, animId;
-
-// ---- 2D Effects ----
-const particlePool = new ParticlePool(100);
-const screenShake = new ScreenShake();
-const floatingText = new FloatingText();
 
 function createPiece(shapeIdx) {
   const shape = SHAPES[shapeIdx];
@@ -88,15 +82,6 @@ function init() {
 }
 
 function draw() {
-  // Update 2D effects
-  particlePool.update();
-  floatingText.update();
-
-  ctx.save();
-
-  // Apply screen shake
-  screenShake.apply(ctx);
-
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -147,14 +132,6 @@ function draw() {
         if (next.shape[r][c])
           drawBlock(nextCtx, ox + c, oy + r, next.color, 20);
   }
-
-  // 2D Effects: particles
-  particlePool.draw(ctx);
-
-  // 2D Effects: floating text
-  floatingText.draw(ctx);
-
-  ctx.restore(); // Restore from screen shake
 
   // Pausa overlay
   if (paused) {
@@ -238,29 +215,6 @@ function clearLines() {
       const pattern = cleared === 4 ? [30, 20, 40, 20, 50] : cleared === 3 ? [25, 15, 35] : [20, 10, 25];
       navigator.vibrate(pattern);
     }
-    // 2D Effects: screen shake ao limpar linhas
-    screenShake.shake(cleared * 3);
-    // 2D Effects: particles nas linhas destruídas
-    clearedRows.forEach(row => {
-      for (let c = 0; c < COLS; c++) {
-        const px = c * BLOCK + BLOCK / 2;
-        const py = row * BLOCK + BLOCK / 2;
-        for (let i = 0; i < 3; i++) {
-          particlePool.get(
-            px, py,
-            (Math.random() - 0.5) * 4,
-            (Math.random() - 0.5) * 4,
-            25,
-            COLORS[Math.floor(Math.random() * COLORS.length)],
-            3 + Math.random() * 2
-          );
-        }
-      }
-    });
-    // Floating text com pontos
-    const centerX = (canvas.width / 2);
-    const centerY = (canvas.height / 2);
-    floatingText.add(`+${linePoints}`, centerX, centerY - 50, '#ffd32a', 20, 50);
   }
 }
 

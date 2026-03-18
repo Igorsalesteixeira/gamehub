@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { Trail, ScreenShake } from '../shared/game-2d-utils.js';
 // ===== Pong =====
 import { supabase } from '../../supabase.js';
 
@@ -28,10 +27,6 @@ let player, cpu, ball, playerScore, cpuScore, gameOver, animId;
 let keysDown = {};
 let ballTrail = []; // posições recentes da bola para efeito trail
 let cpuTargetError = 12; // offset de erro atual da IA
-
-// ---- 2D Effects ----
-const trailEffect = new Trail(10);
-const screenShake = new ScreenShake();
 
 function getDifficulty() {
   const sel = document.getElementById('difficulty-select');
@@ -89,10 +84,9 @@ function update() {
   }
   cpu.y = Math.max(0, Math.min(H - PADDLE_H, cpu.y));
 
-  // Atualizar trail da bola (2D effect)
+  // Atualizar trail da bola
   ballTrail.push({ x: ball.x, y: ball.y });
   if (ballTrail.length > 7) ballTrail.shift();
-  trailEffect.add(ball.x + BALL_SIZE / 2, ball.y + BALL_SIZE / 2);
 
   // Ball movement
   ball.x += ball.vx;
@@ -132,28 +126,18 @@ function update() {
   if (ball.x < -20) {
     cpuScore++;
     playSound('click');
-    screenShake.shake(8); // 2D Effect: screen shake ao marcar ponto
     if (cpuScore >= WIN_SCORE) endGame('cpu');
     else resetBall();
   }
   if (ball.x > W + 20) {
     playerScore++;
     playSound('click');
-    screenShake.shake(8); // 2D Effect: screen shake ao marcar ponto
     if (playerScore >= WIN_SCORE) endGame('player');
     else resetBall();
   }
 }
 
 function draw() {
-  // Update 2D effects
-  trailEffect.update();
-
-  ctx.save();
-
-  // Apply screen shake
-  screenShake.apply(ctx);
-
   ctx.fillStyle = '#111';
   ctx.fillRect(0, 0, W, H);
 
@@ -173,7 +157,7 @@ function draw() {
   ctx.fillStyle = '#4dabf7';
   ctx.fillRect(cpu.x, cpu.y, PADDLE_W, PADDLE_H);
 
-  // Ball trail (2D effect)
+  // Ball trail
   ballTrail.forEach((pos, i) => {
     const alpha = (i / ballTrail.length) * 0.35;
     const r = (BALL_SIZE / 2) * ((i + 1) / ballTrail.length);
@@ -182,8 +166,6 @@ function draw() {
     ctx.arc(pos.x + BALL_SIZE / 2, pos.y + BALL_SIZE / 2, r, 0, Math.PI * 2);
     ctx.fill();
   });
-  // 2D Effects: trail effect
-  trailEffect.draw(ctx, '#fff', BALL_SIZE);
 
   // Ball
   ctx.fillStyle = '#fff';
@@ -197,8 +179,6 @@ function draw() {
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
   ctx.fillText(playerScore, W / 4, 60);
   ctx.fillText(cpuScore, (3 * W) / 4, 60);
-
-  ctx.restore(); // Restore from screen shake
 }
 
 function endGame(winner) {

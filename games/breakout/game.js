@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { ParticlePool, ScreenShake, FloatingText } from '../shared/game-2d-utils.js';
 // =============================================
 //  BREAKOUT — game.js
 // =============================================
@@ -41,11 +40,6 @@ let animFrame = null;
 let bestScore = parseInt(localStorage.getItem('breakout_best') || '0');
 let keysDown = {};
 let startTime = 0;
-
-// ---- 2D Effects ----
-const particlePool = new ParticlePool(100);
-const screenShake = new ScreenShake();
-const floatingText = new FloatingText();
 
 // ---- Power-ups ----
 let powerUps = [];
@@ -186,23 +180,6 @@ function update() {
           score += brick.points;
           scoreDisplay.textContent = score;
           playSound('explosion');
-          // 2D Effects: particles ao quebrar bloco
-          const bx = brick.x + brick.w / 2;
-          const by = brick.y + brick.h / 2;
-          for (let i = 0; i < 6; i++) {
-            particlePool.get(
-              bx, by,
-              (Math.random() - 0.5) * 5,
-              (Math.random() - 0.5) * 5,
-              30,
-              brick.color,
-              3 + Math.random() * 3
-            );
-          }
-          // 2D Effects: screen shake leve
-          screenShake.shake(3);
-          // Floating text com pontos
-          floatingText.add(`+${brick.points}`, bx, by - 10, '#fff', 12, 35);
           // chance to spawn power-up
           if (Math.random() < 0.15) {
             const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
@@ -210,8 +187,6 @@ function update() {
           }
         } else {
           playSound('hit');
-          // 2D Effects: screen shake muito leve ao bater
-          screenShake.shake(1);
         }
         // Bounce ball
         const overlapX = Math.min(b.x + BALL_RADIUS - brick.x, brick.x + brick.w - (b.x - BALL_RADIUS));
@@ -300,15 +275,6 @@ function applyPowerUp(type) {
 //  DRAW
 // =============================================
 function draw() {
-  // Update 2D effects
-  particlePool.update();
-  floatingText.update();
-
-  ctx.save();
-
-  // Apply screen shake
-  screenShake.apply(ctx);
-
   ctx.clearRect(0, 0, W, H);
 
   // Bricks
@@ -364,14 +330,6 @@ function draw() {
     const label = p.type === 'wide' ? 'W' : p.type === 'multi' ? 'M' : '+';
     ctx.fillText(label, p.x, p.y);
   }
-
-  // 2D Effects: particles
-  particlePool.draw(ctx);
-
-  // 2D Effects: floating text
-  floatingText.draw(ctx);
-
-  ctx.restore(); // Restore from screen shake
 }
 
 // =============================================

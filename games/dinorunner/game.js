@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { ParticlePool, Trail } from '../shared/game-2d-utils.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
 
@@ -37,10 +36,6 @@ let paused = false;
 let shakeFrames = 0;      // screen shake ao morrer
 let obstaclesCrossed = 0; // contador para combo
 let comboPopup = null;    // { text, x, y, alpha, frame }
-
-// ---- 2D Effects ----
-const particlePool = new ParticlePool(50);
-const trailEffect = new Trail(12);
 
 bestScore = parseInt(localStorage.getItem('dino_best') || '0');
 bestDisplay.textContent = bestScore;
@@ -158,27 +153,10 @@ function update() {
       dino.y = GROUND_Y - dino.h;
       dino.vy = 0;
       dino.grounded = true;
-      // 2D Effects: particles ao pousar
-      for (let i = 0; i < 5; i++) {
-        particlePool.get(
-          dino.x + dino.w / 2 + (Math.random() - 0.5) * 20,
-          GROUND_Y,
-          (Math.random() - 0.5) * 3,
-          -Math.random() * 2 - 1,
-          20,
-          '#3a7d32',
-          2 + Math.random() * 2
-        );
-      }
     }
   }
 
   dino.legFrame++;
-
-  // 2D Effects: trail ao correr (apenas quando no chão e em velocidade)
-  if (dino.grounded && speed > INITIAL_SPEED + 2) {
-    trailEffect.add(dino.x, dino.y + dino.h);
-  }
 
   // Spawn obstacles
   const minDist = 250 + Math.random() * 200;
@@ -261,10 +239,6 @@ function die() {
 
 // ===== DRAW =====
 function draw() {
-  // Update 2D effects
-  particlePool.update();
-  trailEffect.update();
-
   ctx.save();
   // Screen shake ao morrer
   if (shakeFrames > 0) {
@@ -311,12 +285,6 @@ function draw() {
     const gx = ((i * 60) - (frameCount * speed * 0.5) % (W + 60) + W) % (W + 60) - 30;
     ctx.fillRect(gx, GROUND_Y + 8, 20, 2);
   }
-
-  // 2D Effects: trail ao correr
-  trailEffect.draw(ctx, 'rgba(74, 222, 128, 0.3)', 4);
-
-  // 2D Effects: particles
-  particlePool.draw(ctx);
 
   // Obstaculos
   for (const obs of obstacles) {
@@ -499,18 +467,6 @@ function jump() {
     isDucking = false;
     dino.h = DINO_H;
     playSound('jump');
-    // 2D Effects: particles ao pular
-    for (let i = 0; i < 6; i++) {
-      particlePool.get(
-        dino.x + dino.w / 2 + (Math.random() - 0.5) * 20,
-        GROUND_Y,
-        (Math.random() - 0.5) * 3,
-        -Math.random() * 2 - 1,
-        25,
-        '#4ade80',
-        3 + Math.random() * 2
-      );
-    }
   }
 }
 

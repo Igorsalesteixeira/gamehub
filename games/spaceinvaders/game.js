@@ -1,6 +1,5 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
-import { ParticlePool, ScreenShake, FloatingText } from '../shared/game-2d-utils.js';
 // =============================================
 //  Space Invaders — Games Hub
 // =============================================
@@ -82,11 +81,6 @@ let alienShootInterval = 90; // frames
 // Explosions
 let explosions = [];
 
-// 2D Effects
-const particles = new ParticlePool(150);
-const screenShake = new ScreenShake();
-const floatingTexts = new FloatingText();
-
 // ===== ALIEN PIXEL ART PATTERNS =====
 // Each pattern is a grid of 0/1 (7 wide x 5 tall)
 const ALIEN_PATTERNS = [
@@ -163,9 +157,6 @@ function startGame() {
   alienMoveInterval = 40;
   alienShootInterval = 90;
   alienShootTimer = 0;
-  particles.clear();
-  screenShake.reset();
-  floatingTexts.clear();
   initAliens();
   updateHUD();
   state = 'playing';
@@ -367,19 +358,6 @@ function update() {
           life: 15,
           maxLife: 15,
         });
-        // Particle burst ao destruir inimigo
-        const alienColors = ['#ff6b6b', '#ffd93d', '#6bcb77'];
-        particles.spawnBurst(a.x + ALIEN_W / 2, a.y + ALIEN_H / 2, 12, {
-          colors: [alienColors[a.type], '#fff', '#ffaa00'],
-          speed: 4,
-          life: 25
-        });
-        // Floating text com pontos
-        floatingTexts.add(a.x + ALIEN_W / 2, a.y, `+${ALIEN_POINTS[a.type]}`, {
-          color: alienColors[a.type],
-          vy: -1.5,
-          life: 35
-        });
         playSound('explosion');
         updateHUD();
 
@@ -411,14 +389,6 @@ function update() {
         y: playerY,
         life: 20,
         maxLife: 20,
-      });
-      // Screen shake ao ser atingido
-      screenShake.shake(12, 0.85);
-      // Particles vermelhas de dano
-      particles.spawnBurst(playerX, playerY, 10, {
-        colors: ['#ff5252', '#ff1744', '#fff'],
-        speed: 5,
-        life: 20
       });
       if (lives <= 0) {
         gameOver();
@@ -485,15 +455,7 @@ function render() {
 
   drawStars();
 
-  // Apply screen shake
-  ctx.save();
-  screenShake.apply(ctx);
-
   if (state !== 'playing') {
-    // Still draw effects during game over
-    particles.draw(ctx);
-    floatingTexts.draw(ctx);
-    ctx.restore();
     return;
   }
 
@@ -518,12 +480,6 @@ function render() {
   // Explosions
   drawExplosions();
 
-  // 2D Effects
-  particles.draw(ctx);
-  floatingTexts.draw(ctx);
-
-  ctx.restore(); // End screen shake
-
   // Pausa overlay
   if (paused) {
     ctx.save();
@@ -545,10 +501,6 @@ function render() {
 // ===== GAME LOOP =====
 function gameLoop() {
   update();
-  // Update 2D effects
-  particles.update();
-  screenShake.update();
-  floatingTexts.update();
   render();
   requestAnimationFrame(gameLoop);
 }
