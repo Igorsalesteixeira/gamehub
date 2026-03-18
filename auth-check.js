@@ -8,20 +8,26 @@ function redirectToAuth() {
   window.location.href = window.location.origin + '/auth.html';
 }
 
+// Aguarda um momento para o Supabase inicializar
 async function checkAuth() {
+  // Aguarda 500ms para garantir que o Supabase inicializou
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) {
-      console.error('Erro Supabase:', error);
+      console.error('[auth-check] Erro Supabase:', error);
       redirectToAuth();
       return;
     }
     if (!session) {
-      console.log('Usuário não autenticado, redirecionando...');
+      console.log('[auth-check] Usuário não autenticado, redirecionando...');
       redirectToAuth();
+    } else {
+      console.log('[auth-check] Usuário autenticado:', session.user.email);
     }
   } catch (err) {
-    console.error('Erro ao verificar autenticação:', err);
+    console.error('[auth-check] Erro ao verificar autenticação:', err);
     redirectToAuth();
   }
 }
