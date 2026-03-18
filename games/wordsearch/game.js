@@ -1,5 +1,6 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
+import { ParticlePool, HighlightAnimation, FloatingText } from '../shared/game-2d-utils.js';
 // ===== Caça-Palavras =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -30,6 +31,11 @@ let selEnd = null;
 let foundLines = [];
 let timerInterval = null;
 let startTime = 0;
+
+// 2D Effects
+const particles = new ParticlePool(100);
+const highlights = new HighlightAnimation();
+const floatingTexts = new FloatingText();
 
 const canvas = document.getElementById('grid-canvas');
 const ctx = canvas.getContext('2d');
@@ -131,10 +137,18 @@ function draw() {
   const size = GRID_SIZE * CELL;
   ctx.clearRect(0, 0, size, size);
 
+  // Update 2D effects
+  particles.update();
+  highlights.update();
+  floatingTexts.update();
+
   // Draw found lines
   for (const line of foundLines) {
     drawLine(line.cells, '#4ade80', 0.25);
   }
+
+  // Draw highlight animations
+  highlights.draw(ctx);
 
   // Draw current selection
   if (selecting && selStart && selEnd) {
@@ -155,6 +169,10 @@ function draw() {
       ctx.fillText(grid[r][c], x, y);
     }
   }
+
+  // Draw 2D effects
+  particles.draw(ctx);
+  floatingTexts.draw(ctx);
 }
 
 function drawLine(cells, color, alpha) {
@@ -220,6 +238,34 @@ function checkSelection(cells) {
       foundLines.push({ cells: [...cells] });
       const li = document.querySelector(`[data-word="${pw.word}"]`);
       if (li) li.classList.add('found');
+
+      // Highlight animation ao encontrar palavra
+      const cs = CELL;
+      for (const [r, c] of cells) {
+        highlights.add(c * cs, r * cs, cs, cs, {
+          color: '#4ade80',
+          life: 40
+        });
+      }
+
+      // Particles ao encontrar palavra
+      const centerR = cells[Math.floor(cells.length / 2)][0];
+      const centerC = cells[Math.floor(cells.length / 2)][1];
+      const px = centerC * cs + cs / 2;
+      const py = centerR * cs + cs / 2;
+      particles.spawnBurst(px, py, 12, {
+        colors: ['#4ade80', '#22c55e', '#fff', '#86efac'],
+        speed: 4,
+        life: 35
+      });
+
+      // Floating text
+      floatingTexts.add(px, py - 15, 'ENCONTRADA!', {
+        color: '#4ade80',
+        vy: -1,
+        life: 30
+      });
+
       if (foundWords.size === words.length) {
         setTimeout(onWin, 300);
       }
@@ -363,6 +409,9 @@ function newGame() {
   selecting = false;
   selStart = null;
   selEnd = null;
+  particles.clear();
+  highlights.clear();
+  floatingTexts.clear();
   generatePuzzle();
   initCanvas();
   renderWordList();

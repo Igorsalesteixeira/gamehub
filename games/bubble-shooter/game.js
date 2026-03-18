@@ -1,5 +1,6 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { ParticlePool, Trail, FloatingText } from '../shared/game-2d-utils.js';
 // =============================================
 //  BUBBLE SHOOTER — game.js
 // =============================================
@@ -49,6 +50,11 @@ let animFrameId   = null;
 // Pop animations
 let popParticles  = []; // { x, y, color, r, alpha, vx, vy }
 let floatParticles = []; // same but green tint
+
+// 2D Effects
+const particles = new ParticlePool(200);
+const bubbleTrail = new Trail(12);
+const floatingTexts = new FloatingText();
 
 // Shooter base position
 const SHOOTER_X = CW / 2;
@@ -256,16 +262,44 @@ function processPop(row, col) {
   playSound('pop');
 
   let pts = 0;
+  let centerX = 0, centerY = 0;
   for (const [r, c] of matched) {
-    spawnPopParticles(bubbleX(c, r), bubbleY(r), grid[r][c], false);
+    const bx = bubbleX(c, r);
+    const by = bubbleY(r);
+    spawnPopParticles(bx, by, grid[r][c], false);
+    // Particle burst
+    particles.spawnBurst(bx, by, 8, {
+      colors: [grid[r][c], '#fff'],
+      speed: 3,
+      life: 25
+    });
+    centerX += bx;
+    centerY += by;
     grid[r][c] = null;
     pts += 10;
+  }
+
+  // Floating text for combo
+  if (matched.length >= 3) {
+    centerX /= matched.length;
+    centerY /= matched.length;
+    floatingTexts.add(centerX, centerY - 20, `+${pts}`, {
+      color: '#69f0ae',
+      vy: -1.2,
+      life: 35
+    });
   }
 
   // Now find floating bubbles
   const floating = findFloating();
   for (const [r, c] of floating) {
     spawnPopParticles(bubbleX(c, r), bubbleY(r), grid[r][c], true);
+    // Particle burst for floating bubbles
+    particles.spawnBurst(bubbleX(c, r), bubbleY(r), 6, {
+      colors: ['#69f0ae', grid[r][c]],
+      speed: 4,
+      life: 30
+    });
     grid[r][c] = null;
     pts += 5;
   }
@@ -437,6 +471,9 @@ function newGame() {
   flyingBubble = null;
   popParticles = [];
   floatParticles = [];
+  particles.clear();
+  bubbleTrail.clear();
+  floatingTexts.clear();
   startTime    = Date.now();
 
   scoreDisplay.textContent = '0';
@@ -679,6 +716,13 @@ function drawScore() {
 function updateFlyingBubble() {
   if (!flyingBubble) return;
 
+  // Add trail point
+  bubbleTrail.addPoint(flyingBubble.x, flyingBubble.y, {
+    color: flyingBubble.color,
+    size: R * 0.6,
+    life: 10
+  });
+
   flyingBubble.x += flyingBubble.dx;
   flyingBubble.y += flyingBubble.dy;
 
@@ -761,9 +805,19 @@ function loop() {
   ctx.fillRect(0, 0, CW, CH);
 
   if (!gameRunning) {
+    // Still draw effects
+    particles.update();
+    particles.draw(ctx);
+    floatingTexts.update();
+    floatingTexts.draw(ctx);
     animFrameId = requestAnimationFrame(loop);
     return;
   }
+
+  // Update 2D effects
+  particles.update();
+  bubbleTrail.update();
+  floatingTexts.update();
 
   updateFlyingBubble();
   updateParticles();
@@ -776,6 +830,11 @@ function loop() {
   drawNextBubble();
   drawShotsCounter();
   drawParticles();
+
+  // Draw 2D effects
+  bubbleTrail.draw(ctx);
+  particles.draw(ctx);
+  floatingTexts.draw(ctx);
 
   animFrameId = requestAnimationFrame(loop);
 }

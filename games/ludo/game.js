@@ -1,5 +1,6 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { ParticlePool, Trail, FloatingText } from '../shared/game-2d-utils.js';
 import { supabase } from '../../supabase.js';
 
 // =============================================
@@ -73,6 +74,11 @@ let animating = false;
 let highlightedPieces; // Set of ti indices valid to move this turn
 let isProcessing = false; // Flag para prevenir cliques duplos
 
+// 2D Effects
+const particles = new ParticlePool(100);
+const moveTrail = new Trail(15);
+const floatingTexts = new FloatingText();
+
 // ---- DOM ----
 const canvas    = document.getElementById('ludo-canvas');
 const ctx       = canvas.getContext('2d');
@@ -104,6 +110,9 @@ function initGame() {
   startTime = Date.now();
   clearInterval(timerInterval);
   timerInterval = setInterval(updateTimer, 1000);
+  particles.clear();
+  moveTrail.clear();
+  floatingTexts.clear();
 
   updateTimer();
   updateScores();
@@ -186,6 +195,11 @@ function computeNewPos(ci, ti, dice) {
 function drawBoard() {
   ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
+  // Update 2D effects
+  particles.update();
+  moveTrail.update();
+  floatingTexts.update();
+
   // Draw base background grid
   for (let r = 0; r < 15; r++) {
     for (let c = 0; c < 15; c++) {
@@ -212,6 +226,11 @@ function drawBoard() {
 
   // Draw pieces
   drawAllPieces();
+
+  // Draw 2D effects
+  moveTrail.draw(ctx);
+  particles.draw(ctx);
+  floatingTexts.draw(ctx);
 }
 
 function getCellBg(c, r) {
@@ -653,7 +672,28 @@ function movePiece(ci, ti) {
   playSound('move');
   haptic(15);
 
+  const oldPos = pieces[ci][ti].pos;
   const newPos = computeNewPos(ci, ti, diceValue);
+
+  // Add trail points for movement animation
+  if (oldPos >= 0 && oldPos < 58) {
+    const oldGrid = getGrid(ci, oldPos);
+    const newGrid = getGrid(ci, newPos);
+    if (oldGrid && newGrid) {
+      const [ox, oy] = gridToCanvas(oldGrid[0], oldGrid[1]);
+      const [nx, ny] = gridToCanvas(newGrid[0], newGrid[1]);
+      // Add intermediate trail points
+      for (let i = 0; i <= 5; i++) {
+        const t = i / 5;
+        moveTrail.addPoint(ox + (nx - ox) * t, oy + (ny - oy) * t, {
+          color: COLOR_HEX[ci],
+          size: 8,
+          life: 15
+        });
+      }
+    }
+  }
+
   pieces[ci][ti].pos = newPos;
 
   // Check capture
@@ -682,6 +722,23 @@ function movePiece(ci, ti) {
   if (newPos >= 58) {
     finishOrder.push(ci);
     if (ci === 0) updateTurnMsg('Uma peça chegou ao centro!');
+    // Particles ao chegar no final
+    const centerGrid = getGrid(ci, 58);
+    if (centerGrid) {
+      const [cx, cy] = gridToCanvas(centerGrid[0], centerGrid[1]);
+      particles.spawnBurst(cx, cy, 20, {
+        colors: [COLOR_HEX[ci], '#fff', '#ffd700', COLOR_LIGHT[ci]],
+        speed: 5,
+        life: 40
+      });
+      // Floating text
+      floatingTexts.add(cx, cy - 20, 'META!', {
+        color: '#ffd700',
+        vy: -1.5,
+        life: 40,
+        font: 'bold 16px Nunito'
+      });
+    }
     if (checkWin(ci)) return;
   }
 

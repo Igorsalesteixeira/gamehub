@@ -1,5 +1,6 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { ParticlePool, Trail, FloatingText } from '../shared/game-2d-utils.js';
 // =============================================
 //  PAC-MAN — game.js
 // =============================================
@@ -74,6 +75,11 @@ let gameLoop = null;
 let tickCount = 0;
 let frightenedTimer = 0;
 let cellSize = 0;
+
+// 2D Effects
+const particles = new ParticlePool(100);
+const pacmanTrail = new Trail(8);
+const floatingTexts = new FloatingText();
 
 // Ghost modes
 const MODE_SCATTER = 'scatter';
@@ -152,6 +158,9 @@ function initGame() {
   frightenedTimer = 0;
   scoreDisplay.textContent = 0;
   livesDisplay.textContent = 3;
+  particles.clear();
+  pacmanTrail.clear();
+  floatingTexts.clear();
 }
 
 function resetPositions() {
@@ -294,6 +303,21 @@ function moveGhost(ghost) {
 function tick() {
   tickCount++;
 
+  // Update 2D effects
+  particles.update();
+  pacmanTrail.update();
+  floatingTexts.update();
+
+  // Add trail point when moving
+  if (pacman.dir.x !== 0 || pacman.dir.y !== 0) {
+    const cs = cellSize;
+    pacmanTrail.addPoint(pacman.x * cs + cs / 2, pacman.y * cs + cs / 2, {
+      color: '#ffff00',
+      size: cs * 0.3,
+      life: 8
+    });
+  }
+
   // Toggle scatter/chase every ~7 seconds (about 47 ticks)
   if (frightenedTimer <= 0) {
     const cyclePos = tickCount % 94;
@@ -337,6 +361,22 @@ function tick() {
     score += 50;
     dotsEaten++;
     activateFrightened();
+    // Particles ao comer ponto grande
+    const cs = cellSize;
+    const px = pacman.x * cs + cs / 2;
+    const py = pacman.y * cs + cs / 2;
+    particles.spawnBurst(px, py, 16, {
+      colors: ['#ffcc66', '#fff', '#ff6b35', '#ffd93d'],
+      speed: 5,
+      life: 40
+    });
+    // Floating text POWER!
+    floatingTexts.add(px, py - 20, 'POWER!', {
+      color: '#ffcc66',
+      vy: -1.5,
+      life: 40,
+      font: 'bold 14px Nunito'
+    });
     playSound('eat');
   }
 
@@ -477,6 +517,9 @@ function draw() {
   const cs = cellSize;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Draw trail
+  pacmanTrail.draw(ctx);
+
   // Draw maze
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -517,6 +560,10 @@ function draw() {
     if (g.releaseTimer > 0 && g.releaseTimer > 10) continue; // don't draw until almost released
     drawGhost(g);
   }
+
+  // Draw 2D effects
+  particles.draw(ctx);
+  floatingTexts.draw(ctx);
 
   // Draw lives indicator at the bottom
   const lifeY = ROWS * cs + 2;
