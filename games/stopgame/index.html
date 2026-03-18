@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -31,6 +31,8 @@
     gtag('js', new Date());
     gtag('config', 'G-LNTD0KNJ6T');
   </script>
+  <meta name="theme-color" content="#ff6b35" />
+  <link rel="manifest" href="/manifest.json" />
 </head>
 <body>
   <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>✋ Stop!</h1></div>
@@ -48,8 +50,9 @@
     </div>
     <div class="results" id="results" style="display:none"></div>
   </div>
-  <script type="module" src="game.js?v=4"></script>
+  <script type="module" src="game.js?v=5"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'stop' });</script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Stop (Adedonha) Online</h2>

@@ -19,7 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
+  <meta name="theme-color" content="#ff6b35" />
+  <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -89,7 +91,8 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=4"></script>
+  <script type="module" src="game.js?v=5"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Pac-Man Online</h2>
