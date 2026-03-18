@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -56,15 +56,15 @@
       <button class="ctrl-btn" id="btn-up">▲</button>
       <button class="ctrl-btn" id="btn-down">▼</button>
     </div>
-    <button class="btn btn-primary animate-bounce-in" id="btn-new-game">Novo Jogo</button>
+    <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
   </main>
 
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <h2 id="modal-title">Fim de Jogo!</h2>
       <p id="modal-message"></p>
-      <button class="btn btn-primary animate-bounce-in" id="btn-play-again">Jogar Novamente</button>
-      <button class="btn btn-whatsapp animate-slide-up" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pong no Games Hub! Venha tentar me bater!')">📱 Compartilhar</button>
+      <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pong no Games Hub! Venha tentar me bater!')">�artilhar</button>
     </div>
   </div>
 
@@ -72,7 +72,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pong' });
   </script>
-  <script type="module" src="game.js?v=5"></script>
+  <script type="module" src="game.js?v=6"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=2" />
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -71,9 +71,9 @@
     </div>
   </main>
 
-  <div class="modal-overlay animate-slide-up" id="modal-overlay">
+  <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-      <div class="modal-icon animate-bounce-in">🎉</div>
+      <div class="modal-icon">🎉</div>
       <h2>Parabens!</h2>
       <p id="modal-message">Voce completou o Sudoku!</p>
       <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
@@ -85,7 +85,7 @@
     import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'sudoku' });
   </script>
-  <script type="module" src="game.js?v=5"></script>
+  <script type="module" src="game.js?v=6"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

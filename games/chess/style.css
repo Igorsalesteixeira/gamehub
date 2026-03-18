@@ -223,7 +223,6 @@ body {
 }
 
 /* ===== SEO GAME INFO SECTION ===== */
-body:has(.game-info) { overflow-y: auto; height: auto; min-height: 100dvh; }
 .game-info {
   max-width: 780px;
   margin: 1rem auto;

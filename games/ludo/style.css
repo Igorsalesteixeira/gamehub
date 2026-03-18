@@ -276,7 +276,6 @@ body {
 }
 
 /* ===== SEO GAME INFO ===== */
-body:has(.game-info) { overflow-y: auto; }
 .game-info {
   max-width: 780px;
   margin: 1rem auto;
