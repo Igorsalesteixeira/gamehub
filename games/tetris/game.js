@@ -203,6 +203,11 @@ function clearLines() {
     level = Math.floor(lines / 10) + 1;
     dropInterval = Math.max(100, 1000 - (level - 1) * 80);
     updateUI();
+    // Mobile: feedback tátil ao limpar linhas (mais intenso = mais linhas)
+    if (navigator.vibrate) {
+      const pattern = cleared === 4 ? [30, 20, 40, 20, 50] : cleared === 3 ? [25, 15, 35] : [20, 10, 25];
+      navigator.vibrate(pattern);
+    }
   }
 }
 
@@ -242,6 +247,8 @@ function endGame() {
   modalMessage.textContent = `Pontuacao: ${score}`;
   modalOverlay.classList.add('show');
   saveGameStat();
+  // Mobile: feedback tátil no game over
+  if (navigator.vibrate) navigator.vibrate([60, 30, 100]);
 }
 
 function updateUI() {
@@ -266,11 +273,24 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Mobile controls
-document.getElementById('btn-left').addEventListener('click', () => { if (!gameOver && !paused) moveLeft(); });
-document.getElementById('btn-right').addEventListener('click', () => { if (!gameOver && !paused) moveRight(); });
-document.getElementById('btn-down').addEventListener('click', () => { if (!gameOver && !paused) hardDrop(); });
-document.getElementById('btn-rotate').addEventListener('click', () => { if (!gameOver && !paused) rotate(); });
+// Mobile controls (with haptic feedback)
+function setupMobileButton(btnId, action) {
+  const btn = document.getElementById(btnId);
+  const handler = () => {
+    if (!gameOver && !paused) {
+      action();
+      // Mobile: feedback tátil nos botões
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+  };
+  btn.addEventListener('click', handler);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive: false });
+}
+
+setupMobileButton('btn-left', moveLeft);
+setupMobileButton('btn-right', moveRight);
+setupMobileButton('btn-down', hardDrop);
+setupMobileButton('btn-rotate', rotate);
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
