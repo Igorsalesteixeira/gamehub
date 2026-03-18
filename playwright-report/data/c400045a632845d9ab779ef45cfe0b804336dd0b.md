@@ -1,0 +1,296 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - button "Abrir menu" [ref=e3] [cursor=pointer]
+    - link "← Voltar" [ref=e7] [cursor=pointer]:
+      - /url: ../../index.html
+    - heading "🀱 Dominó" [level=1] [ref=e8]
+    - generic [ref=e9]:
+      - generic [ref=e10]: 🁣 14
+      - generic [ref=e11]: 🤖 7
+      - generic [ref=e12]: ⏱ 00:07
+  - generic [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e16]: — ?
+        - generic [ref=e17]: Cadeia
+        - generic [ref=e18]: "? —"
+      - generic [ref=e21]: Inicie colocando a primeira peça
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: Sua vez
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - text: "Placar:"
+            - strong [ref=e27]: "0"
+          - generic [ref=e28]:
+            - text: "Vit:"
+            - strong [ref=e29]: "0"
+      - button "Novo Jogo" [ref=e31] [cursor=pointer]
+    - generic [ref=e33]: Suas peças (7)
+  - region "Sobre o jogo" [ref=e103]:
+    - heading "Como jogar Dominó Online" [level=2] [ref=e104]
+    - paragraph [ref=e105]: O Dominó é um dos jogos de mesa mais tradicionais do Brasil. Nesta versão digital você joga com as regras do Dominó Double-6 (duplo-seis) contra o computador. Cada jogador começa com 7 peças e o objetivo é ser o primeiro a esvaziar a mão.
+    - heading "Regras" [level=3] [ref=e106]
+    - list [ref=e107]:
+      - listitem [ref=e108]:
+        - text: Quem possui o
+        - strong [ref=e109]: "[6|6]"
+        - text: começa o jogo (ou o maior duplo disponível).
+      - listitem [ref=e110]: Cada peça colocada deve ter um lado que bata com a ponta aberta da cadeia.
+      - listitem [ref=e111]:
+        - text: Se não tiver peça válida, clique em
+        - strong [ref=e112]: Comprar
+        - text: para tirar do estoque.
+      - listitem [ref=e113]:
+        - text: Se o estoque acabar e não tiver jogada, clique em
+        - strong [ref=e114]: Passar
+        - text: .
+      - listitem [ref=e115]: Ganha quem esvaziar a mão primeiro. Se a partida travar (ambos passam), ganha quem tiver menos pontos na mão.
+    - heading "Como jogar" [level=3] [ref=e116]
+    - list [ref=e117]:
+      - listitem [ref=e118]: Clique em uma peça para selecioná-la (fica destacada).
+      - listitem [ref=e119]: Se a peça caber apenas em um lado, ela é colocada automaticamente.
+      - listitem [ref=e120]:
+        - text: Se couber nos dois lados, use os botões
+        - strong [ref=e121]: ⬅ Esquerda
+        - text: ou
+        - strong [ref=e122]: Direita ➡
+        - text: .
+    - heading "Pontuação" [level=3] [ref=e123]
+    - list [ref=e124]:
+      - listitem [ref=e125]: Ao vencer, sua pontuação é o total de pinos que o adversário ainda tem na mão.
+      - listitem [ref=e126]: Quanto maior a pontuação, melhor sua vitória!
+    - generic [ref=e127]:
+      - generic [ref=e128]: ❤️
+      - generic [ref=e129]:
+        - strong [ref=e130]: Gostou dos jogos?
+        - text: Ajude a manter o Games Hub gratuito com uma doação via PIX.
+      - link "Apoiar com PIX" [ref=e131] [cursor=pointer]:
+        - /url: ../../doacao.html
+  - complementary [ref=e132]:
+    - generic [ref=e133]:
+      - link "🎮 Games Hub" [ref=e134] [cursor=pointer]:
+        - /url: ../../index.html
+        - generic [ref=e135]: 🎮
+        - generic [ref=e136]: Games Hub
+      - button "Fechar menu" [ref=e137] [cursor=pointer]: ×
+    - navigation [ref=e138]:
+      - link "🏠 Inicio" [ref=e139] [cursor=pointer]:
+        - /url: ../../index.html
+        - generic [ref=e140]: 🏠
+        - generic [ref=e141]: Inicio
+      - link "🏆 Ranking Semanal" [ref=e142] [cursor=pointer]:
+        - /url: ../../ranking.html
+        - generic [ref=e143]: 🏆
+        - generic [ref=e144]: Ranking Semanal
+      - link "👤 Meu Perfil" [ref=e145] [cursor=pointer]:
+        - /url: ../../profile.html
+        - generic [ref=e146]: 👤
+        - generic [ref=e147]: Meu Perfil
+      - link "🎮 Multijogador" [ref=e148] [cursor=pointer]:
+        - /url: ../../multiplayer.html
+        - generic [ref=e149]: 🎮
+        - generic [ref=e150]: Multijogador
+      - generic [ref=e152]: Cartas
+      - link "🃏 Blackjack" [ref=e153] [cursor=pointer]:
+        - /url: ../../games/blackjack/index.html
+        - generic [ref=e154]: 🃏
+        - generic [ref=e155]: Blackjack
+      - link "🃏 Buraco" [ref=e156] [cursor=pointer]:
+        - /url: ../../games/buraco/index.html
+        - generic [ref=e157]: 🃏
+        - generic [ref=e158]: Buraco
+      - link "🂡 Freecell" [ref=e159] [cursor=pointer]:
+        - /url: ../../games/freecell/index.html
+        - generic [ref=e160]: 🂡
+        - generic [ref=e161]: Freecell
+      - link "🃏 Paciencia" [ref=e162] [cursor=pointer]:
+        - /url: ../../games/solitaire/index.html
+        - generic [ref=e163]: 🃏
+        - generic [ref=e164]: Paciencia
+      - link "🔺 Piramide" [ref=e165] [cursor=pointer]:
+        - /url: ../../games/pyramid/index.html
+        - generic [ref=e166]: 🔺
+        - generic [ref=e167]: Piramide
+      - link "🃏 Poker" [ref=e168] [cursor=pointer]:
+        - /url: ../../games/poker/index.html
+        - generic [ref=e169]: 🃏
+        - generic [ref=e170]: Poker
+      - link "🕷️ Spider Solitaire" [ref=e171] [cursor=pointer]:
+        - /url: ../../games/spider-solitaire/index.html
+        - generic [ref=e172]: 🕷️
+        - generic [ref=e173]: Spider Solitaire
+      - link "🂠 Truco" [ref=e174] [cursor=pointer]:
+        - /url: ../../games/truco/index.html
+        - generic [ref=e175]: 🂠
+        - generic [ref=e176]: Truco
+      - link "🟥 Uno" [ref=e177] [cursor=pointer]:
+        - /url: ../../games/uno/index.html
+        - generic [ref=e178]: 🟥
+        - generic [ref=e179]: Uno
+      - generic [ref=e180]: Puzzle
+      - link "🔢 2048" [ref=e181] [cursor=pointer]:
+        - /url: ../../games/game2048/index.html
+        - generic [ref=e182]: 🔢
+        - generic [ref=e183]: "2048"
+      - link "💣 Campo Minado" [ref=e184] [cursor=pointer]:
+        - /url: ../../games/minesweeper/index.html
+        - generic [ref=e185]: 💣
+        - generic [ref=e186]: Campo Minado
+      - link "💡 Lights Out" [ref=e187] [cursor=pointer]:
+        - /url: ../../games/lightsout/index.html
+        - generic [ref=e188]: 💡
+        - generic [ref=e189]: Lights Out
+      - link "🀄 Mahjong" [ref=e190] [cursor=pointer]:
+        - /url: ../../games/mahjong/index.html
+        - generic [ref=e191]: 🀄
+        - generic [ref=e192]: Mahjong
+      - link "🧠 Memoria" [ref=e193] [cursor=pointer]:
+        - /url: ../../games/memory/index.html
+        - generic [ref=e194]: 🧠
+        - generic [ref=e195]: Memoria
+      - link "🖼️ Nonogram" [ref=e196] [cursor=pointer]:
+        - /url: ../../games/nonogram/index.html
+        - generic [ref=e197]: 🖼️
+        - generic [ref=e198]: Nonogram
+      - link "🔣 Numble" [ref=e199] [cursor=pointer]:
+        - /url: ../../games/numble/index.html
+        - generic [ref=e200]: 🔣
+        - generic [ref=e201]: Numble
+      - link "🧩 Puzzle 15" [ref=e202] [cursor=pointer]:
+        - /url: ../../games/puzzle15/index.html
+        - generic [ref=e203]: 🧩
+        - generic [ref=e204]: Puzzle 15
+      - link "📦 Sokoban" [ref=e205] [cursor=pointer]:
+        - /url: ../../games/sokoban/index.html
+        - generic [ref=e206]: 📦
+        - generic [ref=e207]: Sokoban
+      - link "🔢 Sudoku" [ref=e208] [cursor=pointer]:
+        - /url: ../../games/sudoku/index.html
+        - generic [ref=e209]: 🔢
+        - generic [ref=e210]: Sudoku
+      - generic [ref=e211]: Arcade
+      - link "🧱 Breakout" [ref=e212] [cursor=pointer]:
+        - /url: ../../games/breakout/index.html
+        - generic [ref=e213]: 🧱
+        - generic [ref=e214]: Breakout
+      - link "🫧 Bubble Shooter" [ref=e215] [cursor=pointer]:
+        - /url: ../../games/bubble-shooter/index.html
+        - generic [ref=e216]: 🫧
+        - generic [ref=e217]: Bubble Shooter
+      - link "🐍 Cobrinha" [ref=e218] [cursor=pointer]:
+        - /url: ../../games/snake/index.html
+        - generic [ref=e219]: 🐍
+        - generic [ref=e220]: Cobrinha
+      - link "🦕 Dino Runner" [ref=e221] [cursor=pointer]:
+        - /url: ../../games/dinorunner/index.html
+        - generic [ref=e222]: 🦕
+        - generic [ref=e223]: Dino Runner
+      - link "🐦 Flappy Bird" [ref=e224] [cursor=pointer]:
+        - /url: ../../games/flappybird/index.html
+        - generic [ref=e225]: 🐦
+        - generic [ref=e226]: Flappy Bird
+      - link "🟡 Pac-Man" [ref=e227] [cursor=pointer]:
+        - /url: ../../games/pacman/index.html
+        - generic [ref=e228]: 🟡
+        - generic [ref=e229]: Pac-Man
+      - link "🏓 Pong" [ref=e230] [cursor=pointer]:
+        - /url: ../../games/pong/index.html
+        - generic [ref=e231]: 🏓
+        - generic [ref=e232]: Pong
+      - link "👾 Space Invaders" [ref=e233] [cursor=pointer]:
+        - /url: ../../games/spaceinvaders/index.html
+        - generic [ref=e234]: 👾
+        - generic [ref=e235]: Space Invaders
+      - link "🧱 Tetris" [ref=e236] [cursor=pointer]:
+        - /url: ../../games/tetris/index.html
+        - generic [ref=e237]: 🧱
+        - generic [ref=e238]: Tetris
+      - generic [ref=e239]: Tabuleiro
+      - link "🚢 Batalha Naval" [ref=e240] [cursor=pointer]:
+        - /url: ../../games/battleship/index.html
+        - generic [ref=e241]: 🚢
+        - generic [ref=e242]: Batalha Naval
+      - link "🔴 Conecte 4" [ref=e243] [cursor=pointer]:
+        - /url: ../../games/connect4/index.html
+        - generic [ref=e244]: 🔴
+        - generic [ref=e245]: Conecte 4
+      - link "⚫ Dama" [ref=e246] [cursor=pointer]:
+        - /url: ../../games/checkers/index.html
+        - generic [ref=e247]: ⚫
+        - generic [ref=e248]: Dama
+      - link "🁣 Dominó" [ref=e249] [cursor=pointer]:
+        - /url: ../../games/domino/index.html
+        - generic [ref=e250]: 🁣
+        - generic [ref=e251]: Dominó
+      - link "⚫ Go" [ref=e252] [cursor=pointer]:
+        - /url: ../../games/go/index.html
+        - generic [ref=e253]: ⚫
+        - generic [ref=e254]: Go
+      - link "❌ Jogo da Velha" [ref=e255] [cursor=pointer]:
+        - /url: ../../games/tictactoe/index.html
+        - generic [ref=e256]: ❌
+        - generic [ref=e257]: Jogo da Velha
+      - link "🎲 Ludo" [ref=e258] [cursor=pointer]:
+        - /url: ../../games/ludo/index.html
+        - generic [ref=e259]: 🎲
+        - generic [ref=e260]: Ludo
+      - link "⚪ Reversi" [ref=e261] [cursor=pointer]:
+        - /url: ../../games/reversi/index.html
+        - generic [ref=e262]: ⚪
+        - generic [ref=e263]: Reversi
+      - link "♟️ Xadrez" [ref=e264] [cursor=pointer]:
+        - /url: ../../games/chess/index.html
+        - generic [ref=e265]: ♟️
+        - generic [ref=e266]: Xadrez
+      - generic [ref=e267]: Palavras
+      - link "🔀 Anagrama" [ref=e268] [cursor=pointer]:
+        - /url: ../../games/anagram/index.html
+        - generic [ref=e269]: 🔀
+        - generic [ref=e270]: Anagrama
+      - link "🔍 Caca-Palavras" [ref=e271] [cursor=pointer]:
+        - /url: ../../games/wordsearch/index.html
+        - generic [ref=e272]: 🔍
+        - generic [ref=e273]: Caca-Palavras
+      - link "🔤 Forca" [ref=e274] [cursor=pointer]:
+        - /url: ../../games/hangman/index.html
+        - generic [ref=e275]: 🔤
+        - generic [ref=e276]: Forca
+      - link "✋ Stop!" [ref=e277] [cursor=pointer]:
+        - /url: ../../games/stopgame/index.html
+        - generic [ref=e278]: ✋
+        - generic [ref=e279]: Stop!
+      - link "📝 Termo" [ref=e280] [cursor=pointer]:
+        - /url: ../../games/termo/index.html
+        - generic [ref=e281]: 📝
+        - generic [ref=e282]: Termo
+      - generic [ref=e283]: Casual
+      - link "🍪 Cookie Clicker" [ref=e284] [cursor=pointer]:
+        - /url: ../../games/cookieclicker/index.html
+        - generic [ref=e285]: 🍪
+        - generic [ref=e286]: Cookie Clicker
+      - link "ℹ️ Sobre" [ref=e288] [cursor=pointer]:
+        - /url: ../../sobre.html
+        - generic [ref=e289]: ℹ️
+        - generic [ref=e290]: Sobre
+      - link "🔒 Privacidade" [ref=e291] [cursor=pointer]:
+        - /url: ../../privacidade.html
+        - generic [ref=e292]: 🔒
+        - generic [ref=e293]: Privacidade
+      - link "☕ Apoie o Projeto" [ref=e295] [cursor=pointer]:
+        - /url: ../../doacao.html
+        - generic [ref=e296]: ☕
+        - generic [ref=e297]: Apoie o Projeto
+      - link "🐛 Reportar Bug" [ref=e298] [cursor=pointer]:
+        - /url: ../../report-bug.html
+        - generic [ref=e299]: 🐛
+        - generic [ref=e300]: Reportar Bug
+    - generic [ref=e301]: Games Hub © 2025
+  - link "🎮 Jogar com Amigos" [ref=e302] [cursor=pointer]:
+    - /url: ../../multiplayer.html?game=domino
+  - link "🐛" [ref=e303] [cursor=pointer]:
+    - /url: ../../report-bug.html
+```

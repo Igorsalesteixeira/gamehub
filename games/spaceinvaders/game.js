@@ -1,9 +1,9 @@
-import '../../auth-check.js';
-import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import '../../auth-check.js?v=4';
+import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js?v=4';
 // =============================================
 //  Space Invaders — Games Hub
 // =============================================
-import { supabase } from '../../supabase.js';
+import { supabase } from '../../supabase.js?v=2';
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
