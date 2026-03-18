@@ -71,6 +71,7 @@ let timerInterval;
 let animQueue = []; // animation queue
 let animating = false;
 let highlightedPieces; // Set of ti indices valid to move this turn
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 // ---- DOM ----
 const canvas    = document.getElementById('ludo-canvas');
@@ -99,6 +100,7 @@ function initGame() {
   finishOrder = [];
   totalMoves = 0;
   highlightedPieces = new Set();
+  isProcessing = false;
   startTime = Date.now();
   clearInterval(timerInterval);
   timerInterval = setInterval(updateTimer, 1000);
@@ -531,6 +533,8 @@ function setActiveChip(ci) {
 }
 
 function updateTurnMsg(msg) {
+  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+
   if (msg !== undefined) {
     turnMsg.textContent = msg;
     return;
@@ -543,9 +547,11 @@ function updateTurnMsg(msg) {
     } else {
       turnMsg.textContent = `Você rolou ${diceValue} — clique em uma peça!`;
     }
+    gameWrapper.classList.remove('thinking');
   } else {
     const names = ['','Azul','Verde','Amarelo'];
-    turnMsg.textContent = `Vez do ${names[currentPlayer]}...`;
+    turnMsg.textContent = `Computador ${names[currentPlayer]} pensando...`;
+    gameWrapper.classList.add('thinking');
   }
 }
 
@@ -579,7 +585,7 @@ function startTurn(ci) {
 }
 
 function handleRoll() {
-  if (rolled || gameOver || currentPlayer !== 0) return;
+  if (rolled || gameOver || currentPlayer !== 0 || isProcessing) return;
   initAudio();
   btnRoll.disabled = true;
   rolled = true;
@@ -610,7 +616,7 @@ function handleRoll() {
 }
 
 function handleCanvasClick(e) {
-  if (!rolled || gameOver || currentPlayer !== 0 || highlightedPieces.size === 0) return;
+  if (!rolled || gameOver || currentPlayer !== 0 || highlightedPieces.size === 0 || isProcessing) return;
   initAudio();
 
   const rect = canvas.getBoundingClientRect();
@@ -639,6 +645,8 @@ function handleCanvasClick(e) {
 }
 
 function movePiece(ci, ti) {
+  if (isProcessing) return;
+  isProcessing = true;
   highlightedPieces = new Set();
   btnRoll.disabled = true;
   rolled = false;
@@ -686,6 +694,7 @@ function movePiece(ci, ti) {
 }
 
 function nextTurn(ci, dice, extraTurn) {
+  isProcessing = false;
   if (gameOver) return;
   if (extraTurn) {
     startTurn(ci);

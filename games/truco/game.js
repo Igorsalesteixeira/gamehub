@@ -62,11 +62,52 @@ let waitingForTrucoResponse = false;
 let gameOver = false;
 let playerTurn = true;
 let firstToPlay = 'player'; // alternates each hand
+let isProcessing = false; // Prevent double clicks
 
 function getCardStrength(card) {
   const key = card.value + card.suit;
   if (STRENGTH[key] !== undefined) return STRENGTH[key];
   return STRENGTH[card.value] || 0;
+}
+
+// ===== TURN INDICATORS =====
+function updateTurnIndicator() {
+  const cpuZone = document.querySelector('.cpu-zone');
+  const playerZone = document.querySelector('.player-zone');
+
+  if (gameOver) {
+    cpuZone?.classList.remove('active-turn');
+    playerZone?.classList.remove('active-turn');
+    return;
+  }
+
+  if (waitingForTrucoResponse) {
+    // During truco response, highlight based on who needs to respond
+    if (cpuTrucoCalled) {
+      cpuZone?.classList.remove('active-turn');
+      playerZone?.classList.add('active-turn');
+    } else {
+      cpuZone?.classList.add('active-turn');
+      playerZone?.classList.remove('active-turn');
+    }
+    return;
+  }
+
+  if (playerTurn) {
+    cpuZone?.classList.remove('active-turn');
+    playerZone?.classList.add('active-turn');
+  } else {
+    cpuZone?.classList.add('active-turn');
+    playerZone?.classList.remove('active-turn');
+  }
+}
+
+function showCpuThinking() {
+  messageEl.innerHTML = 'CPU está pensando <span class="thinking-dots"><span></span><span></span><span></span></span>';
+}
+
+function showTrucoIndicator(isCpu) {
+  messageEl.innerHTML = `<span class="truco-indicator">${isCpu ? 'CPU pediu TRUCO!' : 'Você pediu TRUCO!'}</span>`;
 }
 
 function createDeck() {
@@ -114,6 +155,7 @@ function startMatch() {
 
 function startHand() {
   ensureAudio();
+  isProcessing = false;
   deck = shuffle(createDeck());
   playerHand = [deck.pop(), deck.pop(), deck.pop()];
   cpuHand = [deck.pop(), deck.pop(), deck.pop()];
@@ -141,10 +183,11 @@ function startHand() {
 
   updateRoundInfo();
   renderHands();
+  updateTurnIndicator();
 
   if (!playerTurn) {
-    messageEl.textContent = 'CPU joga primeiro...';
-    setTimeout(() => cpuPlayCard(), 800);
+    showCpuThinking();
+    setTimeout(() => cpuPlayCard(), 1000);
   } else {
     messageEl.textContent = 'Sua vez! Escolha uma carta.';
   }
@@ -178,24 +221,32 @@ function updateRoundInfo() {
 }
 
 function playCard(index) {
-  if (!playerTurn || waitingForTrucoResponse || gameOver) return;
+  if (!playerTurn || waitingForTrucoResponse || gameOver || isProcessing) return;
   if (index < 0 || index >= playerHand.length) return;
+  isProcessing = true;
   ensureAudio();
 
   const card = playerHand.splice(index, 1)[0];
   playerPlayedEl.innerHTML = '';
-  playerPlayedEl.appendChild(createCardEl(card));
+  const cardEl = createCardEl(card);
+  cardEl.classList.add('card-played-enter');
+  playerPlayedEl.appendChild(cardEl);
 
   playerTurn = false;
+  updateTurnIndicator();
   renderHands();
 
   // Check if CPU already played (CPU went first)
   if (cpuPlayedEl.querySelector('.card')) {
-    setTimeout(() => resolveRound(card, cpuPlayedEl._card), 600);
+    setTimeout(() => resolveRound(card, cpuPlayedEl._card), 800);
   } else {
     // CPU plays after player
     setTimeout(() => {
-      cpuPlayCard(card);
+      showCpuThinking();
+      setTimeout(() => {
+        cpuPlayCard(card);
+        isProcessing = false;
+      }, 800);
     }, 600);
   }
 }
@@ -250,14 +301,17 @@ function cpuPlayCard(playerCard = null) {
   const card = cpuHand.splice(chosenIndex, 1)[0];
   cpuPlayedEl.innerHTML = '';
   cpuPlayedEl._card = card;
-  cpuPlayedEl.appendChild(createCardEl(card));
+  const cardEl = createCardEl(card);
+  cardEl.classList.add('card-played-enter');
+  cpuPlayedEl.appendChild(cardEl);
 
   if (playerCard) {
     // Both played, resolve
-    setTimeout(() => resolveRound(playerCard, card), 600);
+    setTimeout(() => resolveRound(playerCard, card), 800);
   } else {
     // Wait for player
     playerTurn = true;
+    updateTurnIndicator();
     messageEl.textContent = 'Sua vez! Escolha uma carta.';
     renderHands();
   }
@@ -290,7 +344,7 @@ function resolveRound(playerCard, cpuCard) {
 
   // Check if hand is decided
   if (roundWinsPlayer >= 2 || roundWinsCpu >= 2 || currentRound >= 3) {
-    setTimeout(() => finishHand(), 1200);
+    setTimeout(() => finishHand(), 1500);
     return;
   }
 
@@ -303,16 +357,17 @@ function resolveRound(playerCard, cpuCard) {
     let nextPlayerFirst = (pStr >= cStr);
     playerTurn = nextPlayerFirst;
 
+    updateTurnIndicator();
     if (!playerTurn) {
-      messageEl.textContent = 'CPU joga primeiro...';
-      setTimeout(() => cpuPlayCard(), 600);
+      showCpuThinking();
+      setTimeout(() => cpuPlayCard(), 1000);
     } else {
       messageEl.textContent = 'Sua vez! Escolha uma carta.';
     }
 
     updateRoundInfo();
     renderHands();
-  }, 1400);
+  }, 1600);
 }
 
 function finishHand() {
@@ -354,6 +409,7 @@ function finishHand() {
 
 function endMatch() {
   gameOver = true;
+  isProcessing = false;
   const won = playerScore >= 12;
   btnTruco.style.display = 'none';
   btnNew.style.display = 'none';
@@ -362,6 +418,8 @@ function endMatch() {
   modalTitle.textContent = won ? 'Voce Venceu!' : 'CPU Venceu!';
   modalMessage.textContent = `Placar final: ${playerScore} x ${cpuScore}`;
   modalOverlay.classList.add('active');
+
+  updateTurnIndicator(); // Clear turn indicators
 
   if (won) {
     launchConfetti();
@@ -391,15 +449,16 @@ async function saveStats(result) {
 btnTruco.addEventListener('click', playerCallTruco);
 
 function playerCallTruco() {
-  if (waitingForTrucoResponse || gameOver) return;
+  if (waitingForTrucoResponse || gameOver || isProcessing) return;
   if (trucoLevel >= 4) return;
 
+  isProcessing = true;
   trucoLevel++;
   playerTrucoCalled = true;
   waitingForTrucoResponse = true;
 
   const val = TRUCO_VALUES[trucoLevel];
-  messageEl.textContent = `Voce pediu TRUCO! Valor: ${val} pontos`;
+  showTrucoIndicator(false);
   btnTruco.disabled = true;
 
   // CPU decides
@@ -413,6 +472,7 @@ function playerCallTruco() {
       waitingForTrucoResponse = false;
       cpuTrucoCalled = false;
       updateRoundInfo();
+      updateTurnIndicator();
       // CPU can now re-truco if level allows
       if (trucoLevel < 4) btnTruco.disabled = false;
     } else {
@@ -431,7 +491,8 @@ function playerCallTruco() {
         btnNew.style.display = '';
       }
     }
-  }, 1000);
+    isProcessing = false;
+  }, 1500);
 }
 
 function cpuCallTruco() {
@@ -440,15 +501,17 @@ function cpuCallTruco() {
   waitingForTrucoResponse = true;
 
   const val = TRUCO_VALUES[trucoLevel];
-  messageEl.textContent = `CPU pediu TRUCO! Valor: ${val} pontos. Aceitar?`;
+  showTrucoIndicator(true);
 
   btnTruco.style.display = 'none';
   btnAccept.style.display = '';
   btnDecline.style.display = '';
   playerTurn = false;
+  updateTurnIndicator();
 }
 
 btnAccept.addEventListener('click', () => {
+  if (isProcessing) return;
   waitingForTrucoResponse = false;
   btnAccept.style.display = 'none';
   btnDecline.style.display = 'none';
@@ -462,10 +525,11 @@ btnAccept.addEventListener('click', () => {
   // Continue with CPU playing its card
   setTimeout(() => {
     cpuPlayActual();
-  }, 500);
+  }, 800);
 });
 
 btnDecline.addEventListener('click', () => {
+  if (isProcessing) return;
   waitingForTrucoResponse = false;
   btnAccept.style.display = 'none';
   btnDecline.style.display = 'none';
@@ -506,12 +570,15 @@ function cpuPlayActual() {
 
 // === NEW HAND / MATCH ===
 btnNew.addEventListener('click', () => {
+  if (isProcessing) return;
+  isProcessing = false;
   btnNew.style.display = 'none';
   startHand();
 });
 
 modalBtn.addEventListener('click', () => {
   modalOverlay.classList.remove('active');
+  isProcessing = false;
   startMatch();
 });
 

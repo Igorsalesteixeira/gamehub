@@ -5,6 +5,7 @@ import { supabase } from '../../supabase.js';
 const SIZE = 9;
 const EMPTY = 0, BLACK = 1, WHITE = 2;
 let board, current, captures, lastBoard, consecutivePasses, lastMove;
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 const boardEl = document.getElementById('board');
 const turnEl = document.getElementById('turn');
@@ -20,6 +21,7 @@ function init() {
   captures = { [BLACK]: 0, [WHITE]: 0 };
   consecutivePasses = 0;
   lastMove = null;
+  isProcessing = false;
   modal.style.display = 'none';
   updateUI();
   render();
@@ -192,21 +194,34 @@ function cpuMove() {
   } else {
     pass();
   }
+  isProcessing = false;
 }
 
 function handleClick(r, c) {
-  if (current !== BLACK) return;
+  if (current !== BLACK || isProcessing) return;
+  isProcessing = true;
   initAudio();
-  if (!playMove(r, c)) return;
+  if (!playMove(r, c)) {
+    isProcessing = false;
+    return;
+  }
   playSound('move');
   haptic(15);
   updateUI();
   render();
-  setTimeout(cpuMove, 400);
+  // Delay mínimo de 800ms para jogadas da IA
+  setTimeout(cpuMove, 800);
 }
 
 function updateUI() {
-  turnEl.textContent = current === BLACK ? 'Sua vez (Preto)' : 'CPU pensando...';
+  const gameContainer = document.getElementById('game-container') || document.body;
+  if (current === BLACK) {
+    turnEl.textContent = 'Sua vez (Preto)';
+    gameContainer.classList.remove('thinking');
+  } else {
+    turnEl.textContent = 'Computador pensando...';
+    gameContainer.classList.add('thinking');
+  }
   blackScoreEl.textContent = captures[BLACK];
   whiteScoreEl.textContent = captures[WHITE];
 }

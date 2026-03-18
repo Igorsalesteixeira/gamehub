@@ -33,6 +33,7 @@ let enPassantTarget = null; // square index
 let timerInterval = null;
 let seconds = 0;
 let promoResolve = null;
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 // ========== DOM ==========
 const boardEl = document.getElementById('board');
@@ -289,20 +290,26 @@ function renderBoard() {
 }
 
 function setTurnIndicator() {
+  const gameContainer = document.querySelector('.game-container') || document.body;
   turnIndicator.classList.remove('player-turn', 'cpu-turn', 'check');
-  if (gameOver) return;
+  if (gameOver) {
+    gameContainer.classList.remove('thinking');
+    return;
+  }
   if (turn === 'w') {
     turnIndicator.textContent = isInCheck(board, 'w') ? 'Xeque! Sua vez' : 'Sua vez (Brancas)';
     turnIndicator.classList.add(isInCheck(board, 'w') ? 'check' : 'player-turn');
+    gameContainer.classList.remove('thinking');
   } else {
-    turnIndicator.textContent = 'Pensando...';
+    turnIndicator.textContent = 'Computador pensando...';
     turnIndicator.classList.add('cpu-turn');
+    gameContainer.classList.add('thinking');
   }
 }
 
 // ========== PLAYER INPUT ==========
 async function onCellClick(i) {
-  if (gameOver || turn !== 'w') return;
+  if (gameOver || turn !== 'w' || isProcessing) return;
   initAudio();
 
   // If clicking a valid move destination
@@ -325,6 +332,8 @@ async function onCellClick(i) {
 }
 
 async function executePlayerMove(move) {
+  if (isProcessing) return;
+  isProcessing = true;
   initAudio();
   // Handle promotion
   let promoPiece = null;
@@ -336,7 +345,11 @@ async function executePlayerMove(move) {
   moveCount++;
 
   const status = getGameStatus('b');
-  if (status) { endGame(status); return; }
+  if (status) {
+    endGame(status);
+    isProcessing = false;
+    return;
+  }
 
   turn = 'b';
   selected = null;
@@ -344,7 +357,8 @@ async function executePlayerMove(move) {
   setTurnIndicator();
   renderBoard();
 
-  setTimeout(() => cpuTurn(), 300);
+  // Delay mínimo de 800ms para jogadas da IA
+  setTimeout(() => cpuTurn(), 800);
 }
 
 // ========== MOVE EXECUTION ==========
@@ -384,12 +398,16 @@ function getGameStatus(forColor) {
 
 // ========== CPU AI ==========
 function cpuTurn() {
-  if (gameOver) return;
+  if (gameOver) {
+    isProcessing = false;
+    return;
+  }
 
   const legal = getLegalMoves(board, 'b', castleRights, enPassantTarget);
   if (legal.length === 0) {
     const status = getGameStatus('b');
     endGame(status || 'draw');
+    isProcessing = false;
     return;
   }
 
@@ -404,13 +422,18 @@ function cpuTurn() {
   }
 
   const status = getGameStatus('w');
-  if (status) { endGame(status); return; }
+  if (status) {
+    endGame(status);
+    isProcessing = false;
+    return;
+  }
 
   turn = 'w';
   selected = null;
   validMoves = [];
   setTurnIndicator();
   renderBoard();
+  isProcessing = false;
 }
 
 // Piece-square tables (simplified)
@@ -584,6 +607,7 @@ function init() {
   lastMove = null;
   castleRights = { wk: true, wq: true, bk: true, bq: true };
   enPassantTarget = null;
+  isProcessing = false;
   modalOverlay.classList.remove('visible');
   promoModal.classList.remove('visible');
   renderBoard();

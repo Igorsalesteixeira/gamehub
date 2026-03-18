@@ -5,6 +5,7 @@ import { supabase } from '../../supabase.js';
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
 let lastDrop = null; // { row, col } da última jogada para animação
+let isProcessing = false; // Flag para prevenir cliques duplos
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
 const modal = document.getElementById('modal');
@@ -15,6 +16,7 @@ function init() {
   currentPlayer = 1;
   gameOver = false;
   lastDrop = null;
+  isProcessing = false;
   statusEl.textContent = 'Sua vez! Clique em uma coluna.';
   modal.style.display = 'none';
   render();
@@ -93,10 +95,14 @@ function isFull() {
 }
 
 function handleClick(col) {
-  if (gameOver || currentPlayer !== 1) return;
+  if (gameOver || currentPlayer !== 1 || isProcessing) return;
+  isProcessing = true;
   initAudio();
   const row = drop(col, 1);
-  if (row === -1) return;
+  if (row === -1) {
+    isProcessing = false;
+    return;
+  }
   render();
 
   const win = checkWin(1);
@@ -104,8 +110,11 @@ function handleClick(col) {
   if (isFull()) { endGame('draw'); return; }
 
   currentPlayer = 2;
-  statusEl.textContent = 'CPU pensando...';
-  setTimeout(cpuMove, 500);
+  statusEl.textContent = 'Computador pensando...';
+  const gameContainer = document.getElementById('game-container') || document.body;
+  gameContainer.classList.add('thinking');
+  // Delay mínimo de 800ms para jogadas da IA
+  setTimeout(cpuMove, 800);
 }
 
 function cpuMove() {
@@ -149,6 +158,9 @@ function cpuMove() {
 
   currentPlayer = 1;
   statusEl.textContent = 'Sua vez! Clique em uma coluna.';
+  const gameContainer = document.getElementById('game-container') || document.body;
+  gameContainer.classList.remove('thinking');
+  isProcessing = false;
 }
 
 async function endGame(result, winCells) {

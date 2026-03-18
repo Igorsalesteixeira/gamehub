@@ -36,6 +36,7 @@ let handCount=0, blindLevel=0;
 let gameOver=false;
 let raiseAmount=0;
 let session=null;
+let isProcessing=false;
 
 // ===== DECK =====
 function createDeck() {
@@ -117,6 +118,7 @@ async function init() {
 
 function startHand() {
   ensureAudio();
+  isProcessing = false;
   if(gameOver)return;
   // Check if only 1 player has chips
   const active=players.filter(p=>p.chips>0);
@@ -199,6 +201,8 @@ function nextPhase(){
 
 function playerAction(action, amount=0){
   ensureAudio();
+  if(isProcessing) return;
+  isProcessing = true;
   const p=players[currentIdx];
   if(action==='fold'){p.folded=true;}
   else if(action==='check'){/* nothing */}
@@ -232,14 +236,31 @@ function playerAction(action, amount=0){
     if(!np.folded&&!np.allIn&&np.chips>0&&np.bet<currentBet)break;
     next=nextActive(next,true);laps++;
   }
-  if(allBetsEqual()||activePlayers().length===0){nextPhase();return;}
+  if(allBetsEqual()||activePlayers().length===0){isProcessing=false;nextPhase();return;}
   currentIdx=next;
+  isProcessing=false;
   render();
-  if(!players[currentIdx].isHuman)setTimeout(cpuTurn,1000);
+  if(!players[currentIdx].isHuman)setTimeout(cpuTurn,1200);
 }
 
 // ===== CPU AI =====
+function showCpuThinking() {
+  showMessage(`${players[currentIdx].name} está pensando <span class="thinking-dots"><span></span><span></span><span></span></span>`);
+}
+
 function cpuTurn(){
+  if(gameOver)return;
+  const p=players[currentIdx];
+  if(p.folded||p.allIn||p.chips===0){advanceCpu();return;}
+
+  showCpuThinking();
+
+  setTimeout(() => {
+    cpuTurnActual();
+  }, 1000);
+}
+
+function cpuTurnActual(){
   if(gameOver)return;
   const p=players[currentIdx];
   if(p.folded||p.allIn||p.chips===0){advanceCpu();return;}
@@ -278,7 +299,7 @@ function cpuTurn(){
 
   // Animate CPU action
   showMessage(`${p.name}: ${cpuActionLabel(action)}`);
-  setTimeout(()=>{playerAction(action.type,action.amount||0);},600);
+  setTimeout(()=>{playerAction(action.type,action.amount||0);},800);
 }
 
 function advanceCpu(){
@@ -377,6 +398,7 @@ function awardPot(winnerIdx){
 
 function endGame(){
   gameOver=true;
+  isProcessing=false;
   showModal('🎮','Fim de jogo!',players[0].chips>0?`Você terminou com ${players[0].chips} fichas!`:'Você ficou sem fichas!');
   document.getElementById('btn-modal-new').style.display='block';
 }
@@ -405,6 +427,13 @@ function render(showAll=false){
   const {sb,bb}=BLIND_LEVELS[blindLevel];
   const sbIdx=nextActive(dealerIdx);
   const bbIdx=nextActive(sbIdx);
+
+  // Update phase indicator
+  const phases = ['preflop', 'flop', 'turn', 'river', 'showdown'];
+  phases.forEach(p => {
+    const dot = document.getElementById(`phase-${p}`);
+    if(dot) dot.classList.toggle('active', phase === p);
+  });
 
   // Community cards
   const commEl=document.getElementById('community-cards');
@@ -471,6 +500,12 @@ function render(showAll=false){
   const canCall=toCall>0&&me.chips>0;
   const minRaise=Math.min(currentBet+Math.max(lastRaise,bb),me.chips+me.bet);
   const canRaise=me.chips+me.bet>currentBet+1;
+
+  // Update action area disabled state
+  const actionArea = document.getElementById('action-area');
+  if(actionArea) {
+    actionArea.classList.toggle('disabled', !isMyTurn);
+  }
 
   document.getElementById('action-area').innerHTML=isMyTurn?`
     <button class="btn-action btn-fold" id="btn-fold">Desistir</button>

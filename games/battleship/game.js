@@ -48,6 +48,7 @@ let phase = 'placement'; // placement | battle | ended
 let playerTurn = true;
 let timerInterval = null;
 let seconds = 0;
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 // CPU AI state
 let cpuMode = 'random'; // random | hunt
@@ -63,6 +64,7 @@ function init() {
   orientation = 'H';
   currentShipIdx = 0;
   playerTurn = true;
+  isProcessing = false;
   cpuMode = 'random';
   cpuHits = [];
   cpuTargets = [];
@@ -279,6 +281,7 @@ function startBattle() {
 
   phase = 'battle';
   playerTurn = true;
+  isProcessing = false;
   turnIndicator.textContent = 'Seu turno — ataque!';
   turnIndicator.classList.remove('enemy-turn');
 
@@ -329,9 +332,13 @@ function createShipCard(ship, cls) {
 
 // ===== FIRING =====
 function fireAt(r, c) {
-  if (phase !== 'battle' || !playerTurn) return;
+  if (phase !== 'battle' || !playerTurn || isProcessing) return;
+  isProcessing = true;
   const cell = getCell(enemyGrid, r, c);
-  if (cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('sunk')) return;
+  if (cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('sunk')) {
+    isProcessing = false;
+    return;
+  }
 
   playerTurn = false;
   initAudio();
@@ -355,10 +362,13 @@ function fireAt(r, c) {
 
   if (checkWin()) return;
 
-  turnIndicator.textContent = 'Turno do inimigo...';
+  turnIndicator.textContent = 'Computador pensando...';
   turnIndicator.classList.add('enemy-turn');
+  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+  gameWrapper.classList.add('thinking');
 
-  setTimeout(cpuTurn, 600);
+  // Delay mínimo de 800ms para jogadas da IA
+  setTimeout(cpuTurn, 800);
 }
 
 function cpuTurn() {
@@ -426,6 +436,9 @@ function cpuTurn() {
   playerTurn = true;
   turnIndicator.textContent = 'Seu turno — ataque!';
   turnIndicator.classList.remove('enemy-turn');
+  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+  gameWrapper.classList.remove('thinking');
+  isProcessing = false;
 }
 
 function addAdjacentTargets(r, c) {

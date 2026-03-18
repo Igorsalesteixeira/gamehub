@@ -48,6 +48,7 @@ let mustDraw = 0; // accumulated draw2/draw4
 let calledUno = false;
 let pendingWildCard = null;
 let moveCount = 0;
+let isProcessing = false;
 
 // === DECK ===
 function createDeck() {
@@ -161,6 +162,12 @@ function render() {
     oppEl.classList.toggle('active-turn', currentPlayer === i && gameActive);
   }
 
+  // Player section turn indicator
+  const playerSection = document.querySelector('.player-section');
+  const isPlayerTurn = currentPlayer === 0 && gameActive;
+  playerSection?.classList.toggle('active-turn', isPlayerTurn);
+  playerSection?.classList.toggle('disabled', !isPlayerTurn);
+
   // Direction
   directionEl.textContent = direction === 1 ? '→' : '←';
 
@@ -186,12 +193,14 @@ function hasPlayableCard(hand) {
 }
 
 function playerPlayCard(index) {
-  if (currentPlayer !== 0 || !gameActive) return;
+  if (currentPlayer !== 0 || !gameActive || isProcessing) return;
+  isProcessing = true;
   ensureAudio();
   const card = hands[0][index];
   if (!canPlay(card)) {
     messageEl.textContent = 'Carta invalida! Jogue uma carta compativel.';
     playSound('error');
+    isProcessing = false;
     return;
   }
 
@@ -201,6 +210,7 @@ function playerPlayCard(index) {
     messageEl.textContent = 'Voce esqueceu de gritar UNO! +2 cartas de penalidade.';
     hands[0].push(drawCard());
     hands[0].push(drawCard());
+    isProcessing = false;
     render();
     return;
   }
@@ -285,10 +295,11 @@ function playCardEffect(card, player) {
   }
 
   calledUno = false;
+  isProcessing = false;
   render();
 
   if (gameActive && currentPlayer !== 0) {
-    setTimeout(() => cpuTurn(), 700);
+    setTimeout(() => cpuTurn(), 900);
   }
 }
 
@@ -301,7 +312,21 @@ function getPlayerName(p) {
 }
 
 // === CPU AI ===
+function showCpuThinking() {
+  messageEl.innerHTML = `CPU ${currentPlayer} está pensando <span class="thinking-dots"><span></span><span></span><span></span></span>`;
+}
+
 function cpuTurn() {
+  if (!gameActive || currentPlayer === 0) return;
+
+  showCpuThinking();
+
+  setTimeout(() => {
+    cpuTurnActual();
+  }, 800);
+}
+
+function cpuTurnActual() {
   if (!gameActive || currentPlayer === 0) return;
 
   const hand = hands[currentPlayer];
@@ -319,7 +344,7 @@ function cpuTurn() {
         const idx = hand.length - 1;
         setTimeout(() => {
           cpuPlayIndex(idx);
-        }, 500);
+        }, 700);
         render();
         return;
       }
@@ -327,7 +352,7 @@ function cpuTurn() {
     advancePlayer();
     render();
     if (currentPlayer !== 0) {
-      setTimeout(() => cpuTurn(), 500);
+      setTimeout(() => cpuTurn(), 800);
     } else {
       messageEl.textContent = 'Sua vez!';
     }
@@ -360,7 +385,9 @@ function cpuTurn() {
     }
   }
 
-  cpuPlayIndex(bestIdx);
+  setTimeout(() => {
+    cpuPlayIndex(bestIdx);
+  }, 600);
 }
 
 function cpuPlayIndex(index) {
@@ -388,13 +415,20 @@ function cpuPlayIndex(index) {
     currentColor = bestColor;
   }
 
-  messageEl.textContent = `CPU ${player} jogou ${getCardLabel(card)}`;
+  // Show special card message with effect
+  if (card.type === 'special' || card.type === 'wild') {
+    messageEl.innerHTML = `<span style="color: #ffd54f; font-weight: 800;">CPU ${player} jogou ${getCardLabel(card)}!</span>`;
+  } else {
+    messageEl.textContent = `CPU ${player} jogou ${getCardLabel(card)}`;
+  }
+
   playCardEffect(card, player);
 }
 
 // === DRAW BUTTON ===
 btnDraw.addEventListener('click', () => {
-  if (currentPlayer !== 0 || !gameActive) return;
+  if (currentPlayer !== 0 || !gameActive || isProcessing) return;
+  isProcessing = true;
   ensureAudio();
   const c = drawCard();
   if (c) {
@@ -405,20 +439,23 @@ btnDraw.addEventListener('click', () => {
     // Can play the drawn card?
     if (canPlay(c)) {
       messageEl.textContent = 'Voce comprou uma carta. Pode joga-la se quiser!';
+      isProcessing = false;
       render();
       return;
     }
   }
   advancePlayer();
   calledUno = false;
+  isProcessing = false;
   render();
   if (currentPlayer !== 0) {
-    setTimeout(() => cpuTurn(), 500);
+    setTimeout(() => cpuTurn(), 700);
   }
 });
 
 // === UNO BUTTON ===
 btnUno.addEventListener('click', () => {
+  if (isProcessing) return;
   calledUno = true;
   messageEl.textContent = 'Voce gritou UNO!';
   btnUno.style.display = 'none';
@@ -467,6 +504,7 @@ async function saveStats(result) {
 // === START GAME ===
 function startGame() {
   ensureAudio();
+  isProcessing = false;
   drawPile = shuffle(createDeck());
   discardPile = [];
   hands = [[], [], [], []];

@@ -87,6 +87,75 @@ body {
 
 .cpu-zone, .player-zone {
   text-align: center;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+
+.cpu-zone.active-turn {
+  background: rgba(255, 107, 53, 0.15);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+}
+
+.player-zone.active-turn {
+  background: rgba(76, 175, 80, 0.15);
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+/* Thinking animation */
+.thinking-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  background: #ff6b35;
+  border-radius: 50%;
+  animation: thinking-bounce 0.6s infinite alternate;
+}
+
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes thinking-bounce {
+  from { transform: translateY(0); opacity: 0.5; }
+  to { transform: translateY(-8px); opacity: 1; }
+}
+
+/* Card played animation */
+@keyframes card-played {
+  from {
+    transform: scale(0.5) translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.card-played-enter {
+  animation: card-played 0.4s ease-out;
+}
+
+/* Truco indicator */
+.truco-indicator {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b35, #e85d2a);
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  animation: truco-pulse 0.8s infinite alternate;
+}
+
+@keyframes truco-pulse {
+  from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
+  to { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 107, 53, 0.8); }
 }
 
 .cpu-hand, .player-hand {

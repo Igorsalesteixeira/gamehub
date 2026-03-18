@@ -46,6 +46,7 @@ let score=0, cpuScore=0;
 let gameOver=false;
 let session=null;
 let roundNum=0;
+let isProcessing=false;
 
 async function init(){
   const {data:{session:s}}=await supabase.auth.getSession();
@@ -55,6 +56,7 @@ async function init(){
 
 function startRound(){
   ensureAudio();
+  isProcessing = false;
   roundNum++;
   const deck=shuffle(createDeck());
   // Deal: 11 to each, 11 to morto1, 11 to morto2
@@ -130,28 +132,33 @@ function calcScore(playerMelds, playerHand){
 // ===== PLAYER ACTIONS =====
 function drawFromStock(){
   ensureAudio();
+  if(isProcessing || turn !== 'player') return;
   if(drawnThisTurn){setMsg('Já comprou esta rodada. Descarte uma carta.');return;}
   if(stock.length===0){endRound();return;}
+  isProcessing = true;
   hand.push(stock.pop());
   drawnThisTurn=true;
   playSound('deal');
-  // Pickup morto if hand was emptied and now drawing (shouldn't happen here, handled on discard)
+  setTimeout(() => { isProcessing = false; }, 300);
   render();setMsg('Carta comprada. Agora descarte ou jogue uma combinação.');
 }
 
 function drawFromDiscard(){
   ensureAudio();
+  if(isProcessing || turn !== 'player') return;
   if(drawnThisTurn){setMsg('Já comprou esta rodada.');return;}
   if(discardPile.length===0){setMsg('Descarte vazio.');return;}
-  // Can only take discard if can meld it immediately
+  isProcessing = true;
   const top=discardPile[discardPile.length-1];
   hand.push(discardPile.pop());
   drawnThisTurn=true;
   playSound('deal');
+  setTimeout(() => { isProcessing = false; }, 300);
   render();setMsg('Pegou o descarte! Use a carta em uma combinação e depois descarte.');
 }
 
 function toggleSelect(idx){
+  if(isProcessing || turn !== 'player') return;
   if(!drawnThisTurn){setMsg('Compre uma carta primeiro!');return;}
   if(selectedCards.has(idx))selectedCards.delete(idx);
   else selectedCards.add(idx);
@@ -160,30 +167,36 @@ function toggleSelect(idx){
 
 function tryMeld(){
   ensureAudio();
+  if(isProcessing || turn !== 'player') return;
   if(selectedCards.size<3){setMsg('Selecione pelo menos 3 cartas para combinar.');playSound('error');return;}
+  isProcessing = true;
   const sel=Array.from(selectedCards).sort((a,b)=>a-b);
   const cards=sel.map(i=>hand[i]);
-  if(!isValidMeld(cards)){setMsg('Combinação inválida! Precisa ser grupo (mesma figura) ou sequência (mesmo naipe, ordem).');playSound('error');return;}
+  if(!isValidMeld(cards)){setMsg('Combinação inválida! Precisa ser grupo (mesma figura) ou sequência (mesmo naipe, ordem).');playSound('error');isProcessing=false;return;}
   // Remove from hand
   const remaining=hand.filter((_,i)=>!selectedCards.has(i));
   melds.push([...cards]);
   hand=remaining;
   selectedCards=new Set();
   checkMorto();
+  setTimeout(() => { isProcessing = false; }, 300);
   render();setMsg('Combinação formada! Você pode adicionar mais ou descartar.');
 }
 
 function tryAddToMeld(meldIdx){
   ensureAudio();
+  if(isProcessing || turn !== 'player') return;
   if(selectedCards.size===0){setMsg('Selecione cartas da mão primeiro.');return;}
+  isProcessing = true;
   const sel=Array.from(selectedCards).sort((a,b)=>a-b);
   const cards=sel.map(i=>hand[i]);
   const target=[...melds[meldIdx],...cards];
-  if(!isValidMeld(target)){setMsg('Não é possível adicionar essas cartas a esta combinação.');playSound('error');return;}
+  if(!isValidMeld(target)){setMsg('Não é possível adicionar essas cartas a esta combinação.');playSound('error');isProcessing=false;return;}
   melds[meldIdx]=target;
   hand=hand.filter((_,i)=>!selectedCards.has(i));
   selectedCards=new Set();
   checkMorto();
+  setTimeout(() => { isProcessing = false; }, 300);
   render();setMsg('Cartas adicionadas à combinação!');
 }
 
@@ -197,8 +210,10 @@ function checkMorto(){
 
 function discardCard(){
   ensureAudio();
+  if(isProcessing || turn !== 'player') return;
   if(!drawnThisTurn){setMsg('Compre uma carta primeiro!');playSound('error');return;}
   if(selectedCards.size!==1){setMsg('Selecione exatamente 1 carta para descartar.');playSound('error');return;}
+  isProcessing = true;
   const idx=Array.from(selectedCards)[0];
   const card=hand[idx];
   discardPile.push(card);
@@ -210,16 +225,19 @@ function discardCard(){
   if(hand.length===0){
     if(mortoTaken){
       // Can end round!
+      isProcessing = false;
       endRound(true);return;
     }else{
       hand=[...morto1];mortoTaken=true;
+      isProcessing = false;
       setMsg('Pegou o morto! Continue jogando.');
       turn='player';render();return;
     }
   }
   turn='cpu';
+  isProcessing = false;
   render();setMsg('Vez da CPU...');
-  setTimeout(cpuTurn,1000);
+  setTimeout(cpuTurn,1200);
 }
 
 function tryBaixar(){
@@ -231,7 +249,20 @@ function tryBaixar(){
 }
 
 // ===== CPU AI =====
+function showCpuThinking() {
+  setMsg('CPU está pensando <span class="thinking-dots"><span></span><span></span><span></span></span>');
+}
+
 function cpuTurn(){
+  if(gameOver)return;
+  showCpuThinking();
+
+  setTimeout(() => {
+    cpuTurnActual();
+  }, 1000);
+}
+
+function cpuTurnActual(){
   if(gameOver)return;
   // Simple CPU: draw from stock, try to form melds, discard worst card
   if(stock.length>0)cpuHand.push(stock.pop());
@@ -292,6 +323,9 @@ function cpuTurn(){
   render();setMsg('Sua vez! Compre do monte ou pegue o descarte.');
 }
 
+// Keep the old function name for compatibility (now calls the delayed version)
+const cpuTurnDelayed = cpuTurn;
+
 function combinations(arr,k){
   if(k===0)return[[]];
   if(arr.length<k)return[];
@@ -351,13 +385,20 @@ function render(){
   document.getElementById('score-cpu').textContent=cpuScore;
   const tb=document.getElementById('turn-badge');
   tb.textContent=turn==='player'?'Sua vez':'Vez da CPU';
-  tb.className='turn-badge '+(turn==='player'?'turn-mine':'turn-cpu');
+  tb.className='turn-badge '+(turn==='player'?'turn-mine':'turn-cpu')+(turn==='cpu'?' active':'');
 
   // Round display
   const rd=document.getElementById('round-display');
   if(rd)rd.textContent=`Rodada ${roundNum}`;
 
   // CPU area
+  const cpuArea = document.querySelector('.cpu-area');
+  if(turn === 'cpu') {
+    cpuArea?.classList.add('active-turn');
+  } else {
+    cpuArea?.classList.remove('active-turn');
+  }
+
   document.getElementById('cpu-hand-display').innerHTML=cpuHand.map(()=>`<div class="card back sm"></div>`).join('');
   document.getElementById('cpu-hand-count').textContent=`${cpuHand.length} cartas${cpuMortoTaken?' · Morto em mãos':''}`;
   document.getElementById('cpu-melds-display').innerHTML=cpuMelds.map((m,i)=>meldHTML(m,i,false)).join('');
@@ -371,6 +412,13 @@ function render(){
 
   // Player hand
   const isMyTurn=turn==='player';
+  const playerArea = document.querySelector('.player-area');
+  if(!isMyTurn) {
+    playerArea?.classList.add('disabled');
+  } else {
+    playerArea?.classList.remove('disabled');
+  }
+
   document.getElementById('player-hand-display').innerHTML=hand.map((c,i)=>cardHTML(c,i,false,selectedCards.has(i),isMyTurn)).join('');
   document.getElementById('player-melds-display').innerHTML=melds.map((m,i)=>meldHTML(m,i,true)).join('');
   document.getElementById('morto-status').textContent=mortoTaken?'Morto retirado':'Morto disponível';

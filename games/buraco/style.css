@@ -14,9 +14,60 @@ body { background: #1a472a; font-family: 'Nunito', sans-serif; min-height: 100vh
 .score-side { text-align: center; }
 .score-name { font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
 .score-val { font-size: 1.2rem; font-weight: 800; color: #ffd700; }
-.turn-badge { padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.78rem; font-weight: 800; }
-.turn-mine { background: rgba(255,107,53,0.2); color: #ff8f5e; border: 1.5px solid #ff6b35; }
+.turn-badge { padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.78rem; font-weight: 800; transition: all 0.3s ease; }
+.turn-mine { background: rgba(255,107,53,0.2); color: #ff8f5e; border: 1.5px solid #ff6b35; box-shadow: 0 0 10px rgba(255,107,53,0.3); }
 .turn-cpu  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border: 1.5px solid rgba(255,255,255,0.15); }
+.turn-cpu.active { background: rgba(255,193,7,0.15); color: #ffd54f; border-color: #ffd54f; box-shadow: 0 0 10px rgba(255,193,7,0.3); }
+
+/* CPU area highlight during turn */
+.cpu-area.active-turn {
+  background: rgba(255,193,7,0.1);
+  border: 1px solid rgba(255,193,7,0.3);
+  box-shadow: 0 0 15px rgba(255,193,7,0.2);
+}
+
+/* Thinking animation */
+.thinking-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.thinking-dots span {
+  width: 5px;
+  height: 5px;
+  background: #ffd54f;
+  border-radius: 50%;
+  animation: thinking-bounce 0.6s infinite alternate;
+}
+
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes thinking-bounce {
+  from { transform: translateY(0); opacity: 0.5; }
+  to { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Card animation for plays */
+@keyframes card-enter {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.card-animated {
+  animation: card-enter 0.3s ease-out;
+}
+
+/* Disabled state for actions */
+.player-area.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.player-area.disabled .card.playable {
+  cursor: not-allowed;
+}
 
 /* CARD */
 .card { width: 38px; height: 54px; background: #fff; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: #222; box-shadow: 0 2px 5px rgba(0,0,0,0.4); line-height: 1.1; text-align: center; user-select: none; flex-shrink: 0; cursor: default; transition: transform 0.12s, box-shadow 0.12s; }

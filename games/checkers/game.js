@@ -19,6 +19,7 @@ let multiCaptureActive = false;
 let timerSeconds = 0;
 let timerInterval = null;
 let timerStarted = false;
+let isProcessing = false; // Flag para prevenir cliques duplos durante animação
 
 // Improvement #2: draw detection
 let movesWithoutCapture = 0;
@@ -102,6 +103,7 @@ function initGame() {
   boardHistory = [];
   animMoved = null;
   animCaptured = [];
+  isProcessing = false;
   stopTimer();
   timerStarted = false;
   timerSeconds = 0;
@@ -197,9 +199,12 @@ function render() {
 }
 
 function updateTurnIndicator() {
+  const gameContainer = document.querySelector('.game-wrapper') || document.body;
+
   if (gameOver) {
     turnIndicator.textContent = 'Fim de jogo';
     turnIndicator.className = 'turn-indicator';
+    gameContainer.classList.remove('thinking');
     return;
   }
 
@@ -208,15 +213,18 @@ function updateTurnIndicator() {
     const remaining = DRAW_LIMIT - movesWithoutCapture;
     turnIndicator.textContent = `⚠️ Empate em ${remaining} movimento${remaining !== 1 ? 's' : ''}`;
     turnIndicator.className = 'turn-indicator draw-warning';
+    gameContainer.classList.remove('thinking');
     return;
   }
 
   if (currentTurn === PLAYER) {
     turnIndicator.textContent = 'Sua vez';
     turnIndicator.className = 'turn-indicator player-turn';
+    gameContainer.classList.remove('thinking');
   } else {
-    turnIndicator.textContent = 'Vez do computador...';
+    turnIndicator.textContent = 'Computador pensando...';
     turnIndicator.className = 'turn-indicator cpu-turn';
+    gameContainer.classList.add('thinking');
   }
 }
 
@@ -412,7 +420,7 @@ function undoMove() {
 // ==================== CLICK HANDLER ====================
 
 function onCellClick(r, c) {
-  if (gameOver || currentTurn !== PLAYER) return;
+  if (gameOver || currentTurn !== PLAYER || isProcessing) return;
   initAudio();
 
   // Start timer on first player action
@@ -454,6 +462,9 @@ function onCellClick(r, c) {
 }
 
 function executePlayerMove(fromR, fromC, moveTarget) {
+  if (isProcessing) return;
+  isProcessing = true;
+
   // Save history before executing (Improvement #9)
   saveHistory();
 
@@ -468,20 +479,25 @@ function executePlayerMove(fromR, fromC, moveTarget) {
 
     // Improvement #2: draw detection (counted inside executeMoveChain)
     if (movesWithoutCapture >= DRAW_LIMIT) {
+      isProcessing = false;
       endGame('draw');
       return;
     }
 
-    if (checkGameOver()) return;
+    if (checkGameOver()) {
+      isProcessing = false;
+      return;
+    }
 
     currentTurn = CPU;
     updateUndoButton();
     updateTurnIndicator();
     render();
 
+    // Delay mínimo de 800ms para jogadas da IA
     setTimeout(() => {
       cpuTurn();
-    }, 500);
+    }, 800);
   });
 }
 
@@ -535,7 +551,7 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
   }
 
   if (promoted) {
-    playSound('king');
+    playSound('levelup');
     // 2D Games: Visual feedback for king promotion
     animMoved = { row: step.row, col: step.col, isPromotion: true };
   }
@@ -563,11 +579,15 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
 // ==================== CPU AI ====================
 
 function cpuTurn() {
-  if (gameOver) return;
+  if (gameOver) {
+    isProcessing = false;
+    return;
+  }
 
   const moves = getAllMoves(CPU, board);
   if (moves.length === 0) {
     endGame(PLAYER);
+    isProcessing = false;
     return;
   }
 
@@ -588,15 +608,20 @@ function cpuTurn() {
     // Improvement #2: draw check after CPU move
     if (movesWithoutCapture >= DRAW_LIMIT) {
       endGame('draw');
+      isProcessing = false;
       return;
     }
 
-    if (checkGameOver()) return;
+    if (checkGameOver()) {
+      isProcessing = false;
+      return;
+    }
 
     currentTurn = PLAYER;
     updateUndoButton();
     updateTurnIndicator();
     render();
+    isProcessing = false;
   });
 }
 

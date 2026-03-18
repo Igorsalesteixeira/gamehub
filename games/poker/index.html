@@ -18,7 +18,7 @@
   <meta name="twitter:description" content="Jogue Poker Texas Hold'em online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=3" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script type="application/ld+json">
   {
@@ -78,6 +78,16 @@
         </div>
       </div>
 
+      <!-- Phase indicator -->
+      <div style="text-align: center; margin: 0.5rem 0;" id="phase-indicator-container">
+        <div class="phase-indicator">
+          <span class="phase-dot" id="phase-preflop"></span> Pré-flop
+          <span class="phase-dot" id="phase-flop"></span> Flop
+          <span class="phase-dot" id="phase-turn"></span> Turn
+          <span class="phase-dot" id="phase-river"></span> River
+        </div>
+      </div>
+
       <!-- Community cards -->
       <div class="community-area">
         <div class="community-label">Mesa</div>
@@ -122,7 +132,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'poker' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Poker Texas Hold'em Online</h2>

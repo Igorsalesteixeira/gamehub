@@ -28,6 +28,7 @@ let board = [];
 let currentPlayer = BLACK;
 let gameOver = false;
 let consecutivePasses = 0;
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 // --- DOM ---
 const boardEl = document.getElementById('board');
@@ -54,6 +55,7 @@ function initBoard() {
   currentPlayer = BLACK;
   gameOver = false;
   consecutivePasses = 0;
+  isProcessing = false;
 }
 
 function getFlips(b, pos, player) {
@@ -124,13 +126,16 @@ function render() {
     boardEl.appendChild(cell);
   }
 
+  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
   if (!gameOver) {
     if (currentPlayer === BLACK) {
       turnEl.textContent = 'Sua vez (Preto)';
       turnEl.className = 'turn-indicator player-turn';
+      gameWrapper.classList.remove('thinking');
     } else {
-      turnEl.textContent = 'Vez do CPU (Branco)';
+      turnEl.textContent = 'Computador pensando...';
       turnEl.className = 'turn-indicator cpu-turn';
+      gameWrapper.classList.add('thinking');
     }
   }
 }
@@ -177,10 +182,14 @@ function applyMove(pos, player) {
 }
 
 function playerMove(pos) {
-  if (gameOver || currentPlayer !== BLACK) return;
+  if (gameOver || currentPlayer !== BLACK || isProcessing) return;
+  isProcessing = true;
   initAudio();
   const flips = getFlips(board, pos, BLACK);
-  if (flips.length === 0) return;
+  if (flips.length === 0) {
+    isProcessing = false;
+    return;
+  }
 
   // Place piece
   board[pos] = BLACK;
@@ -242,23 +251,31 @@ function playerMove(pos) {
 }
 
 function cpuMove() {
-  if (gameOver) return;
+  if (gameOver) {
+    isProcessing = false;
+    return;
+  }
   const moves = getValidMoves(board, WHITE);
   if (moves.length === 0) {
     consecutivePasses++;
     if (consecutivePasses >= 2) {
       endGame();
+      isProcessing = false;
       return;
     }
     currentPlayer = BLACK;
     const playerMoves = getValidMoves(board, BLACK);
     if (playerMoves.length === 0) {
       endGame();
+      isProcessing = false;
       return;
     }
     turnEl.textContent = 'CPU sem jogadas! Sua vez';
     turnEl.className = 'turn-indicator player-turn';
+    const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+    gameWrapper.classList.remove('thinking');
     setTimeout(() => render(), 800);
+    isProcessing = false;
     return;
   }
 
@@ -297,6 +314,7 @@ function cpuMove() {
   // Check if board is full
   if (counts.black + counts.white === 64) {
     endGame();
+    isProcessing = false;
     return;
   }
 
@@ -307,6 +325,7 @@ function cpuMove() {
     consecutivePasses++;
     if (consecutivePasses >= 2) {
       endGame();
+      isProcessing = false;
       return;
     }
     turnEl.textContent = 'Voce sem jogadas! Vez do CPU';
@@ -316,6 +335,7 @@ function cpuMove() {
   }
 
   render();
+  isProcessing = false;
 }
 
 function chooseCpuMove(moves) {

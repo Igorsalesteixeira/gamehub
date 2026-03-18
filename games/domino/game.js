@@ -29,6 +29,7 @@ let gameStartTime = null;
 let timerInterval = null;
 let wins = 0;
 let totalScore = 0;
+let isProcessing = false; // Flag para prevenir cliques duplos
 
 // ===== DOM REFS =====
 const chainArea      = document.getElementById('chain-area');
@@ -84,6 +85,7 @@ function initGame() {
   selectedTile = null;
   consecutivePasses = 0;
   playerMoves = 0;
+  isProcessing = false;
   chain = [];
   leftEnd = null;
   rightEnd = null;
@@ -299,15 +301,19 @@ function updateTopBar() {
 }
 
 function setTurnIndicator(who, thinking = false) {
+  const gameLayout = document.querySelector('.game-layout') || document.body;
   if (thinking) {
-    turnIndicator.textContent = 'IA pensando…';
+    turnIndicator.textContent = 'Computador pensando…';
     turnIndicator.className = 'turn-indicator thinking';
+    gameLayout.classList.add('thinking');
   } else if (who === 'player') {
     turnIndicator.textContent = 'Sua vez';
     turnIndicator.className = 'turn-indicator';
+    gameLayout.classList.remove('thinking');
   } else {
     turnIndicator.textContent = 'Vez da IA';
     turnIndicator.className = 'turn-indicator ai-turn';
+    gameLayout.classList.add('thinking');
   }
 }
 
@@ -356,7 +362,7 @@ function placeTile(tile, tileIndex, hand, side) {
 
 // ===== PLAYER ACTIONS =====
 function onTileClick(idx) {
-  if (gameOver || currentTurn !== 'player') return;
+  if (gameOver || currentTurn !== 'player' || isProcessing) return;
   initAudio();
 
   const tile = playerHand[idx];
@@ -387,10 +393,14 @@ function onTileClick(idx) {
 }
 
 function doPlayerPlace(side) {
-  if (selectedTile === null) return;
+  if (selectedTile === null || isProcessing) return;
+  isProcessing = true;
   const tile = playerHand[selectedTile];
   const ok = placeTile(tile, selectedTile, playerHand, side);
-  if (!ok) return;
+  if (!ok) {
+    isProcessing = false;
+    return;
+  }
 
   playerMoves++;
   consecutivePasses = 0;
@@ -410,7 +420,10 @@ function endPlayerTurn() {
   currentTurn = 'ai';
   setTurnIndicator('ai', true);
   renderButtons();
-  setTimeout(aiTurn, 900);
+  // Delay mínimo de 800ms para jogadas da IA
+  setTimeout(() => {
+    aiTurn();
+  }, 800);
 }
 
 btnPlaceLeft.addEventListener('click', () => doPlayerPlace('left'));
@@ -524,6 +537,7 @@ function aiTurn() {
     currentTurn = 'player';
     setTurnIndicator('player');
     renderButtons();
+    isProcessing = false;
   }, 400);
 }
 
