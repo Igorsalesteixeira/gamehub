@@ -55,6 +55,24 @@ body {
   white-space: nowrap;
 }
 
+/* ===== DIFFICULTY SELECT ===== */
+#difficulty-select {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+#difficulty-select:hover { background: rgba(255,255,255,0.22); }
+#difficulty-select option { background: #1e2a3a; color: #fff; }
+
 /* ===== GAME WRAPPER ===== */
 .game-wrapper {
   flex: 1;
@@ -74,6 +92,7 @@ body {
   border-radius: 999px;
   background: rgba(255,255,255,0.12);
   transition: background 0.3s, color 0.3s;
+  text-align: center;
 }
 .turn-indicator.player-turn {
   background: rgba(255,255,255,0.15);
@@ -82,6 +101,10 @@ body {
 .turn-indicator.cpu-turn {
   background: rgba(255,107,53,0.3);
   color: #ff6b35;
+}
+.turn-indicator.draw-warning {
+  background: rgba(255,152,0,0.25);
+  color: #ffb74d;
 }
 
 /* ===== BOARD ===== */
@@ -216,7 +239,36 @@ body {
   transition: top 0.3s ease, left 0.3s ease;
 }
 
+/* ===== MUST CAPTURE (forced capture highlight) ===== */
+.piece.must-capture {
+  animation: must-cap 0.8s infinite alternate;
+  box-shadow: 0 0 0 3px #f44336, 0 0 12px rgba(244,67,54,0.6);
+}
+@keyframes must-cap {
+  from { box-shadow: 0 0 0 3px #f44336, 0 0 8px rgba(244,67,54,0.4); }
+  to   { box-shadow: 0 0 0 4px #ff1744, 0 0 16px rgba(255,23,68,0.8); }
+}
+
+/* ===== PIECE ANIMATIONS ===== */
+@keyframes piece-appear {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes piece-captured {
+  from { transform: scale(1);   opacity: 1; }
+  to   { transform: scale(0);   opacity: 0; }
+}
+.piece.appear        { animation: piece-appear   0.25s ease forwards; }
+.piece.captured-anim { animation: piece-captured 0.25s ease forwards; }
+
 /* ===== BUTTONS ===== */
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .btn {
   padding: 0.5rem 1.5rem;
   border: none;
@@ -231,6 +283,15 @@ body {
 .btn:active { transform: scale(0.96); }
 .btn-orange { background: #ff6b35; color: #fff; }
 .btn-orange:hover { opacity: 0.88; }
+
+/* Ghost/Undo button */
+.btn-ghost {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.22); }
+#btn-undo:disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -281,6 +342,7 @@ body {
   }
   .turn-indicator { font-size: 0.85rem; }
   .btn { font-size: 0.8rem; padding: 0.4rem 1.2rem; }
+  #difficulty-select { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -295,7 +357,67 @@ body {
   .game-wrapper { gap: 0.2rem; padding: 0.2rem; }
 }
 
-/* ===== SEO GAME INFO SECTION ===== */
+/* ===== TUTORIAL HINT (Game Design - Early Wins) ===== */
+.tutorial-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+  border: 1px solid rgba(76,175,80,0.4);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #a5d6a7;
+  max-width: 90%;
+  animation: hint-slide-in 0.4s ease;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.tutorial-hint.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+@keyframes hint-slide-in {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hint-icon { font-size: 1.1rem; }
+.hint-text { flex: 1; }
+.hint-close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background 0.2s;
+}
+.hint-close:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== SCREEN SHAKE (2D Games - Impact Feedback) ===== */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-1px, 1px); }
+  80% { transform: translate(1px, -1px); }
+}
+.board-container.capturing {
+  animation: screen-shake 0.2s ease;
+}
+
+/* ===== KING PROMOTION FLASH (2D Games - Reward Feedback) ===== */
+@keyframes king-flash {
+  0% { box-shadow: 0 0 0 0 rgba(255,215,0,0.8); }
+  50% { box-shadow: 0 0 20px 10px rgba(255,215,0,0.6); }
+  100% { box-shadow: 0 0 0 0 rgba(255,215,0,0); }
+}
+.piece.king-promoted {
+  animation: king-flash 0.6s ease;
+}
 body:has(.game-info) { overflow-y: auto; height: auto; min-height: 100dvh; }
 .game-info {
   max-width: 780px;

@@ -18,7 +18,7 @@
   <meta name="twitter:description" content="Jogue Dama online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=5" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -54,14 +54,27 @@
       <span class="stat-cpu">&#128992; <span id="cpu-count">12</span></span>
       <span>⏱ <span id="timer-display">00:00</span></span>
     </div>
+    <select id="difficulty-select">
+      <option value="easy">Fácil</option>
+      <option value="medium" selected>Médio</option>
+      <option value="hard">Difícil</option>
+    </select>
   </header>
 
   <div class="game-wrapper">
     <div class="turn-indicator" id="turn-indicator">Sua vez</div>
+    <div class="tutorial-hint" id="tutorial-hint">
+      <span class="hint-icon">💡</span>
+      <span class="hint-text">Captura é obrigatória! Clique nas peças destacadas em vermelho para comer.</span>
+      <button class="hint-close" id="hint-close">×</button>
+    </div>
     <div class="board-container">
       <div class="board" id="board"></div>
     </div>
-    <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="btn-undo" disabled>&#8617; Desfazer</button>
+      <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+    </div>
   </div>
 
   <!-- Modal de fim de jogo -->
@@ -78,7 +91,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'dama' });
   </script>
-  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Dama Online</h2>
