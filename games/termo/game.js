@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Termo (Wordle BR) =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const WORDS = [
   'ABACO','ABRIR','ACASO','ACIMA','ADEUS','AGORA','AINDA','AJOIO','ALEGA','ALGUM',

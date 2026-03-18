@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Anagrama =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const WORD_BANK = {
   'Animais': ['GATO','LOBO','URSO','PATO','RATO','VACA','BURRO','COBRA','TIGRE','LEAO','AGUIA','MACACO','CAVALO','COELHO','RAPOSA','GALINHA','CORUJA','JACARE','CAMELO','TUCANO','GIRAFA','BALEIA','PANTERA','PINGUIM','GOLFINHO','ELEFANTE','TARTARUGA','PAPAGAIO','CACHORRO','BORBOLETA'],

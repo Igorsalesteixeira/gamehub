@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const WORD_BANK = {
   'Animais': [

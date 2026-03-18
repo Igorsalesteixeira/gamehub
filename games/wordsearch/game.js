@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Caça-Palavras =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const CATEGORIES = {
   'Animais': ['GATO','CACHORRO','ELEFANTE','GIRAFA','TIGRE','LEAO','MACACO','COBRA','AGUIA','BALEIA','CAVALO','COELHO','GALINHA','PAPAGAIO','PINGUIM','TARTARUGA','JACARE','LOBO','URSO','RAPOSA','GOLFINHO','CORUJA','PANTERA','CAMELO','TUCANO'],
