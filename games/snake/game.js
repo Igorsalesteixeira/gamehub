@@ -4,7 +4,6 @@
 // =============================================
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
-import { ParticlePool, Trail, FloatingText } from '../shared/game-2d-utils.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20; // cells
@@ -36,11 +35,6 @@ let paused    = false;
 let cellSize  = 0;
 let eatRipple = null;   // animação de ondulação ao comer
 let headTrail = [];     // rastro de posições recentes da cabeça
-
-// ---- 2D Effects ----
-const particlePool = new ParticlePool(50);
-const trailEffect = new Trail(8);
-const floatingText = new FloatingText();
 
 bestDisplay.textContent = bestScore;
 
@@ -120,9 +114,6 @@ function tick() {
   headTrail.push({ x: head.x, y: head.y });
   if (headTrail.length > 5) headTrail.shift();
 
-  // Update trail effect (2D optimization)
-  trailEffect.add(head.x * cellSize + cellSize / 2, head.y * cellSize + cellSize / 2);
-
   // Eat food
   if (head.x === food.x && head.y === food.y) {
     score++;
@@ -132,22 +123,6 @@ function tick() {
     playSound('eat');
     // Mobile: feedback tátil ao comer (vibration)
     if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
-    // 2D Effects: particles ao comer
-    const fx = food.x * cellSize + cellSize / 2;
-    const fy = food.y * cellSize + cellSize / 2;
-    for (let i = 0; i < 8; i++) {
-      const angle = (Math.PI * 2 * i) / 8;
-      particlePool.get(
-        fx, fy,
-        Math.cos(angle) * 2,
-        Math.sin(angle) * 2,
-        30,
-        '#e94560',
-        4
-      );
-    }
-    // Floating text +1
-    floatingText.add('+1', fx, fy - 20, '#53d769', 14, 40);
     spawnFood();
   } else {
     snake.pop();
@@ -231,11 +206,6 @@ function draw() {
   const cs = cellSize;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Update 2D effects
-  particlePool.update();
-  trailEffect.update();
-  floatingText.update();
-
   // Grid lines (subtle)
   ctx.strokeStyle = 'rgba(255,255,255,0.04)';
   ctx.lineWidth = 1;
@@ -270,15 +240,6 @@ function draw() {
     ctx.arc(pos.x * cs + cs / 2, pos.y * cs + cs / 2, cs * 0.28, 0, Math.PI * 2);
     ctx.fill();
   });
-
-  // 2D Effects: trail effect
-  trailEffect.draw(ctx, '#53d769', cs * 0.3);
-
-  // 2D Effects: particles
-  particlePool.draw(ctx);
-
-  // 2D Effects: floating text
-  floatingText.draw(ctx);
 
   // Food
   if (food) {
