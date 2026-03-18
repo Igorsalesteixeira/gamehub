@@ -42,6 +42,13 @@ const winStats      = document.getElementById('win-stats');
 
 document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-undo').addEventListener('click', undo);
+
+// Game Design: Botão compartilhar no WhatsApp
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  const text = `🏆 Venci a Paciência no Games Hub!\n\n⏱️ Tempo: ${winStats.textContent}\n🎮 Jogue você também: https://gameshub.com.br/games/solitaire/`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+});
+
 document.getElementById('btn-win-new').addEventListener('click', () => {
   winModal.classList.remove('show');
   newGame();

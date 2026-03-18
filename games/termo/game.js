@@ -78,9 +78,23 @@ const KB_ROWS = [
   ['ENTER','Z','X','C','V','B','N','M','⌫']
 ];
 
+// Game Design: Desafio Diário - palavra baseada na data
+function getDailyWord() {
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+    hash = hash & hash;
+  }
+  const index = Math.abs(hash) % VALID_WORDS.length;
+  return VALID_WORDS[index];
+}
+
 function init() {
   winsDisplay.textContent = wins;
-  targetWord = VALID_WORDS[Math.floor(Math.random() * VALID_WORDS.length)];
+  // Game Design: Modo diário (todos jogam a mesma palavra por dia)
+  targetWord = getDailyWord();
   currentRow = 0;
   currentCol = 0;
   gameOver = false;

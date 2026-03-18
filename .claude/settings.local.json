@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -d \"c:/Users/igor-/Downloads/Site de jogos/games/\"*/)"
+      "Bash(ls -d \"c:/Users/igor-/Downloads/Site de jogos/games/\"*/)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 ﻿import '../../auth-check.js';
 // ===== 2048 =====
 import { supabase } from '../../supabase.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 
 const SIZE = 4;
 const boardEl = document.getElementById('board');
@@ -123,6 +124,17 @@ function move(direction) {
     updateScore();
     render(newTile, mergedCells);
 
+    // Game Design: som ao combinar
+    if (mergedCells.length > 0) {
+      playSound('move');
+    }
+
+    // Game Design: confetes ao atingir 2048
+    if (won && !gameOver) {
+      launchConfetti();
+      playSound('win');
+    }
+
     if (!canMove()) {
       gameOver = true;
       setTimeout(() => {
@@ -196,6 +208,11 @@ boardEl.addEventListener('touchend', (e) => {
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
+
+// Game Design: botão compartilhar
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🔢 Joguei 2048 no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScore}\n\n🎮 Jogue você também: https://gameshub.com.br/games/game2048/`);
+});
 
 async function saveGameStat() {
   try {

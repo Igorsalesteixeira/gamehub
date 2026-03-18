@@ -3,6 +3,7 @@
 //  COBRINHA (Snake) — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20; // cells
@@ -118,6 +119,8 @@ function tick() {
     score++;
     scoreDisplay.textContent = score;
     eatRipple = { x: food.x, y: food.y, frame: 0 }; // dispara animação
+    // Game Design: som ao comer
+    playSound('eat');
     // Mobile: feedback tátil ao comer (vibration)
     if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
     spawnFood();
@@ -135,6 +138,9 @@ function getSpeed() {
 function startGame() {
   initGame();
   overlay.classList.add('hidden');
+  // Game Design: esconder botão compartilhar ao iniciar
+  const btnShare = document.getElementById('btn-share');
+  if (btnShare) btnShare.style.display = 'none';
   running = true;
   paused = false;
   scheduleNext();
@@ -165,6 +171,9 @@ function gameOver() {
     bestScore = score;
     localStorage.setItem('snake_best', String(bestScore));
     bestDisplay.textContent = bestScore;
+    // Game Design: confetes ao bater recorde
+    launchConfetti();
+    playSound('win');
   }
 
   saveGameStat();
@@ -174,6 +183,16 @@ function gameOver() {
   overlayMsg.textContent   = '';
   overlayScore.textContent = `Pontuação: ${score} 🍎`;
   btnStart.textContent     = 'Jogar Novamente';
+
+  // Game Design: mostrar botão compartilhar
+  const btnShare = document.getElementById('btn-share');
+  if (btnShare) {
+    btnShare.style.display = 'inline-block';
+    btnShare.onclick = () => {
+      shareOnWhatsApp(`🐍 Joguei Cobrinha no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScore}\n\n🎮 Jogue você também: https://gameshub.com.br/games/snake/`);
+    };
+  }
+
   overlay.classList.remove('hidden');
 }
 
