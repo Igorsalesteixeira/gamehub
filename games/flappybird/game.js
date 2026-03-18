@@ -47,6 +47,8 @@ function flap() {
     return;
   }
   bird.vy = FLAP;
+  // Mobile: feedback tátil ao bater asas
+  if (navigator.vibrate) navigator.vibrate(8);
 }
 
 function spawnPipe() {
@@ -76,6 +78,8 @@ function update() {
     if (!pipes[i].scored && pipes[i].x + PIPE_WIDTH < bird.x) {
       pipes[i].scored = true;
       score++;
+      // Mobile: feedback tátil ao passar cano (pontuar)
+      if (navigator.vibrate) navigator.vibrate(15);
     }
 
     // Remove offscreen
@@ -103,6 +107,8 @@ function update() {
 function die() {
   gameState = 'dead';
   shakeFrames = 12; // screen shake por 12 frames
+  // Mobile: feedback tátil na morte (impacto)
+  if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
   if (score > bestScore) {
     bestScore = score;
     localStorage.setItem('flappy_best', bestScore);
