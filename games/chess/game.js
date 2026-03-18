@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ========== CONSTANTS ==========
 const EMPTY = 0;
@@ -533,6 +532,8 @@ function endGame(result) {
   if (result === 'win') {
     turnIndicator.textContent = 'Xeque-mate! Voce venceu!';
     showResult('\uD83C\uDF89', 'Vitoria!', 'Parabens, xeque-mate!');
+    launchConfetti();
+    playSound('win');
   } else if (result === 'loss') {
     turnIndicator.textContent = 'Xeque-mate! Voce perdeu.';
     showResult('\uD83D\uDE1E', 'Derrota!', 'O computador deu xeque-mate.');

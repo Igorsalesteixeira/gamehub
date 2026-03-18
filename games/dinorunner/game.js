@@ -1,8 +1,7 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -225,6 +224,8 @@ function die() {
     bestScore = score;
     localStorage.setItem('dino_best', bestScore);
     bestDisplay.textContent = bestScore;
+    launchConfetti();
+    playSound('win');
   }
   saveGameStat();
   showOverlay('Fim de Jogo!', `Pontos: ${score}`, score === bestScore ? 'Novo recorde!' : `Melhor: ${bestScore}`, 'Jogar Novamente');

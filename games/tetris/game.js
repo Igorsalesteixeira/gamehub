@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Tetris =====
 import { supabase } from '../../supabase.js';
 
@@ -219,25 +220,33 @@ function moveDown() {
   }
 }
 
-function moveLeft() { if (!collides(current, -1, 0)) current.x--; }
-function moveRight() { if (!collides(current, 1, 0)) current.x++; }
+function moveLeft() { if (!collides(current, -1, 0)) { current.x--; playSound('move'); haptic(15); } }
+function moveRight() { if (!collides(current, 1, 0)) { current.x++; playSound('move'); haptic(15); } }
 
 function rotate() {
   const shape = current.shape;
   const rotated = shape[0].map((_, c) => shape.map(row => row[c]).reverse());
   if (!collides(current, 0, 0, rotated)) {
     current.shape = rotated;
+    playSound('move');
+    haptic(15);
   } else if (!collides(current, -1, 0, rotated)) {
     current.x--;
     current.shape = rotated;
+    playSound('move');
+    haptic(15);
   } else if (!collides(current, 1, 0, rotated)) {
     current.x++;
     current.shape = rotated;
+    playSound('move');
+    haptic(15);
   }
 }
 
 function hardDrop() {
   while (!collides(current, 0, 1)) current.y++;
+  playSound('move');
+  haptic(15);
   lock();
 }
 
@@ -249,6 +258,7 @@ function endGame() {
   saveGameStat();
   // Mobile: feedback tátil no game over
   if (navigator.vibrate) navigator.vibrate([60, 30, 100]);
+  playSound('win');
 }
 
 function updateUI() {

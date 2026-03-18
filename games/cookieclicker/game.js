@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 let cookies = 0, cps = 0, cpc = 1, totalEarned = 0;
 const countEl = document.getElementById('count');
@@ -89,6 +88,7 @@ cookieBtn.addEventListener('click', (e) => {
   totalEarned += cpc;
   update();
   renderShop();
+  haptic(15);
 
   // Float text
   const ft = document.createElement('div');

@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -215,6 +216,8 @@ function submitGuess() {
   // Check win
   if (guess === targetEquation) {
     gameOver = true;
+    launchConfetti();
+    playSound('win');
     setTimeout(() => {
       modalIcon.textContent = '🏆';
       modalTitle.textContent = 'Parabens!';
@@ -291,6 +294,9 @@ function newGame() {
 document.getElementById('btn-modal-new').addEventListener('click', () => {
   modalEl.classList.add('hidden');
   newGame();
+});
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Acertei a equação no Numble do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/numble/`);
 });
 
 newGame();

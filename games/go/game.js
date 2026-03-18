@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const SIZE = 9;
 const EMPTY = 0, BLACK = 1, WHITE = 2;
@@ -142,6 +141,8 @@ async function endGame() {
   if (blackTotal > whiteTotal) {
     result = 'win';
     msg = `🏆 Preto vence!\n\nPreto: ${blackTotal.toFixed(1)} pts\nBranco: ${whiteTotal.toFixed(1)} pts`;
+    launchConfetti();
+    playSound('win');
   } else {
     result = 'loss';
     msg = `😔 Branco vence!\n\nPreto: ${blackTotal.toFixed(1)} pts\nBranco: ${whiteTotal.toFixed(1)} pts`;
@@ -194,6 +195,8 @@ function cpuMove() {
 function handleClick(r, c) {
   if (current !== BLACK) return;
   if (!playMove(r, c)) return;
+  playSound('move');
+  haptic(15);
   updateUI();
   render();
   setTimeout(cpuMove, 400);

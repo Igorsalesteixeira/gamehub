@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -423,6 +424,11 @@ function endGame(winner) {
     : `CPU ${winner} ficou sem cartas primeiro.`;
   modalOverlay.classList.add('active');
 
+  if (won) {
+    launchConfetti();
+    playSound('win');
+  }
+
   btnDraw.disabled = true;
   btnNew.style.display = '';
 
@@ -484,6 +490,10 @@ function startGame() {
 modalBtn.addEventListener('click', () => {
   modalOverlay.classList.remove('active');
   startGame();
+});
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Ganhei no Uno do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/uno/`);
 });
 
 btnNew.addEventListener('click', () => {

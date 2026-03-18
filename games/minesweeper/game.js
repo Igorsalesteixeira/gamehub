@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -323,6 +324,8 @@ function showModal(won) {
     modalTitle.style.color = '#4ade80';
     modalMsg.textContent = 'Voce encontrou todas as celulas seguras!';
     modalStats.textContent = `Tempo: ${timerSeconds}s`;
+    launchConfetti();
+    playSound('win');
   } else {
     modalIcon.textContent = '\u{1F4A5}';
     modalTitle.textContent = 'Boom!';
@@ -352,6 +355,10 @@ async function saveGameStat(result) {
 // ===== EVENT LISTENERS =====
 btnNew.addEventListener('click', init);
 btnModalNew.addEventListener('click', init);
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Ganhei no Campo Minado do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/minesweeper/`);
+});
 
 btnFlag.addEventListener('click', () => {
   flagMode = !flagMode;

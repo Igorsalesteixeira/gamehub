@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -164,6 +165,8 @@ function checkWin() {
   const allRemoved = pyramid.every(row => row.every(c => c.removed));
   if (allRemoved) {
     clearInterval(timerInterval);
+    launchConfetti();
+    playSound('win');
     showModal('🏆 Você venceu!', `Parabens! Completou em ${moves} movimentos e ${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`, 'win');
   }
 }
@@ -185,5 +188,9 @@ async function showModal(title, message, result) {
 
 document.getElementById('btn-new').addEventListener('click', init);
 document.getElementById('modal-btn').addEventListener('click', init);
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei a Paciência Pirâmide no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/pyramid/`);
+});
 
 init();

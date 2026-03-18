@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Flappy Bird =====
 import { supabase } from '../../supabase.js';
 
@@ -47,8 +48,8 @@ function flap() {
     return;
   }
   bird.vy = FLAP;
-  // Mobile: feedback tátil ao bater asas
-  if (navigator.vibrate) navigator.vibrate(8);
+  playSound('move');
+  haptic(15);
 }
 
 function spawnPipe() {
@@ -113,6 +114,8 @@ function die() {
     bestScore = score;
     localStorage.setItem('flappy_best', bestScore);
     bestDisplay.textContent = bestScore;
+    launchConfetti();
+    playSound('win');
   }
   saveGameStat();
 }

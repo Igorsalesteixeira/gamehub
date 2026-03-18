@@ -67,6 +67,7 @@
         <p id="overlay-msg">Use as setas, WASD ou os botoes para jogar</p>
         <p id="overlay-score" class="overlay-score"></p>
         <button class="btn btn-orange" id="btn-start">Jogar</button>
+        <button class="btn btn-green" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">Compartilhar no WhatsApp</button>
       </div>
     </div>
   </div>
@@ -87,7 +88,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Pac-Man Online</h2>

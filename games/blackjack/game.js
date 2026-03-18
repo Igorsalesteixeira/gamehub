@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
 // === DOM Elements ===
@@ -305,6 +306,12 @@ function endRound(result, title, message) {
     else navigator.vibrate(10); // draw
   }
 
+  // Confetti e som na vitoria
+  if (result === 'win' || result === 'blackjack') {
+    launchConfetti();
+    playSound('win');
+  }
+
   btnHit.disabled = true;
   btnStand.disabled = true;
   btnDouble.disabled = true;
@@ -371,6 +378,11 @@ btnNew.addEventListener('click', () => {
 modalBtn.addEventListener('click', () => {
   closeModal();
   startRound();
+});
+
+// Botao de compartilhar
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Ganhei no Blackjack do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/blackjack/`);
 });
 
 btnBetMinus.addEventListener('click', () => {

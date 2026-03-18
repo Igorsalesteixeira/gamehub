@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // =============================================
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
@@ -43,6 +44,9 @@ const winStats      = document.getElementById('win-stats');
 document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-undo').addEventListener('click', undo);
 document.getElementById('btn-win-new').addEventListener('click', () => { winModal.classList.remove('show'); newGame(); });
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei a Paciência Spider no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/spider-solitaire/`);
+});
 stockEl.addEventListener('click', dealFromStock);
 document.getElementById('suit-count').addEventListener('change', e => {
   state.suitCount = parseInt(e.target.value);
@@ -474,6 +478,8 @@ function showWin() {
   const s = String(secondsElapsed % 60).padStart(2, '0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
+  launchConfetti();
+  playSound('win');
   saveGameStat();
 }
 

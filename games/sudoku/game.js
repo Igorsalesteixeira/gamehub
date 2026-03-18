@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Sudoku =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -186,6 +187,8 @@ function placeNumber(num) {
   if (checkComplete()) {
     gameOver = true;
     stopTimer();
+    launchConfetti();
+    playSound('win');
     setTimeout(() => {
       modalMessage.textContent = `Tempo: ${formatTime(timerSeconds)}`;
       modalOverlay.classList.add('show');
@@ -221,6 +224,10 @@ document.addEventListener('keydown', (e) => {
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
 diffSelect.addEventListener('change', init);
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Sudoku no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/sudoku/`);
+});
 
 async function saveGameStat(result) {
   try {

@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -141,6 +142,7 @@ function handleGuess(letter) {
 
   if (targetWord.includes(letter)) {
     // Correct
+    playSound('move');
     renderWord();
     updateKeyButton(letter, 'correct');
 
@@ -151,6 +153,8 @@ function handleGuess(letter) {
       wins++;
       localStorage.setItem('forca_wins', wins);
       winsDisplay.textContent = wins;
+      launchConfetti();
+      playSound('win');
       setTimeout(() => {
         showModal('Parabens! 🎉', 'Voce adivinhou a palavra!');
         saveGameStat('win');
@@ -193,6 +197,15 @@ function showModal(title, message) {
   modalMessage.textContent = message;
   modalWord.textContent = targetWord;
   modalOverlay.classList.add('show');
+
+  // Setup WhatsApp share button
+  const shareBtn = document.getElementById('btn-share');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const text = `🎉 Acabei de vencer no Jogo da Forca no Games Hub! A palavra era "${targetWord}". Jogue você também! 🎮 https://gameshub.com.br/games/hangman/`;
+      shareOnWhatsApp(text);
+    };
+  }
 }
 
 // Physical keyboard

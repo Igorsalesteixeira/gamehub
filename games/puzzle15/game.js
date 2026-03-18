@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Puzzle 15 =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -102,6 +103,8 @@ function handleClick(index) {
   if (isWon()) {
     gameOver = true;
     stopTimer();
+    launchConfetti();
+    playSound('win');
     setTimeout(() => {
       modalMessage.textContent = `${moves} movimentos em ${formatTime(timerSeconds)}`;
       modalOverlay.classList.add('show');
@@ -129,6 +132,10 @@ function formatTime(s) { return `${Math.floor(s/60)}:${(s%60).toString().padStar
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Puzzle 15 no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/puzzle15/`);
+});
 
 async function saveGameStat() {
   try {

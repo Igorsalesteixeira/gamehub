@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -67,6 +68,8 @@ function handleClick(r, c) {
 
 async function win() {
   const timeSec = Math.floor((Date.now() - startTime) / 1000);
+  launchConfetti();
+  playSound('win');
   modalMsg.textContent = `🎉 Nivel ${level} completo!\n${moves} cliques em ${Math.floor(timeSec/60)}:${(timeSec%60).toString().padStart(2,'0')}`;
   modal.style.display = 'flex';
 
@@ -83,6 +86,9 @@ document.getElementById('modal-btn').addEventListener('click', () => {
   level++;
   levelEl.textContent = `Nivel ${level}`;
   init();
+});
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o nível ${level} do Lights Out no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/lightsout/`);
 });
 
 level = 1;

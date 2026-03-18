@@ -1,10 +1,9 @@
 import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  BUBBLE SHOOTER — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ---- DOM ----
 const canvas       = document.getElementById('game-canvas');
@@ -386,6 +385,8 @@ async function triggerWin() {
   overlayScore.textContent = `Pontuação: ${score} | Tiros: ${shotsFired} | Tempo: ${elapsed}s`;
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
+  launchConfetti();
+  playSound('win');
 
   // Save stats to Supabase
   try {

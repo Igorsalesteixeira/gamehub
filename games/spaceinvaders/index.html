@@ -66,6 +66,7 @@
         <p id="overlay-msg">Use as setas ou botoes para mover e atirar</p>
         <p id="overlay-score" class="overlay-score"></p>
         <button class="btn btn-orange" id="btn-start">Jogar</button>
+        <button class="btn btn-green" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Space Invaders no Games Hub! Venha tentar me bater!')">Compartilhar no WhatsApp</button>
       </div>
     </div>
   </div>
@@ -82,7 +83,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'invaders' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Space Invaders Online</h2>

@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // === State ===
 const PLAYER = 'X';
@@ -87,6 +86,8 @@ function makeMove(idx, symbol) {
   const cell = cells[idx];
   cell.textContent = symbol;
   cell.classList.add('taken', symbol.toLowerCase(), 'pop');
+  playSound('move');
+  haptic(15);
 }
 
 // === CPU AI ===
@@ -151,6 +152,8 @@ function endGame(result) {
     scores.player++;
     scorePlayer.textContent = scores.player;
     showModal('🎉', 'Vitoria!', 'Parabens, voce venceu!');
+    launchConfetti();
+    playSound('win');
   } else if (result.type === 'loss') {
     scores.cpu++;
     scoreCpu.textContent = scores.cpu;

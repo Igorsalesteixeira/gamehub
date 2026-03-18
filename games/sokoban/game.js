@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // =============================================
 //  SOKOBAN — game.js
 // =============================================
@@ -332,6 +333,8 @@ function checkWin() {
   if (!allOnTarget) return;
 
   playing = false;
+  launchConfetti();
+  playSound('win');
   saveGameStat();
 
   if (currentLevel < LEVELS.length - 1) {
@@ -449,6 +452,9 @@ document.querySelectorAll('.ctrl-btn').forEach(btn => {
 btnStart.addEventListener('click', startLevel);
 btnUndo.addEventListener('click', undo);
 btnRestart.addEventListener('click', restartLevel);
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o nível ${currentLevel + 1} do Sokoban no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/sokoban/`);
+});
 
 // =============================================
 //  RESIZE

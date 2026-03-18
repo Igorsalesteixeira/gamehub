@@ -1,4 +1,5 @@
 import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // Jogo de Dama (Checkers) - Dama Brasileira
 // Player = 'player' (dark pieces, bottom), CPU = 'cpu' (orange pieces, top)
 import { supabase } from '../../supabase.js';
@@ -825,6 +826,7 @@ function endGame(winner) {
     modalTitle.textContent = 'Voce venceu!';
     modalTitle.style.color = '#4caf50';
     modalMsg.textContent = 'Parabens! Voce derrotou o computador!';
+    launchConfetti();
     playSound('win');
   } else if (winner === CPU) {
     modalIcon.innerHTML = '&#128546;';

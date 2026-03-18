@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -208,6 +209,8 @@ function checkEndCondition() {
   if (remaining === 0) {
     gameOver = true;
     stopTimer();
+    launchConfetti();
+    playSound('win');
     modalIcon.textContent = '🏆';
     modalTitle.textContent = 'Parabens!';
     modalMsg.textContent = 'Voce removeu todas as pecas!';
@@ -308,6 +311,9 @@ document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-modal-new').addEventListener('click', () => { modalEl.classList.add('hidden'); newGame(); });
 document.getElementById('btn-hint').addEventListener('click', showHint);
 document.getElementById('btn-shuffle').addEventListener('click', shuffleTiles);
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Mahjong no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/mahjong/`);
+});
 window.addEventListener('resize', () => { if (!gameOver) renderBoard(); });
 
 newGame();

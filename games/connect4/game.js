@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
@@ -65,6 +64,8 @@ function drop(col, player) {
   if (row === -1) return -1;
   board[row][col] = player;
   lastDrop = { row, col };
+  playSound('move');
+  haptic(15);
   return row;
 }
 
@@ -161,6 +162,11 @@ async function endGame(result, winCells) {
   const msgs = { win: '🏆 Você venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
   modalMsg.textContent = msgs[result];
   setTimeout(() => { modal.style.display = 'flex'; }, 600);
+
+  if (result === 'win') {
+    launchConfetti();
+    playSound('win');
+  }
 
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {

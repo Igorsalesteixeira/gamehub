@@ -1,8 +1,7 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // ===== Pong =====
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -104,6 +103,8 @@ function update() {
     ball.vx = Math.abs(ball.vx) * 1.05;
     ball.vy += (ball.y - (player.y + PADDLE_H / 2)) * 0.15;
     ball.x = player.x + PADDLE_W;
+    playSound('move');
+    haptic(15);
   }
 
   // Paddle collision - CPU
@@ -183,6 +184,10 @@ function endGame(winner) {
   modalMessage.textContent = `${playerScore} x ${cpuScore}`;
   modalOverlay.classList.add('show');
   saveGameStat(result);
+  if (winner === 'player') {
+    launchConfetti();
+    playSound('win');
+  }
 }
 
 function loop() {

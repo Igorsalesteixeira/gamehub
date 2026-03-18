@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // =============================================
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -36,6 +37,9 @@ document.getElementById('btn-undo').addEventListener('click', undo);
 document.getElementById('btn-win-new').addEventListener('click', () => {
   winModal.classList.remove('show');
   newGame();
+});
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Freecell no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/freecell/`);
 });
 
 // =============================================
@@ -855,6 +859,8 @@ function showWin() {
   const s = String(secondsElapsed % 60).padStart(2,'0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
+  launchConfetti();
+  playSound('win');
 }
 
 // =============================================

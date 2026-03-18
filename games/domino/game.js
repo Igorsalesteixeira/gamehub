@@ -1,7 +1,6 @@
 import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ===== CONSTANTS =====
 const DOTS = {
@@ -394,6 +393,8 @@ function doPlayerPlace(side) {
   playerMoves++;
   consecutivePasses = 0;
   selectedTile = null;
+  playSound('move');
+  haptic(15);
 
   updateEndBadges();
   updateTopBar();
@@ -594,6 +595,8 @@ function endGame(winner, score) {
     modalTitle.textContent = 'Você venceu!';
     modalMsg.textContent   = `Pontuação: ${score} pinos do adversário.`;
     modalScore.textContent = `Total acumulado: ${totalScore} pts`;
+    launchConfetti();
+    playSound('win');
 
     // Save to Supabase
     saveStats(score, playerMoves, elapsed);

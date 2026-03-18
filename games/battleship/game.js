@@ -1,10 +1,9 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  Batalha Naval — Games Hub
 // =============================================
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const ROWS = 10;
 const COLS = 10;
@@ -329,6 +328,8 @@ function fireAt(r, c) {
   if (cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('sunk')) return;
 
   playerTurn = false;
+  playSound('move');
+  haptic(15);
 
   if (cpuBoard[r][c] === 1) {
     cpuBoard[r][c] = 3; // hit
@@ -493,6 +494,10 @@ function checkWin() {
 
     turnIndicator.textContent = won ? 'Voce venceu!' : 'Voce perdeu!';
 
+    if (won) {
+      launchConfetti();
+      playSound('win');
+    }
     saveStats(won ? 'win' : 'loss');
     return true;
   }

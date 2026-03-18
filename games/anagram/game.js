@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Anagrama =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -134,6 +135,7 @@ function addToAnswer(srcIdx) {
   const emptyIdx = answerSlots.findIndex(s => s === null);
   if (emptyIdx === -1) return;
   answerSlots[emptyIdx] = { letter: scrambled[srcIdx], srcIdx, hint: false };
+  playSound('move');
   renderAnswer();
   renderScramble();
 
@@ -249,11 +251,26 @@ function endGame(won) {
   gameOver = true;
   clearInterval(timerInterval);
   const t = getElapsed();
+  if (won) {
+    launchConfetti();
+    playSound('win');
+  }
   modalTitle.textContent = won ? 'Parabéns!' : 'Fim de Jogo';
   modalTitle.className = won ? 'win' : 'loss';
   modalMessage.textContent = `Pontuação final: ${score} pontos em ${Math.floor(t/60)}m ${t%60}s`;
   modalOverlay.classList.add('active');
   saveGameStat(won ? 'win' : 'loss', t);
+
+  // Setup WhatsApp share button
+  const shareBtn = document.getElementById('btn-share');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const text = won
+        ? `🎉 Acabei de vencer no Anagrama no Games Hub! ${score} pontos em ${Math.floor(t/60)}m ${t%60}s. Jogue você também! 🎮 https://gameshub.com.br/games/anagram/`
+        : `🎮 Joguei Anagrama no Games Hub e fiz ${score} pontos! Tente bater meu recorde! 🎮 https://gameshub.com.br/games/anagram/`;
+      shareOnWhatsApp(text);
+    };
+  }
 }
 
 // Timer

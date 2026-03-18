@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -350,6 +351,11 @@ function endMatch() {
   modalMessage.textContent = `Placar final: ${playerScore} x ${cpuScore}`;
   modalOverlay.classList.add('active');
 
+  if (won) {
+    launchConfetti();
+    playSound('win');
+  }
+
   saveStats(won ? 'win' : 'loss');
 }
 
@@ -492,6 +498,10 @@ btnNew.addEventListener('click', () => {
 modalBtn.addEventListener('click', () => {
   modalOverlay.classList.remove('active');
   startMatch();
+});
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Ganhei no Truco Mineiro do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/truco/`);
 });
 
 // === START ===

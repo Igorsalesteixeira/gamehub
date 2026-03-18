@@ -1,7 +1,6 @@
 import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // =============================================
 //  LUDO — Complete Brazilian rules implementation
@@ -641,6 +640,8 @@ function movePiece(ci, ti) {
   highlightedPieces = new Set();
   btnRoll.disabled = true;
   rolled = false;
+  playSound('move');
+  haptic(15);
 
   const newPos = computeNewPos(ci, ti, diceValue);
   pieces[ci][ti].pos = newPos;
@@ -734,6 +735,10 @@ function endGame(humanWon) {
 
   modalOverlay.classList.remove('hidden');
 
+  if (humanWon) {
+    launchConfetti();
+    playSound('win');
+  }
   saveStats(pos, totalMoves, elapsed);
 }
 

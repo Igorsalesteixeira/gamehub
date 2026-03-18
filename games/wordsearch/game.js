@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Caça-Palavras =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -214,6 +215,7 @@ function checkSelection(cells) {
   for (const pw of placedWords) {
     if (foundWords.has(pw.word)) continue;
     if (selectedWord === pw.word || reversedWord === pw.word) {
+      playSound('move');
       foundWords.add(pw.word);
       foundLines.push({ cells: [...cells] });
       const li = document.querySelector(`[data-word="${pw.word}"]`);
@@ -302,10 +304,21 @@ function getElapsed() {
 function onWin() {
   clearInterval(timerInterval);
   const t = getElapsed();
+  launchConfetti();
+  playSound('win');
   modalTitle.textContent = 'Parabéns!';
   modalMessage.textContent = `Você encontrou todas as ${words.length} palavras em ${Math.floor(t/60)}m ${t%60}s!`;
   modalOverlay.classList.add('active');
   saveGameStat(t);
+
+  // Setup WhatsApp share button
+  const shareBtn = document.getElementById('btn-share');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const text = `🎉 Acabei de completar o Caça-Palavras no Games Hub! Encontrei ${words.length} palavras em ${Math.floor(t/60)}m ${t%60}s. Jogue você também! 🎮 https://gameshub.com.br/games/wordsearch/`;
+      shareOnWhatsApp(text);
+    };
+  }
 }
 
 async function saveGameStat(timeSec) {

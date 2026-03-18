@@ -1,10 +1,9 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  BREAKOUT — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ---- DOM ----
 const canvas       = document.getElementById('game-canvas');
@@ -402,6 +401,7 @@ function gameOver() {
   overlayScore.textContent = `Pontuacao: ${score}`;
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
+  playSound('win');
 }
 
 btnStart.addEventListener('click', startGame);

@@ -1,7 +1,6 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // --- Constants ---
 const EMPTY = 0, BLACK = 1, WHITE = 2;
@@ -374,6 +373,8 @@ function endGame() {
     icon = '\u{1F3C6}'; // trophy
     title = 'Voce venceu!';
     msg = `Preto ${black} x ${white} Branco`;
+    launchConfetti();
+    playSound('win');
   } else if (white > black) {
     result = 'loss';
     icon = '\u{1F614}'; // pensive

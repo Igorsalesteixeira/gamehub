@@ -1,10 +1,9 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  PAC-MAN — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
-// Mobile: haptic feedback helper
-function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ---- Constants ----
 const TILE_SIZE = 20;
@@ -464,6 +463,7 @@ function gameOver() {
   overlayScore.textContent = `Pontuacao: ${score} ⭐`;
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
+  playSound('win');
 }
 
 // =============================================

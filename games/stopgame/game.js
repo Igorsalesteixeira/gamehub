@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -51,6 +52,7 @@ function newRound() {
   const inputs = catsEl.querySelectorAll('.cat-input');
   inputs.forEach((input, i) => {
     input.addEventListener('keydown', (e) => {
+      playSound('move');
       if (e.key === 'Enter') {
         if (i < inputs.length - 1) inputs[i + 1].focus();
         else stopRound();
@@ -97,9 +99,24 @@ function stopRound() {
   totalScore += roundScore;
   scoreEl.textContent = totalScore;
 
-  resultsEl.innerHTML = `<h3>Rodada ${round}: +${roundScore} pontos</h3><p>Total: ${totalScore} pontos</p>`;
+  resultsEl.innerHTML = `<h3>Rodada ${round}: +${roundScore} pontos</h3><p>Total: ${totalScore} pontos</p><button class="btn btn-secondary" id="btn-share" style="margin-top:10px;">Compartilhar no WhatsApp</button>`;
   resultsEl.style.display = 'block';
   round++;
+
+  // Celebrate good rounds
+  if (roundScore >= 40) {
+    launchConfetti();
+    playSound('win');
+  }
+
+  // Setup WhatsApp share button
+  const shareBtn = document.getElementById('btn-share');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const text = `🎮 Joguei Stop no Games Hub! Rodada ${round - 1}: +${roundScore} pontos. Total: ${totalScore} pontos. Jogue você também! 🎮 https://gameshub.com.br/games/stopgame/`;
+      shareOnWhatsApp(text);
+    };
+  }
 }
 
 document.getElementById('stop-btn').addEventListener('click', stopRound);

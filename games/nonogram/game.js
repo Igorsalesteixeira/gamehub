@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -203,6 +204,8 @@ function checkWin() {
   // Win!
   gameOver = true;
   stopTimer();
+  launchConfetti();
+  playSound('win');
   const m = Math.floor(timerSeconds / 60);
   const s = timerSeconds % 60;
   modalMsg.textContent = `Voce completou o nonogram ${gridSize}x${gridSize}!`;
@@ -252,6 +255,9 @@ document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-modal-new').addEventListener('click', () => {
   modalEl.classList.add('hidden');
   newGame();
+});
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Nonogram no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/nonogram/`);
 });
 
 newGame();

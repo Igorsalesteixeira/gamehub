@@ -1,4 +1,5 @@
 ﻿import '../../auth-check.js';
+import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 // ===== Jogo da Memoria =====
 import { supabase } from '../../supabase.js';
 
@@ -206,6 +207,8 @@ function showVictory() {
   victoryModal.classList.remove('hidden');
   // Mobile: feedback tátil na vitória (celebração)
   if (navigator.vibrate) navigator.vibrate([30, 20, 40, 20, 50]);
+  launchConfetti();
+  playSound('win');
   saveGameStat();
 }
 
@@ -230,6 +233,10 @@ async function saveGameStat() {
 btnNewGame.addEventListener('click', initGame);
 btnPlayAgain.addEventListener('click', initGame);
 difficultySelect.addEventListener('change', initGame);
+
+document.getElementById('btn-share')?.addEventListener('click', () => {
+  shareOnWhatsApp(`🎉 Completei o Jogo da Memória no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/memory/`);
+});
 
 // Recalc card sizes on resize
 let resizeTimeout;
