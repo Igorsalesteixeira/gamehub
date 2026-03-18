@@ -1,6 +1,8 @@
 ﻿import '../../auth-check.js';
 // ===== Dino Runner =====
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
