@@ -3,6 +3,8 @@
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 // ---- Constants ----
 const SUITS_1 = ['♠','♠','♠','♠'];

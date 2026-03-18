@@ -207,6 +207,7 @@ function startRound() {
 
 function hit() {
   if (!gameActive) return;
+  if (navigator.vibrate) navigator.vibrate(10);
   playerHand.push(drawCard());
   renderHand(playerHand, playerHandEl);
   updateScores(true);
@@ -226,6 +227,7 @@ function hit() {
 
 function stand() {
   if (!gameActive) return;
+  if (navigator.vibrate) navigator.vibrate(10);
   gameActive = false;
 
   revealDealer();
@@ -234,6 +236,7 @@ function stand() {
 
 function doubleDown() {
   if (!gameActive || playerHand.length !== 2) return;
+  if (navigator.vibrate) navigator.vibrate(15);
   currentBet *= 2;
   updateBalanceDisplay();
 
@@ -295,6 +298,12 @@ function resolveRound() {
 function endRound(result, title, message) {
   gameActive = false;
   roundOver = true;
+  // Mobile: haptic feedback baseado no resultado
+  if (navigator.vibrate) {
+    if (result === 'win' || result === 'blackjack') navigator.vibrate([20, 10, 30]);
+    else if (result === 'loss') navigator.vibrate([40, 20, 50]);
+    else navigator.vibrate(10); // draw
+  }
 
   btnHit.disabled = true;
   btnStand.disabled = true;

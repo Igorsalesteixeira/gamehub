@@ -1,5 +1,7 @@
 ﻿import '../../auth-check.js';
 // =============================================
+// Mobile: haptic feedback helper
+function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 //  FREECELL — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
