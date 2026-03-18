@@ -155,6 +155,13 @@ body {
   padding: 0.4rem 0 0.8rem;
   gap: 0.2rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 100; /* Garante que fique acima de outros elementos */
+}
+
+.ctrl-btn {
+  position: relative;
+  z-index: 101; /* Garante que botões sejam clicáveis */
 }
 
 .ctrl-row {
