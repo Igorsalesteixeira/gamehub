@@ -2,15 +2,28 @@
 // Se não houver sessão ativa, redireciona para a tela de login
 import { supabase } from './supabase.js';
 
-try {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    // Usa import.meta.url para resolver o caminho correto independente
-    // de onde o jogo está na estrutura de pastas
-    window.location.href = new URL('./auth.html', import.meta.url).href;
-  }
-} catch (err) {
-  console.error('Erro ao verificar autenticação:', err);
-  // Em caso de erro, redireciona para login também
-  window.location.href = new URL('./auth.html', import.meta.url).href;
+// Função para redirecionar para a página de auth
+function redirectToAuth() {
+  // Caminho absoluto para auth.html na raiz
+  window.location.href = window.location.origin + '/auth.html';
 }
+
+async function checkAuth() {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Erro Supabase:', error);
+      redirectToAuth();
+      return;
+    }
+    if (!session) {
+      console.log('Usuário não autenticado, redirecionando...');
+      redirectToAuth();
+    }
+  } catch (err) {
+    console.error('Erro ao verificar autenticação:', err);
+    redirectToAuth();
+  }
+}
+
+checkAuth();

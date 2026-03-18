@@ -445,12 +445,31 @@ async function saveGameStat() {
 //  INIT
 // =============================================
 function init() {
+  console.log('[Snake] Inicializando jogo...');
+
+  // Re-seleciona elementos DOM que podem não ter sido carregados
+  const btnStartLocal = document.getElementById('btn-start');
+  console.log('[Snake] Botão encontrado:', btnStartLocal);
+
   initGame();
   draw();
 
-  // Re-registra event listener do botão após DOM garantido
-  if (btnStart) {
-    btnStart.addEventListener('click', startGame);
+  // Registra event listener do botão com debug
+  if (btnStartLocal) {
+    btnStartLocal.addEventListener('click', (e) => {
+      console.log('[Snake] Botão Jogar clicado!');
+      e.preventDefault();
+      startGame();
+    });
+    // Touch para iOS
+    btnStartLocal.addEventListener('touchstart', (e) => {
+      console.log('[Snake] Botão Jogar tocado!');
+      e.preventDefault();
+      startGame();
+    }, { passive: false });
+    console.log('[Snake] Event listeners registrados no botão');
+  } else {
+    console.error('[Snake] ERRO: Botão #btn-start não encontrado no DOM!');
   }
 }
 

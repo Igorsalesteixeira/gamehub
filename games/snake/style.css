@@ -156,12 +156,12 @@ body {
   gap: 0.2rem;
   flex-shrink: 0;
   position: relative;
-  z-index: 100; /* Garante que fique acima de outros elementos */
+  z-index: 1000; /* ACIMA do botão flutuante (z-index: 800) */
 }
 
 .ctrl-btn {
   position: relative;
-  z-index: 101; /* Garante que botões sejam clicáveis */
+  z-index: 1001; /* Garante que botões sejam clicáveis */
 }
 
 .ctrl-row {
