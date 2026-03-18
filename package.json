@@ -1,0 +1,16 @@
+{
+  "name": "games-hub-tests",
+  "version": "1.0.0",
+  "description": "Automated tests for Games Hub",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "validate": "node scripts/validate-games.js",
+    "predeploy": "npm run validate && npm run test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run static validation
+echo "📋 Running static validation..."
+node scripts/validate-games.js || exit 1
+
+echo "✅ Pre-commit checks passed!"
