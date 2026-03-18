@@ -118,6 +118,8 @@ function tick() {
     score++;
     scoreDisplay.textContent = score;
     eatRipple = { x: food.x, y: food.y, frame: 0 }; // dispara animação
+    // Mobile: feedback tátil ao comer (vibration)
+    if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
     spawnFood();
   } else {
     snake.pop();
@@ -155,6 +157,9 @@ function togglePause() {
 function gameOver() {
   running = false;
   clearTimeout(gameLoop);
+
+  // Mobile: feedback tátil no game over (padrão de derrota)
+  if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
   if (score > bestScore) {
     bestScore = score;
@@ -317,22 +322,26 @@ document.addEventListener('keydown', e => {
 });
 
 // =============================================
-//  CONTROLS — Touch swipe
+//  CONTROLS — Touch swipe (Mobile optimized)
 // =============================================
 let touchStart = null;
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: false });
+const SWIPE_THRESHOLD = 30; // Mobile: aumentado de 15px para 30px
 
-canvas.addEventListener('touchmove', e => { e.preventDefault(); }, { passive: false });
+canvas.addEventListener('touchstart', e => {
+  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+}, { passive: true });
+
+canvas.addEventListener('touchmove', e => {
+  // Mobile: só previne scroll se o jogo estiver rodando
+  if (running) e.preventDefault();
+}, { passive: false });
 
 canvas.addEventListener('touchend', e => {
   if (!touchStart || !running) return;
   const dx = e.changedTouches[0].clientX - touchStart.x;
   const dy = e.changedTouches[0].clientY - touchStart.y;
   touchStart = null;
-  if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return; // tap, not swipe
+  if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
 
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0 && direction.x !== -1) nextDir = { x: 1, y: 0 };
@@ -341,10 +350,13 @@ canvas.addEventListener('touchend', e => {
     if (dy > 0 && direction.y !== -1) nextDir = { x: 0, y: 1 };
     else if (dy < 0 && direction.y !== 1) nextDir = { x: 0, y: -1 };
   }
-}, { passive: false });
+
+  // Mobile: feedback tátil ao mudar direção
+  if (navigator.vibrate) navigator.vibrate(8);
+}, { passive: true });
 
 // =============================================
-//  CONTROLS — Mobile buttons
+//  CONTROLS — Mobile buttons (with haptic feedback)
 // =============================================
 document.querySelectorAll('.ctrl-btn').forEach(btn => {
   const handler = () => {
@@ -356,6 +368,8 @@ document.querySelectorAll('.ctrl-btn').forEach(btn => {
       case 'left':  if (direction.x !== 1)  nextDir = { x:-1, y: 0 }; break;
       case 'right': if (direction.x !== -1) nextDir = { x: 1, y: 0 }; break;
     }
+    // Mobile: feedback tátil nos botões
+    if (navigator.vibrate) navigator.vibrate(10);
   };
   btn.addEventListener('click', handler);
   btn.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive: false });
