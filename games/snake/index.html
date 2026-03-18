@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -64,12 +64,12 @@
     <!-- Overlay de inicio / game over -->
     <div class="modal-overlay" id="overlay">
       <div class="modal">
-        <div class="modal-icon animate-bounce-in" id="overlay-icon">🐍</div>
+        <div class="modal-icon" id="overlay-icon">🐍</div>
         <h2 id="overlay-title">Cobrinha</h2>
         <p id="overlay-msg">Use as setas ou deslize para jogar</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-primary animate-bounce-in" id="btn-start">Jogar</button>
-        <button class="btn btn-whatsapp animate-slide-up" id="btn-share" style="display:none;">📱 Compartilhar</button>
+        <button class="btn btn-primary" id="btn-start">Jogar</button>
+        <button class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 10px;">📱 Compartilhar</button>
       </div>
     </div>
   </div>
@@ -90,23 +90,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'cobrinha' });
   </script>
-  <script type="module" src="game.js?v=6"></script>
+  <script type="module" src="game.js?v=7"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
-
-  <section class="game-info" aria-label="Sobre o jogo">
-    <h2>Como jogar Cobrinha (Snake) Online</h2>
-    <p>A Cobrinha (Snake) é um dos jogos mais viciantes de todos os tempos. Controle a cobra usando as setas do teclado ou deslizando na tela, coma as frutas para crescer e tente bater seu recorde. Cuidado para não bater nas paredes ou no próprio corpo — jogue snake online grátis sem download.</p>
-    <h3>Regras</h3>
-    <ul>
-      <li>Use as teclas de seta, WASD ou deslize na tela para mudar de direção.</li>
-      <li>Cada fruta comida aumenta o tamanho da cobra e sua pontuação.</li>
-      <li>O jogo termina se a cobra bater nas paredes ou em si mesma.</li>
-    </ul>
-    <h3>Dicas</h3>
-    <ul>
-      <li>Faça movimentos em espiral para usar o espaço eficientemente e evitar se prender.</li>
-      <li>Planeje sua rota com antecedência — à medida que a cobra cresce, fica mais difícil manobrar.</li>
-    </ul>
-  </section>
 </body>
 </html>
