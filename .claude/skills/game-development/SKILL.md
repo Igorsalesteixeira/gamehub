@@ -45,6 +45,16 @@ You are working on a game development project. This skill teaches the PRINCIPLES
 | Visual style, asset pipeline, animation | `game-development/game-art` |
 | Sound design, music, adaptive audio | `game-development/game-audio` |
 
+### Genre-Specific (Game Hub)
+
+| If the game is... | Use Sub-Skill |
+|-------------------|---------------|
+| Card games (Solitaire, Blackjack) | `game-development/card-games` |
+| Arcade games (Snake, Tetris, Space Invaders) | `game-development/arcade-games` |
+| Multiplayer games (Truco, Poker, Uno) | `game-development/multiplayer-games` |
+| Canvas-based mobile games | `game-development/mobile-canvas` |
+| E2E testing with Playwright | `game-development/e2e-testing` |
+
 ---
 
 ## Core Principles (All Platforms)
