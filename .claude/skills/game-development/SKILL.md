@@ -54,6 +54,7 @@ You are working on a game development project. This skill teaches the PRINCIPLES
 | Multiplayer games (Truco, Poker, Uno) | `game-development/multiplayer-games` |
 | Canvas-based mobile games | `game-development/mobile-canvas` |
 | E2E testing with Playwright | `game-development/e2e-testing` |
+| **Scaffold novo jogo** | `game-development/game-scaffold` |
 
 ---
 
