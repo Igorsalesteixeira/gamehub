@@ -158,26 +158,41 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Touch/Swipe
+// Touch/Swipe - Mobile optimized
 let touchStartX = 0, touchStartY = 0;
-document.addEventListener('touchstart', (e) => {
+let touchStartTime = 0;
+
+// Limitar touch ao board (não document inteiro)
+boardEl.addEventListener('touchstart', (e) => {
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
+  touchStartTime = Date.now();
 }, { passive: true });
 
-document.addEventListener('touchend', (e) => {
+boardEl.addEventListener('touchend', (e) => {
   const dx = e.changedTouches[0].clientX - touchStartX;
   const dy = e.changedTouches[0].clientY - touchStartY;
+  const dt = Date.now() - touchStartTime;
   const absDx = Math.abs(dx);
   const absDy = Math.abs(dy);
-  if (Math.max(absDx, absDy) < 20) return;
+
+  // Mobile: threshold aumentado para 30px, max 500ms para swipe rápido
+  if (Math.max(absDx, absDy) < 30 || dt > 500) return;
+
+  // Prevenir scroll durante swipe
+  e.preventDefault();
 
   if (absDx > absDy) {
     move(dx > 0 ? 'right' : 'left');
   } else {
     move(dy > 0 ? 'down' : 'up');
   }
-});
+
+  // Mobile: feedback tátil (vibration) se disponível
+  if (navigator.vibrate) {
+    navigator.vibrate(15); // 15ms leve
+  }
+}, { passive: false });
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
