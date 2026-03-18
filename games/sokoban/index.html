@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Sokoban online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -59,14 +60,14 @@
     <div id="board"></div>
 
     <!-- Overlay inicio / vitoria -->
-    <div class="overlay" id="overlay">
-      <div class="overlay-content">
-        <div class="overlay-icon" id="overlay-icon">📦</div>
+    <div class="overlay animate-slide-up" id="overlay">
+      <div class="overlay-content modal">
+        <div class="overlay-icon modal-icon animate-bounce-in" id="overlay-icon">📦</div>
         <h2 id="overlay-title">Sokoban</h2>
         <p id="overlay-msg">Empurre as caixas ate os alvos!</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-orange" id="btn-start">Jogar</button>
-        <button class="btn btn-green" id="btn-share" style="margin-top:10px;">📱 Compartilhar no WhatsApp</button>
+        <button class="btn btn-primary" id="btn-start">Jogar</button>
+        <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
       </div>
     </div>
   </div>
@@ -92,7 +93,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'sokoban' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Sokoban Online</h2>

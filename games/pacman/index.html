@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Pac-Man online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -60,14 +61,14 @@
     <canvas id="game-canvas"></canvas>
 
     <!-- Overlay de inicio / game over -->
-    <div class="overlay" id="overlay">
-      <div class="overlay-content">
-        <div class="overlay-icon" id="overlay-icon">🟡</div>
+    <div class="modal-overlay" id="overlay">
+      <div class="modal">
+        <div class="modal-icon animate-bounce-in" id="overlay-icon">🟡</div>
         <h2 id="overlay-title">Pac-Man</h2>
         <p id="overlay-msg">Use as setas, WASD ou os botoes para jogar</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-orange" id="btn-start">Jogar</button>
-        <button class="btn btn-green" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">Compartilhar no WhatsApp</button>
+        <button class="btn btn-primary animate-bounce-in" id="btn-start">Jogar</button>
+        <button class="btn btn-whatsapp animate-slide-up" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">📱 Compartilhar</button>
       </div>
     </div>
   </div>
@@ -88,7 +89,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Pac-Man Online</h2>

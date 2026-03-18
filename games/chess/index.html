@@ -15,7 +15,8 @@
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -57,7 +58,7 @@
       <div class="board" id="board"></div>
     </div>
     <div class="controls">
-      <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+      <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
     </div>
   </main>
 
@@ -73,15 +74,15 @@
   <!-- Result modal -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-      <div class="modal-icon" id="modal-icon">&#127942;</div>
+      <div class="modal-icon animate-bounce-in" id="modal-icon">&#127942;</div>
       <h2 class="modal-title" id="modal-title">Fim de Jogo</h2>
       <p class="modal-msg" id="modal-msg">Resultado</p>
-      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-primary animate-bounce-in" id="btn-play-again">Jogar Novamente</button>
     </div>
   </div>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'xadrez' });</script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Xadrez Online</h2>

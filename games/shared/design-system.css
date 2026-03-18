@@ -1,0 +1,237 @@
+/* =============================================
+   Games Hub - Design System
+   Variáveis CSS compartilhadas entre todos os jogos
+   ============================================= */
+
+:root {
+  /* Cores Primárias */
+  --color-primary: #ff6b35;
+  --color-primary-dark: #e55a2b;
+  --color-secondary: #4ecdc4;
+  --color-accent: #ffe66d;
+
+  /* Cores por Categoria */
+  --color-cards: #8b5cf6;      /* Roxo - Cartas */
+  --color-puzzle: #10b981;     /* Verde - Puzzle */
+  --color-arcade: #f59e0b;     /* Laranja - Arcade */
+  --color-strategy: #3b82f6;   /* Azul - Estratégia */
+  --color-words: #ec4899;      /* Rosa - Palavras */
+
+  /* Cores de Feedback */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Cores Neutras */
+  --color-bg: #1a1a2e;
+  --color-surface: #16213e;
+  --color-surface-light: #0f3460;
+  --color-text: #ffffff;
+  --color-text-muted: rgba(255, 255, 255, 0.7);
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  /* Tipografia */
+  --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+
+  /* Espaçamento */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Bordas */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(255, 107, 53, 0.3);
+
+  /* Animações */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* =============================================
+   Componentes Base
+   ============================================= */
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text);
+  background: var(--color-surface-light);
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+}
+
+.btn-secondary {
+  background: var(--color-surface-light);
+  border-color: var(--color-border);
+}
+
+.btn-success {
+  background: var(--color-success);
+}
+
+.btn-whatsapp {
+  background: #25d366;
+}
+
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+/* Modais */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-base);
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  max-width: 90vw;
+  width: 400px;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform var(--transition-base) var(--bounce);
+}
+
+.modal-overlay.show .modal {
+  transform: scale(1);
+}
+
+.modal-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+  animation: bounceIn 0.6s var(--bounce);
+}
+
+/* Animações */
+@keyframes bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-bounce-in { animation: bounceIn 0.6s var(--bounce); }
+.animate-slide-up { animation: slideInUp 0.4s ease; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-shake { animation: shake 0.4s ease; }
+
+/* Utilitários */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  :root {
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+  }
+
+  .modal {
+    width: 90vw;
+    padding: var(--space-6);
+  }
+}

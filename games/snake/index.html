@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Cobrinha online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=5" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -59,14 +60,14 @@
     <canvas id="game-canvas"></canvas>
 
     <!-- Overlay de inicio / game over -->
-    <div class="overlay" id="overlay">
-      <div class="overlay-content">
-        <div class="overlay-icon" id="overlay-icon">🐍</div>
+    <div class="modal-overlay" id="overlay">
+      <div class="modal">
+        <div class="modal-icon animate-bounce-in" id="overlay-icon">🐍</div>
         <h2 id="overlay-title">Cobrinha</h2>
         <p id="overlay-msg">Use as setas ou deslize para jogar</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-orange" id="btn-start">Jogar</button>
-        <button class="btn btn-whatsapp" id="btn-share" style="margin-top:10px;background:#25d366;color:#fff;border:none;padding:0.6rem 1.5rem;border-radius:999px;font-family:Nunito;font-weight:700;cursor:pointer;display:none;">📱 Compartilhar</button>
+        <button class="btn btn-primary animate-bounce-in" id="btn-start">Jogar</button>
+        <button class="btn btn-whatsapp animate-slide-up" id="btn-share" style="display:none;">📱 Compartilhar</button>
       </div>
     </div>
   </div>
@@ -87,7 +88,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'cobrinha' });
   </script>
-  <script type="module" src="game.js?v=4"></script>
+  <script type="module" src="game.js?v=5"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Cobrinha (Snake) Online</h2>

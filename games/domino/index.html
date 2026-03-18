@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Dominó online e de graça contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -80,11 +81,11 @@
         </div>
       </div>
       <div class="action-buttons">
-        <button class="btn btn-draw hidden" id="btn-draw">Comprar</button>
-        <button class="btn btn-pass hidden" id="btn-pass">Passar</button>
-        <button class="btn btn-place-left hidden" id="btn-place-left">⬅ Esquerda</button>
-        <button class="btn btn-place-right hidden" id="btn-place-right">Direita ➡</button>
-        <button class="btn btn-new-game" id="btn-new-game">Novo Jogo</button>
+        <button class="btn btn-secondary hidden" id="btn-draw">Comprar</button>
+        <button class="btn btn-secondary hidden" id="btn-pass">Passar</button>
+        <button class="btn btn-secondary hidden" id="btn-place-left">⬅ Esquerda</button>
+        <button class="btn btn-secondary hidden" id="btn-place-right">Direita ➡</button>
+        <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
       </div>
     </div>
 
@@ -99,13 +100,13 @@
   </div>
 
   <!-- Game over modal -->
-  <div class="modal-overlay hidden" id="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-icon" id="modal-icon">🏆</div>
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon animate-bounce-in" id="modal-icon">🏆</div>
       <h2 id="modal-title">Fim de jogo</h2>
       <p id="modal-msg">Resultado</p>
       <p id="modal-score"></p>
-      <button class="btn btn-new-game" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-primary animate-bounce-in" id="btn-play-again">Jogar Novamente</button>
     </div>
   </div>
 
@@ -113,7 +114,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'domino' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Dominó Online</h2>

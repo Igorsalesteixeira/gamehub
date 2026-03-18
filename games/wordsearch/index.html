@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Caça-Palavras online e de graça!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -62,7 +63,7 @@
       <div class="word-panel">
         <h3>Palavras</h3>
         <ul id="word-list"></ul>
-        <button class="btn btn-orange" id="btn-new">Novo Jogo</button>
+        <button class="btn btn-primary" id="btn-new">Novo Jogo</button>
       </div>
     </div>
   </main>
@@ -71,8 +72,9 @@
     <div class="modal">
       <h2 id="modal-title">Parabéns!</h2>
       <p id="modal-message"></p>
-      <button class="btn btn-orange" id="btn-modal-new">Novo Jogo</button>
-      <button class="btn btn-secondary" id="btn-share" style="margin-top:10px;">Compartilhar no WhatsApp</button>
+      <div class="modal-icon" id="modal-icon">🏆</div>
+      <button class="btn btn-primary" id="btn-modal-new">Novo Jogo</button>
+      <button class="btn btn-whatsapp" id="btn-share" style="margin-top:10px;">Compartilhar no WhatsApp</button>
     </div>
   </div>
 
@@ -80,7 +82,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'cacapalavras' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Caça-palavras Online</h2>

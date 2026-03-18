@@ -8,7 +8,8 @@
   <link rel="canonical" href="https://gameshub.com.br/games/puzzle15/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,12 +49,13 @@
     <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
   </main>
 
-  <div class="modal-overlay" id="modal-overlay">
+  <div class="modal-overlay animate-slide-up" id="modal-overlay">
     <div class="modal">
-      <h2>Parabens! 🎉</h2>
+      <div class="modal-icon animate-bounce-in">🎉</div>
+      <h2>Parabens!</h2>
       <p id="modal-message">Voce completou o puzzle!</p>
-      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
-      <button class="btn btn-green" id="btn-share" style="margin-top:10px;">📱 Compartilhar no WhatsApp</button>
+      <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
     </div>
   </div>
 
@@ -61,7 +63,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'puzzle15' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Quebra-cabeça 15 Online</h2>

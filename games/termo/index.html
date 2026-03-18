@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Termo online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -72,7 +73,8 @@
       <h2 id="modal-title"></h2>
       <p id="modal-message"></p>
       <p class="modal-word">A palavra era: <strong id="modal-word"></strong></p>
-      <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+      <div class="modal-icon" id="modal-icon">🎉</div>
+      <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
     </div>
   </div>
 
@@ -80,7 +82,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'termo' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Termo (Wordle) Online</h2>

@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Dama online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=6" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -72,18 +73,18 @@
       <div class="board" id="board"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" id="btn-undo" disabled>&#8617; Desfazer</button>
-      <button class="btn btn-orange" id="btn-new-game">Novo Jogo</button>
+      <button class="btn btn-secondary" id="btn-undo" disabled>&#8617; Desfazer</button>
+      <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
     </div>
   </div>
 
   <!-- Modal de fim de jogo -->
-  <div class="modal-overlay hidden" id="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-icon" id="modal-icon">&#127942;</div>
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon animate-bounce-in" id="modal-icon">&#127942;</div>
       <h2 id="modal-title">Fim de jogo</h2>
       <p id="modal-msg">Resultado</p>
-      <button class="btn btn-orange" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-primary animate-bounce-in" id="btn-play-again">Jogar Novamente</button>
     </div>
   </div>
 
@@ -91,7 +92,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'dama' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Dama Online</h2>

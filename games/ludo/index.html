@@ -18,7 +18,8 @@
   <meta name="twitter:description" content="Jogue Ludo online gratis contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -85,21 +86,21 @@
     <div class="controls">
       <div class="dice-area">
         <div class="dice" id="dice-display">&#x2680;</div>
-        <button class="btn btn-roll" id="btn-roll">Rolar Dado</button>
+        <button class="btn btn-primary" id="btn-roll">Rolar Dado</button>
       </div>
       <div class="turn-msg" id="turn-msg">Sua vez — role o dado!</div>
-      <button class="btn btn-new" id="btn-new-game">Novo Jogo</button>
+      <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
     </div>
   </div>
 
   <!-- Modal fim de jogo -->
-  <div class="modal-overlay hidden" id="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-icon" id="modal-icon">&#127942;</div>
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-icon animate-bounce-in" id="modal-icon">&#127942;</div>
       <h2 id="modal-title">Fim de jogo</h2>
       <p id="modal-msg">Resultado</p>
       <div class="modal-stats" id="modal-stats"></div>
-      <button class="btn btn-roll" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-primary animate-bounce-in" id="btn-play-again">Jogar Novamente</button>
     </div>
   </div>
 
@@ -107,7 +108,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'ludo' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Ludo Online</h2>
