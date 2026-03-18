@@ -162,6 +162,8 @@ function handleCardFlip(card) {
   // Flip card
   card.classList.add('flipped');
   flippedCards.push(card);
+  // Mobile: feedback tátil ao virar carta
+  if (navigator.vibrate) navigator.vibrate(10);
 
   if (flippedCards.length === 2) {
     moves++;
@@ -179,6 +181,8 @@ function checkMatch() {
     b.classList.add('matched');
     flippedCards = [];
     matchedPairs++;
+    // Mobile: feedback tátil ao fazer match (sucesso)
+    if (navigator.vibrate) navigator.vibrate([15, 8, 25]);
 
     if (matchedPairs === totalPairs) {
       stopTimer();
@@ -200,6 +204,8 @@ function showVictory() {
   finalMoves.textContent = moves;
   finalTime.textContent = formatTime(timerSeconds);
   victoryModal.classList.remove('hidden');
+  // Mobile: feedback tátil na vitória (celebração)
+  if (navigator.vibrate) navigator.vibrate([30, 20, 40, 20, 50]);
   saveGameStat();
 }
 
