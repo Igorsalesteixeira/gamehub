@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Sueca - Jogue online grátis contra bots ou amigos. Jogo de cartas português com regras oficiais.">
+  <meta name="keywords" content="sueca, jogo de cartas, online, grátis, português, brasil, multiplayer">
+  <meta property="og:title" content="Sueca - Games Hub">
+  <meta property="og:description" content="Jogue Sueca online grátis. Jogo de cartas clássico português.">
+  <meta property="og:image" content="/games/sueca/assets/icon.svg">
+  <title>Sueca - Games Hub</title>
+  <link rel="stylesheet" href="style.css?v=1">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Mesa de jogo -->
+    <div id="table-area">
+      <div id="opponent-top" class="player-hand opponent">
+        <div class="player-name">Parceiro</div>
+        <div class="cards-back"></div>
+      </div>
+      <div id="opponent-left" class="player-hand opponent">
+        <div class="player-name">Adversário 1</div>
+        <div class="cards-back"></div>
+      </div>
+      <div id="opponent-right" class="player-hand opponent">
+        <div class="player-name">Adversário 2</div>
+        <div class="cards-back"></div>
+      </div>
+
+      <!-- Área de jogo central -->
+      <div id="play-area">
+        <div id="trump-indicator">Trunfo: <span id="trump-suit">♠</span></div>
+        <div id="trick-area">
+          <div id="card-top" class="played-card"></div>
+          <div id="card-left" class="played-card"></div>
+          <div id="card-right" class="played-card"></div>
+          <div id="card-bottom" class="played-card"></div>
+        </div>
+        <div id="score-board">
+          <div>Nós: <span id="our-score">0</span></div>
+          <div>Eles: <span id="their-score">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mão do jogador -->
+    <div id="player-hand"></div>
+
+    <!-- Overlay -->
+    <div id="overlay">
+      <h1>Sueca</h1>
+      <p>Jogo de cartas português - 2 duplas</p>
+      <div id="game-modes">
+        <button id="btn-single" class="mode-btn">Jogar vs Bots</button>
+        <button id="btn-multi" class="mode-btn">Multiplayer</button>
+      </div>
+      <div id="game-rules" class="hidden">
+        <h3>Regras:</h3>
+        <ul>
+          <li>7 > 6 > A > 5 > 4 > 3 > 2 > Q > J > K</li>
+          <li>Primeira carta virada = trunfo</li>
+          <li>4+ voltas = +40 pontos</li>
+          <li>Cartas: A=11, 7=10, K=4, J=3, Q=2</li>
+        </ul>
+        <button id="btn-start">Começar</button>
+      </div>
+    </div>
+
+    <!-- Indicador de vez -->
+    <div id="turn-indicator" class="hidden">Sua vez!</div>
+
+    <!-- Placar final -->
+    <div id="end-screen" class="hidden">
+      <h2>Fim da Partida</h2>
+      <div id="final-scores"></div>
+      <button id="btn-new-game">Nova Partida</button>
+    </div>
+  </div>
+
+  <script type="module" src="game.js?v=1"></script>
+</body>
+</html>

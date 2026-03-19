@@ -279,6 +279,7 @@
         <button class="main-tab" data-cat="arcade">🕹️ Arcade</button>
         <button class="main-tab" data-cat="estrategia">♟️ Estratégia</button>
         <button class="main-tab" data-cat="palavras">📝 Palavras</button>
+        <button class="main-tab" data-cat="casual">🎪 Casual</button>
       </div>
     </div>
 
@@ -322,9 +323,10 @@
 
     // ===== GAME CATEGORIES =====
     const CATEGORIES = {
-      cartas:     { label: '🃏 Cartas',     games: ['blackjack','buraco','freecell','solitaire','pyramid','poker','spider','truco','uno'] },
+      cartas:     { label: '🃏 Cartas',     games: ['blackjack','buraco','cacheta','freecell','solitaire','pyramid','pife','poker','spider','sueca','truco','uno'] },
       puzzle:     { label: '🧩 Puzzle',     games: ['game2048','minesweeper','lightsout','mahjong','memory','nonogram','numble','puzzle15','sokoban','sudoku'] },
       arcade:     { label: '🕹️ Arcade',    games: ['breakout','bubble-shooter','snake','cookieclicker','dinorunner','flappybird','pacman','pong','spaceinvaders','tetris'] },
+      casual:     { label: '🎪 Casual',    games: ['cookieclicker','sinuca'] },
       estrategia: { label: '♟️ Estratégia', games: ['battleship','connect4','checkers','domino','go','tictactoe','ludo','reversi','chess'] },
       palavras:   { label: '📝 Palavras',   games: ['anagram','wordsearch','hangman','stopgame','termo'] },
     };
@@ -333,12 +335,15 @@
       solitaire:    { label: '🃏 Paciência',      type: 'time' },
       freecell:     { label: '🂡 Freecell',        type: 'time' },
       spider:       { label: '🕷️ Spider',          type: 'time' },
+      sueca:        { label: '🃏 Sueca',            type: 'score' },
       blackjack:    { label: '🃏 Blackjack',       type: 'wins' },
       poker:        { label: '🃏 Poker',            type: 'score', cat: 'cartas' },
       truco:        { label: '🂠 Truco',            type: 'wins' },
       buraco:       { label: '🃏 Buraco',           type: 'score' },
+      cacheta:      { label: '🃏 Cacheta',          type: 'score' },
       uno:          { label: '🟥 Uno',             type: 'wins' },
       pyramid:      { label: '🔺 Pirâmide',        type: 'wins' },
+      pife:         { label: '🃏 Pife',            type: 'wins' },
       memory:       { label: '🧠 Memória',         type: 'time' },
       minesweeper:  { label: '💣 Campo Minado',    type: 'time' },
       game2048:     { label: '🔢 2048',            type: 'score' },
@@ -358,6 +363,7 @@
       spaceinvaders:{ label: '👾 Space Invaders',  type: 'score' },
       pacman:       { label: '🟡 Pac-Man',         type: 'score' },
       cookieclicker:{ label: '🍪 Cookie Clicker',  type: 'score' },
+      sinuca:       { label: '🎱 Sinuca',            type: 'score' },
       checkers:     { label: '⚫ Dama',            type: 'time' },
       tictactoe:    { label: '❌ Jogo da Velha',   type: 'wins' },
       reversi:      { label: '⚪ Reversi',          type: 'wins' },

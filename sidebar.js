@@ -239,11 +239,14 @@ export function initSidebar(options = {}) {
       <span class="sidebar-section-label">Cartas</span>
       <a href="${base}games/blackjack/index.html" class="sidebar-link ${isActive('blackjack')}"><span class="sidebar-icon">🃏</span><span>Blackjack</span></a>
       <a href="${base}games/buraco/index.html" class="sidebar-link ${isActive('buraco')}"><span class="sidebar-icon">🃏</span><span>Buraco</span></a>
+      <a href="${base}games/cacheta/index.html" class="sidebar-link ${isActive('cacheta')}"><span class="sidebar-icon">🃏</span><span>Cacheta</span></a>
       <a href="${base}games/freecell/index.html" class="sidebar-link ${isActive('freecell')}"><span class="sidebar-icon">🂡</span><span>Freecell</span></a>
       <a href="${base}games/solitaire/index.html" class="sidebar-link ${isActive('paciencia')}"><span class="sidebar-icon">🃏</span><span>Paciencia</span></a>
       <a href="${base}games/pyramid/index.html" class="sidebar-link ${isActive('piramide')}"><span class="sidebar-icon">🔺</span><span>Piramide</span></a>
+      <a href="${base}games/pife/index.html" class="sidebar-link ${isActive('pife')}"><span class="sidebar-icon">🃏</span><span>Pife</span></a>
       <a href="${base}games/poker/index.html" class="sidebar-link ${isActive('poker')}"><span class="sidebar-icon">🃏</span><span>Poker</span></a>
       <a href="${base}games/spider-solitaire/index.html" class="sidebar-link ${isActive('spider')}"><span class="sidebar-icon">🕷️</span><span>Spider Solitaire</span></a>
+      <a href="${base}games/sueca/index.html" class="sidebar-link ${isActive('sueca')}"><span class="sidebar-icon">🃏</span><span>Sueca</span></a>
       <a href="${base}games/truco/index.html" class="sidebar-link ${isActive('truco')}"><span class="sidebar-icon">🂠</span><span>Truco</span></a>
       <a href="${base}games/uno/index.html" class="sidebar-link ${isActive('uno')}"><span class="sidebar-icon">🟥</span><span>Uno</span></a>
       <span class="sidebar-section-label">Puzzle</span>
@@ -285,6 +288,7 @@ export function initSidebar(options = {}) {
       <a href="${base}games/termo/index.html" class="sidebar-link ${isActive('termo')}"><span class="sidebar-icon">📝</span><span>Termo</span></a>
       <span class="sidebar-section-label">Casual</span>
       <a href="${base}games/cookieclicker/index.html" class="sidebar-link ${isActive('cookie')}"><span class="sidebar-icon">🍪</span><span>Cookie Clicker</span></a>
+      <a href="${base}games/sinuca/index.html" class="sidebar-link ${isActive('sinuca')}"><span class="sidebar-icon">🎱</span><span>Sinuca</span></a>
       <div class="sidebar-divider"></div>
       <a href="${base}sobre.html" class="sidebar-link ${isActive('sobre')}">
         <span class="sidebar-icon">ℹ️</span>

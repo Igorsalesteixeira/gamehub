@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Sinuca Online Gratis - Games Hub</title>
+  <meta name="description" content="Sinuca - Jogue online gratis contra o computador. Mesa de bilhar com fisica realista, 15 bolas vermelhas e coloridas." />
+  <meta name="keywords" content="sinuca, bilhar, online, gratis, snooker, pool, jogo de mesa" />
+  <link rel="canonical" href="https://gameshub.com.br/games/sinuca/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sinuca - Games Hub" />
+  <meta property="og:description" content="Jogue Sinuca gratis online contra o computador. Fisica realista e gameplay desafiador!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/sinuca/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#2d5a27" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Sinuca",
+    "description": "Jogue Sinuca online gratis contra o computador. Mesa de bilhar com fisica realista.",
+    "url": "https://gameshub.com.br/games/sinuca/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser",
+    "genre": "Sports"
+  }
+  </script>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🎱 Sinuca</h1>
+    <div class="stats">
+      <span>Jogador: <strong id="player-score">0</strong></span>
+      <span>IA: <strong id="cpu-score">0</strong></span>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="game-area">
+      <canvas id="game-canvas"></canvas>
+      <div class="power-meter">
+        <div class="power-label">Forca</div>
+        <div class="power-bar">
+          <div class="power-fill" id="power-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-info">
+      <p>Arraste na tela para mirar e solte para tacar</p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
+  </main>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Fim de Jogo!</h2>
+      <p id="modal-message"></p>
+      <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+      <button class="btn btn-whatsapp" id="btn-share" onclick="shareResult()">Compartilhar</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'sinuca' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Sinuca Online</h2>
+    <p>Sinuca (tambem conhecida como Bilhar ou Pool) e um jogo de mesa onde o objetivo e encacapar as bolas coloridas usando a bola branca. Nesta versao online, voce joga contra o computador em uma mesa com fisica realista.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Use o mouse ou toque para mirar na direcao desejada.</li>
+      <li>Arraste para tras para ajustar a forca do taco.</li>
+      <li>Solte para tacar a bola branca.</li>
+      <li>Encacape as bolas vermelhas (1 ponto cada) e coloridas (2-7 pontos).</li>
+      <li>Se encacapar uma bola, voce continua jogando.</li>
+      <li>Quem fizer mais pontos ao final vence!</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Planeje sua jogada antecipadamente, considerando os angulos de ricochete.</li>
+      <li>Use paredes para fazer jogadas indiretas quando necessario.</li>
+      <li>Controle a forca - tacadas muito fortes podem dificultar a proxima jogada.</li>
+    </ul>
+  </section>
+
+  <script>
+    function shareResult() {
+      const text = 'Acabei de jogar Sinuca no Games Hub! Venha tentar me vencer!';
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  </script>
+</body>
+</html>

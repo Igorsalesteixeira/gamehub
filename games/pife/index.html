@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Pife Online Gratis - Jogue Pife Paf no Games Hub</title>
+  <meta name="description" content="Jogue Pife online gratis contra o computador. O classico jogo de cartas brasileiro! Forme 3 sequencias e bata antes dos adversarios." />
+  <meta name="keywords" content="pife, pif paf, jogo de cartas, online, gratis, trinca, sequencia, baralho" />
+  <link rel="canonical" href="https://gameshub.com.br/games/pife/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Pife Online Gratis - Games Hub" />
+  <meta property="og:description" content="Jogue Pife online gratis contra o computador. Forme 3 sequencias e bata!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/pife/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Pife Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Jogue Pife online gratis contra o computador!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=4" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Pife",
+    "description": "Jogue Pife online gratis contra o computador. O classico jogo de cartas brasileiro!",
+    "url": "https://gameshub.com.br/games/pife/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🃏 Pife</h1>
+    <div class="stats">
+      <span id="game-info">2-4 jogadores</span>
+    </div>
+  </header>
+
+  <div class="game-wrapper">
+    <!-- Config Panel -->
+    <div class="config-panel" id="config-panel">
+      <h2>Novo Jogo</h2>
+      <div class="config-option">
+        <label>Numero de jogadores:</label>
+        <div class="player-selector">
+          <button class="player-btn active" data-players="2">2</button>
+          <button class="player-btn" data-players="3">3</button>
+          <button class="player-btn" data-players="4">4</button>
+        </div>
+      </div>
+      <button class="btn-start" id="btn-start">Iniciar Jogo</button>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-area hidden" id="game-area">
+      <!-- Opponents -->
+      <div class="opponents-row" id="opponents-row"></div>
+
+      <!-- Table Area -->
+      <div class="table-area">
+        <div class="deck-area">
+          <div class="deck-pile" id="deck-pile">
+            <div class="card back deck-card" title="Comprar do monte"></div>
+            <span class="pile-label">Monte</span>
+          </div>
+          <div class="discard-pile" id="discard-pile">
+            <div class="card placeholder" title="Descarte"></div>
+            <span class="pile-label">Descarte</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="message-bar" id="message"></div>
+
+      <!-- Player Area -->
+      <div class="player-area" id="player-area">
+        <div class="player-info-row">
+          <span class="player-name" id="player-name">Voce</span>
+          <span class="player-status" id="player-status"></span>
+        </div>
+        <div class="player-hand" id="player-hand"></div>
+        <div class="player-sequences" id="player-sequences"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-area" id="action-area">
+        <button class="btn-action btn-primary" id="btn-sort">Ordenar</button>
+        <button class="btn-action btn-secondary" id="btn-declare" disabled>Bater!</button>
+        <button class="btn-action btn-danger" id="btn-new">Novo Jogo</button>
+      </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-icon" id="modal-icon">🏆</div>
+        <h2 class="modal-title" id="modal-title">Fim de Jogo</h2>
+        <div class="modal-body" id="modal-body"></div>
+        <button class="btn-action btn-primary" id="btn-modal-new">Novo Jogo</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'pife' });
+  </script>
+  <script type="module" src="game.js?v=4"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Pife</h2>
+    <p>O Pife (tambem conhecido como Pif-Paf) e um jogo de cartas brasileiro muito popular. O objetivo e formar 3 sequencias (trincas ou sequencias de mesmo naipe) com as 9 cartas da sua mao.</p>
+
+    <h3>Regras do Pife</h3>
+    <ul>
+      <li><strong>Distribuicao:</strong> 9 cartas para cada jogador (3 na mao + 3x3 na mesa viradas)</li>
+      <li><strong>Objetivo:</strong> Formar 3 sequencias de 3 cartas cada</li>
+      <li><strong>Sequencias validas:</strong>
+        <ul>
+          <li><strong>Trinca:</strong> 3 cartas do mesmo valor (ex: 7♠ 7♥ 7♦)</li>
+          <li><strong>Sequencia:</strong> 3 cartas consecutivas do mesmo naipe (ex: 4♠ 5♠ 6♠)</li>
+        </ul>
+      </li>
+      <li><strong>Turno:</strong> Compre 1 carta do monte ou descarte, depois descarte 1 carta</li>
+      <li><strong>Bater:</strong> Quando completar 3 sequencias, clique em "Bater!"</li>
+      <li><strong>Ultima rodada:</strong> Os outros jogadores tem uma ultima chance de melhorar</li>
+      <li><strong>Pontuacao:</strong> Cartas que sobram na mao = pontos negativos</li>
+    </ul>
+
+    <h3>Dicas</h3>
+    <ul>
+      <li>Observe as cartas do descarte - elas podem ajudar seus oponentes</li>
+      <li>Cartas intermediarias (5, 6, 7) sao mais faceis de formar sequencias</li>
+      <li>As e 2 sao faceis para sequencias baixas; Q e K para sequencias altas</li>
+      <li>Se tiver 2 sequencias prontas, procure bater rapido!</li>
+    </ul>
+  </section>
+</body>
+</html>

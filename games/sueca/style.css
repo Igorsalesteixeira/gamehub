@@ -1,0 +1,457 @@
+/* =============================================
+   Sueca - Games Hub
+   Jogo de cartas português
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+:root {
+  --table-bg: #1a5f3c;
+  --table-border: #0d3d26;
+  --card-bg: #fff;
+  --card-red: #e74c3c;
+  --card-black: #2c3e50;
+  --accent: #f39c12;
+  --text-light: #ecf0f1;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--table-bg);
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Mesa de jogo */
+#table-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* Jogadores oponentes */
+.player-hand {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.player-hand.opponent {
+  opacity: 0.9;
+}
+
+.player-name {
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.cards-back {
+  width: 40px;
+  height: 56px;
+  background: linear-gradient(135deg, #c0392b 0%, #8e281d 100%);
+  border-radius: 6px;
+  border: 2px solid #fff;
+  position: relative;
+}
+
+.cards-back::after {
+  content: '🂠';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+#opponent-top {
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#opponent-left {
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+#opponent-right {
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+}
+
+/* Área de jogo central */
+#play-area {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  padding: 2rem;
+  min-width: 280px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+#trump-indicator {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+#trump-suit {
+  font-size: 1.5rem;
+}
+
+/* Área das cartas jogadas */
+#trick-area {
+  position: relative;
+  width: 200px;
+  height: 150px;
+}
+
+.played-card {
+  position: absolute;
+  width: 50px;
+  height: 70px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.played-card.visible {
+  opacity: 1;
+}
+
+.played-card .rank {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.played-card .suit {
+  font-size: 1.2rem;
+}
+
+.played-card .red {
+  color: var(--card-red);
+}
+
+#card-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#card-left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#card-right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#card-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Placar */
+#score-board {
+  display: flex;
+  gap: 2rem;
+  color: var(--text-light);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#score-board span {
+  color: var(--accent);
+  font-size: 1.3rem;
+}
+
+/* Mão do jogador */
+#player-hand {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.card {
+  width: 60px;
+  height: 84px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  user-select: none;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+.card:active {
+  transform: translateY(-5px);
+}
+
+.card .rank {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.card .suit {
+  font-size: 1.5rem;
+}
+
+.card .red {
+  color: var(--card-red);
+}
+
+/* Overlay */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 1000;
+  color: var(--text-light);
+  text-align: center;
+  padding: 2rem;
+}
+
+#overlay h1 {
+  font-size: 3rem;
+  color: var(--accent);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+#overlay p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+#game-modes {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mode-btn, #btn-start, #btn-new-game {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Nunito', sans-serif;
+}
+
+.mode-btn {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.mode-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+#btn-start, #btn-new-game {
+  background: linear-gradient(135deg, #27ae60, #219a52);
+  color: white;
+}
+
+#btn-start:hover, #btn-new-game:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+}
+
+#game-rules {
+  background: rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 400px;
+}
+
+#game-rules h3 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+#game-rules ul {
+  text-align: left;
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+#game-rules li {
+  margin: 0.5rem 0;
+  opacity: 0.9;
+}
+
+/* Indicador de vez */
+#turn-indicator {
+  position: fixed;
+  bottom: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #1a1a2e;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  animation: pulse 1.5s infinite;
+  z-index: 100;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+}
+
+/* Tela final */
+#end-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 1001;
+  color: var(--text-light);
+}
+
+#end-screen h2 {
+  font-size: 2.5rem;
+  color: var(--accent);
+}
+
+#final-scores {
+  text-align: center;
+}
+
+.score-row {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.score-row.winner {
+  background: rgba(39, 174, 96, 0.3);
+  color: #2ecc71;
+}
+
+.result {
+  font-size: 2rem;
+  margin-top: 1rem;
+  font-weight: 700;
+}
+
+/* Utilidades */
+.hidden {
+  display: none !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #overlay h1 {
+    font-size: 2rem;
+  }
+
+  .card {
+    width: 50px;
+    height: 70px;
+  }
+
+  .card .rank {
+    font-size: 0.9rem;
+  }
+
+  .card .suit {
+    font-size: 1.2rem;
+  }
+
+  #play-area {
+    padding: 1rem;
+    min-width: 200px;
+  }
+
+  #trick-area {
+    width: 150px;
+    height: 120px;
+  }
+
+  .played-card {
+    width: 40px;
+    height: 56px;
+  }
+
+  #score-board {
+    font-size: 0.9rem;
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Cacheta Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Cacheta online e de graca. Troque cartas para formar a melhor mao de poker com 9 cartas!" />
+  <meta name="keywords" content="cacheta, cartas, poker, online, gratis, jogo de cartas, brasil" />
+  <link rel="canonical" href="https://gameshub.com.br/games/cacheta/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Cacheta - Games Hub" />
+  <meta property="og:description" content="Jogue Cacheta online gratis. Troque cartas para formar a melhor mao!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/cacheta/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Cacheta - Games Hub" />
+  <meta name="twitter:description" content="Jogue Cacheta online gratis. Troque cartas para formar a melhor mao!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Cacheta",
+    "description": "Jogo de cartas Cacheta online gratis. Troque cartas para formar a melhor mao de poker.",
+    "url": "https://gameshub.com.br/games/cacheta/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">🃏 Cacheta</h1>
+    <div class="stats">
+      <span id="round-info">Rodada 1/3</span>
+    </div>
+  </header>
+
+  <div class="game-wrapper">
+    <!-- Setup Screen -->
+    <div class="setup-screen" id="setup-screen">
+      <h2 class="setup-title">Cacheta</h2>
+      <p class="setup-subtitle">Escolha quantos jogadores</p>
+      <div class="player-options">
+        <button class="player-btn" data-players="2">2 Jogadores</button>
+        <button class="player-btn" data-players="3">3 Jogadores</button>
+        <button class="player-btn" data-players="4">4 Jogadores</button>
+      </div>
+      <div class="rules-preview">
+        <h3>Regras:</h3>
+        <ul>
+          <li>9 cartas cada (3 na mao + 3x3 na mesa)</li>
+          <li>Troque cartas para formar a melhor mao</li>
+          <li>3 rodadas de trocas</li>
+          <li>Vence quem tiver a mao mais forte!</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="game-screen hidden" id="game-screen">
+      <!-- Opponents -->
+      <div class="opponents-area" id="opponents-area"></div>
+
+      <!-- Deck Area -->
+      <div class="deck-area">
+        <div class="deck-pile" id="deck-pile">
+          <div class="deck-count" id="deck-count">52</div>
+        </div>
+        <div class="discard-pile" id="discard-pile"></div>
+        <div class="game-info-center">
+          <div class="round-display" id="round-display">Rodada 1</div>
+          <div class="turn-display" id="turn-display">Sua vez</div>
+        </div>
+      </div>
+
+      <!-- Table Cards (Community) -->
+      <div class="table-area">
+        <div class="table-label">Cartas da Mesa</div>
+        <div class="table-slots" id="table-slots"></div>
+      </div>
+
+      <!-- Message Bar -->
+      <div class="message-bar" id="message"></div>
+
+      <!-- Player Area -->
+      <div class="player-area" id="player-area">
+        <div class="player-info-row">
+          <span class="player-name" id="player-name">Voce</span>
+          <span class="player-hand-value" id="player-hand-value"></span>
+        </div>
+        <div class="player-hand" id="player-hand"></div>
+        <div class="player-actions" id="player-actions">
+          <button class="btn-action btn-draw" id="btn-draw">Comprar do Monte</button>
+          <button class="btn-action btn-discard-draw" id="btn-discard-draw">Pegar Descarte</button>
+          <button class="btn-action btn-swap" id="btn-swap" disabled>Trocar Carta</button>
+          <button class="btn-action btn-pass" id="btn-pass">Passar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div class="game-over-screen hidden" id="game-over-screen">
+      <div class="results-panel" id="results-panel"></div>
+      <button class="btn-new-game" id="btn-new-game">Novo Jogo</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon" id="modal-icon">🏆</div>
+      <h2 class="modal-title" id="modal-title">Fim de jogo</h2>
+      <p class="modal-msg" id="modal-msg"></p>
+      <button class="btn-orange" id="btn-modal-new" style="margin-top:1rem">Novo Jogo</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'cacheta' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Cacheta Online</h2>
+    <p>A Cacheta e um jogo de cartas popular no Brasil onde cada jogador recebe 9 cartas: 3 na mao e 6 na mesa (3x2). O objetivo e trocar cartas para formar a melhor mao de poker possivel.</p>
+
+    <h3>Regras do Jogo</h3>
+    <ul>
+      <li><strong>Distribuicao:</strong> Cada jogador recebe 3 cartas na mao e 6 cartas sao colocadas na mesa (3 colunas de 2 cartas)</li>
+      <li><strong>Trocas:</strong> Em cada rodada, voce pode trocar uma carta da sua mao por uma carta da mesa</li>
+      <li><strong>Rodadas:</strong> Sao 3 rodadas de trocas</li>
+      <li><strong>Final:</strong> Apos as trocas, vence quem tiver a melhor mao de 5 cartas (3 da mao + 2 da mesa)</li>
+    </ul>
+
+    <h3>Pontuacao das Maos (do maior para o menor)</h3>
+    <ul>
+      <li><strong>Royal Straight Flush</strong> — 100 pontos (A-K-Q-J-10 do mesmo naipe)</li>
+      <li><strong>Straight Flush</strong> — 75 pontos (5 cartas consecutivas do mesmo naipe)</li>
+      <li><strong>Quadra</strong> — 50 pontos (4 cartas do mesmo valor)</li>
+      <li><strong>Full House</strong> — 25 pontos (Trinca + Par)</li>
+      <li><strong>Flush</strong> — 20 pontos (5 cartas do mesmo naipe)</li>
+      <li><strong>Sequencia</strong> — 15 pontos (5 cartas consecutivas)</li>
+      <li><strong>Trinca</strong> — 10 pontos (3 cartas do mesmo valor)</li>
+      <li><strong>Dois Pares</strong> — 5 pontos (2 pares de cartas iguais)</li>
+      <li><strong>Par</strong> — 2 pontos (2 cartas do mesmo valor)</li>
+      <li><strong>Carta Alta</strong> — 1 ponto (a carta mais alta)</li>
+    </ul>
+
+    <h3>Dicas</h3>
+    <ul>
+      <li>Observe as cartas da mesa antes de decidir qual carta trocar</li>
+      <li>Tente formar sequencias ou flushes que usam as cartas da mesa</li>
+      <li>As vezes e melhor manter uma mao forte do que arriscar uma troca</li>
+      <li>Pares altos e cartas conectadas sao boas para manter na mao</li>
+    </ul>
+  </section>
+</body>
+</html>
