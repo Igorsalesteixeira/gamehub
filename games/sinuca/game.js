@@ -826,8 +826,10 @@ function update() {
   const pottedBalls = balls.filter(b => b.potted && !ballsPottedThisTurn.includes(b));
   let foulCommitted = false;
   if (pottedBalls.length > 0) {
+    console.log('[DEBUG CRITICAL] Bolas encaçapadas detectadas:', pottedBalls.length, 'tipos:', pottedBalls.map(b => b.type));
     for (const ball of pottedBalls) {
       ballsPottedThisTurn.push(ball);
+      console.log('[DEBUG CRITICAL] Bola adicionada ao array - tipo:', ball.type, 'array agora tem:', ballsPottedThisTurn.length);
 
       if (ball.type === 'white') {
         // Faul - bola branca encaçapada
@@ -863,22 +865,23 @@ function update() {
 }
 
 function endTurn(foulCommitted = false) {
-  console.log('[DEBUG] endTurn CHAMADA - gameState:', gameState, 'turnInProgress:', turnInProgress);
+  console.log('[DEBUG CRITICAL] endTurn CHAMADA - gameState:', gameState, 'turnInProgress:', turnInProgress, 'currentPlayer:', currentPlayer);
 
   // Guarda para evitar chamadas múltiplas enquanto processa o fim do turno
   if (gameState !== 'moving') {
-    console.log('[DEBUG] endTurn IGNORADA - gameState não é moving:', gameState);
+    console.log('[DEBUG CRITICAL] endTurn IGNORADA - gameState não é moving:', gameState);
     return;
   }
 
   // Prevenir execução concorrente
   if (turnInProgress) {
-    console.log('[DEBUG] endTurn IGNORADA - turno já em andamento');
+    console.log('[DEBUG CRITICAL] endTurn IGNORADA - turno já em andamento');
     return;
   }
   turnInProgress = true;
 
-  console.log('[DEBUG] endTurn EXECUTANDO - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
+  console.log('[DEBUG CRITICAL] endTurn EXECUTANDO - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
+  console.log('[DEBUG CRITICAL] ballsPottedThisTurn conteúdo:', ballsPottedThisTurn.map(b => ({type: b.type, color: b.color})));
 
   const pottedCount = ballsPottedThisTurn.filter(b => b.type !== 'white').length;
   console.log('[DEBUG] Bolas encaçapadas neste turno (exceto branca):', pottedCount, 'conteúdo:', ballsPottedThisTurn.map(b => b.type));
@@ -908,6 +911,11 @@ function endTurn(foulCommitted = false) {
     cueBall.vy = 0;
     console.log('[DEBUG] Bola branca reposicionada');
   }
+
+  // REMOVER bolas encaçapadas do jogo para não serem processadas novamente
+  const pottedCountBefore = balls.filter(b => b.potted && b !== cueBall).length;
+  balls = balls.filter(b => !b.potted || b === cueBall);
+  console.log('[DEBUG CRITICAL] Bolas removidas do jogo:', pottedCountBefore, 'bolas restantes:', balls.length);
 
   ballsPottedThisTurn = [];
 
@@ -1383,10 +1391,15 @@ function handleMove(evt) {
 }
 
 function handleEnd(evt) {
-  if (!aimStart || gameState !== 'aiming') return;
+  console.log('[DEBUG CRITICAL] handleEnd CHAMADA - aimStart:', aimStart ? 'sim' : 'não', 'gameState:', gameState, 'currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length);
+
+  if (!aimStart || gameState !== 'aiming') {
+    console.log('[DEBUG CRITICAL] handleEnd RETORNANDO CEDO - aimStart:', aimStart ? 'sim' : 'não', 'gameState:', gameState);
+    return;
+  }
   if (evt) evt.preventDefault();
 
-  console.log('[DEBUG] Jogador iniciando tacada - ballsPottedThisTurn antes:', ballsPottedThisTurn.length);
+  console.log('[DEBUG] Jogador iniciando tacada - ballsPottedThisTurn antes:', ballsPottedThisTurn.length, 'conteúdo:', ballsPottedThisTurn.map(b => b.type));
 
   // LIMPAR ARRAY NO INÍCIO - antes de qualquer verificação
   ballsPottedThisTurn = [];
