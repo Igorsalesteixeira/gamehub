@@ -19,8 +19,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=10" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=11" />
+  <meta name="theme-color" content="#00ff41" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
@@ -53,23 +53,37 @@
     <a href="../../index.html" class="btn-back">← Voltar</a>
     <h1 class="game-title">🐍 Cobrinha</h1>
     <div class="stats">
-      <span>🍎 <span id="score-display">0</span></span>
-      <span>🏆 <span id="best-display">0</span></span>
+      <div class="score-box">
+        <span class="score-icon">🍎</span>
+        <span id="score-display" class="score-value neon-text">0</span>
+      </div>
+      <div class="score-box best">
+        <span class="score-icon">🏆</span>
+        <span id="best-display" class="score-value">0</span>
+      </div>
     </div>
   </header>
 
   <div class="game-container">
     <canvas id="game-canvas" width="400" height="400" style="width:400px;height:400px;"></canvas>
 
+    <!-- Particle effects container -->
+    <div id="particles-container" class="particles-container"></div>
+
     <!-- Overlay de inicio / game over -->
-    <div class="modal-overlay" id="overlay">
-      <div class="modal">
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
         <div class="modal-icon" id="overlay-icon">🐍</div>
-        <h2 id="overlay-title">Cobrinha</h2>
-        <p id="overlay-msg">Use as setas ou deslize para jogar</p>
-        <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-primary" id="btn-start">Jogar</button>
-        <button class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 10px;">📱 Compartilhar</button>
+        <h2 id="overlay-title" class="modal-title">Cobrinha</h2>
+        <p id="overlay-msg" class="modal-subtitle">Use as setas ou deslize para jogar</p>
+        <div id="overlay-score" class="overlay-score neon-score"></div>
+        <button class="btn btn-glow btn-primary" id="btn-start">
+          <span class="btn-text">Jogar</span>
+          <span class="btn-shine"></span>
+        </button>
+        <button class="btn btn-glow btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">
+          <span class="btn-text">📱 Compartilhar</span>
+        </button>
       </div>
     </div>
   </div>
@@ -77,12 +91,28 @@
   <!-- Controles mobile -->
   <div class="mobile-controls" id="mobile-controls">
     <div class="ctrl-row">
-      <button class="ctrl-btn" data-dir="up">▲</button>
+      <button class="ctrl-btn ctrl-glow" data-dir="up" aria-label="Cima">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M12 4l-8 8h6v8h4v-8h6z"/>
+        </svg>
+      </button>
     </div>
     <div class="ctrl-row">
-      <button class="ctrl-btn" data-dir="left">◄</button>
-      <button class="ctrl-btn" data-dir="down">▼</button>
-      <button class="ctrl-btn" data-dir="right">►</button>
+      <button class="ctrl-btn ctrl-glow" data-dir="left" aria-label="Esquerda">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M4 12l8-8v6h8v4h-8v6z"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn ctrl-glow" data-dir="down" aria-label="Baixo">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M12 20l8-8h-6v-8h-4v8h-6z"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn ctrl-glow" data-dir="right" aria-label="Direita">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M20 12l-8 8v-6h-8v-4h8v-6z"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -90,7 +120,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'cobrinha' });
   </script>
-  <script type="module" src="game.js?v=13"></script>
+  <script type="module" src="game.js?v=14"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>

@@ -37,7 +37,96 @@ let cellSize  = 0;
 let eatRipple = null;   // animação de ondulação ao comer
 let headTrail = [];     // rastro de posições recentes da cabeça
 
+// ---- Visual Effects State ----
+let particles = [];     // particle system for explosions
+let scorePopups = [];   // score popup animations
+let foodPulse = 0;      // food pulsing animation frame
+let isDying = false;    // death animation flag
+let deathAnimationFrame = 0;
+
 bestDisplay.textContent = bestScoreManager.get();
+
+// =============================================
+//  PARTICLE SYSTEM
+// =============================================
+class Particle {
+  constructor(x, y, color, speed = 1, size = 1) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.size = size * (0.5 + Math.random() * 0.5);
+    this.life = 1.0;
+    this.decay = 0.02 + Math.random() * 0.03;
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = (Math.random() * 2 + 1) * speed;
+    this.vx = Math.cos(angle) * velocity;
+    this.vy = Math.sin(angle) * velocity;
+    this.gravity = 0.1;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += this.gravity;
+    this.life -= this.decay;
+    this.size *= 0.98;
+  }
+
+  draw(ctx, cs) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x * cs, this.y * cs, this.size * cs * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class ScorePopup {
+  constructor(x, y, points) {
+    this.x = x;
+    this.y = y;
+    this.points = points;
+    this.life = 1.0;
+    this.decay = 0.025;
+    this.offsetY = 0;
+  }
+
+  update() {
+    this.life -= this.decay;
+    this.offsetY -= 0.03;
+  }
+
+  draw(ctx, cs) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = '#53d769';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#53d769';
+    ctx.font = `bold ${cs * 0.6}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`+${this.points}`, this.x * cs + cs / 2, (this.y + this.offsetY) * cs + cs / 2);
+    ctx.restore();
+  }
+}
+
+function createExplosion(x, y, color, count = 12, speed = 1) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y, color, speed));
+  }
+}
+
+function createDeathExplosion(snakeSegments) {
+  snakeSegments.forEach((seg, i) => {
+    const color = i === 0 ? '#53d769' : `rgba(83, 215, 105, ${1 - (i / snakeSegments.length) * 0.4})`;
+    createExplosion(seg.x + 0.5, seg.y + 0.5, color, 8, 1.5);
+  });
+}
 
 // ---- Directional Input ----
 const directionalInput = new DirectionalInput({
@@ -110,6 +199,11 @@ function initGame() {
   scoreDisplay.textContent = 0;
   eatRipple = null;
   headTrail = [];
+  particles = [];
+  scorePopups = [];
+  foodPulse = 0;
+  isDying = false;
+  deathAnimationFrame = 0;
   spawnFood();
 }
 
@@ -128,6 +222,33 @@ function spawnFood() {
 function tick() {
   directionalInput.applyDirection();
   const direction = directionalInput.getDirection();
+
+  // Update food pulse animation
+  foodPulse += 0.1;
+
+  // Update particles
+  particles = particles.filter(p => {
+    p.update();
+    return p.life > 0;
+  });
+
+  // Update score popups
+  scorePopups = scorePopups.filter(sp => {
+    sp.update();
+    return sp.life > 0;
+  });
+
+  // Handle death animation
+  if (isDying) {
+    deathAnimationFrame++;
+    if (deathAnimationFrame > 30) {
+      isDying = false;
+      // Game over will be called after animation
+    }
+    draw();
+    return;
+  }
+
   const head = {
     x: snake[0].x + direction.x,
     y: snake[0].y + direction.y,
@@ -135,13 +256,13 @@ function tick() {
 
   // Wall collision
   if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-    gameOver();
+    triggerDeath();
     return;
   }
 
   // Self collision
   if (snake.some(s => s.x === head.x && s.y === head.y)) {
-    gameOver();
+    triggerDeath();
     return;
   }
 
@@ -156,6 +277,13 @@ function tick() {
     score++;
     scoreDisplay.textContent = score;
     eatRipple = { x: food.x, y: food.y, frame: 0 }; // dispara animação
+
+    // Create particle explosion at food position
+    createExplosion(food.x + 0.5, food.y + 0.5, '#e94560', 15, 1.2);
+
+    // Add score popup
+    scorePopups.push(new ScorePopup(food.x, food.y, 1));
+
     // Game Design: som ao comer
     playSound('eat');
     // Mobile: feedback tátil ao comer (vibration)
@@ -188,7 +316,25 @@ function togglePause() {
   return paused;
 }
 
+function triggerDeath() {
+  if (isDying) return;
+  isDying = true;
+  deathAnimationFrame = 0;
+
+  // Create death explosion
+  createDeathExplosion(snake);
+
+  // Mobile: feedback tátil no game over (padrão de derrota)
+  if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
+
+  // Schedule actual game over after animation
+  setTimeout(() => {
+    gameOver();
+  }, 600);
+}
+
 async function gameOver() {
+  isDying = false;
   gameLoop.stop();
 
   // Atualiza stats
@@ -235,9 +381,12 @@ function draw() {
   const cs = cellSize;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Grid lines (subtle)
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  // Grid lines with subtle neon glow
+  ctx.save();
+  ctx.strokeStyle = 'rgba(100, 200, 255, 0.08)';
   ctx.lineWidth = 1;
+  ctx.shadowBlur = 4;
+  ctx.shadowColor = 'rgba(100, 200, 255, 0.3)';
   for (let i = 0; i <= GRID_SIZE; i++) {
     ctx.beginPath();
     ctx.moveTo(i * cs, 0); ctx.lineTo(i * cs, canvas.height);
@@ -246,6 +395,7 @@ function draw() {
     ctx.moveTo(0, i * cs); ctx.lineTo(canvas.width, i * cs);
     ctx.stroke();
   }
+  ctx.restore();
 
   // Ripple ao comer
   if (eatRipple) {
@@ -253,6 +403,8 @@ function draw() {
     ctx.save();
     ctx.strokeStyle = `rgba(233, 69, 96, ${(1 - p) * 0.8})`;
     ctx.lineWidth = 2;
+    ctx.shadowBlur = 10 * (1 - p);
+    ctx.shadowColor = '#e94560';
     ctx.beginPath();
     ctx.arc(eatRipple.x * cs + cs / 2, eatRipple.y * cs + cs / 2, cs * 0.4 * (1 + p * 1.5), 0, Math.PI * 2);
     ctx.stroke();
@@ -264,80 +416,137 @@ function draw() {
   // Trail de movimento (rastro da cabeça)
   headTrail.forEach((pos, i) => {
     const alpha = ((i + 1) / headTrail.length) * 0.18;
+    ctx.save();
     ctx.fillStyle = `rgba(83, 215, 105, ${alpha})`;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = `rgba(83, 215, 105, ${alpha * 2})`;
     ctx.beginPath();
     ctx.arc(pos.x * cs + cs / 2, pos.y * cs + cs / 2, cs * 0.28, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
   });
 
-  // Food
+  // Food with pulsing animation (scale + glow)
   if (food) {
+    const pulseScale = 1 + Math.sin(foodPulse) * 0.15;
+    const glowIntensity = 15 + Math.sin(foodPulse * 1.5) * 10;
+
+    ctx.save();
+    ctx.translate(food.x * cs + cs / 2, food.y * cs + cs / 2);
+    ctx.scale(pulseScale, pulseScale);
+
+    // Food glow
+    ctx.shadowBlur = glowIntensity;
+    ctx.shadowColor = '#e94560';
+
+    // Food body
     ctx.fillStyle = '#e94560';
     ctx.beginPath();
-    ctx.arc(food.x * cs + cs / 2, food.y * cs + cs / 2, cs * 0.4, 0, Math.PI * 2);
+    ctx.arc(0, 0, cs * 0.35, 0, Math.PI * 2);
     ctx.fill();
-    // Apple shine
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+
+    // Inner highlight
+    ctx.fillStyle = '#ff6b7a';
     ctx.beginPath();
-    ctx.arc(food.x * cs + cs * 0.38, food.y * cs + cs * 0.35, cs * 0.12, 0, Math.PI * 2);
+    ctx.arc(-cs * 0.1, -cs * 0.1, cs * 0.2, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.restore();
+
+    // Apple shine (not affected by pulse)
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.arc(food.x * cs + cs * 0.35, food.y * cs + cs * 0.3, cs * 0.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
-  // Snake
-  const direction = directionalInput.getDirection();
-  snake.forEach((seg, i) => {
-    const isHead = i === 0;
-    const radius = cs * 0.42;
+  // Particles (draw before snake so they appear behind)
+  particles.forEach(p => p.draw(ctx, cs));
 
-    if (isHead) {
-      // Head gradient
-      const grd = ctx.createRadialGradient(
-        seg.x * cs + cs / 2, seg.y * cs + cs / 2, 0,
-        seg.x * cs + cs / 2, seg.y * cs + cs / 2, radius
-      );
-      grd.addColorStop(0, '#53d769');
-      grd.addColorStop(1, '#3ba851');
-      ctx.fillStyle = grd;
-    } else {
+  // Score popups
+  scorePopups.forEach(sp => sp.draw(ctx, cs));
+
+  // Snake (skip drawing during death animation)
+  if (!isDying) {
+    const direction = directionalInput.getDirection();
+    snake.forEach((seg, i) => {
+      const isHead = i === 0;
+      const radius = cs * 0.42;
+
+      ctx.save();
+
+      // Glow effect for all segments
       const fade = 1 - (i / snake.length) * 0.4;
-      ctx.fillStyle = `rgba(83, 215, 105, ${fade})`;
-    }
+      ctx.shadowBlur = isHead ? 15 : 8 * fade;
+      ctx.shadowColor = isHead ? '#53d769' : `rgba(83, 215, 105, ${fade})`;
 
-    // Rounded rectangle for each segment
-    const x = seg.x * cs + (cs - radius * 2) / 2;
-    const y = seg.y * cs + (cs - radius * 2) / 2;
-    const w = radius * 2;
-    const r = cs * 0.15;
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + w - r);
-    ctx.quadraticCurveTo(x + w, y + w, x + w - r, y + w);
-    ctx.lineTo(x + r, y + w);
-    ctx.quadraticCurveTo(x, y + w, x, y + w - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.fill();
+      if (isHead) {
+        // Head gradient
+        const grd = ctx.createRadialGradient(
+          seg.x * cs + cs / 2, seg.y * cs + cs / 2, 0,
+          seg.x * cs + cs / 2, seg.y * cs + cs / 2, radius
+        );
+        grd.addColorStop(0, '#6aff7a');
+        grd.addColorStop(0.5, '#53d769');
+        grd.addColorStop(1, '#3ba851');
+        ctx.fillStyle = grd;
+      } else {
+        // Body segments with gradient
+        const grd = ctx.createRadialGradient(
+          seg.x * cs + cs / 2, seg.y * cs + cs / 2, 0,
+          seg.x * cs + cs / 2, seg.y * cs + cs / 2, radius
+        );
+        const alpha = fade;
+        grd.addColorStop(0, `rgba(100, 230, 120, ${alpha})`);
+        grd.addColorStop(1, `rgba(83, 215, 105, ${alpha})`);
+        ctx.fillStyle = grd;
+      }
 
-    // Eyes on head
-    if (isHead) {
-      ctx.fillStyle = '#fff';
-      const eyeR = cs * 0.08;
-      const eyeOff = cs * 0.15;
-      let ex1, ey1, ex2, ey2;
-      if (direction.x === 1)       { ex1 = cs*0.65; ey1 = cs*0.3;  ex2 = cs*0.65; ey2 = cs*0.7; }
-      else if (direction.x === -1) { ex1 = cs*0.35; ey1 = cs*0.3;  ex2 = cs*0.35; ey2 = cs*0.7; }
-      else if (direction.y === -1) { ex1 = cs*0.3;  ey1 = cs*0.35; ex2 = cs*0.7;  ey2 = cs*0.35; }
-      else                         { ex1 = cs*0.3;  ey1 = cs*0.65; ex2 = cs*0.7;  ey2 = cs*0.65; }
+      // Rounded rectangle for each segment
+      const x = seg.x * cs + (cs - radius * 2) / 2;
+      const y = seg.y * cs + (cs - radius * 2) / 2;
+      const w = radius * 2;
+      const r = cs * 0.15;
       ctx.beginPath();
-      ctx.arc(seg.x * cs + ex1, seg.y * cs + ey1, eyeR, 0, Math.PI * 2);
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + w - r);
+      ctx.quadraticCurveTo(x + w, y + w, x + w - r, y + w);
+      ctx.lineTo(x + r, y + w);
+      ctx.quadraticCurveTo(x, y + w, x, y + w - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
       ctx.fill();
-      ctx.beginPath();
-      ctx.arc(seg.x * cs + ex2, seg.y * cs + ey2, eyeR, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  });
+
+      ctx.restore();
+
+      // Eyes on head
+      if (isHead) {
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(255,255,255,0.5)';
+        const eyeR = cs * 0.08;
+        let ex1, ey1, ex2, ey2;
+        if (direction.x === 1)       { ex1 = cs*0.65; ey1 = cs*0.3;  ex2 = cs*0.65; ey2 = cs*0.7; }
+        else if (direction.x === -1) { ex1 = cs*0.35; ey1 = cs*0.3;  ex2 = cs*0.35; ey2 = cs*0.7; }
+        else if (direction.y === -1) { ex1 = cs*0.3;  ey1 = cs*0.35; ex2 = cs*0.7;  ey2 = cs*0.35; }
+        else                         { ex1 = cs*0.3;  ey1 = cs*0.65; ex2 = cs*0.7;  ey2 = cs*0.65; }
+        ctx.beginPath();
+        ctx.arc(seg.x * cs + ex1, seg.y * cs + ey1, eyeR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(seg.x * cs + ex2, seg.y * cs + ey2, eyeR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    });
+  }
 
   // Pausa overlay
   if (gameLoop.isPaused()) {
