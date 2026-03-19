@@ -55,10 +55,11 @@ function drawParticles(ctx) {
 let pocketingBalls = [];
 
 class PocketingAnimation {
-  constructor(ball, pocketX, pocketY) {
+  constructor(ball, pocketX, pocketY, projectedScale = 1) {
     this.ball = ball;
-    this.pocketX = pocketX;
+    this.pocketX = pocketX; // Coordenadas de tela (já projetadas)
     this.pocketY = pocketY;
+    this.projectedScale = projectedScale; // Escala da perspectiva na posição da cacapa
     this.scale = 1;
     this.alpha = 1;
     this.offsetY = 0;
@@ -74,19 +75,29 @@ class PocketingAnimation {
     if (this.alpha <= 0) return;
     ctx.save();
     ctx.globalAlpha = this.alpha;
-    ctx.translate(this.pocketX, this.pocketY + this.offsetY);
-    ctx.scale(this.scale, this.scale);
 
-    // Desenhar bola
+    // Usar coordenadas de tela diretamente (já projetadas)
+    const scale = this.projectedScale * this.scale;
+    const radius = BALL_RADIUS * scale;
+
+    ctx.translate(this.pocketX, this.pocketY + this.offsetY * scale);
+    ctx.scale(scale, scale);
+
+    // Desenhar bola com efeito 3D
+    const gradient = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, 0, 0, 0, radius);
+    gradient.addColorStop(0, lightenColor(this.ball.color, 40));
+    gradient.addColorStop(0.5, this.ball.color);
+    gradient.addColorStop(1, darkenColor(this.ball.color, 30));
+
     ctx.beginPath();
-    ctx.arc(0, 0, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = this.ball.color;
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
     ctx.fill();
 
     // Brilho
     ctx.beginPath();
-    ctx.arc(-3, -3, 3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.ellipse(-radius * 0.35, -radius * 0.35, radius * 0.25, radius * 0.15, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
     ctx.fill();
 
     ctx.restore();
@@ -212,20 +223,41 @@ function drawLastPottedBall(ctx) {
   ctx.textAlign = 'center';
   ctx.fillText('Última bola:', x, y - 12);
 
-  // Desenhar bola
+  // Desenhar bola em 3D
+  const ballY = y + 8;
+  const radius = 10;
+
+  // Sombra
   ctx.beginPath();
-  ctx.arc(x, y + 8, 10, 0, Math.PI * 2);
-  ctx.fillStyle = lastPottedBall.color;
+  ctx.ellipse(x + 2, ballY + 4, radius * 1.2, radius * 0.6, 0, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.filter = 'blur(2px)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
+  ctx.filter = 'none';
+
+  // Gradiente da bola
+  const gradient = ctx.createRadialGradient(x - 3, ballY - 3, 0, x, ballY, radius);
+  gradient.addColorStop(0, lightenColor(lastPottedBall.color, 40));
+  gradient.addColorStop(0.5, lastPottedBall.color);
+  gradient.addColorStop(1, darkenColor(lastPottedBall.color, 30));
+
+  ctx.beginPath();
+  ctx.arc(x, ballY, radius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
 
   // Brilho
   ctx.beginPath();
-  ctx.arc(x - 3, y + 5, 3, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.ellipse(x - 3, ballY - 3, 3, 2, -Math.PI / 4, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.fill();
+
+  // Borda
+  ctx.beginPath();
+  ctx.arc(x, ballY, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
 
   ctx.restore();
 }
@@ -280,6 +312,46 @@ const POCKETS = [
   { x: TABLE_WIDTH / 2, y: TABLE_HEIGHT - 15 }, // baixo-meio
   { x: TABLE_WIDTH - 20, y: TABLE_HEIGHT - 20 }  // baixo-direito
 ];
+
+// ===== Configuração 3D =====
+const PERSPECTIVE = {
+  enabled: true,
+  vanishingPointX: TABLE_WIDTH / 2,
+  vanishingPointY: TABLE_HEIGHT / 3,
+  depth: 0.3, // intensidade da perspectiva
+  lightX: TABLE_WIDTH * 0.3, // posição da luz (canto superior esquerdo)
+  lightY: TABLE_HEIGHT * 0.2
+};
+
+// Luz dinâmica seguindo o mouse
+let dynamicLight = { x: PERSPECTIVE.lightX, y: PERSPECTIVE.lightY };
+
+// Função para projetar coordenadas 3D para 2D
+function project3D(x, y, z) {
+  const scale = 1 - (z * PERSPECTIVE.depth / TABLE_HEIGHT);
+  const projX = (x - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
+  const projY = (y - PERSPECTIVE.vanishingPointY) * scale + PERSPECTIVE.vanishingPointY;
+  return { x: projX, y: projY, scale };
+}
+
+// Funções auxiliares de cor
+function lightenColor(color, percent) {
+  const num = parseInt(color.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.min(255, (num >> 16) + amt);
+  const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+  const B = Math.min(255, (num & 0x0000FF) + amt);
+  return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+}
+
+function darkenColor(color, percent) {
+  const num = parseInt(color.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.max(0, (num >> 16) - amt);
+  const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
+  const B = Math.max(0, (num & 0x0000FF) - amt);
+  return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+}
 
 // Estado do jogo
 let balls = [];
@@ -357,17 +429,46 @@ class Ball {
   }
 
   checkPocket() {
-    for (const pocket of POCKETS) {
-      const dx = this.x - pocket.x;
-      const dy = this.y - pocket.y;
+    // Calcular posições das cacapas em perspectiva 3D (mesma lógica do drawPockets3D)
+    const tableDepth = 60;
+    const marginX = 50;
+    const marginY = 70;
+
+    const topY = marginY;
+    const topWidth = TABLE_WIDTH - marginX * 2 - tableDepth;
+    const topLeftX = marginX + tableDepth / 2;
+    const topRightX = marginX + tableDepth / 2 + topWidth;
+
+    const bottomY = TABLE_HEIGHT - marginY;
+    const bottomLeftX = marginX;
+    const bottomRightX = marginX + (TABLE_WIDTH - marginX * 2);
+
+    // Posições projetadas das cacapas (coordenadas de tela)
+    const pocketPositions = [
+      { x: topLeftX + 25, y: topY + 25, radius: 14 },      // topo-esquerdo
+      { x: (topLeftX + topRightX) / 2, y: topY + 20, radius: 11 }, // topo-meio
+      { x: topRightX - 25, y: topY + 25, radius: 14 },     // topo-direito
+      { x: bottomLeftX + 30, y: bottomY - 25, radius: 18 }, // baixo-esquerdo
+      { x: (bottomLeftX + bottomRightX) / 2, y: bottomY - 20, radius: 14 }, // baixo-meio
+      { x: bottomRightX - 30, y: bottomY - 25, radius: 18 } // baixo-direito
+    ];
+
+    // Projetar posição da bola para coordenadas de tela
+    const projectedBall = project3D(this.x, this.y, 0);
+
+    for (const pocket of pocketPositions) {
+      const dx = projectedBall.x - pocket.x;
+      const dy = projectedBall.y - pocket.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < POCKET_RADIUS - 2) {
+
+      // Usar raio da cacapa ajustado pela escala da perspectiva na posição da bola
+      if (dist < pocket.radius * projectedBall.scale) {
         this.potted = true;
         this.vx = 0;
         this.vy = 0;
         playSound('pop');
-        // Adicionar animação de cair na cacapa
-        pocketingBalls.push(new PocketingAnimation(this, pocket.x, pocket.y));
+        // Adicionar animação de cair na cacapa (usando coordenadas projetadas)
+        pocketingBalls.push(new PocketingAnimation(this, pocket.x, pocket.y, projectedBall.scale));
         // Som de encaçapar
         playGameSound(SOUNDS.pocket);
         return true;
@@ -379,38 +480,65 @@ class Ball {
   draw() {
     if (this.potted) return;
 
-    // Sombra
+    // Calcular posição 3D projetada
+    const projected = project3D(this.x, this.y, 0);
+    const radius = this.radius * projected.scale;
+
+    // Desenhar sombra projetada no feltro (abaixo e à direita da bola)
+    const shadowOffsetX = (this.x - dynamicLight.x) * 0.12 * projected.scale;
+    const shadowOffsetY = (this.y - dynamicLight.y) * 0.12 * projected.scale + radius * 0.3;
+    const shadowX = projected.x + shadowOffsetX;
+    const shadowY = projected.y + shadowOffsetY;
+
+    // Sombra suave
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(this.x + 2, this.y + 2, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.ellipse(shadowX, shadowY, radius * 1.3, radius * 0.7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.filter = 'blur(3px)';
+    ctx.fill();
+    ctx.restore();
+
+    // Desenhar bola como esfera 3D
+    // Gradiente da bola (base)
+    const gradient = ctx.createRadialGradient(
+      projected.x - radius * 0.35, projected.y - radius * 0.35, 0,
+      projected.x, projected.y, radius
+    );
+    gradient.addColorStop(0, lightenColor(this.color, 50));
+    gradient.addColorStop(0.4, this.color);
+    gradient.addColorStop(1, darkenColor(this.color, 40));
+
+    ctx.beginPath();
+    ctx.arc(projected.x, projected.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = gradient;
     ctx.fill();
 
-    // Bola
+    // Brilho especular (luz refletida)
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
+    ctx.ellipse(
+      projected.x - radius * 0.4,
+      projected.y - radius * 0.4,
+      radius * 0.28, radius * 0.18,
+      -Math.PI / 4, 0, Math.PI * 2
+    );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.fill();
 
-    // Brilho
+    // Borda sutil
     ctx.beginPath();
-    ctx.arc(this.x - 3, this.y - 3, this.radius / 3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.fill();
-
-    // Contorno
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-    ctx.lineWidth = 1;
+    ctx.arc(projected.x, projected.y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.lineWidth = 0.5;
     ctx.stroke();
 
     // Número para bolas coloridas
     if (this.type === 'color' && this.number > 0) {
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 10px Nunito';
+      ctx.font = `bold ${Math.max(8, 10 * projected.scale)}px Nunito`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(this.number, this.x, this.y);
+      ctx.fillText(this.number, projected.x, projected.y);
     }
   }
 
@@ -846,63 +974,253 @@ function updateScoreDisplay() {
   }
 }
 
-// ===== Renderização =====
-function draw() {
-  // Limpar canvas
-  ctx.fillStyle = '#1a472a';
+// ===== Renderização 3D =====
+function drawTable3D() {
+  // Limpar canvas com cor de fundo
+  ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
 
-  // Borda da mesa
-  ctx.strokeStyle = '#8b4513';
-  ctx.lineWidth = 20;
-  ctx.strokeRect(10, 10, TABLE_WIDTH - 20, TABLE_HEIGHT - 20);
+  const tableDepth = 60; // profundidade da borda
+  const marginX = 50;
+  const marginY = 70;
 
-  // Área de jogo
-  ctx.fillStyle = '#2d5a27';
-  ctx.fillRect(30, 30, TABLE_WIDTH - 60, TABLE_HEIGHT - 60);
+  // Canto superior (mais distante) - menor
+  const topY = marginY;
+  const topWidth = TABLE_WIDTH - marginX * 2 - tableDepth;
+  const topLeftX = marginX + tableDepth / 2;
+  const topRightX = marginX + tableDepth / 2 + topWidth;
 
-  // Linha de partida (semicírculo)
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.lineWidth = 2;
+  // Canto inferior (mais próximo) - maior
+  const bottomY = TABLE_HEIGHT - marginY;
+  const bottomWidth = TABLE_WIDTH - marginX * 2;
+  const bottomLeftX = marginX;
+  const bottomRightX = marginX + bottomWidth;
+
+  // Desenhar base da mesa (madeira escura) com perspectiva
+  const woodGradient = ctx.createLinearGradient(0, topY, 0, bottomY);
+  woodGradient.addColorStop(0, '#3d2817');
+  woodGradient.addColorStop(0.5, '#5a3d2a');
+  woodGradient.addColorStop(1, '#2d1f14');
+
+  ctx.fillStyle = woodGradient;
   ctx.beginPath();
-  ctx.arc(150, TABLE_HEIGHT / 2, 100, -Math.PI / 2, Math.PI / 2);
-  ctx.stroke();
+  ctx.moveTo(topLeftX - 15, topY - 10);
+  ctx.lineTo(topRightX + 15, topY - 10);
+  ctx.lineTo(bottomRightX + 20, bottomY + 15);
+  ctx.lineTo(bottomLeftX - 20, bottomY + 15);
+  ctx.closePath();
+  ctx.fill();
+
+  // Sombra da mesa
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.filter = 'blur(8px)';
+  ctx.beginPath();
+  ctx.moveTo(bottomLeftX - 15, bottomY + 20);
+  ctx.lineTo(bottomRightX + 15, bottomY + 20);
+  ctx.lineTo(bottomRightX + 25, bottomY + 35);
+  ctx.lineTo(bottomLeftX - 25, bottomY + 35);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Desenhar feltro (área jogável) em perspectiva
+  const feltGradient = ctx.createLinearGradient(0, topY, 0, bottomY);
+  feltGradient.addColorStop(0, '#1a4d3e');
+  feltGradient.addColorStop(0.3, '#2d6a4f');
+  feltGradient.addColorStop(0.7, '#245a42');
+  feltGradient.addColorStop(1, '#1a4d3e');
+
+  ctx.fillStyle = feltGradient;
+  ctx.beginPath();
+  ctx.moveTo(topLeftX + 20, topY + 15);
+  ctx.lineTo(topRightX - 20, topY + 15);
+  ctx.lineTo(bottomRightX - 25, bottomY - 15);
+  ctx.lineTo(bottomLeftX + 25, bottomY - 15);
+  ctx.closePath();
+  ctx.fill();
+
+  // Textura do feltro (linhas sutis)
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 20; i++) {
+    const y = topY + 20 + i * ((bottomY - topY - 40) / 20);
+    const scale = 1 - ((y - topY) / TABLE_HEIGHT) * 0.15;
+    const leftX = (topLeftX + 20 - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
+    const rightX = (topRightX - 20 - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
+    ctx.beginPath();
+    ctx.moveTo(leftX, y);
+    ctx.lineTo(rightX, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Bordas emborrachadas (cushions) em perspectiva
+  const cushionColor = '#4a3728';
+  const cushionHighlight = '#6b5344';
+
+  // Borda superior
+  const cushionGradTop = ctx.createLinearGradient(0, topY, 0, topY + 20);
+  cushionGradTop.addColorStop(0, cushionHighlight);
+  cushionGradTop.addColorStop(1, cushionColor);
+  ctx.fillStyle = cushionGradTop;
+  ctx.beginPath();
+  ctx.moveTo(topLeftX - 5, topY + 5);
+  ctx.lineTo(topRightX + 5, topY + 5);
+  ctx.lineTo(topRightX - 15, topY + 20);
+  ctx.lineTo(topLeftX + 15, topY + 20);
+  ctx.closePath();
+  ctx.fill();
+
+  // Borda inferior
+  const cushionGradBottom = ctx.createLinearGradient(0, bottomY - 25, 0, bottomY);
+  cushionGradBottom.addColorStop(0, cushionColor);
+  cushionGradBottom.addColorStop(1, darkenColor(cushionColor, 20));
+  ctx.fillStyle = cushionGradBottom;
+  ctx.beginPath();
+  ctx.moveTo(bottomLeftX + 20, bottomY - 15);
+  ctx.lineTo(bottomRightX - 20, bottomY - 15);
+  ctx.lineTo(bottomRightX + 5, bottomY);
+  ctx.lineTo(bottomLeftX - 5, bottomY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Borda esquerda
+  const cushionGradLeft = ctx.createLinearGradient(topLeftX, 0, topLeftX + 20, 0);
+  cushionGradLeft.addColorStop(0, cushionHighlight);
+  cushionGradLeft.addColorStop(1, cushionColor);
+  ctx.fillStyle = cushionGradLeft;
+  ctx.beginPath();
+  ctx.moveTo(topLeftX + 5, topY + 5);
+  ctx.lineTo(topLeftX + 20, topY + 20);
+  ctx.lineTo(bottomLeftX + 25, bottomY - 15);
+  ctx.lineTo(bottomLeftX - 5, bottomY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Borda direita
+  const cushionGradRight = ctx.createLinearGradient(topRightX - 20, 0, topRightX, 0);
+  cushionGradRight.addColorStop(0, cushionColor);
+  cushionGradRight.addColorStop(1, darkenColor(cushionHighlight, 10));
+  ctx.fillStyle = cushionGradRight;
+  ctx.beginPath();
+  ctx.moveTo(topRightX - 5, topY + 5);
+  ctx.lineTo(topRightX - 20, topY + 20);
+  ctx.lineTo(bottomRightX - 25, bottomY - 15);
+  ctx.lineTo(bottomRightX + 5, bottomY);
+  ctx.closePath();
+  ctx.fill();
+
+  // Linha de partida (semicírculo) em perspectiva
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+
+  // Calcular posição da linha de partida em perspectiva
+  const lineX = 150;
+  const lineScaleTop = 1 - ((topY + 50 - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
+  const lineScaleBottom = 1 - ((bottomY - 50 - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
+  const projLineXTop = (lineX - PERSPECTIVE.vanishingPointX) * lineScaleTop + PERSPECTIVE.vanishingPointX;
+  const projLineXBottom = (lineX - PERSPECTIVE.vanishingPointX) * lineScaleBottom + PERSPECTIVE.vanishingPointX;
 
   // Linha vertical
   ctx.beginPath();
-  ctx.moveTo(150, 30);
-  ctx.lineTo(150, TABLE_HEIGHT - 30);
+  ctx.moveTo(projLineXTop, topY + 20);
+  ctx.lineTo(projLineXBottom, bottomY - 15);
   ctx.stroke();
 
-  // Buracos
-  for (const pocket of POCKETS) {
+  // Semicírculo
+  const centerY = (topY + bottomY) / 2;
+  const centerScale = 1 - ((centerY - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
+  const projCenterX = (lineX - PERSPECTIVE.vanishingPointX) * centerScale + PERSPECTIVE.vanishingPointX;
+  const projRadius = 100 * centerScale;
+
+  ctx.beginPath();
+  ctx.arc(projCenterX, centerY, projRadius, -Math.PI / 2, Math.PI / 2);
+  ctx.stroke();
+
+  // Desenhar cacapas em perspectiva 3D
+  drawPockets3D(ctx, topY, bottomY, topLeftX, topRightX, bottomLeftX, bottomRightX);
+}
+
+function drawPockets3D(ctx, topY, bottomY, topLeftX, topRightX, bottomLeftX, bottomRightX) {
+  const pocketColor = '#0a0a0a';
+  const pocketShadow = 'rgba(0, 0, 0, 0.6)';
+
+  // Calcular posições das cacapas em perspectiva
+  const pocketPositions = [
+    // Topo esquerdo
+    { x: topLeftX + 25, y: topY + 25, rx: 14, ry: 9 },
+    // Topo meio
+    { x: (topLeftX + topRightX) / 2, y: topY + 20, rx: 11, ry: 7 },
+    // Topo direito
+    { x: topRightX - 25, y: topY + 25, rx: 14, ry: 9 },
+    // Baixo esquerdo
+    { x: bottomLeftX + 30, y: bottomY - 25, rx: 18, ry: 14 },
+    // Baixo meio
+    { x: (bottomLeftX + bottomRightX) / 2, y: bottomY - 20, rx: 14, ry: 11 },
+    // Baixo direito
+    { x: bottomRightX - 30, y: bottomY - 25, rx: 18, ry: 14 }
+  ];
+
+  // Sombra das cacapas
+  ctx.save();
+  ctx.fillStyle = pocketShadow;
+  ctx.filter = 'blur(2px)';
+  for (const pocket of pocketPositions) {
     ctx.beginPath();
-    ctx.arc(pocket.x, pocket.y, POCKET_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = '#0f0f0f';
+    ctx.ellipse(pocket.x + 2, pocket.y + 2, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = '#333';
+  }
+  ctx.restore();
+
+  // Cacapas
+  for (const pocket of pocketPositions) {
+    // Interior escuro
+    ctx.beginPath();
+    ctx.ellipse(pocket.x, pocket.y, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = pocketColor;
+    ctx.fill();
+
+    // Borda da cacapa
+    ctx.beginPath();
+    ctx.ellipse(pocket.x, pocket.y, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = '#2a2a2a';
     ctx.lineWidth = 2;
     ctx.stroke();
-  }
 
-  // Bolas
-  for (const ball of balls) {
+    // Brilho interno
+    ctx.beginPath();
+    ctx.ellipse(pocket.x - 3, pocket.y - 2, pocket.rx * 0.4, pocket.ry * 0.4, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill();
+  }
+}
+
+function draw() {
+  // Desenhar mesa em perspectiva 3D
+  drawTable3D();
+
+  // Desenhar bolas em ordem Y (bolas mais distantes primeiro para correto z-ordering)
+  const sortedBalls = balls.filter(b => !b.potted).sort((a, b) => a.y - b.y);
+  for (const ball of sortedBalls) {
     ball.draw();
   }
 
   // Desenhar mira (apenas para jogador)
   if (gameState === 'aiming' && currentPlayer === 'player' && aimStart && aimCurrent) {
-    drawAimLine();
+    drawAimLine3D();
   }
 
   // Indicador de vez
   ctx.font = 'bold 16px Nunito';
   ctx.textAlign = 'left';
   ctx.fillStyle = currentPlayer === 'player' ? '#4ade80' : '#f87171';
-  ctx.fillText(currentPlayer === 'player' ? 'Sua vez' : 'Vez do computador', 40, 60);
+  ctx.fillText(currentPlayer === 'player' ? 'Sua vez' : 'Vez do computador', 40, 40);
 }
 
-function drawAimLine() {
+function drawAimLine3D() {
   const dx = aimStart.x - aimCurrent.x;
   const dy = aimStart.y - aimCurrent.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -911,19 +1229,28 @@ function drawAimLine() {
   // Calcular força
   power = Math.min(dist / 10, MAX_POWER);
 
+  // Projetar posição da bola branca
+  const cueBallProj = project3D(cueBall.x, cueBall.y, 0);
+
   // Linha de mira
   const lineLength = 100 + power * 20;
-  const endX = cueBall.x + Math.cos(angle) * lineLength;
-  const endY = cueBall.y + Math.sin(angle) * lineLength;
+  const endX = cueBallProj.x + Math.cos(angle) * lineLength;
+  const endY = cueBallProj.y + Math.sin(angle) * lineLength;
 
   ctx.beginPath();
-  ctx.moveTo(cueBall.x, cueBall.y);
+  ctx.moveTo(cueBallProj.x, cueBallProj.y);
   ctx.lineTo(endX, endY);
-  ctx.strokeStyle = `rgba(255, 255, 255, ${0.3 + power / MAX_POWER * 0.5})`;
+  ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 + power / MAX_POWER * 0.6})`;
   ctx.lineWidth = 2;
-  ctx.setLineDash([10, 5]);
+  ctx.setLineDash([8, 4]);
   ctx.stroke();
   ctx.setLineDash([]);
+
+  // Círculo de força no final da linha
+  ctx.beginPath();
+  ctx.arc(endX, endY, 5 + power / 3, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + power / MAX_POWER * 0.4})`;
+  ctx.fill();
 
   // Atualizar barra de força
   const powerPercent = (power / MAX_POWER) * 100;
@@ -1004,6 +1331,15 @@ canvas.addEventListener('mouseleave', handleEnd);
 canvas.addEventListener('touchstart', handleStart, { passive: false });
 canvas.addEventListener('touchmove', handleMove, { passive: false });
 canvas.addEventListener('touchend', handleEnd, { passive: false });
+
+// Luz dinâmica seguindo o mouse
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  dynamicLight.x = (e.clientX - rect.left) * scaleX;
+  dynamicLight.y = (e.clientY - rect.top) * scaleY;
+});
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
