@@ -567,56 +567,58 @@ const gameLoop = new GameLoop({
 // Input Manager (Controles)
 // ============================================
 const inputManager = new InputManager({
-  keyboardTarget: document,
-  onKeyDown: (e) => {
-    if (state.gameOver) return;
+  keyboardTarget: document
+});
 
-    // Pausa
-    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-      togglePause();
+// Registra callbacks apos criar o InputManager
+inputManager.on('keyDown', (key, e) => {
+  if (state.gameOver) return;
+
+  // Pausa
+  if (key === 'p' || key === 'P' || key === 'Escape') {
+    togglePause();
+    e.preventDefault();
+    return;
+  }
+
+  if (state.paused) return;
+
+  // Controles de movimento
+  switch (key) {
+    case 'ArrowLeft':
+    case 'a':
+    case 'A':
       e.preventDefault();
-      return;
-    }
+      move('left');
+      break;
 
-    if (state.paused) return;
+    case 'ArrowRight':
+    case 'd':
+    case 'D':
+      e.preventDefault();
+      move('right');
+      break;
 
-    // Controles de movimento
-    switch (e.key) {
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        e.preventDefault();
-        move('left');
-        break;
+    case 'ArrowDown':
+    case 's':
+    case 'S':
+      e.preventDefault();
+      softDrop();
+      break;
 
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        e.preventDefault();
-        move('right');
-        break;
+    case 'ArrowUp':
+    case 'w':
+    case 'W':
+    case 'x':
+    case 'X':
+      e.preventDefault();
+      rotate();
+      break;
 
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        e.preventDefault();
-        softDrop();
-        break;
-
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-      case 'x':
-      case 'X':
-        e.preventDefault();
-        rotate();
-        break;
-
-      case ' ': // Espaco - hard drop
-        e.preventDefault();
-        drop();
-        break;
-    }
+    case ' ': // Espaco - hard drop
+      e.preventDefault();
+      drop();
+      break;
   }
 });
 
