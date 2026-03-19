@@ -169,7 +169,7 @@ async function initMultiplayer() {
 
   // Check if room exists
   const { data: room, error } = await supabase
-    .from('battleship_rooms')
+    .from('game_rooms')
     .select('*')
     .eq('id', ROOM_ID)
     .single();
@@ -185,18 +185,20 @@ async function initMultiplayer() {
     // Create new room as player 1 (host)
     mpPlayerNumber = 1;
     const { error: createError } = await supabase
-      .from('battleship_rooms')
+      .from('game_rooms')
       .insert({
         id: ROOM_ID,
         player1_id: mpPlayerId,
         status: 'waiting',
-        current_turn: 1,
-        player1_board: null,
-        player2_board: null,
-        player1_shots: [],
-        player2_shots: [],
-        player1_ready: false,
-        player2_ready: false,
+        turn: 1,
+        state: {
+          player1_board: null,
+          player2_board: null,
+          player1_shots: [],
+          player2_shots: [],
+          player1_ready: false,
+          player2_ready: false
+        },
         created_at: new Date().toISOString()
       });
 
@@ -218,7 +220,7 @@ async function initMultiplayer() {
     // Join as player 2
     mpPlayerNumber = 2;
     const { error: updateError } = await supabase
-      .from('battleship_rooms')
+      .from('game_rooms')
       .update({
         player2_id: mpPlayerId,
         status: 'placement'
@@ -258,6 +260,8 @@ async function initMultiplayer() {
 }
 
 function restoreGameState(room) {
+  const state = room.state || {};
+
   if (room.status === 'waiting') {
     mpStatus.textContent = 'Aguardando oponente...';
     mpStatus.classList.add('waiting');
@@ -279,13 +283,13 @@ function restoreGameState(room) {
     const myBoardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
     const opponentBoardKey = mpPlayerNumber === 1 ? 'player2_board' : 'player1_board';
 
-    if (room[myBoardKey]) {
-      playerBoard = room[myBoardKey];
+    if (state[myBoardKey]) {
+      playerBoard = state[myBoardKey];
       restoreShipsFromBoard(playerBoard, playerShips);
     }
 
-    if (room[opponentBoardKey]) {
-      cpuBoard = room[opponentBoardKey];
+    if (state[opponentBoardKey]) {
+      cpuBoard = state[opponentBoardKey];
       restoreShipsFromBoard(cpuBoard, cpuShips);
     }
 
@@ -301,17 +305,17 @@ function restoreGameState(room) {
     buildHeaders('player');
     buildHeaders('enemy');
 
-    if (room[myShotsKey]) {
-      applyShotsToBoard(room[myShotsKey], cpuBoard, enemyGrid, false);
+    if (state[myShotsKey]) {
+      applyShotsToBoard(state[myShotsKey], cpuBoard, enemyGrid, false);
     }
-    if (room[opponentShotsKey]) {
-      applyShotsToBoard(room[opponentShotsKey], playerBoard, playerGrid, true);
+    if (state[opponentShotsKey]) {
+      applyShotsToBoard(state[opponentShotsKey], playerBoard, playerGrid, true);
     }
 
     renderPlayerShips();
     phase = 'battle';
     gameTimer.start();
-    updateMultiplayerTurn(room.current_turn);
+    updateMultiplayerTurn(room.turn);
     renderShipStatus();
     updateCounters();
   } else if (room.status === 'ended') {
@@ -389,7 +393,7 @@ function subscribeToRoom() {
     .on('postgres_changes', {
       event: '*',
       schema: 'public',
-      table: 'battleship_rooms',
+      table: 'game_rooms',
       filter: `id=eq.${ROOM_ID}`
     }, (payload) => {
       handleRoomUpdate(payload.new);
@@ -401,6 +405,8 @@ async function handleRoomUpdate(room) {
   mpGameState = room;
   if (!room) return;
 
+  const state = room.state || {};
+
   // Opponent joined
   if (room.status === 'waiting' && mpPlayerNumber === 1 && room.player2_id) {
     mpStatus.textContent = 'Oponente conectado!';
@@ -411,7 +417,7 @@ async function handleRoomUpdate(room) {
 
   // Both players in placement phase
   if (room.status === 'placement') {
-    const opponentReady = mpPlayerNumber === 1 ? room.player2_ready : room.player1_ready;
+    const opponentReady = mpPlayerNumber === 1 ? state.player2_ready : state.player1_ready;
     if (opponentReady && !mpOpponentReady) {
       mpOpponentReady = true;
       if (mpPlayerReady) {
@@ -427,14 +433,14 @@ async function handleRoomUpdate(room) {
     const opponentShotsKey = mpPlayerNumber === 1 ? 'player2_shots' : 'player1_shots';
     const myShotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
 
-    if (room[opponentShotsKey]) {
-      applyShotsToBoard(room[opponentShotsKey], playerBoard, playerGrid, true);
+    if (state[opponentShotsKey]) {
+      applyShotsToBoard(state[opponentShotsKey], playerBoard, playerGrid, true);
     }
-    if (room[myShotsKey]) {
-      applyShotsToBoard(room[myShotsKey], cpuBoard, enemyGrid, false);
+    if (state[myShotsKey]) {
+      applyShotsToBoard(state[myShotsKey], cpuBoard, enemyGrid, false);
     }
 
-    updateMultiplayerTurn(room.current_turn);
+    updateMultiplayerTurn(room.turn);
 
     if (room.status === 'ended' && room.winner) {
       showEndGameModal(room.winner === mpPlayerNumber);
@@ -473,11 +479,24 @@ async function setPlayerReady() {
   const readyKey = mpPlayerNumber === 1 ? 'player1_ready' : 'player2_ready';
   const boardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
 
+  // Get current state first
+  const { data: room } = await supabase
+    .from('game_rooms')
+    .select('state')
+    .eq('id', ROOM_ID)
+    .single();
+
+  const currentState = room?.state || {};
+  const newState = {
+    ...currentState,
+    [readyKey]: true,
+    [boardKey]: playerBoard
+  };
+
   const { error } = await supabase
-    .from('battleship_rooms')
+    .from('game_rooms')
     .update({
-      [readyKey]: true,
-      [boardKey]: playerBoard,
+      state: newState,
       status: mpOpponentReady ? 'battle' : 'placement'
     })
     .eq('id', ROOM_ID);
@@ -497,16 +516,17 @@ async function setPlayerReady() {
 
 async function startMultiplayerBattle() {
   const { data: room } = await supabase
-    .from('battleship_rooms')
+    .from('game_rooms')
     .select('*')
     .eq('id', ROOM_ID)
     .single();
 
   if (!room) return;
 
+  const state = room.state || {};
   const opponentBoardKey = mpPlayerNumber === 1 ? 'player2_board' : 'player1_board';
-  if (room[opponentBoardKey]) {
-    cpuBoard = room[opponentBoardKey];
+  if (state[opponentBoardKey]) {
+    cpuBoard = state[opponentBoardKey];
     restoreShipsFromBoard(cpuBoard, cpuShips);
   }
 
@@ -520,7 +540,7 @@ async function startMultiplayerBattle() {
   battlePanel.classList.remove('hidden');
 
   phase = 'battle';
-  updateMultiplayerTurn(room.current_turn);
+  updateMultiplayerTurn(room.turn);
   renderShipStatus();
   gameTimer.start();
 }
@@ -539,19 +559,27 @@ async function sendShot(r, c, result, sunkShip) {
   if (!IS_MULTIPLAYER) return;
 
   const shotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
+
+  // Get current state first
   const { data: room } = await supabase
-    .from('battleship_rooms')
-    .select(shotsKey)
+    .from('game_rooms')
+    .select('state, turn')
     .eq('id', ROOM_ID)
     .single();
 
-  const shots = room[shotsKey] || [];
+  const currentState = room?.state || {};
+  const shots = currentState[shotsKey] || [];
   shots.push({ r, c, result, timestamp: Date.now() });
 
   const nextTurn = mpPlayerNumber === 1 ? 2 : 1;
+  const newState = {
+    ...currentState,
+    [shotsKey]: shots
+  };
+
   const updateData = {
-    [shotsKey]: shots,
-    current_turn: result === 'miss' ? nextTurn : mpPlayerNumber
+    state: newState,
+    turn: result === 'miss' ? nextTurn : mpPlayerNumber
   };
 
   const opponentShipsSunk = checkAllShipsSunk(cpuShips, cpuBoard);
@@ -561,7 +589,7 @@ async function sendShot(r, c, result, sunkShip) {
   }
 
   await supabase
-    .from('battleship_rooms')
+    .from('game_rooms')
     .update(updateData)
     .eq('id', ROOM_ID);
 }
