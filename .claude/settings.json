@@ -1,5 +1,19 @@
 {
   "permissions": {
     "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Read|Write|Edit|Glob|Grep|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '[.tool_name, .tool_input] | @tsv' >> ~/.claude/projects/C--Users-igor--Downloads-Site-de-jogos/memory/session_tools.log 2>/dev/null || true",
+            "async": true
+          }
+        ]
+      }
+    ]
   }
 }
