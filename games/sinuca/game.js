@@ -314,32 +314,39 @@ const POCKETS = [
 ];
 
 // ===== Configuração 3D Unificada =====
+// Perspectiva plana - visão de cima ligeiramente inclinada
 const PERSPECTIVE = {
   enabled: true,
   vanishingPointX: TABLE_WIDTH / 2,
-  vanishingPointY: TABLE_HEIGHT * 0.25,
-  depth: 0.25  // Intensidade da perspectiva
+  vanishingPointY: -400,  // Muito acima da tela para perspectiva quase ortográfica
+  depth: 0.05             // Perspectiva muito sutil (quase plana)
 };
 
 // Luz fixa (sem seguir mouse)
 const dynamicLight = { x: TABLE_WIDTH * 0.25, y: TABLE_HEIGHT * 0.25 };
 
 // Área jogável da mesa em coordenadas do mundo
+// Posicionada para ficar centralizada e alinhada no canvas
 const TABLE_3D = {
-  x: 100,           // Posição X no canvas
-  y: 80,            // Posição Y no canvas (topo)
-  width: 600,       // Largura da área jogável
-  height: 280,      // Altura da área jogável
+  x: 120,           // Posição X no canvas (margem esquerda)
+  y: 100,           // Posição Y no canvas (topo)
+  width: 560,       // Largura da área jogável
+  height: 220,      // Altura da área jogável (proporção mais realista)
   depth: 0          // Plano da mesa (z=0)
 };
 
-// Função de projeção 3D unificada
+// Função de projeção 3D unificada - perspectiva plana
 function project3D(worldX, worldY, worldZ) {
-  const scale = 1 - ((worldY - TABLE_3D.y) / TABLE_HEIGHT) * PERSPECTIVE.depth;
+  // Escala muito sutil baseada na profundidade Y relativa à mesa
+  const normalizedY = (worldY - TABLE_3D.y) / TABLE_3D.height;
+  const scale = 1 - normalizedY * PERSPECTIVE.depth;
+
+  // Projeção com mínima convergência - mantém linhas quase paralelas
   const dx = worldX - PERSPECTIVE.vanishingPointX;
-  const projX = PERSPECTIVE.vanishingPointX + dx * scale;
-  const dy = worldY - PERSPECTIVE.vanishingPointY;
-  const projY = PERSPECTIVE.vanishingPointY + dy * scale - worldZ * scale;
+  const convergence = (1 - scale) * 0.2;  // Fator de convergência reduzido
+  const projX = worldX - dx * convergence;
+  const projY = worldY - worldZ * scale;
+
   return { x: projX, y: projY, scale };
 }
 
@@ -675,44 +682,74 @@ function checkBallCollisions() {
 function makeCPUMove() {
   if (gameOver) return;
 
+  // Garantir que a bola branca esteja disponível
+  if (!cueBall || cueBall.potted) {
+    if (cueBall) {
+      cueBall.potted = false;
+      cueBall.x = TABLE_3D.x + 100;
+      cueBall.y = TABLE_3D.y + TABLE_3D.height / 2;
+      cueBall.vx = 0;
+      cueBall.vy = 0;
+    }
+  }
+
   gameState = 'shooting';
   currentPlayer = 'cpu';
 
-  // Encontrar a melhor jogada
-  const targetBall = findBestTarget();
+  // Pequeno delay para simular "pensamento" da IA
+  setTimeout(() => {
+    if (gameOver) return;
 
-  if (targetBall) {
-    // Calcular ângulo para o buraco mais próximo
-    const pocket = findBestPocket(targetBall);
-    const aimPoint = calculateAimPoint(targetBall, pocket);
+    // Encontrar a melhor jogada
+    const targetBall = findBestTarget();
 
-    // Calcular ângulo e força
-    const dx = aimPoint.x - cueBall.x;
-    const dy = aimPoint.y - cueBall.y;
-    const angle = Math.atan2(dy, dx);
+    if (targetBall) {
+      // Calcular ângulo para o buraco mais próximo
+      const pocket = findBestPocket(targetBall);
+      const aimPoint = calculateAimPoint(targetBall, pocket);
 
-    // Força baseada na distância (com variação aleatória para não ser perfeito)
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const basePower = Math.min(MAX_POWER * 0.8, dist / 30);
-    const powerVariation = (Math.random() - 0.5) * 2;
-    const finalPower = Math.max(3, Math.min(MAX_POWER, basePower + powerVariation));
+      // Calcular ângulo e força
+      const dx = aimPoint.x - cueBall.x;
+      const dy = aimPoint.y - cueBall.y;
+      const angle = Math.atan2(dy, dx);
 
-    // Aplicar velocidade
-    cueBall.vx = Math.cos(angle) * finalPower;
-    cueBall.vy = Math.sin(angle) * finalPower;
+      // Força baseada na distância (com variação aleatória para não ser perfeito)
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const basePower = Math.min(MAX_POWER * 0.8, dist / 30);
+      const powerVariation = (Math.random() - 0.5) * 3;
+      const finalPower = Math.max(4, Math.min(MAX_POWER * 0.9, basePower + powerVariation));
 
-    playSound('shoot');
-  } else {
-    // Não encontrou jogada - taca aleatoriamente
-    const angle = Math.random() * Math.PI * 2;
-    const power = 5 + Math.random() * 5;
-    cueBall.vx = Math.cos(angle) * power;
-    cueBall.vy = Math.sin(angle) * power;
-    playSound('shoot');
-  }
+      // Aplicar velocidade à bola branca
+      cueBall.vx = Math.cos(angle) * finalPower;
+      cueBall.vy = Math.sin(angle) * finalPower;
 
-  ballsPottedThisTurn = [];
-  gameState = 'moving';
+      playGameSound(SOUNDS.cueHit);
+      playSound('shoot');
+    } else {
+      // Não encontrou jogada - taca aleatoriamente em direção às bolas
+      const availableBalls = balls.filter(b => !b.potted && b !== cueBall);
+      if (availableBalls.length > 0) {
+        const randomBall = availableBalls[Math.floor(Math.random() * availableBalls.length)];
+        const dx = randomBall.x - cueBall.x;
+        const dy = randomBall.y - cueBall.y;
+        const angle = Math.atan2(dy, dx);
+        const power = 6 + Math.random() * 4;
+        cueBall.vx = Math.cos(angle) * power;
+        cueBall.vy = Math.sin(angle) * power;
+      } else {
+        // Sem bolas disponíveis - tiro completamente aleatório
+        const angle = Math.random() * Math.PI * 2;
+        const power = 5 + Math.random() * 5;
+        cueBall.vx = Math.cos(angle) * power;
+        cueBall.vy = Math.sin(angle) * power;
+      }
+      playGameSound(SOUNDS.cueHit);
+      playSound('shoot');
+    }
+
+    ballsPottedThisTurn = [];
+    gameState = 'moving';
+  }, 500); // 500ms de "pensamento"
 }
 
 function findBestTarget() {
@@ -791,10 +828,20 @@ function pointToLineDistance(px, py, x1, y1, x2, y2) {
 }
 
 function findBestPocket(ball) {
-  let bestPocket = POCKETS[0];
+  // Caçapas em coordenadas do mundo 3D (mesmas usadas em checkPocket)
+  const pockets = [
+    { x: TABLE_3D.x + 25, y: TABLE_3D.y + 25 },           // topo-esquerdo
+    { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + 15 }, // topo-meio
+    { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + 25 },         // topo-direito
+    { x: TABLE_3D.x + 25, y: TABLE_3D.y + TABLE_3D.height - 25 },        // baixo-esquerdo
+    { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + TABLE_3D.height - 15 }, // baixo-meio
+    { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + TABLE_3D.height - 25 }        // baixo-direito
+  ];
+
+  let bestPocket = pockets[0];
   let minDist = Infinity;
 
-  for (const pocket of POCKETS) {
+  for (const pocket of pockets) {
     const dx = pocket.x - ball.x;
     const dy = pocket.y - ball.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -895,8 +942,8 @@ function endTurn() {
   ballsPottedThisTurn = [];
 
   if (currentPlayer === 'cpu') {
-    gameState = 'shooting';
-    setTimeout(makeCPUMove, 1000);
+    // A IA será chamada e gerenciará seu próprio estado
+    setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
   }
@@ -905,8 +952,8 @@ function endTurn() {
 function handleFoul(reason) {
   // Penalidade por faul
   cueBall.potted = false;
-  cueBall.x = 150;
-  cueBall.y = TABLE_HEIGHT / 2;
+  cueBall.x = TABLE_3D.x + 100;
+  cueBall.y = TABLE_3D.y + TABLE_3D.height / 2;
   cueBall.vx = 0;
   cueBall.vy = 0;
 
@@ -915,8 +962,8 @@ function handleFoul(reason) {
   ballsPottedThisTurn = [];
 
   if (currentPlayer === 'cpu') {
-    gameState = 'shooting';
-    setTimeout(makeCPUMove, 1000);
+    // A IA será chamada e gerenciará seu próprio estado
+    setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
   }
@@ -1320,9 +1367,20 @@ function handleEnd(evt) {
   if (!aimStart || gameState !== 'aiming') return;
   evt.preventDefault();
 
+  // Recalcular power baseado na distância atual do arrasto
+  const dx = aimStart.x - aimCurrent.x;
+  const dy = aimStart.y - aimCurrent.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  // Calcular força baseada na distância (mesma fórmula de drawAimLine3D)
+  power = Math.min(dist / 10, MAX_POWER);
+
+  // Atualizar medidor de força
+  const powerPercent = (power / MAX_POWER) * 100;
+  powerFill.style.width = `${powerPercent}%`;
+  powerFill.style.background = powerPercent > 70 ? '#ef4444' : powerPercent > 40 ? '#fbbf24' : '#22c55e';
+
   if (power > 1) {
-    const dx = aimStart.x - aimCurrent.x;
-    const dy = aimStart.y - aimCurrent.y;
     const angle = Math.atan2(dy, dx);
 
     // Aplicar velocidade à bola branca
