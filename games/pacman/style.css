@@ -1,15 +1,15 @@
 /* ===== NEON ARCADE RETRO - PAC-MAN ===== */
-/* Fundo preto absoluto, scanlines CRT, glows neon */
+/* Tema exclusivo - Design unico, nao copiar para outros jogos */
 
 @import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
 
+/* ===== RESET & BASE ===== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ===== BODY - ARCADE BLACK ===== */
 body {
   font-family: 'VT323', monospace;
   background: #000000;
@@ -17,14 +17,17 @@ body {
     linear-gradient(rgba(33, 33, 222, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(33, 33, 222, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
-  height: 100dvh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
   color: #00ffff;
-  user-select: none;
-  touch-action: none;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
   position: relative;
+  margin: 0;
+  padding: 0;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* ===== SCANLINES CRT ===== */
@@ -62,7 +65,7 @@ body::after {
   100% { transform: translateY(4px); }
 }
 
-/* ===== ARCADE GLOW ANIMATION ===== */
+/* ===== ARCADE GLOW ===== */
 @keyframes arcadeGlow {
   0%, 100% {
     box-shadow:
@@ -89,11 +92,6 @@ body::after {
   97% { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
 /* ===== TOP BAR - ARCADE STYLE ===== */
 .topbar {
   display: flex;
@@ -105,8 +103,6 @@ body::after {
   box-shadow:
     0 0 10px #2121de,
     0 4px 20px rgba(33, 33, 222, 0.3);
-  gap: 0.5rem;
-  flex-shrink: 0;
   position: relative;
   z-index: 100;
 }
@@ -116,100 +112,96 @@ body::after {
   text-decoration: none;
   font-family: 'Press Start 2P', cursive;
   font-size: 0.6rem;
-  background: transparent;
-  border: 2px solid #00ffff;
   padding: 0.5rem 0.8rem;
+  border: 2px solid #00ffff;
   border-radius: 4px;
+  background: rgba(0, 255, 255, 0.1);
+  text-shadow: 0 0 10px #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
   transition: all 0.2s;
-  text-shadow: 0 0 5px #00ffff;
-  box-shadow:
-    0 0 5px #00ffff,
-    inset 0 0 5px rgba(0, 255, 255, 0.2);
-  white-space: nowrap;
 }
 
 .btn-back:hover {
-  background: rgba(0, 255, 255, 0.15);
-  box-shadow:
-    0 0 15px #00ffff,
-    inset 0 0 10px rgba(0, 255, 255, 0.3);
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 .game-title {
   font-family: 'Press Start 2P', cursive;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #ffff00;
   text-shadow:
-    0 0 5px #ffff00,
     0 0 10px #ffff00,
-    0 0 20px rgba(255, 255, 0, 0.5);
-  animation: neonFlicker 4s infinite;
-  white-space: nowrap;
-  letter-spacing: 1px;
+    0 0 20px #ffff00,
+    0 0 40px rgba(255, 255, 0, 0.5);
+  animation: neonFlicker 3s infinite;
+  letter-spacing: 2px;
 }
 
 .stats {
   display: flex;
   gap: 1rem;
   font-family: 'VT323', monospace;
-  font-size: 1.1rem;
-  color: #fff;
-  white-space: nowrap;
+  font-size: 1.2rem;
 }
 
 .stats span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   color: #00ffff;
-  text-shadow: 0 0 5px #00ffff;
 }
 
 .stats span span {
   color: #fff;
   text-shadow: 0 0 5px #fff;
+  min-width: 30px;
+  text-align: center;
 }
 
 /* ===== GAME CONTAINER ===== */
 .game-container {
+  position: relative;
+  z-index: 2;
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  justify-content: flex-start;
   padding: 1rem;
-  min-height: 0;
-  overflow: visible;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
+/* ===== CANVAS ===== */
 #game-canvas {
-  border-radius: 8px;
   border: 4px solid #2121de;
+  border-radius: 8px;
   background: #000000;
-  width: 100%;
-  height: 100%;
-  max-width: 600px;
-  max-height: 600px;
-  min-width: 280px;
-  min-height: 280px;
+  width: 420px;
+  height: 420px;
+  max-width: 100%;
+  max-height: calc(100vh - 250px);
   animation: arcadeGlow 3s ease-in-out infinite;
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+  display: block;
 }
 
 /* ===== MODAL OVERLAY ===== */
 .modal-overlay {
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
+  position: fixed !important;
+  inset: 0 !important;
   background: rgba(0, 0, 0, 0.9) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 8px !important;
   z-index: 2000 !important;
   backdrop-filter: blur(10px) !important;
-  pointer-events: auto !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
@@ -229,133 +221,88 @@ body::after {
   border-radius: 8px;
   box-shadow:
     0 0 20px rgba(0, 255, 255, 0.3),
-    0 0 40px rgba(255, 0, 255, 0.2),
-    inset 0 0 20px rgba(0, 255, 255, 0.05);
+    0 0 40px rgba(255, 0, 255, 0.2);
+  max-width: 90vw;
+  width: 400px;
   animation: popIn 0.3s ease;
-  position: relative;
-}
-
-.modal::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
-  border-radius: 8px;
-  z-index: -1;
-  opacity: 0.5;
-  filter: blur(10px);
 }
 
 @keyframes popIn {
-  from {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .modal-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 0 10px #ffff00);
-  animation: pulse 2s ease-in-out infinite;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: #ffff00;
+  text-shadow: 0 0 20px #ffff00;
 }
 
 .modal h2 {
   font-family: 'Press Start 2P', cursive;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: #ffff00;
-  text-shadow:
-    0 0 5px #ffff00,
-    0 0 10px #ffff00,
-    0 0 20px rgba(255, 255, 0, 0.5);
   margin-bottom: 1rem;
-  animation: neonFlicker 3s infinite;
+  text-shadow: 0 0 15px #ffff00;
 }
 
 .modal p {
   font-family: 'VT323', monospace;
-  font-size: 1.2rem;
-  color: #00ffff;
-  text-shadow: 0 0 5px #00ffff;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 0.5rem;
 }
 
 .overlay-score {
-  font-family: 'Press Start 2P', cursive;
-  font-size: 1rem;
-  color: #ff00ff;
-  text-shadow:
-    0 0 5px #ff00ff,
-    0 0 10px #ff00ff;
-  margin: 1rem 0;
+  font-size: 1.3rem !important;
+  color: #fff !important;
+  text-shadow: 0 0 10px #fff;
+  margin: 1rem 0 !important;
 }
 
-/* ===== BUTTONS - ARCADE STYLE ===== */
+/* ===== BUTTONS ===== */
 .btn {
   padding: 0.8rem 2rem;
-  border: 3px solid;
-  border-radius: 4px;
+  border: none;
+  border-radius: 999px;
   font-family: 'Press Start 2P', cursive;
   font-size: 0.7rem;
   cursor: pointer;
   transition: all 0.2s;
   margin: 0.5rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.btn:active {
-  transform: scale(0.95);
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #2121de 0%, #1515a0 100%);
-  color: #fff;
-  border-color: #00ffff;
-  text-shadow: 0 0 5px #fff;
-  box-shadow:
-    0 0 10px #00ffff,
-    inset 0 0 10px rgba(0, 255, 255, 0.2);
+  background: linear-gradient(135deg, #00ffff, #0088ff);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg, #2a2af0 0%, #1a1ac0 100%);
-  box-shadow:
-    0 0 20px #00ffff,
-    0 0 40px rgba(0, 255, 255, 0.3),
-    inset 0 0 15px rgba(0, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
 }
 
 .btn-whatsapp {
-  background: linear-gradient(180deg, #25d366 0%, #128c7e 100%);
+  background: #25d366;
   color: #fff;
-  border-color: #00ff00;
-  text-shadow: 0 0 5px #fff;
-  box-shadow:
-    0 0 10px #00ff00,
-    inset 0 0 10px rgba(0, 255, 0, 0.2);
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
 }
 
 .btn-whatsapp:hover {
-  box-shadow:
-    0 0 20px #00ff00,
-    0 0 40px rgba(0, 255, 0, 0.3),
-    inset 0 0 15px rgba(0, 255, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(37, 211, 102, 0.6);
 }
 
-/* ===== MOBILE CONTROLS - ARCADE STYLE ===== */
+/* ===== MOBILE CONTROLS ===== */
 .mobile-controls {
   display: none;
   flex-direction: column;
   align-items: center;
-  padding: 0.5rem 0 1rem;
+  padding: 0.5rem;
   gap: 0.3rem;
-  flex-shrink: 0;
-  position: relative;
   z-index: 100;
 }
 
@@ -365,83 +312,65 @@ body::after {
 }
 
 .ctrl-btn {
-  width: 64px;
-  height: 64px;
-  border: 3px solid;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #00ffff;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #2a2a4a 0%, #1a1a2e 100%);
+  background: rgba(0, 255, 255, 0.1);
   color: #00ffff;
   font-size: 1.5rem;
-  font-weight: bold;
   cursor: pointer;
   transition: all 0.15s;
-  border-color: #00ffff;
-  text-shadow: 0 0 5px #00ffff;
-  box-shadow:
-    0 0 10px #00ffff,
-    inset 0 0 10px rgba(0, 255, 255, 0.2),
-    0 4px 0 #1515a0;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
   -webkit-tap-highlight-color: transparent;
 }
 
+.ctrl-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+}
+
 .ctrl-btn:active {
-  background: radial-gradient(circle at 30% 30%, #3a3a6a 0%, #2a2a4e 100%);
-  box-shadow:
-    0 0 20px #00ffff,
-    0 0 40px rgba(0, 255, 255, 0.4),
-    inset 0 0 15px rgba(0, 255, 255, 0.3);
-  transform: translateY(2px);
+  background: rgba(0, 255, 255, 0.4);
+  transform: scale(0.95);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
 }
 
 /* ===== GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;
   margin: 1rem auto;
-  padding: 1.2rem;
-  background: rgba(0, 0, 0, 0.6);
-  border: 2px solid #2121de;
-  border-radius: 8px;
-  color: #00ffff;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #2121de;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.9);
   font-family: 'VT323', monospace;
   font-size: 1.1rem;
   line-height: 1.6;
-  box-shadow:
-    0 0 10px rgba(33, 33, 222, 0.3),
-    inset 0 0 20px rgba(0, 255, 255, 0.05);
+  z-index: 2;
 }
 
 .game-info h2 {
   font-family: 'Press Start 2P', cursive;
   font-size: 0.9rem;
   color: #ffff00;
-  text-shadow: 0 0 5px #ffff00;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
 }
 
 .game-info h3 {
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.7rem;
-  color: #ff00ff;
-  text-shadow: 0 0 5px #ff00ff;
-  margin: 1rem 0 0.5rem;
-}
-
-.game-info p {
-  color: rgba(0, 255, 255, 0.9);
-  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #00ffff;
+  margin: 1.2rem 0 0.5rem;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
 }
 
 .game-info ul {
   padding-left: 1.5rem;
-  color: rgba(0, 255, 255, 0.8);
 }
 
 .game-info li {
-  margin-bottom: 0.3rem;
-}
-
-.game-info li::marker {
-  color: #ffff00;
+  margin-bottom: 0.5rem;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -450,13 +379,17 @@ body::after {
     display: flex;
   }
 
+  #game-canvas {
+    width: 340px;
+    height: 340px;
+  }
+
   .game-title {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
   }
 
   .stats {
-    font-size: 0.95rem;
-    gap: 0.6rem;
+    font-size: 1rem;
   }
 
   .btn-back {
@@ -466,92 +399,65 @@ body::after {
 
   .modal {
     padding: 1.5rem;
-    margin: 1rem;
+    width: 90%;
   }
 
   .modal h2 {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
 
-  .modal p {
-    font-size: 1rem;
-  }
-
-  .btn {
-    font-size: 0.6rem;
-    padding: 0.7rem 1.5rem;
-  }
-
-  .game-info {
-    margin: 0.5rem;
-    padding: 1rem;
-    font-size: 1rem;
-  }
-
-  .game-info h2 {
-    font-size: 0.75rem;
-  }
-
-  .game-info h3 {
-    font-size: 0.6rem;
+  .game-container {
+    padding: 0.5rem;
   }
 }
 
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 600px) and (orientation: landscape) {
+  #game-canvas {
+    width: 280px;
+    height: 280px;
+  }
+
   .mobile-controls {
-    display: flex;
     flex-direction: row;
-    padding: 0.3rem;
-    gap: 0.8rem;
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .ctrl-row {
-    gap: 0.3rem;
+    flex-direction: column;
   }
 
   .ctrl-btn {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     font-size: 1.2rem;
   }
 
   .topbar {
-    padding: 0.3rem 0.6rem;
+    padding: 0.3rem 0.5rem;
   }
 
   .game-title {
-    display: none;
-  }
-
-  .stats {
-    font-size: 0.9rem;
+    font-size: 0.6rem;
   }
 }
 
 @media (max-width: 380px) {
+  #game-canvas {
+    width: 300px;
+    height: 300px;
+  }
+
   .ctrl-btn {
-    width: 56px;
-    height: 56px;
+    width: 50px;
+    height: 50px;
     font-size: 1.3rem;
   }
 
   .stats {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     gap: 0.5rem;
-  }
-}
-
-/* ===== TABLET ===== */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .game-title {
-    font-size: 0.75rem;
-  }
-
-  .stats {
-    font-size: 1.2rem;
-  }
-
-  .game-info {
-    margin: 1.5rem;
   }
 }
