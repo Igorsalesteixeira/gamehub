@@ -1381,6 +1381,10 @@ function handleEnd(evt) {
 
   console.log('[DEBUG] Jogador iniciando tacada - ballsPottedThisTurn antes:', ballsPottedThisTurn.length);
 
+  // LIMPAR ARRAY NO INÍCIO - antes de qualquer verificação
+  ballsPottedThisTurn = [];
+  console.log('[DEBUG] ballsPottedThisTurn limpo no início da jogada');
+
   // Recalcular power baseado na distância atual do arrasto
   const dx = aimStart.x - aimCurrent.x;
   const dy = aimStart.y - aimCurrent.y;
@@ -1413,9 +1417,6 @@ function handleEnd(evt) {
     playGameSound(SOUNDS.cueHit);
     playSound('shoot');
 
-    // Limpar array de bolas encaçapadas e iniciar movimento
-    ballsPottedThisTurn = [];
-    console.log('[DEBUG] Tacada iniciada - ballsPottedThisTurn limpo');
     gameState = 'moving';
   }
 
