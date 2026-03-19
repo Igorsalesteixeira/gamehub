@@ -559,47 +559,8 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Touch swipe
+// Touch swipe - será inicializado em init()
 const SWIPE_THRESHOLD = 30;
-canvas.addEventListener('touchstart', e => {
-  canvas.dataset.touchStartX = e.touches[0].clientX;
-  canvas.dataset.touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-canvas.addEventListener('touchmove', e => {
-  if (gameLoop.isRunning()) e.preventDefault();
-}, { passive: false });
-
-canvas.addEventListener('touchend', e => {
-  if (!gameLoop.isRunning()) return;
-  const startX = parseFloat(canvas.dataset.touchStartX);
-  const startY = parseFloat(canvas.dataset.touchStartY);
-  if (isNaN(startX) || isNaN(startY)) return;
-  const dx = e.changedTouches[0].clientX - startX;
-  const dy = e.changedTouches[0].clientY - startY;
-  if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
-
-  const swipeMap = {
-    'up': { x: 0, y: -1 },
-    'down': { x: 0, y: 1 },
-    'left': { x: -1, y: 0 },
-    'right': { x: 1, y: 0 }
-  };
-
-  let dir;
-  if (Math.abs(dx) > Math.abs(dy)) {
-    dir = dx > 0 ? 'right' : 'left';
-  } else {
-    dir = dy > 0 ? 'down' : 'up';
-  }
-
-  const newDir = swipeMap[dir];
-  const currentDir = directionalInput.getDirection();
-  // Previne movimento na direção oposta
-  if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
-  if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
-  directionalInput.setDirection(newDir);
-}, { passive: true });
 
 // Mobile buttons - mapeamento de direções
 const directionMap = {
@@ -645,6 +606,66 @@ function init() {
   console.log('[Snake] Inicializando...');
   initDOM();
   console.log('[Snake] btnStart:', btnStart);
+
+  // Inicializa touch events no canvas
+  if (canvas) {
+    canvas.addEventListener('touchstart', e => {
+      canvas.dataset.touchStartX = e.touches[0].clientX;
+      canvas.dataset.touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchmove', e => {
+      if (gameLoop.isRunning()) e.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', e => {
+      if (!gameLoop.isRunning()) return;
+      const startX = parseFloat(canvas.dataset.touchStartX);
+      const startY = parseFloat(canvas.dataset.touchStartY);
+      if (isNaN(startX) || isNaN(startY)) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
+
+      const swipeMap = {
+        'up': { x: 0, y: -1 },
+        'down': { x: 0, y: 1 },
+        'left': { x: -1, y: 0 },
+        'right': { x: 1, y: 0 }
+      };
+
+      let dir;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        dir = dx > 0 ? 'right' : 'left';
+      } else {
+        dir = dy > 0 ? 'down' : 'up';
+      }
+
+      const newDir = swipeMap[dir];
+      const currentDir = directionalInput.getDirection();
+      // Previne movimento na direção oposta
+      if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+      if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+      directionalInput.setDirection(newDir);
+    }, { passive: true });
+  }
+
+  // Inicializa controles mobile
+  document.querySelectorAll('.ctrl-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!gameLoop.isRunning()) return;
+      const dir = btn.dataset.dir;
+      const newDir = directionMap[dir];
+      if (newDir) {
+        const currentDir = directionalInput.getDirection();
+        // Previne movimento na direção oposta
+        if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+        if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+        directionalInput.setDirection(newDir);
+      }
+    });
+  });
 
   if (bestDisplay) bestDisplay.textContent = getBestScore();
 
