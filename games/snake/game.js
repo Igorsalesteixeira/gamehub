@@ -431,8 +431,8 @@ async function saveGameStat() {
     await supabase.from('game_stats').insert({
       user_id: session.user.id,
       game: 'snake',
-      result: 'loss', // snake always ends in loss
-      moves: score,
+      result: 'end',
+      moves: 0,
       time_seconds: 0,
       score: score,
     });

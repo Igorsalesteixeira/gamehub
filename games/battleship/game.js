@@ -1064,6 +1064,7 @@ async function saveStats(result) {
       user_id: user.id,
       game: 'battleship',
       result,
+      moves: 0,
       time_seconds: seconds,
     });
   } catch (e) {

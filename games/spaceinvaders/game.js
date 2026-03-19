@@ -436,7 +436,8 @@ async function gameOver() {
         user_id: user.id,
         game: 'spaceinvaders',
         result: 'end',
-        moves: score,
+        moves: 0,
+        time_seconds: 0,
         score: score,
       });
     }

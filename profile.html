@@ -681,7 +681,8 @@
 
     // ===== COMPUTED STATS =====
     const total  = stats.length;
-    const wins   = stats.filter(s => s.result === 'win').length;
+    const wins   = stats.filter(s => s.result === 'win' || s.result === 'end').length;
+    const finished = stats.filter(s => s.result === 'end').length;
     const winRate = total > 0 ? Math.round(wins / total * 100) : 0;
     const totalTime = stats.reduce((a, s) => a + (s.time_seconds || 0), 0);
     const uniqueGames = new Set(stats.map(s => s.game)).size;
@@ -859,7 +860,7 @@
             const best = gs.filter(s => s.result === 'win' && s.time_seconds > 0).sort((a,b) => a.time_seconds - b.time_seconds)[0];
             bestLabel = best ? `⏱ ${formatTime(best.time_seconds)}` : '';
           } else if (gameInfo.ranked === 'score') {
-            const best = Math.max(...gs.map(s => s.score || 0));
+            const best = Math.max(...gs.map(s => s.score || s.moves || 0));
             bestLabel = best > 0 ? `🎯 ${best.toLocaleString('pt-BR')}` : '';
           }
           const winsText = gameInfo.ranked !== 'wins'
@@ -881,6 +882,12 @@
     // ===== RENDER ACTIVITY =====
     const activityWrap = document.getElementById('activity-wrap');
     const recent = stats.slice(0, 20);
+    const resultLabels = {
+      'win': { text: '✅ Vitória', class: 'win' },
+      'loss': { text: '❌ Derrota', class: 'loss' },
+      'draw': { text: '🤝 Empate', class: 'draw' },
+      'end': { text: '🎮 Finalizado', class: 'end' }
+    };
     if (!recent.length) {
       activityWrap.innerHTML = `<div class="activity-wrap"><div class="loading">Nenhuma atividade ainda.</div></div>`;
     } else {
@@ -888,14 +895,14 @@
       for (const s of recent) {
         const g = GAMES[s.game];
         const icon = g?.icon || '🎮', label = g?.label || s.game;
-        const isWin = s.result === 'win';
+        const resultInfo = resultLabels[s.result] || { text: '❌ Derrota', class: 'loss' };
         let meta = formatDate(s.created_at);
         if (g?.ranked === 'time' && s.time_seconds > 0) meta = `⏱ ${formatTime(s.time_seconds)} · ${meta}`;
         else if (g?.ranked === 'score' && s.score > 0)  meta = `🎯 ${s.score.toLocaleString('pt-BR')} · ${meta}`;
         html += `<div class="activity-row">
           <span class="activity-icon">${icon}</span>
           <span class="activity-game">${label}</span>
-          <span class="activity-result ${isWin ? 'win' : 'loss'}">${isWin ? '✅ Vitória' : '❌ Derrota'}</span>
+          <span class="activity-result ${resultInfo.class}">${resultInfo.text}</span>
           <span class="activity-meta">${meta}</span>
         </div>`;
       }

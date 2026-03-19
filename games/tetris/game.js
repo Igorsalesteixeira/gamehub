@@ -317,7 +317,7 @@ async function saveGameStat() {
     if (!session) return;
     await supabase.from('game_stats').insert({
       user_id: session.user.id, game: 'tetris',
-      result: 'end', moves: score, time_seconds: 0,
+      result: 'end', moves: 0, time_seconds: 0,
       score: score,
     });
   } catch (e) { console.warn('Erro ao salvar stats:', e); }

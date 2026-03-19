@@ -931,7 +931,7 @@ async function saveStats(result) {
       game: 'uno',
       result,
       moves: moveCount,
-      time_seconds: null
+      time_seconds: 0
     });
   } catch (e) { /* ignore */ }
 }

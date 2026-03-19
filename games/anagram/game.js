@@ -314,7 +314,8 @@ async function saveGameStat(result, timeSec) {
       game: 'anagram',
       result,
       moves: score,
-      time_seconds: timeSec
+      time_seconds: timeSec,
+      score: score
     });
   } catch (e) { console.error(e); }
 }

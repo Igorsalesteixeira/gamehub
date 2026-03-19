@@ -632,7 +632,7 @@
       for (const r of data) {
         if (!stats[r.user_id]) stats[r.user_id] = { name: 'Jogador', total: 0, wins: 0, games: new Set(), hasName: false };
         stats[r.user_id].total++;
-        if (r.result === 'win') stats[r.user_id].wins++;
+        if (r.result === 'win' || r.result === 'end') stats[r.user_id].wins++;
         if (r.game) stats[r.user_id].games.add(r.game);
       }
       // Step 2: fetch display names for all users (to compute hasName trophy)

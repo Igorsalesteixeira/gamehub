@@ -432,7 +432,7 @@ async function saveStats(result) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase.from('game_stats').insert({ user_id: user.id, game: 'truco', result, moves: null, time_seconds: null });
+    await supabase.from('game_stats').insert({ user_id: user.id, game: 'truco', result, moves: 0, time_seconds: 0 });
   } catch (e) { }
 }
 

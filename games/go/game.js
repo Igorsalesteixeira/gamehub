@@ -509,7 +509,9 @@ async function endGame() {
         game: 'go',
         result: blackTotal > whiteTotal ? 'win' : 'loss',
         moves: 0,
-        time_seconds: 0
+        time_seconds: 0,
+        room_id: null,
+        is_multiplayer: false
       });
     }
   }
