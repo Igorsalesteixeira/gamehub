@@ -176,6 +176,7 @@ body::after {
   position: relative;
   padding: 1rem;
   min-height: 0;
+  overflow: visible;
 }
 
 #game-canvas {
@@ -193,14 +194,18 @@ body::after {
 /* ===== MODAL OVERLAY ===== */
 .modal-overlay {
   position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85) !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   z-index: 2000;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
 }
 
 .modal-overlay.hidden {
