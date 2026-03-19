@@ -548,7 +548,7 @@ function handleMobileControl(action) {
 // Game Loop
 // ============================================
 const gameLoop = new GameLoop({
-  onUpdate: (dt) => {
+  update: (dt) => {
     if (state.gameOver || state.paused) return;
 
     // Controle de queda automatica
@@ -558,7 +558,7 @@ const gameLoop = new GameLoop({
       softDrop();
     }
   },
-  onRender: () => {
+  render: () => {
     draw();
   }
 });
