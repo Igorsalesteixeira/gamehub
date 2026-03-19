@@ -851,8 +851,11 @@ function update() {
 
   // Verificar fim do turno
   if (gameState === 'moving' && !anyMoving) {
-    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length, 'foul:', foulCommitted, 'turnInProgress:', turnInProgress);
+    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length, 'foul:', foulCommitted, 'turnInProgress:', turnInProgress, 'gameState:', gameState);
     endTurn(foulCommitted);
+  } else if (gameState === 'moving') {
+    // Log para verificar se está checando corretamente
+    console.log('[DEBUG] Ainda movendo... gameState:', gameState, 'anyMoving:', anyMoving);
   }
 
   // Verificar fim do jogo
