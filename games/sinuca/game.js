@@ -313,25 +313,54 @@ const POCKETS = [
   { x: TABLE_WIDTH - 20, y: TABLE_HEIGHT - 20 }  // baixo-direito
 ];
 
-// ===== Configuração 3D =====
+// ===== Configuração 3D Unificada =====
 const PERSPECTIVE = {
   enabled: true,
   vanishingPointX: TABLE_WIDTH / 2,
-  vanishingPointY: TABLE_HEIGHT / 3,
-  depth: 0.3, // intensidade da perspectiva
-  lightX: TABLE_WIDTH * 0.3, // posição da luz (canto superior esquerdo)
-  lightY: TABLE_HEIGHT * 0.2
+  vanishingPointY: TABLE_HEIGHT * 0.25,
+  depth: 0.25  // Intensidade da perspectiva
 };
 
-// Luz dinâmica seguindo o mouse
-let dynamicLight = { x: PERSPECTIVE.lightX, y: PERSPECTIVE.lightY };
+// Luz fixa (sem seguir mouse)
+const dynamicLight = { x: TABLE_WIDTH * 0.25, y: TABLE_HEIGHT * 0.25 };
 
-// Função para projetar coordenadas 3D para 2D
-function project3D(x, y, z) {
-  const scale = 1 - (z * PERSPECTIVE.depth / TABLE_HEIGHT);
-  const projX = (x - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
-  const projY = (y - PERSPECTIVE.vanishingPointY) * scale + PERSPECTIVE.vanishingPointY;
+// Área jogável da mesa em coordenadas do mundo
+const TABLE_3D = {
+  x: 100,           // Posição X no canvas
+  y: 80,            // Posição Y no canvas (topo)
+  width: 600,       // Largura da área jogável
+  height: 280,      // Altura da área jogável
+  depth: 0          // Plano da mesa (z=0)
+};
+
+// Função de projeção 3D unificada
+function project3D(worldX, worldY, worldZ) {
+  const scale = 1 - ((worldY - TABLE_3D.y) / TABLE_HEIGHT) * PERSPECTIVE.depth;
+  const dx = worldX - PERSPECTIVE.vanishingPointX;
+  const projX = PERSPECTIVE.vanishingPointX + dx * scale;
+  const dy = worldY - PERSPECTIVE.vanishingPointY;
+  const projY = PERSPECTIVE.vanishingPointY + dy * scale - worldZ * scale;
   return { x: projX, y: projY, scale };
+}
+
+// Função inversa: converte coordenadas de tela para mundo 3D
+function screenToWorld(screenX, screenY) {
+  // Resolve iterativamente: encontra worldX/worldY que projetam para screenX/screenY
+  let worldX = screenX;
+  let worldY = screenY;
+
+  for (let i = 0; i < 10; i++) {
+    const proj = project3D(worldX, worldY, 0);
+    const errorX = screenX - proj.x;
+    const errorY = screenY - proj.y;
+
+    if (Math.abs(errorX) < 1 && Math.abs(errorY) < 1) break;
+
+    worldX += errorX / proj.scale;
+    worldY += errorY / proj.scale;
+  }
+
+  return { x: worldX, y: worldY };
 }
 
 // Funções auxiliares de cor
@@ -396,26 +425,33 @@ class Ball {
     if (Math.abs(this.vx) < MIN_VELOCITY) this.vx = 0;
     if (Math.abs(this.vy) < MIN_VELOCITY) this.vy = 0;
 
-    // Colisão com paredes
-    const margin = 30;
+    // Colisão com paredes (usando limites da mesa 3D)
+    const margin = 25; // Margem interna para as bordas emborrachadas
     let hitWall = false;
-    if (this.x - this.radius < margin) {
-      this.x = margin + this.radius;
+
+    // Limites da mesa em coordenadas do mundo
+    const tableLeft = TABLE_3D.x + margin;
+    const tableRight = TABLE_3D.x + TABLE_3D.width - margin;
+    const tableTop = TABLE_3D.y + margin;
+    const tableBottom = TABLE_3D.y + TABLE_3D.height - margin;
+
+    if (this.x - this.radius < tableLeft) {
+      this.x = tableLeft + this.radius;
       this.vx *= -WALL_BOUNCE;
       hitWall = true;
     }
-    if (this.x + this.radius > TABLE_WIDTH - margin) {
-      this.x = TABLE_WIDTH - margin - this.radius;
+    if (this.x + this.radius > tableRight) {
+      this.x = tableRight - this.radius;
       this.vx *= -WALL_BOUNCE;
       hitWall = true;
     }
-    if (this.y - this.radius < margin) {
-      this.y = margin + this.radius;
+    if (this.y - this.radius < tableTop) {
+      this.y = tableTop + this.radius;
       this.vy *= -WALL_BOUNCE;
       hitWall = true;
     }
-    if (this.y + this.radius > TABLE_HEIGHT - margin) {
-      this.y = TABLE_HEIGHT - margin - this.radius;
+    if (this.y + this.radius > tableBottom) {
+      this.y = tableBottom - this.radius;
       this.vy *= -WALL_BOUNCE;
       hitWall = true;
     }
@@ -429,46 +465,33 @@ class Ball {
   }
 
   checkPocket() {
-    // Calcular posições das cacapas em perspectiva 3D (mesma lógica do drawPockets3D)
-    const tableDepth = 60;
-    const marginX = 50;
-    const marginY = 70;
-
-    const topY = marginY;
-    const topWidth = TABLE_WIDTH - marginX * 2 - tableDepth;
-    const topLeftX = marginX + tableDepth / 2;
-    const topRightX = marginX + tableDepth / 2 + topWidth;
-
-    const bottomY = TABLE_HEIGHT - marginY;
-    const bottomLeftX = marginX;
-    const bottomRightX = marginX + (TABLE_WIDTH - marginX * 2);
-
-    // Posições projetadas das cacapas (coordenadas de tela)
-    const pocketPositions = [
-      { x: topLeftX + 25, y: topY + 25, radius: 14 },      // topo-esquerdo
-      { x: (topLeftX + topRightX) / 2, y: topY + 20, radius: 11 }, // topo-meio
-      { x: topRightX - 25, y: topY + 25, radius: 14 },     // topo-direito
-      { x: bottomLeftX + 30, y: bottomY - 25, radius: 18 }, // baixo-esquerdo
-      { x: (bottomLeftX + bottomRightX) / 2, y: bottomY - 20, radius: 14 }, // baixo-meio
-      { x: bottomRightX - 30, y: bottomY - 25, radius: 18 } // baixo-direito
+    // Posições das caçapas em coordenadas do mundo (mesma lógica do drawPockets3D)
+    const pocketRadius = 18;
+    const pockets = [
+      { x: TABLE_3D.x + 25, y: TABLE_3D.y + 25 },           // topo-esquerdo
+      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + 15 }, // topo-meio
+      { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + 25 },         // topo-direito
+      { x: TABLE_3D.x + 25, y: TABLE_3D.y + TABLE_3D.height - 25 },        // baixo-esquerdo
+      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + TABLE_3D.height - 15 }, // baixo-meio
+      { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + TABLE_3D.height - 25 }        // baixo-direito
     ];
 
-    // Projetar posição da bola para coordenadas de tela
-    const projectedBall = project3D(this.x, this.y, 0);
-
-    for (const pocket of pocketPositions) {
-      const dx = projectedBall.x - pocket.x;
-      const dy = projectedBall.y - pocket.y;
+    for (const pocket of pockets) {
+      const dx = this.x - pocket.x;
+      const dy = this.y - pocket.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      // Usar raio da cacapa ajustado pela escala da perspectiva na posição da bola
-      if (dist < pocket.radius * projectedBall.scale) {
+      // Usar raio da cacapa para detecção
+      if (dist < pocketRadius) {
         this.potted = true;
         this.vx = 0;
         this.vy = 0;
         playSound('pop');
-        // Adicionar animação de cair na cacapa (usando coordenadas projetadas)
-        pocketingBalls.push(new PocketingAnimation(this, pocket.x, pocket.y, projectedBall.scale));
+
+        // Projetar posição da cacapa para animação
+        const pocketProj = project3D(pocket.x, pocket.y, 0);
+        pocketingBalls.push(new PocketingAnimation(this, pocketProj.x, pocketProj.y, pocketProj.scale));
+
         // Som de encaçapar
         playGameSound(SOUNDS.pocket);
         return true;
@@ -484,23 +507,7 @@ class Ball {
     const projected = project3D(this.x, this.y, 0);
     const radius = this.radius * projected.scale;
 
-    // Desenhar sombra projetada no feltro (abaixo e à direita da bola)
-    const shadowOffsetX = (this.x - dynamicLight.x) * 0.12 * projected.scale;
-    const shadowOffsetY = (this.y - dynamicLight.y) * 0.12 * projected.scale + radius * 0.3;
-    const shadowX = projected.x + shadowOffsetX;
-    const shadowY = projected.y + shadowOffsetY;
-
-    // Sombra suave
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(shadowX, shadowY, radius * 1.3, radius * 0.7, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-    ctx.filter = 'blur(3px)';
-    ctx.fill();
-    ctx.restore();
-
-    // Desenhar bola como esfera 3D
-    // Gradiente da bola (base)
+    // Desenhar bola como esfera 3D (sem sombra dinâmica)
     const gradient = ctx.createRadialGradient(
       projected.x - radius * 0.35, projected.y - radius * 0.35, 0,
       projected.x, projected.y, radius
@@ -514,7 +521,7 @@ class Ball {
     ctx.fillStyle = gradient;
     ctx.fill();
 
-    // Brilho especular (luz refletida)
+    // Brilho especular
     ctx.beginPath();
     ctx.ellipse(
       projected.x - radius * 0.4,
@@ -569,13 +576,13 @@ function init() {
 
   updateScoreDisplay();
 
-  // Bola branca (taco)
-  cueBall = new Ball(150, TABLE_HEIGHT / 2, BALL_COLORS.white, 'white', 0);
+  // Bola branca (taco) - posição inicial na área 3D
+  cueBall = new Ball(TABLE_3D.x + 100, TABLE_3D.y + TABLE_3D.height / 2, BALL_COLORS.white, 'white', 0);
   balls.push(cueBall);
 
-  // Triângulo de bolas vermelhas (15 bolas)
-  const startX = TABLE_WIDTH - 200;
-  const startY = TABLE_HEIGHT / 2;
+  // Triângulo de bolas vermelhas (15 bolas) - posicionadas na área 3D
+  const startX = TABLE_3D.x + TABLE_3D.width - 150;
+  const startY = TABLE_3D.y + TABLE_3D.height / 2;
   let row = 0;
   let col = 0;
   let count = 0;
@@ -593,14 +600,14 @@ function init() {
     }
   }
 
-  // Bolas coloridas (posições específicas)
+  // Bolas coloridas (posições específicas dentro da área 3D)
   const colorBalls = [
-    { x: TABLE_WIDTH - 150, y: 80, color: BALL_COLORS.yellow, points: 2, num: 2 },
-    { x: TABLE_WIDTH - 100, y: TABLE_HEIGHT - 80, color: BALL_COLORS.green, points: 3, num: 3 },
-    { x: TABLE_WIDTH - 250, y: 60, color: BALL_COLORS.brown, points: 4, num: 4 },
-    { x: TABLE_WIDTH / 2, y: TABLE_HEIGHT / 2, color: BALL_COLORS.blue, points: 5, num: 5 },
-    { x: TABLE_WIDTH - 300, y: TABLE_HEIGHT - 60, color: BALL_COLORS.pink, points: 6, num: 6 },
-    { x: TABLE_WIDTH - 350, y: TABLE_HEIGHT / 2, color: BALL_COLORS.black, points: 7, num: 7 }
+    { x: TABLE_3D.x + TABLE_3D.width - 100, y: TABLE_3D.y + 50, color: BALL_COLORS.yellow, points: 2, num: 2 },
+    { x: TABLE_3D.x + TABLE_3D.width - 80, y: TABLE_3D.y + TABLE_3D.height - 50, color: BALL_COLORS.green, points: 3, num: 3 },
+    { x: TABLE_3D.x + TABLE_3D.width - 200, y: TABLE_3D.y + 40, color: BALL_COLORS.brown, points: 4, num: 4 },
+    { x: TABLE_3D.x + TABLE_3D.width / 2 + 50, y: TABLE_3D.y + TABLE_3D.height / 2, color: BALL_COLORS.blue, points: 5, num: 5 },
+    { x: TABLE_3D.x + TABLE_3D.width - 250, y: TABLE_3D.y + TABLE_3D.height - 40, color: BALL_COLORS.pink, points: 6, num: 6 },
+    { x: TABLE_3D.x + TABLE_3D.width - 300, y: TABLE_3D.y + TABLE_3D.height / 2, color: BALL_COLORS.black, points: 7, num: 7 }
   ];
 
   for (const cb of colorBalls) {
@@ -879,8 +886,8 @@ function endTurn() {
   // Reposicionar bola branca se foi encaçapada
   if (cueBall.potted) {
     cueBall.potted = false;
-    cueBall.x = 150;
-    cueBall.y = TABLE_HEIGHT / 2;
+    cueBall.x = TABLE_3D.x + 100;
+    cueBall.y = TABLE_3D.y + TABLE_3D.height / 2;
     cueBall.vx = 0;
     cueBall.vy = 0;
   }
@@ -976,56 +983,54 @@ function updateScoreDisplay() {
 
 // ===== Renderização 3D =====
 function drawTable3D() {
-  // Limpar canvas com cor de fundo
+  // Limpar canvas
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
 
-  const tableDepth = 60; // profundidade da borda
-  const marginX = 50;
-  const marginY = 70;
+  // Cantos da mesa em coordenadas do mundo
+  const world = {
+    topY: TABLE_3D.y,
+    bottomY: TABLE_3D.y + TABLE_3D.height,
+    leftX: TABLE_3D.x,
+    rightX: TABLE_3D.x + TABLE_3D.width
+  };
 
-  // Canto superior (mais distante) - menor
-  const topY = marginY;
-  const topWidth = TABLE_WIDTH - marginX * 2 - tableDepth;
-  const topLeftX = marginX + tableDepth / 2;
-  const topRightX = marginX + tableDepth / 2 + topWidth;
+  // Projetar cantos para coordenadas de tela
+  const proj = {
+    topLeft: project3D(world.leftX, world.topY, 0),
+    topRight: project3D(world.rightX, world.topY, 0),
+    bottomLeft: project3D(world.leftX, world.bottomY, 0),
+    bottomRight: project3D(world.rightX, world.bottomY, 0)
+  };
 
-  // Canto inferior (mais próximo) - maior
-  const bottomY = TABLE_HEIGHT - marginY;
-  const bottomWidth = TABLE_WIDTH - marginX * 2;
-  const bottomLeftX = marginX;
-  const bottomRightX = marginX + bottomWidth;
+  // Desenhar base da mesa (madeira) - área maior que o feltro
+  const woodMargin = 40;
+  const woodTopLeft = project3D(world.leftX - woodMargin, world.topY - woodMargin, -20);
+  const woodTopRight = project3D(world.rightX + woodMargin, world.topY - woodMargin, -20);
+  const woodBottomLeft = project3D(world.leftX - woodMargin, world.bottomY + woodMargin, -20);
+  const woodBottomRight = project3D(world.rightX + woodMargin, world.bottomY + woodMargin, -20);
 
-  // Desenhar base da mesa (madeira escura) com perspectiva
-  const woodGradient = ctx.createLinearGradient(0, topY, 0, bottomY);
+  const woodGradient = ctx.createLinearGradient(0, woodTopLeft.y, 0, woodBottomLeft.y);
   woodGradient.addColorStop(0, '#3d2817');
   woodGradient.addColorStop(0.5, '#5a3d2a');
   woodGradient.addColorStop(1, '#2d1f14');
 
   ctx.fillStyle = woodGradient;
   ctx.beginPath();
-  ctx.moveTo(topLeftX - 15, topY - 10);
-  ctx.lineTo(topRightX + 15, topY - 10);
-  ctx.lineTo(bottomRightX + 20, bottomY + 15);
-  ctx.lineTo(bottomLeftX - 20, bottomY + 15);
+  ctx.moveTo(woodTopLeft.x, woodTopLeft.y);
+  ctx.lineTo(woodTopRight.x, woodTopRight.y);
+  ctx.lineTo(woodBottomRight.x, woodBottomRight.y);
+  ctx.lineTo(woodBottomLeft.x, woodBottomLeft.y);
   ctx.closePath();
   ctx.fill();
 
-  // Sombra da mesa
-  ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-  ctx.filter = 'blur(8px)';
-  ctx.beginPath();
-  ctx.moveTo(bottomLeftX - 15, bottomY + 20);
-  ctx.lineTo(bottomRightX + 15, bottomY + 20);
-  ctx.lineTo(bottomRightX + 25, bottomY + 35);
-  ctx.lineTo(bottomLeftX - 25, bottomY + 35);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
+  // Borda de madeira (lateral)
+  ctx.strokeStyle = '#2d1f14';
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
-  // Desenhar feltro (área jogável) em perspectiva
-  const feltGradient = ctx.createLinearGradient(0, topY, 0, bottomY);
+  // Desenhar feltro (área jogável)
+  const feltGradient = ctx.createLinearGradient(0, proj.topLeft.y, 0, proj.bottomLeft.y);
   feltGradient.addColorStop(0, '#1a4d3e');
   feltGradient.addColorStop(0.3, '#2d6a4f');
   feltGradient.addColorStop(0.7, '#245a42');
@@ -1033,169 +1038,123 @@ function drawTable3D() {
 
   ctx.fillStyle = feltGradient;
   ctx.beginPath();
-  ctx.moveTo(topLeftX + 20, topY + 15);
-  ctx.lineTo(topRightX - 20, topY + 15);
-  ctx.lineTo(bottomRightX - 25, bottomY - 15);
-  ctx.lineTo(bottomLeftX + 25, bottomY - 15);
+  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
+  ctx.lineTo(proj.topRight.x, proj.topRight.y);
+  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
+  ctx.lineTo(proj.bottomLeft.x, proj.bottomLeft.y);
   ctx.closePath();
   ctx.fill();
 
-  // Textura do feltro (linhas sutis)
-  ctx.save();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 20; i++) {
-    const y = topY + 20 + i * ((bottomY - topY - 40) / 20);
-    const scale = 1 - ((y - topY) / TABLE_HEIGHT) * 0.15;
-    const leftX = (topLeftX + 20 - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
-    const rightX = (topRightX - 20 - PERSPECTIVE.vanishingPointX) * scale + PERSPECTIVE.vanishingPointX;
-    ctx.beginPath();
-    ctx.moveTo(leftX, y);
-    ctx.lineTo(rightX, y);
-    ctx.stroke();
-  }
-  ctx.restore();
-
-  // Bordas emborrachadas (cushions) em perspectiva
+  // Bordas emborrachadas (cushions)
   const cushionColor = '#4a3728';
-  const cushionHighlight = '#6b5344';
+  const cushionWidth = 12;
 
-  // Borda superior
-  const cushionGradTop = ctx.createLinearGradient(0, topY, 0, topY + 20);
-  cushionGradTop.addColorStop(0, cushionHighlight);
-  cushionGradTop.addColorStop(1, cushionColor);
-  ctx.fillStyle = cushionGradTop;
+  // Cushion superior
+  const cTopInnerLeft = project3D(world.leftX, world.topY + cushionWidth, 5);
+  const cTopInnerRight = project3D(world.rightX, world.topY + cushionWidth, 5);
+  ctx.fillStyle = cushionColor;
   ctx.beginPath();
-  ctx.moveTo(topLeftX - 5, topY + 5);
-  ctx.lineTo(topRightX + 5, topY + 5);
-  ctx.lineTo(topRightX - 15, topY + 20);
-  ctx.lineTo(topLeftX + 15, topY + 20);
+  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
+  ctx.lineTo(proj.topRight.x, proj.topRight.y);
+  ctx.lineTo(cTopInnerRight.x, cTopInnerRight.y);
+  ctx.lineTo(cTopInnerLeft.x, cTopInnerLeft.y);
   ctx.closePath();
   ctx.fill();
 
-  // Borda inferior
-  const cushionGradBottom = ctx.createLinearGradient(0, bottomY - 25, 0, bottomY);
-  cushionGradBottom.addColorStop(0, cushionColor);
-  cushionGradBottom.addColorStop(1, darkenColor(cushionColor, 20));
-  ctx.fillStyle = cushionGradBottom;
+  // Cushion inferior
+  const cBottomInnerLeft = project3D(world.leftX, world.bottomY - cushionWidth, 5);
+  const cBottomInnerRight = project3D(world.rightX, world.bottomY - cushionWidth, 5);
   ctx.beginPath();
-  ctx.moveTo(bottomLeftX + 20, bottomY - 15);
-  ctx.lineTo(bottomRightX - 20, bottomY - 15);
-  ctx.lineTo(bottomRightX + 5, bottomY);
-  ctx.lineTo(bottomLeftX - 5, bottomY);
+  ctx.moveTo(proj.bottomLeft.x, proj.bottomLeft.y);
+  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
+  ctx.lineTo(cBottomInnerRight.x, cBottomInnerRight.y);
+  ctx.lineTo(cBottomInnerLeft.x, cBottomInnerLeft.y);
   ctx.closePath();
   ctx.fill();
 
-  // Borda esquerda
-  const cushionGradLeft = ctx.createLinearGradient(topLeftX, 0, topLeftX + 20, 0);
-  cushionGradLeft.addColorStop(0, cushionHighlight);
-  cushionGradLeft.addColorStop(1, cushionColor);
-  ctx.fillStyle = cushionGradLeft;
+  // Cushion esquerdo
+  const cLeftInnerTop = project3D(world.leftX + cushionWidth, world.topY, 5);
+  const cLeftInnerBottom = project3D(world.leftX + cushionWidth, world.bottomY, 5);
   ctx.beginPath();
-  ctx.moveTo(topLeftX + 5, topY + 5);
-  ctx.lineTo(topLeftX + 20, topY + 20);
-  ctx.lineTo(bottomLeftX + 25, bottomY - 15);
-  ctx.lineTo(bottomLeftX - 5, bottomY);
+  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
+  ctx.lineTo(proj.bottomLeft.x, proj.bottomLeft.y);
+  ctx.lineTo(cLeftInnerBottom.x, cLeftInnerBottom.y);
+  ctx.lineTo(cLeftInnerTop.x, cLeftInnerTop.y);
   ctx.closePath();
   ctx.fill();
 
-  // Borda direita
-  const cushionGradRight = ctx.createLinearGradient(topRightX - 20, 0, topRightX, 0);
-  cushionGradRight.addColorStop(0, cushionColor);
-  cushionGradRight.addColorStop(1, darkenColor(cushionHighlight, 10));
-  ctx.fillStyle = cushionGradRight;
+  // Cushion direito
+  const cRightInnerTop = project3D(world.rightX - cushionWidth, world.topY, 5);
+  const cRightInnerBottom = project3D(world.rightX - cushionWidth, world.bottomY, 5);
   ctx.beginPath();
-  ctx.moveTo(topRightX - 5, topY + 5);
-  ctx.lineTo(topRightX - 20, topY + 20);
-  ctx.lineTo(bottomRightX - 25, bottomY - 15);
-  ctx.lineTo(bottomRightX + 5, bottomY);
+  ctx.moveTo(proj.topRight.x, proj.topRight.y);
+  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
+  ctx.lineTo(cRightInnerBottom.x, cRightInnerBottom.y);
+  ctx.lineTo(cRightInnerTop.x, cRightInnerTop.y);
   ctx.closePath();
   ctx.fill();
 
-  // Linha de partida (semicírculo) em perspectiva
+  // Linha de partida (semicírculo)
+  const lineX = world.leftX + 100;
+  const lineTop = project3D(lineX, world.topY + 20, 0);
+  const lineBottom = project3D(lineX, world.bottomY - 20, 0);
+
   ctx.strokeStyle = 'rgba(255,255,255,0.25)';
   ctx.lineWidth = 2;
-  ctx.setLineDash([]);
-
-  // Calcular posição da linha de partida em perspectiva
-  const lineX = 150;
-  const lineScaleTop = 1 - ((topY + 50 - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
-  const lineScaleBottom = 1 - ((bottomY - 50 - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
-  const projLineXTop = (lineX - PERSPECTIVE.vanishingPointX) * lineScaleTop + PERSPECTIVE.vanishingPointX;
-  const projLineXBottom = (lineX - PERSPECTIVE.vanishingPointX) * lineScaleBottom + PERSPECTIVE.vanishingPointX;
-
-  // Linha vertical
   ctx.beginPath();
-  ctx.moveTo(projLineXTop, topY + 20);
-  ctx.lineTo(projLineXBottom, bottomY - 15);
+  ctx.moveTo(lineTop.x, lineTop.y);
+  ctx.lineTo(lineBottom.x, lineBottom.y);
   ctx.stroke();
 
-  // Semicírculo
-  const centerY = (topY + bottomY) / 2;
-  const centerScale = 1 - ((centerY - PERSPECTIVE.vanishingPointY) / TABLE_HEIGHT) * PERSPECTIVE.depth;
-  const projCenterX = (lineX - PERSPECTIVE.vanishingPointX) * centerScale + PERSPECTIVE.vanishingPointX;
-  const projRadius = 100 * centerScale;
-
+  // Semicírculo da cabeça
+  const centerY = (world.topY + world.bottomY) / 2;
+  const centerProj = project3D(lineX, centerY, 0);
+  const radius = 60;
   ctx.beginPath();
-  ctx.arc(projCenterX, centerY, projRadius, -Math.PI / 2, Math.PI / 2);
+  ctx.arc(centerProj.x, centerProj.y, radius * centerProj.scale, -Math.PI/2, Math.PI/2);
   ctx.stroke();
 
-  // Desenhar cacapas em perspectiva 3D
-  drawPockets3D(ctx, topY, bottomY, topLeftX, topRightX, bottomLeftX, bottomRightX);
+  // Desenhar caçapas
+  drawPockets3D(ctx, world, proj);
 }
 
-function drawPockets3D(ctx, topY, bottomY, topLeftX, topRightX, bottomLeftX, bottomRightX) {
-  const pocketColor = '#0a0a0a';
-  const pocketShadow = 'rgba(0, 0, 0, 0.6)';
+function drawPockets3D(ctx, world, proj) {
+  const pocketRadius = 18;
 
-  // Calcular posições das cacapas em perspectiva
-  const pocketPositions = [
-    // Topo esquerdo
-    { x: topLeftX + 25, y: topY + 25, rx: 14, ry: 9 },
-    // Topo meio
-    { x: (topLeftX + topRightX) / 2, y: topY + 20, rx: 11, ry: 7 },
-    // Topo direito
-    { x: topRightX - 25, y: topY + 25, rx: 14, ry: 9 },
-    // Baixo esquerdo
-    { x: bottomLeftX + 30, y: bottomY - 25, rx: 18, ry: 14 },
-    // Baixo meio
-    { x: (bottomLeftX + bottomRightX) / 2, y: bottomY - 20, rx: 14, ry: 11 },
-    // Baixo direito
-    { x: bottomRightX - 30, y: bottomY - 25, rx: 18, ry: 14 }
+  // Posições das caçapas em coordenadas do mundo
+  const pockets = [
+    { x: world.leftX + 25, y: world.topY + 25 },           // topo-esquerdo
+    { x: (world.leftX + world.rightX) / 2, y: world.topY + 15 }, // topo-meio
+    { x: world.rightX - 25, y: world.topY + 25 },         // topo-direito
+    { x: world.leftX + 25, y: world.bottomY - 25 },        // baixo-esquerdo
+    { x: (world.leftX + world.rightX) / 2, y: world.bottomY - 15 }, // baixo-meio
+    { x: world.rightX - 25, y: world.bottomY - 25 }        // baixo-direito
   ];
 
-  // Sombra das cacapas
-  ctx.save();
-  ctx.fillStyle = pocketShadow;
-  ctx.filter = 'blur(2px)';
-  for (const pocket of pocketPositions) {
+  // Desenhar caçapas
+  ctx.fillStyle = '#0a0a0a';
+  for (const pocket of pockets) {
+    const p = project3D(pocket.x, pocket.y, 0);
+    const rx = pocketRadius * p.scale;
+    const ry = pocketRadius * p.scale * 0.7; // Elipse por causa da perspectiva
+
     ctx.beginPath();
-    ctx.ellipse(pocket.x + 2, pocket.y + 2, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
+    ctx.ellipse(p.x, p.y, rx, ry, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    // Sombra interna
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(p.x + 2, p.y + 2, rx * 0.8, ry * 0.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#0a0a0a';
   }
-  ctx.restore();
 
-  // Cacapas
-  for (const pocket of pocketPositions) {
-    // Interior escuro
-    ctx.beginPath();
-    ctx.ellipse(pocket.x, pocket.y, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
-    ctx.fillStyle = pocketColor;
-    ctx.fill();
-
-    // Borda da cacapa
-    ctx.beginPath();
-    ctx.ellipse(pocket.x, pocket.y, pocket.rx, pocket.ry, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Brilho interno
-    ctx.beginPath();
-    ctx.ellipse(pocket.x - 3, pocket.y - 2, pocket.rx * 0.4, pocket.ry * 0.4, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.fill();
-  }
+  // Retornar posições projetadas para uso na detecção de colisão
+  return pockets.map((pocket, i) => {
+    const p = project3D(pocket.x, pocket.y, 0);
+    return { x: p.x, y: p.y, radius: pocketRadius * p.scale, scale: p.scale };
+  });
 }
 
 function draw() {
@@ -1232,24 +1191,80 @@ function drawAimLine3D() {
   // Projetar posição da bola branca
   const cueBallProj = project3D(cueBall.x, cueBall.y, 0);
 
-  // Linha de mira
-  const lineLength = 100 + power * 20;
-  const endX = cueBallProj.x + Math.cos(angle) * lineLength;
-  const endY = cueBallProj.y + Math.sin(angle) * lineLength;
+  // Desenhar taco 3D
+  const cueLength = 120 + power * 5; // Comprimento do taco aumenta com a força
+  const cueWidth = 4 * cueBallProj.scale; // Largura proporcional à escala 3D
+
+  // Posição do taco (oposta à direção da mira)
+  const cueDistance = 30 * cueBallProj.scale; // Distância da bola
+  const cueStartX = cueBallProj.x - Math.cos(angle) * cueDistance;
+  const cueStartY = cueBallProj.y - Math.sin(angle) * cueDistance;
+
+  // Ponta do taco (próxima à bola)
+  const tipX = cueStartX + Math.cos(angle) * cueLength;
+  const tipY = cueStartY + Math.sin(angle) * cueLength;
+
+  // Desenhar sombra do taco
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.beginPath();
+  const shadowOffset = 3 * cueBallProj.scale;
+  ctx.ellipse(cueStartX + shadowOffset, cueStartY + shadowOffset + 10 * cueBallProj.scale, cueLength * 0.5, cueWidth * 0.5, angle, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Corpo do taco (gradiente de madeira)
+  const cueGradient = ctx.createLinearGradient(
+    cueStartX - Math.sin(angle) * cueWidth,
+    cueStartY + Math.cos(angle) * cueWidth,
+    cueStartX + Math.sin(angle) * cueWidth,
+    cueStartY - Math.cos(angle) * cueWidth
+  );
+  cueGradient.addColorStop(0, '#d4a574'); // Madeiro claro
+  cueGradient.addColorStop(0.5, '#8b6239'); // Madeiro médio
+  cueGradient.addColorStop(1, '#5c3d1e'); // Madeiro escuro
+
+  // Desenhar taco como um retângulo arredondado
+  ctx.save();
+  ctx.translate(cueStartX, cueStartY);
+  ctx.rotate(angle);
+
+  // Corpo do taco
+  ctx.fillStyle = cueGradient;
+  ctx.beginPath();
+  ctx.roundRect(0, -cueWidth / 2, cueLength, cueWidth, cueWidth / 2);
+  ctx.fill();
+
+  // Ponta do taco (couro)
+  ctx.fillStyle = '#2a1810';
+  ctx.beginPath();
+  ctx.roundRect(cueLength - 8 * cueBallProj.scale, -cueWidth / 2, 8 * cueBallProj.scale, cueWidth, cueWidth / 4);
+  ctx.fill();
+
+  // Detalhe dourado na parte de trás
+  ctx.fillStyle = '#d4af37';
+  ctx.fillRect(5 * cueBallProj.scale, -cueWidth / 2, 15 * cueBallProj.scale, cueWidth);
+
+  ctx.restore();
+
+  // Linha de mira (subtle)
+  const lineLength = 60;
+  const lineEndX = cueBallProj.x + Math.cos(angle) * lineLength;
+  const lineEndY = cueBallProj.y + Math.sin(angle) * lineLength;
 
   ctx.beginPath();
   ctx.moveTo(cueBallProj.x, cueBallProj.y);
-  ctx.lineTo(endX, endY);
-  ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 + power / MAX_POWER * 0.6})`;
-  ctx.lineWidth = 2;
-  ctx.setLineDash([8, 4]);
+  ctx.lineTo(lineEndX, lineEndY);
+  ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 + power / MAX_POWER * 0.3})`;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 5]);
   ctx.stroke();
   ctx.setLineDash([]);
 
   // Círculo de força no final da linha
   ctx.beginPath();
-  ctx.arc(endX, endY, 5 + power / 3, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + power / MAX_POWER * 0.4})`;
+  ctx.arc(lineEndX, lineEndY, 3 + power / 4, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + power / MAX_POWER * 0.4})`;
   ctx.fill();
 
   // Atualizar barra de força
@@ -1278,21 +1293,27 @@ function handleStart(evt) {
   evt.preventDefault();
 
   const pos = getMousePos(evt);
-  const dx = pos.x - cueBall.x;
-  const dy = pos.y - cueBall.y;
+
+  // Projetar posição da bola branca para coordenadas de tela
+  const cueBallProj = project3D(cueBall.x, cueBall.y, 0);
+
+  const dx = pos.x - cueBallProj.x;
+  const dy = pos.y - cueBallProj.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
 
-  // Só inicia mira se clicar perto da bola branca
-  if (dist < BALL_RADIUS * 4) {
+  // Só inicia mira se clicar perto da bola branca (na tela)
+  if (dist < BALL_RADIUS * 4 * cueBallProj.scale) {
     aimStart = { x: cueBall.x, y: cueBall.y };
-    aimCurrent = pos;
+    // Converter posição do mouse para coordenadas do mundo
+    aimCurrent = screenToWorld(pos.x, pos.y);
   }
 }
 
 function handleMove(evt) {
   if (!aimStart || gameState !== 'aiming') return;
   evt.preventDefault();
-  aimCurrent = getMousePos(evt);
+  const pos = getMousePos(evt);
+  aimCurrent = screenToWorld(pos.x, pos.y);
 }
 
 function handleEnd(evt) {
@@ -1326,20 +1347,10 @@ function handleEnd(evt) {
 canvas.addEventListener('mousedown', handleStart);
 canvas.addEventListener('mousemove', handleMove);
 canvas.addEventListener('mouseup', handleEnd);
-canvas.addEventListener('mouseleave', handleEnd);
 
 canvas.addEventListener('touchstart', handleStart, { passive: false });
 canvas.addEventListener('touchmove', handleMove, { passive: false });
 canvas.addEventListener('touchend', handleEnd, { passive: false });
-
-// Luz dinâmica seguindo o mouse
-canvas.addEventListener('mousemove', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  dynamicLight.x = (e.clientX - rect.left) * scaleX;
-  dynamicLight.y = (e.clientY - rect.top) * scaleY;
-});
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
