@@ -251,6 +251,7 @@ function spawnFood() {
 }
 
 function tick() {
+  console.log('[Snake] tick() chamado, direção:', directionalInput.getDirection());
   directionalInput.applyDirection();
   const direction = directionalInput.getDirection();
 
@@ -296,10 +297,14 @@ function startGame() {
   const btnShare = document.getElementById('btn-share');
   if (btnShare) btnShare.style.display = 'none';
 
+  // Reseta o acumulador do game loop
+  tickAccumulator = 0;
+
   stats.reset();
   stats.startTimer();
   gameLoop.start();
-  console.log('[Snake] Jogo iniciado!');
+  console.log('[Snake] Jogo iniciado! isRunning:', gameLoop.isRunning());
+  console.log('[Snake] Direção inicial:', directionalInput.getDirection());
 }
 
 function togglePause() {
