@@ -620,6 +620,10 @@ function makeCPUMove() {
     }
   }
 
+  // Limpar array de bolas encaçapadas no início da jogada
+  ballsPottedThisTurn = [];
+  console.log('[DEBUG] CPU iniciando jogada - ballsPottedThisTurn limpo');
+
   gameState = 'shooting';
   currentPlayer = 'cpu';
   console.log('[DEBUG] CPU iniciando jogada - gameState: shooting');
@@ -680,7 +684,7 @@ function makeCPUMove() {
       playSound('shoot');
     }
 
-    ballsPottedThisTurn = [];
+    // NÃO limpar ballsPottedThisTurn aqui! A limpeza já foi feita no início
     gameState = 'moving';
     console.log('[DEBUG] CPU finalizou jogada - gameState: moving, velocidade:',
       Math.sqrt(cueBall.vx * cueBall.vx + cueBall.vy * cueBall.vy).toFixed(2));
@@ -820,14 +824,14 @@ function update() {
 
   // Processar bolas encaçapadas
   const pottedBalls = balls.filter(b => b.potted && !ballsPottedThisTurn.includes(b));
+  let foulCommitted = false;
   if (pottedBalls.length > 0) {
     for (const ball of pottedBalls) {
       ballsPottedThisTurn.push(ball);
 
       if (ball.type === 'white') {
         // Faul - bola branca encaçapada
-        handleFoul('white');
-        return;
+        foulCommitted = true;
       } else {
         // Pontuação com animação
         const isPlayer = currentPlayer === 'player';
@@ -847,15 +851,15 @@ function update() {
 
   // Verificar fim do turno
   if (gameState === 'moving' && !anyMoving) {
-    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length);
-    endTurn();
+    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
+    endTurn(foulCommitted);
   }
 
   // Verificar fim do jogo
   checkGameEnd();
 }
 
-function endTurn() {
+function endTurn(foulCommitted = false) {
   // Guarda para evitar chamadas múltiplas enquanto processa o fim do turno
   if (gameState !== 'moving') {
     console.log('[DEBUG] endTurn ignorada - gameState não é moving:', gameState);
@@ -869,19 +873,24 @@ function endTurn() {
   }
   turnInProgress = true;
 
-  console.log('[DEBUG] endTurn iniciada - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length);
+  console.log('[DEBUG] endTurn iniciada - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
 
   const pottedCount = ballsPottedThisTurn.filter(b => b.type !== 'white').length;
   console.log('[DEBUG] Bolas encaçapadas neste turno (exceto branca):', pottedCount);
 
-  if (pottedCount === 0) {
+  // Se cometeu falta (bola branca encaçapada), sempre alterna
+  // Se não encaçapou nada, alterna
+  // Se encaçapou bolas válidas, continua
+  if (foulCommitted) {
+    currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
+    console.log('[DEBUG] Falta! Jogador alternado para:', currentPlayer);
+  } else if (pottedCount === 0) {
     // Não encaçapou nada - troca de jogador
     currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
-    console.log('[DEBUG] Jogador alternado para:', currentPlayer);
+    console.log('[DEBUG] Não encaçapou - Jogador alternado para:', currentPlayer);
   } else {
     console.log('[DEBUG] Jogador continua (encaçapou', pottedCount, 'bola(s)):', currentPlayer);
   }
-  // Se encaçapou, continua jogando
 
   // Reposicionar bola branca se foi encaçapada
   if (cueBall.potted) {
@@ -911,28 +920,15 @@ function endTurn() {
 function handleFoul(reason) {
   console.log('[DEBUG] handleFoul chamada - reason:', reason, 'currentPlayer:', currentPlayer);
 
-  // Penalidade por faul
+  // Penalidade por faul - reposicionar bola branca
   cueBall.potted = false;
   cueBall.x = TABLE_3D.x + 100;
   cueBall.y = TABLE_3D.y + TABLE_3D.height / 2;
   cueBall.vx = 0;
   cueBall.vy = 0;
 
-  // Troca de jogador
-  currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
-  ballsPottedThisTurn = [];
-
-  console.log('[DEBUG] Após foul - novo currentPlayer:', currentPlayer);
-
-  if (currentPlayer === 'cpu') {
-    // Mudar estado imediatamente para evitar chamadas repetidas de endTurn/update
-    gameState = 'cpu_turn';
-    console.log('[DEBUG] Agendando jogada do CPU após foul em 800ms');
-    setTimeout(makeCPUMove, 800);
-  } else {
-    gameState = 'aiming';
-    console.log('[DEBUG] Turno do jogador após foul - gameState: aiming');
-  }
+  // A troca de jogador agora é feita em endTurn
+  console.log('[DEBUG] Bola branca reposicionada por falta');
 }
 
 function checkGameEnd() {
@@ -1381,7 +1377,7 @@ function handleMove(evt) {
 
 function handleEnd(evt) {
   if (!aimStart || gameState !== 'aiming') return;
-  evt.preventDefault();
+  if (evt) evt.preventDefault();
 
   // Recalcular power baseado na distância atual do arrasto
   const dx = aimStart.x - aimCurrent.x;
@@ -1415,7 +1411,9 @@ function handleEnd(evt) {
     playGameSound(SOUNDS.cueHit);
     playSound('shoot');
 
+    // Limpar array de bolas encaçapadas e iniciar movimento
     ballsPottedThisTurn = [];
+    console.log('[DEBUG] Tacada iniciada - ballsPottedThisTurn limpo');
     gameState = 'moving';
   }
 
