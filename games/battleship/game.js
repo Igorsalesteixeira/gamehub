@@ -1,10 +1,13 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+import { supabase } from '../../supabase.js';
+
 // =============================================
 //  Batalha Naval — Games Hub
 //  Single Player + Multiplayer Online
 // =============================================
-import { supabase } from '../../supabase.js';
 
 const ROWS = 10;
 const COLS = 10;
@@ -49,6 +52,14 @@ const mpControls      = document.getElementById('mp-controls');
 const mpStatus        = document.getElementById('mp-status');
 const btnCopyLink     = document.getElementById('btn-copy-link');
 
+// ===== SHARED MODULES =====
+const gameStats = new GameStats('battleship', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time) => {
+    timerDisplay.textContent = gameTimer.getFormatted('MM:SS');
+  }
+});
+
 // ===== STATE =====
 let playerBoard, cpuBoard;
 let playerShips, cpuShips;
@@ -56,8 +67,6 @@ let orientation = 'H';
 let currentShipIdx = 0;
 let phase = 'menu'; // menu | placement | battle | ended
 let playerTurn = true;
-let timerInterval = null;
-let seconds = 0;
 let isProcessing = false;
 
 // CPU AI state (single player)
@@ -75,9 +84,8 @@ let mpGameState = null;
 
 // ===== INIT =====
 function init() {
-  stopTimer();
-  seconds = 0;
-  updateTimer();
+  gameTimer.stop().reset();
+  timerDisplay.textContent = '00:00';
   phase = IS_MULTIPLAYER ? 'placement' : 'menu';
   orientation = 'H';
   currentShipIdx = 0;
@@ -300,7 +308,7 @@ function restoreGameState(room) {
 
     renderPlayerShips();
     phase = 'battle';
-    startTimer();
+    gameTimer.start();
     updateMultiplayerTurn(room.current_turn);
     renderShipStatus();
     updateCounters();
@@ -512,7 +520,7 @@ async function startMultiplayerBattle() {
   phase = 'battle';
   updateMultiplayerTurn(room.current_turn);
   renderShipStatus();
-  startTimer();
+  gameTimer.start();
 }
 
 function renderPlayerShips() {
@@ -779,20 +787,7 @@ function startBattle() {
   turnIndicator.classList.remove('enemy-turn');
 
   renderShipStatus();
-  startTimer();
-}
-
-// ===== TIMER =====
-function startTimer() {
-  seconds = 0;
-  updateTimer();
-  timerInterval = setInterval(() => { seconds++; updateTimer(); }, 1000);
-}
-function stopTimer() { clearInterval(timerInterval); }
-function updateTimer() {
-  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const s = String(seconds % 60).padStart(2, '0');
-  timerDisplay.textContent = `${m}:${s}`;
+  gameTimer.start();
 }
 
 // ===== SHIP STATUS =====
@@ -1026,13 +1021,13 @@ function checkWin() {
 
   if (playerLost || cpuLost) {
     phase = 'ended';
-    stopTimer();
+    gameTimer.stop();
 
     const won = cpuLost;
     showEndGameModal(won);
 
     if (!IS_MULTIPLAYER) {
-      saveStats(won ? 'win' : 'loss');
+      gameStats.recordGame(won, { time: gameTimer.getTime() });
     }
     return true;
   }
@@ -1052,23 +1047,6 @@ function showEndGameModal(won) {
   if (won) {
     launchConfetti();
     playSound('win');
-  }
-}
-
-// ===== STATS =====
-async function saveStats(result) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id,
-      game: 'battleship',
-      result,
-      moves: 0,
-      time_seconds: seconds,
-    });
-  } catch (e) {
-    console.warn('Stats save failed:', e);
   }
 }
 
@@ -1092,6 +1070,8 @@ window.addEventListener('beforeunload', () => {
   if (mpSubscription) {
     mpSubscription.unsubscribe();
   }
+  gameStats.destroy();
+  gameTimer.destroy();
 });
 
 // ===== START =====

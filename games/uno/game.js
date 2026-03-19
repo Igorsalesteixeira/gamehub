@@ -1,6 +1,11 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+
+// === GameStats ===
+const gameStats = new GameStats('uno', { autoSync: true });
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -460,6 +465,8 @@ function cpuTurnActual() {
       }
     }
     advancePlayer();
+    calledUno = false;
+    isProcessing = false;
     render();
     if (currentPlayer !== 0) {
       setTimeout(() => cpuTurn(), 800);
@@ -917,23 +924,10 @@ function endGame(winner) {
   btnDraw.disabled = true;
   btnNew.style.display = '';
 
+  // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
-    saveStats(won ? 'win' : 'loss');
+    gameStats.recordGame(won, { score: moveCount });
   }
-}
-
-async function saveStats(result) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id,
-      game: 'uno',
-      result,
-      moves: moveCount,
-      time_seconds: 0
-    });
-  } catch (e) { /* ignore */ }
 }
 
 // === START GAME ===

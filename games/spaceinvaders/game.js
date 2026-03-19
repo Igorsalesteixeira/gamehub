@@ -1,7 +1,10 @@
 import '../../auth-check.js?v=4';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js?v=4';
+import { GameStats } from '../shared/game-core.js?v=4';
+import { GameLoop } from '../shared/game-loop.js?v=4';
+import { InputManager } from '../shared/input-manager.js?v=4';
 // =============================================
-//  Space Invaders — Games Hub
+//  Space Invaders — Games Hub (Refatorado)
 // =============================================
 import { supabase } from '../../supabase.js?v=2';
 
@@ -47,12 +50,10 @@ let playerX = BASE_W / 2;
 const playerY = BASE_H - 30;
 const playerSpeed = 4;
 
-// Input
-const keys = {};
+// Input (mobile)
 let mobileLeft = false;
 let mobileRight = false;
 let mobileShoot = false;
-let lastMobileShot = 0;
 
 // Bullets
 let playerBullets = [];
@@ -81,8 +82,10 @@ let alienShootInterval = 90; // frames
 // Explosions
 let explosions = [];
 
+// ===== STATS =====
+const gameStats = new GameStats('spaceinvaders', { autoSync: true });
+
 // ===== ALIEN PIXEL ART PATTERNS =====
-// Each pattern is a grid of 0/1 (7 wide x 5 tall)
 const ALIEN_PATTERNS = [
   // Type 0 — top rows (30 pts) — squid
   [
@@ -136,7 +139,7 @@ function initAliens() {
         alive: true,
         type: getAlienType(r),
       });
-    });
+    }
   }
 }
 
@@ -160,7 +163,9 @@ function startGame() {
   initAliens();
   updateHUD();
   state = 'playing';
+  paused = false;
   overlay.classList.add('hidden');
+  gameLoop.start();
 }
 
 function nextWave() {
@@ -246,7 +251,6 @@ function drawExplosions() {
 }
 
 function drawStars() {
-  // Simple static stars based on canvas size
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
   const seed = 12345;
   for (let i = 0; i < 60; i++) {
@@ -258,19 +262,20 @@ function drawStars() {
 }
 
 // ===== UPDATE =====
-function update() {
+function update(dt) {
   if (state !== 'playing' || paused) return;
 
   // Player movement
   let dx = 0;
-  if (keys['ArrowLeft'] || keys['a'] || mobileLeft) dx -= playerSpeed;
-  if (keys['ArrowRight'] || keys['d'] || mobileRight) dx += playerSpeed;
+  const keys = inputManager._keys;
+  if (keys.get('ArrowLeft') || keys.get('a') || keys.get('A') || mobileLeft) dx -= playerSpeed;
+  if (keys.get('ArrowRight') || keys.get('d') || keys.get('D') || mobileRight) dx += playerSpeed;
   playerX += dx;
   playerX = Math.max(PLAYER_W / 2 + 4, Math.min(BASE_W - PLAYER_W / 2 - 4, playerX));
 
   // Player shoot
   const now = performance.now();
-  if ((keys[' '] || keys['ArrowUp'] || mobileShoot) && now - lastShotTime > PLAYER_SHOOT_CD) {
+  if ((keys.get(' ') || keys.get('ArrowUp') || mobileShoot) && now - lastShotTime > PLAYER_SHOOT_CD) {
     lastShotTime = now;
     playerBullets.push({ x: playerX, y: playerY - PLAYER_H / 2 - 8 });
     playSound('shoot');
@@ -314,7 +319,6 @@ function update() {
   alienShootTimer++;
   if (alienShootTimer >= alienShootInterval) {
     alienShootTimer = 0;
-    // Find bottom-most alive alien in each column
     const bottomAliens = [];
     for (let c = 0; c < ALIEN_COLS; c++) {
       let bottom = null;
@@ -361,7 +365,6 @@ function update() {
         playSound('explosion');
         updateHUD();
 
-        // Speed up as fewer aliens remain
         const aliveCount = aliens.filter(al => al.alive).length;
         if (aliveCount > 0) {
           const ratio = 1 - (aliveCount / (ALIEN_ROWS * ALIEN_COLS));
@@ -420,6 +423,7 @@ function update() {
 
 async function gameOver() {
   state = 'gameover';
+  gameLoop.pause();
   overlayIcon.innerHTML = '&#128128;';
   overlayTitle.textContent = 'Fim de Jogo';
   overlayMsg.textContent = `Onda ${wave} alcancada`;
@@ -428,7 +432,10 @@ async function gameOver() {
   overlay.classList.remove('hidden');
   playSound('gameover');
 
-  // Save stats to Supabase
+  // Save stats
+  gameStats.recordGame(false, { score });
+
+  // Save to Supabase
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -500,24 +507,26 @@ function render() {
 }
 
 // ===== GAME LOOP =====
-function gameLoop() {
-  update();
-  render();
-  requestAnimationFrame(gameLoop);
-}
-
-// ===== INPUT: KEYBOARD =====
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-    if (state === 'playing') { paused = !paused; e.preventDefault(); return; }
-  }
-  keys[e.key] = true;
-  if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    e.preventDefault();
-  }
+const gameLoop = new GameLoop({
+  update,
+  render,
+  fps: 60
 });
-document.addEventListener('keyup', (e) => {
-  keys[e.key] = false;
+
+// ===== INPUT MANAGER =====
+const inputManager = new InputManager({
+  keyboardTarget: document,
+  preventDefault: true
+});
+
+// Pause toggle
+inputManager.on('keyDown', (key) => {
+  if ((key === 'p' || key === 'P' || key === 'Escape') && state === 'playing') {
+    paused = !paused;
+  }
+  if (state !== 'playing' && (key === ' ' || key === 'Enter')) {
+    startGame();
+  }
 });
 
 // ===== INPUT: MOBILE BUTTONS =====
@@ -551,13 +560,5 @@ btnStart.addEventListener('click', () => {
   startGame();
 });
 
-// Allow spacebar/Enter to start
-document.addEventListener('keydown', (e) => {
-  if (state !== 'playing' && (e.key === ' ' || e.key === 'Enter')) {
-    e.preventDefault();
-    startGame();
-  }
-});
-
 // ===== INIT =====
-gameLoop();
+render();

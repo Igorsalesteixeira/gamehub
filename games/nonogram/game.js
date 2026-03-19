@@ -1,6 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -8,10 +10,7 @@ function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 let gridSize = 5;
 let solution = [];
 let playerGrid = [];
-let timerSeconds = 0;
-let timerInterval = null;
 let gameOver = false;
-let startTime = null;
 let longPressTimer = null;
 
 // ===== DOM =====
@@ -21,6 +20,14 @@ const modalEl = document.getElementById('modal');
 const modalMsg = document.getElementById('modal-msg');
 const modalStats = document.getElementById('modal-stats');
 const diffBtns = document.querySelectorAll('.diff-btn');
+
+// GameStats e GameTimer
+const gameStats = new GameStats('nonogram', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    timerEl.textContent = formatted;
+  }
+});
 
 // ===== CLUE GENERATION =====
 function getClues(line) {
@@ -163,7 +170,7 @@ function render() {
 }
 
 function toggleFill(r, c) {
-  if (!startTime) startTimer();
+  if (!gameTimer.isRunning() && !gameTimer.getTime()) gameTimer.start();
   if (playerGrid[r][c] === 1) playerGrid[r][c] = 0;
   else { playerGrid[r][c] = 1; }
   playSound('place'); // som ao marcar célula
@@ -172,27 +179,11 @@ function toggleFill(r, c) {
 }
 
 function toggleMark(r, c) {
-  if (!startTime) startTimer();
+  if (!gameTimer.isRunning() && !gameTimer.getTime()) gameTimer.start();
   if (playerGrid[r][c] === 2) playerGrid[r][c] = 0;
   else playerGrid[r][c] = 2;
   playSound('click'); // som ao marcar X
   render();
-}
-
-// ===== TIMER =====
-function startTimer() {
-  startTime = Date.now();
-  initAudio();
-  timerInterval = setInterval(() => {
-    timerSeconds = Math.floor((Date.now() - startTime) / 1000);
-    const m = Math.floor(timerSeconds / 60);
-    const s = timerSeconds % 60;
-    timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(timerInterval);
 }
 
 // ===== WIN CHECK =====
@@ -206,38 +197,25 @@ function checkWin() {
   }
   // Win!
   gameOver = true;
-  stopTimer();
+  gameTimer.stop();
   launchConfetti();
   playSound('win');
-  const m = Math.floor(timerSeconds / 60);
-  const s = timerSeconds % 60;
   modalMsg.textContent = `Voce completou o nonogram ${gridSize}x${gridSize}!`;
-  modalStats.textContent = `Tempo: ${m}:${s.toString().padStart(2, '0')}`;
+  modalStats.textContent = `Tempo: ${gameTimer.getFormatted()}`;
   modalEl.classList.remove('hidden');
   saveStats();
 }
 
 // ===== STATS =====
 async function saveStats() {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id,
-      game: 'nonogram',
-      result: 'win',
-      moves: 0,
-      time_seconds: timerSeconds
-    });
-  } catch (e) { console.log('Stats save error:', e); }
+  gameStats.recordGame(true, { time: gameTimer.getTime() });
 }
 
 // ===== INIT =====
 function newGame() {
   gameOver = false;
-  stopTimer();
-  startTime = null;
-  timerSeconds = 0;
+  gameTimer.stop();
+  gameTimer.reset();
   timerEl.textContent = '0:00';
   playerGrid = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
   generatePuzzle();

@@ -1,6 +1,10 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+
+// === GameStats ===
+const gameStats = new GameStats('truco', { autoSync: true });
 
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -424,16 +428,13 @@ function endMatch() {
   updateTurnIndicator();
   if (won) { launchConfetti(); playSound('win'); }
   else { playSound('error'); }
-  if (!isMultiplayer) saveStats(won ? 'win' : 'loss');
-  if (isMultiplayer && gameChannel) { supabase.from('truco_rooms').update({ status: 'finished' }).eq('id', roomId); }
-}
 
-async function saveStats(result) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({ user_id: user.id, game: 'truco', result, moves: 0, time_seconds: 0 });
-  } catch (e) { }
+  // Save stats using GameStats (single player only)
+  if (!isMultiplayer) {
+    gameStats.recordGame(won);
+  }
+
+  if (isMultiplayer && gameChannel) { supabase.from('truco_rooms').update({ status: 'finished' }).eq('id', roomId); }
 }
 
 btnTruco.addEventListener('click', playerCallTruco);

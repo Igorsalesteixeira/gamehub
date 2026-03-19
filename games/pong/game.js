@@ -1,6 +1,9 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-// ===== Pong =====
+import { GameStats } from '../shared/game-core.js';
+import { GameLoop } from '../shared/game-loop.js';
+import { InputManager } from '../shared/input-manager.js';
+// ===== Pong (Refatorado) =====
 import { supabase } from '../../supabase.js';
 
 const canvas = document.getElementById('game-canvas');
@@ -23,10 +26,12 @@ const DIFFICULTY_SPEEDS = { easy: 2.2, normal: 3.5, hard: 5.0 };
 // Imprecisão da IA: easy=35px, normal=12px, hard=0px
 const DIFFICULTY_ERROR  = { easy: 35, normal: 12, hard: 0 };
 
-let player, cpu, ball, playerScore, cpuScore, gameOver, animId;
-let keysDown = {};
-let ballTrail = []; // posições recentes da bola para efeito trail
-let cpuTargetError = 12; // offset de erro atual da IA
+let player, cpu, ball, playerScore, cpuScore, gameOverState;
+let ballTrail = [];
+let cpuTargetError = 12;
+
+// ===== STATS =====
+const gameStats = new GameStats('pong', { autoSync: true });
 
 function getDifficulty() {
   const sel = document.getElementById('difficulty-select');
@@ -39,13 +44,12 @@ function init() {
   cpu = { x: W - 15 - PADDLE_W, y: H / 2 - PADDLE_H / 2 };
   playerScore = 0;
   cpuScore = 0;
-  gameOver = false;
+  gameOverState = false;
   ballTrail = [];
   cpuTargetError = DIFFICULTY_ERROR[getDifficulty()] ?? 12;
   modalOverlay.classList.remove('show');
   resetBall();
-  if (animId) cancelAnimationFrame(animId);
-  loop();
+  gameLoop.start();
 }
 
 function resetBall() {
@@ -57,14 +61,15 @@ function resetBall() {
   };
 }
 
-function update() {
-  if (gameOver) return;
+function update(dt) {
+  if (gameOverState) return;
 
   // Player movement (keyboard)
-  if (keysDown['ArrowUp'] || keysDown['w'] || keysDown['W']) {
+  const keys = inputManager._keys;
+  if (keys.get('ArrowUp') || keys.get('w') || keys.get('W')) {
     player.y = Math.max(0, player.y - 5);
   }
-  if (keysDown['ArrowDown'] || keysDown['s'] || keysDown['S']) {
+  if (keys.get('ArrowDown') || keys.get('s') || keys.get('S')) {
     player.y = Math.min(H - PADDLE_H, player.y + 5);
   }
 
@@ -182,11 +187,16 @@ function draw() {
 }
 
 function endGame(winner) {
-  gameOver = true;
+  gameOverState = true;
+  gameLoop.pause();
   const result = winner === 'player' ? 'win' : 'loss';
   modalTitle.textContent = winner === 'player' ? 'Voce venceu! 🎉' : 'Computador venceu! 😔';
   modalMessage.textContent = `${playerScore} x ${cpuScore}`;
   modalOverlay.classList.add('show');
+
+  // Save stats
+  gameStats.recordGame(winner === 'player', { score: playerScore });
+
   saveGameStat(result);
   if (winner === 'player') {
     launchConfetti();
@@ -194,39 +204,50 @@ function endGame(winner) {
   }
 }
 
-function loop() {
-  update();
-  draw();
-  animId = requestAnimationFrame(loop);
-}
+// ===== GAME LOOP =====
+const gameLoop = new GameLoop({
+  update,
+  render: draw,
+  fps: 60
+});
 
-// Keyboard
-document.addEventListener('keydown', (e) => { keysDown[e.key] = true; });
-document.addEventListener('keyup', (e) => { keysDown[e.key] = false; });
+// ===== INPUT MANAGER =====
+const inputManager = new InputManager({
+  keyboardTarget: document
+});
 
 // Mobile controls
 const btnUp = document.getElementById('btn-up');
 const btnDown = document.getElementById('btn-down');
 
-let mobileInterval;
-function startMobile(dir) {
-  stopMobile();
-  mobileInterval = setInterval(() => {
-    if (dir === 'up') player.y = Math.max(0, player.y - 5);
-    else player.y = Math.min(H - PADDLE_H, player.y + 5);
-  }, 16);
+if (btnUp && btnDown) {
+  // Touch controls for mobile
+  const handleMobileMove = (dir) => {
+    if (gameOverState) return;
+    if (dir === 'up') {
+      player.y = Math.max(0, player.y - 5);
+    } else {
+      player.y = Math.min(H - PADDLE_H, player.y + 5);
+    }
+  };
+
+  let mobileInterval;
+  const startMobile = (dir) => {
+    stopMobile();
+    mobileInterval = setInterval(() => handleMobileMove(dir), 16);
+  };
+  const stopMobile = () => { clearInterval(mobileInterval); };
+
+  btnUp.addEventListener('touchstart', (e) => { e.preventDefault(); startMobile('up'); }, { passive: false });
+  btnUp.addEventListener('touchend', stopMobile);
+  btnUp.addEventListener('mousedown', () => startMobile('up'));
+  btnUp.addEventListener('mouseup', stopMobile);
+
+  btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); startMobile('down'); }, { passive: false });
+  btnDown.addEventListener('touchend', stopMobile);
+  btnDown.addEventListener('mousedown', () => startMobile('down'));
+  btnDown.addEventListener('mouseup', stopMobile);
 }
-function stopMobile() { clearInterval(mobileInterval); }
-
-btnUp.addEventListener('touchstart', (e) => { e.preventDefault(); startMobile('up'); }, { passive: false });
-btnUp.addEventListener('touchend', stopMobile);
-btnUp.addEventListener('mousedown', () => startMobile('up'));
-btnUp.addEventListener('mouseup', stopMobile);
-
-btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); startMobile('down'); }, { passive: false });
-btnDown.addEventListener('touchend', stopMobile);
-btnDown.addEventListener('mousedown', () => startMobile('down'));
-btnDown.addEventListener('mouseup', stopMobile);
 
 // Touch on canvas - move paddle to touch Y
 canvas.addEventListener('touchmove', (e) => {

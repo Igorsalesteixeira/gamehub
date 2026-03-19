@@ -1,26 +1,31 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { MultiplayerManager } from '../shared/multiplayer-manager.js';
 import { supabase } from '../../supabase.js';
 
 const SIZE = 9;
 const EMPTY = 0, BLACK = 1, WHITE = 2;
 let board, current, captures, lastBoard, consecutivePasses, lastMove;
 let isProcessing = false;
+let gameOver = false;
 
 // === Multiplayer Detection ===
 const urlParams = new URLSearchParams(window.location.search);
 const ROOM_ID = urlParams.get('room');
 const IS_MULTIPLAYER = !!ROOM_ID;
 
+// === Shared Modules ===
+const gameStats = new GameStats('go', { autoSync: true });
+let mpManager = null;
+
 // === Multiplayer State ===
 let myUserId = null;
 let myPlayerNumber = null; // 1 = Preto, 2 = Branco
 let isMyTurn = true;
-let channel = null;
 let roomData = null;
 let player1Name = 'Jogador 1';
 let player2Name = 'Jogador 2';
-let gameOver = false;
 
 const boardEl = document.getElementById('board');
 const turnEl = document.getElementById('turn');
@@ -50,95 +55,83 @@ async function initMultiplayer() {
     modeIndicator.classList.add('multiplayer-mode');
   }
 
-  // Join room
-  await joinRoom();
-}
-
-async function joinRoom() {
-  try {
-    // Get room data
-    const { data, error } = await supabase
-      .from('game_rooms')
-      .select('*')
-      .eq('id', ROOM_ID)
-      .single();
-
-    if (error || !data) {
-      alert('Sala não encontrada!');
-      window.location.href = '/multiplayer.html';
-      return;
-    }
-
-    roomData = data;
-
-    // Determine player role (Player 1 = Black, Player 2 = White)
-    myPlayerNumber = roomData.player1_id === myUserId ? 1 : 2;
-    isMyTurn = roomData.turn === myPlayerNumber;
-
-    // Get player names
-    player1Name = roomData.player1_name || 'Jogador 1';
-    player2Name = roomData.player2_name || 'Jogador 2';
-
-    // Restore game state if exists
-    if (roomData.state) {
-      const state = roomData.state;
-      if (state.board) board = state.board;
-      if (state.current) current = state.current;
-      if (state.captures) captures = state.captures;
-      if (state.lastBoard) lastBoard = state.lastBoard;
-      if (state.consecutivePasses !== undefined) consecutivePasses = state.consecutivePasses;
-      if (state.lastMove) lastMove = state.lastMove;
-      if (state.gameOver !== undefined) gameOver = state.gameOver;
-    }
-
-    // Subscribe to realtime
-    subscribeToRoom();
-
-    // Update UI
-    updateUI();
-    render();
-
-  } catch (e) {
-    console.error('Erro ao entrar na sala:', e);
-    alert('Erro ao conectar à sala.');
-  }
-}
-
-function subscribeToRoom() {
-  channel = supabase.channel(`room-${ROOM_ID}`);
-
-  channel
-    .on('broadcast', { event: 'move' }, ({ payload }) => {
-      handleRemoteMove(payload);
-    })
-    .on('broadcast', { event: 'pass' }, ({ payload }) => {
-      handleRemotePass(payload);
-    })
-    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
-      if (payload.playerNumber === 2) {
-        player2Name = payload.playerName || 'Jogador 2';
-      }
+  // Initialize multiplayer manager
+  mpManager = new MultiplayerManager('go', ROOM_ID, {
+    tableName: 'game_rooms',
+    onConnect: () => {
+      console.log('[Go] Connected to multiplayer');
       if (connectionStatus) {
         connectionStatus.textContent = 'Conectado';
         connectionStatus.classList.add('connected');
       }
-    })
-    .on('broadcast', { event: 'game_reset' }, () => {
-      resetGame(false);
-    })
-    .on('broadcast', { event: 'game_end' }, ({ payload }) => {
-      handleRemoteEndGame(payload);
-    })
-    .subscribe((status) => {
-      console.log('Multiplayer status:', status);
+    },
+    onDisconnect: () => {
+      console.log('[Go] Disconnected from multiplayer');
+      if (connectionStatus) {
+        connectionStatus.textContent = 'Desconectado';
+        connectionStatus.classList.remove('connected');
+      }
+    },
+    onError: (err) => console.error('[Go] Multiplayer error:', err)
+  });
 
-      // Notify other player
-      channel.send({
-        type: 'broadcast',
-        event: 'player_joined',
-        payload: { playerNumber: myPlayerNumber, playerName: myPlayerNumber === 1 ? player1Name : player2Name }
-      });
-    });
+  // Join room
+  const success = await mpManager.init();
+  if (!success) return;
+
+  // Determine player role (Player 1 = Black, Player 2 = White)
+  roomData = mpManager.roomData;
+  myPlayerNumber = roomData.player1_id === myUserId ? 1 : 2;
+  isMyTurn = roomData.turn === myPlayerNumber;
+
+  // Get player names
+  player1Name = roomData.player1_name || 'Jogador 1';
+  player2Name = roomData.player2_name || 'Jogador 2';
+
+  // Restore game state if exists
+  if (roomData.state) {
+    const state = roomData.state;
+    if (state.board) board = state.board;
+    if (state.current) current = state.current;
+    if (state.captures) captures = state.captures;
+    if (state.lastBoard) lastBoard = state.lastBoard;
+    if (state.consecutivePasses !== undefined) consecutivePasses = state.consecutivePasses;
+    if (state.lastMove) lastMove = state.lastMove;
+    if (state.gameOver !== undefined) gameOver = state.gameOver;
+  }
+
+  // Subscribe to events
+  subscribeToRoom();
+
+  // Update UI
+  updateUI();
+  render();
+}
+
+function subscribeToRoom() {
+  if (!mpManager) return;
+
+  mpManager.on('move', (payload) => {
+    handleRemoteMove(payload);
+  });
+
+  mpManager.on('pass', (payload) => {
+    handleRemotePass(payload);
+  });
+
+  mpManager.on('player_joined', (payload) => {
+    if (payload.playerNumber === 2) {
+      player2Name = payload.playerName || 'Jogador 2';
+    }
+  });
+
+  mpManager.on('game_reset', () => {
+    resetGame(false);
+  });
+
+  mpManager.on('game_end', (payload) => {
+    handleRemoteEndGame(payload);
+  });
 }
 
 async function handleRemoteMove(payload) {
@@ -191,59 +184,41 @@ async function handleRemoteEndGame(payload) {
 }
 
 async function sendMove(row, col, captured) {
-  if (!channel) return;
+  if (!mpManager) return;
 
   // Broadcast to other player
-  channel.send({
-    type: 'broadcast',
-    event: 'move',
-    payload: {
-      row,
-      col,
-      captured,
-      board,
-      captures,
-      lastBoard,
-      playerId: myUserId
-    }
+  await mpManager.send('move', {
+    row,
+    col,
+    captured,
+    board,
+    captures,
+    lastBoard
   });
 
   // Update room state in database
-  try {
-    const nextTurn = myPlayerNumber === 1 ? 2 : 1;
-    await supabase.from('game_rooms').update({
-      state: { board, current, captures, lastBoard, consecutivePasses, lastMove, gameOver },
-      turn: nextTurn
-    }).eq('id', ROOM_ID);
-  } catch (e) {
-    console.warn('Erro ao salvar estado:', e);
-  }
+  const nextTurn = myPlayerNumber === 1 ? 2 : 1;
+  await mpManager.updateState(
+    { board, current, captures, lastBoard, consecutivePasses, lastMove, gameOver },
+    { turn: nextTurn }
+  );
 }
 
 async function sendPass() {
-  if (!channel) return;
+  if (!mpManager) return;
 
   // Broadcast to other player
-  channel.send({
-    type: 'broadcast',
-    event: 'pass',
-    payload: {
-      consecutivePasses,
-      lastBoard,
-      playerId: myUserId
-    }
+  await mpManager.send('pass', {
+    consecutivePasses,
+    lastBoard
   });
 
   // Update room state
-  try {
-    const nextTurn = myPlayerNumber === 1 ? 2 : 1;
-    await supabase.from('game_rooms').update({
-      state: { board, current, captures, lastBoard, consecutivePasses, lastMove, gameOver },
-      turn: nextTurn
-    }).eq('id', ROOM_ID);
-  } catch (e) {
-    console.warn('Erro ao salvar estado:', e);
-  }
+  const nextTurn = myPlayerNumber === 1 ? 2 : 1;
+  await mpManager.updateState(
+    { board, current, captures, lastBoard, consecutivePasses, lastMove, gameOver },
+    { turn: nextTurn }
+  );
 }
 
 // ==================== GAME LOGIC ====================
@@ -474,46 +449,16 @@ async function endGame() {
     const myResult = myTotal > opponentTotal ? 'win' : 'loss';
 
     // Broadcast end game
-    if (channel) {
-      channel.send({
-        type: 'broadcast',
-        event: 'game_end',
-        payload: { playerId: myUserId, blackTotal, whiteTotal }
-      });
-
-      // Update room status
-      await supabase.from('game_rooms').update({
-        status: 'finished',
-        winner: myTotal > opponentTotal ? myUserId : 'opponent'
-      }).eq('id', ROOM_ID);
+    if (mpManager) {
+      await mpManager.send('game_end', { blackTotal, whiteTotal });
+      await mpManager.finishGame(myTotal > opponentTotal ? myUserId : 'opponent');
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      await supabase.from('game_stats').insert({
-        user_id: session.user.id,
-        game: 'go',
-        result: myResult,
-        moves: 0,
-        time_seconds: 0,
-        room_id: ROOM_ID,
-        is_multiplayer: true
-      });
-    }
+    // Save stats using shared module
+    gameStats.recordGame(myResult === 'win');
   } else {
     // Single player stats
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      await supabase.from('game_stats').insert({
-        user_id: session.user.id,
-        game: 'go',
-        result: blackTotal > whiteTotal ? 'win' : 'loss',
-        moves: 0,
-        time_seconds: 0,
-        room_id: null,
-        is_multiplayer: false
-      });
-    }
+    gameStats.recordGame(blackTotal > whiteTotal);
   }
 }
 
@@ -657,20 +602,19 @@ function render() {
 async function resetGame(shouldBroadcast = true) {
   init();
 
-  if (IS_MULTIPLAYER && shouldBroadcast && channel) {
-    channel.send({
-      type: 'broadcast',
-      event: 'game_reset',
-      payload: {}
-    });
+  if (IS_MULTIPLAYER && shouldBroadcast && mpManager) {
+    await mpManager.send('game_reset', {});
 
     // Reset room state
-    await supabase.from('game_rooms').update({
-      state: { board: null, current: BLACK, captures: { [BLACK]: 0, [WHITE]: 0 }, lastBoard: null, consecutivePasses: 0, lastMove: null, gameOver: false },
-      turn: 1,
-      status: 'playing',
-      winner: null
-    }).eq('id', ROOM_ID);
+    await mpManager.resetRoom({
+      board: null,
+      current: BLACK,
+      captures: { [BLACK]: 0, [WHITE]: 0 },
+      lastBoard: null,
+      consecutivePasses: 0,
+      lastMove: null,
+      gameOver: false
+    });
   }
 }
 
@@ -692,6 +636,14 @@ document.getElementById('pass-btn').addEventListener('click', async () => {
 
 document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
 document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
+
+// Cleanup
+window.addEventListener('beforeunload', () => {
+  if (mpManager) {
+    mpManager.cleanup();
+  }
+  gameStats.destroy();
+});
 
 // Start
 initMultiplayer().then(() => {

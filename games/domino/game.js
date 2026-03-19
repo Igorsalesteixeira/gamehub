@@ -1,5 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
 
 // ===== CONSTANTS =====
@@ -42,12 +44,18 @@ let gameOver = false;
 let selectedTile = null;    // index into playerHand
 let consecutivePasses = 0;
 let playerMoves = 0;
-let gameStartTime = null;
-let timerInterval = null;
-let wins = 0;
-let totalScore = 0;
 let isProcessing = false; // Flag para prevenir cliques duplos
 let gameData = null; // For MP: full game state from DB
+
+// ===== SHARED MODULES =====
+const gameStats = new GameStats('domino', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: () => {
+    if (!gameOver && gameStartTime) {
+      timerDisplay.textContent = `⏱ ${gameTimer.getFormatted('MM:SS')}`;
+    }
+  }
+});
 
 // ===== DOM REFS =====
 const chainArea      = document.getElementById('chain-area');
@@ -77,6 +85,11 @@ const scoreVal       = document.getElementById('score-val');
 const winsVal        = document.getElementById('wins-val');
 const mpStatusEl     = document.getElementById('mp-status');
 const opponentLabelEl = document.getElementById('opponent-label');
+
+// Track wins and total score
+let wins = 0;
+let totalScore = 0;
+let gameStartTime = null;
 
 // ===== TILE BUILDING =====
 function buildFullSet() {
@@ -297,7 +310,7 @@ async function handleRoomUpdate(payload) {
     mpState.gameStarted = true;
     showMpStatus('Jogo iniciado!', 'playing');
     await loadGameState(newData);
-    startTimer();
+    gameTimer.start();
   }
 
   // Handle game updates
@@ -426,7 +439,8 @@ function initGame() {
   const firstPlayer = determineFirstPlayer();
   currentTurn = firstPlayer;
 
-  startTimer();
+  gameTimer.reset().start();
+  gameStartTime = Date.now();
   renderAll();
   updateEndBadges();
   updateTopBar();
@@ -454,29 +468,6 @@ function determineFirstPlayer() {
   const playerMax = Math.max(...playerHand.map(t => t.a + t.b));
   const aiMax = Math.max(...aiHand.map(t => t.a + t.b));
   return playerMax >= aiMax ? 'player' : 'ai';
-}
-
-// ===== TIMER =====
-function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  gameStartTime = Date.now();
-  timerInterval = setInterval(updateTimer, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-}
-
-function updateTimer() {
-  if (!gameStartTime) return;
-  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
-  const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-  const s = String(elapsed % 60).padStart(2, '0');
-  timerDisplay.textContent = `⏱ ${m}:${s}`;
-}
-
-function elapsedSeconds() {
-  return gameStartTime ? Math.floor((Date.now() - gameStartTime) / 1000) : 0;
 }
 
 // ===== RENDER =====
@@ -901,7 +892,7 @@ btnPass.addEventListener('click', async () => {
 btnNewGame.addEventListener('click', () => {
   initAudio();
   playSound('click');
-  stopTimer();
+  gameTimer.stop();
 
   if (isMultiplayer) {
     // Reset multiplayer game
@@ -917,7 +908,7 @@ btnPlayAgain.addEventListener('click', () => {
   initAudio();
   playSound('click');
   modalOverlay.classList.add('hidden');
-  stopTimer();
+  gameTimer.stop();
 
   if (isMultiplayer) {
     if (mpState.isHost) {
@@ -1034,7 +1025,7 @@ function findBestAiMove() {
 // ===== MULTIPLAYER GAME END =====
 async function endMultiplayerGame(winner) {
   gameOver = true;
-  stopTimer();
+  gameTimer.stop();
 
   const playerPips = pipTotal(playerHand);
   const opponentPips = pipTotal(opponentHand);
@@ -1067,9 +1058,9 @@ async function endMultiplayerGame(winner) {
     final_score: score
   });
 
-  // Save stats
+  // Save stats using shared module
   if (winner === 'player') {
-    saveStats(score, playerMoves, elapsedSeconds());
+    gameStats.recordGame(true, { score, time: gameTimer.getTime() });
   }
 }
 
@@ -1092,7 +1083,7 @@ async function resolveMultiplayerBlocked() {
 function handleGameEnd(roomData) {
   if (gameOver) return;
   gameOver = true;
-  stopTimer();
+  gameTimer.stop();
 
   const winnerId = roomData.winner;
   const isPlayerWinner = winnerId === mpState.playerId;
@@ -1113,7 +1104,8 @@ function handleGameEnd(roomData) {
     launchConfetti();
     playSound('win');
 
-    saveStats(score, playerMoves, elapsedSeconds());
+    // Save stats using shared module
+    gameStats.recordGame(true, { score, time: gameTimer.getTime() });
   } else if (winnerId === 'draw') {
     modalIcon.textContent = '🤝';
     modalTitle.textContent = 'Empate!';
@@ -1143,7 +1135,6 @@ function checkWin(who) {
 function resolveBlocked() {
   const playerPips = pipTotal(playerHand);
   const aiPips     = pipTotal(aiHand);
-  stopTimer();
 
   if (playerPips < aiPips) {
     endGame('player', aiPips - playerPips);
@@ -1156,10 +1147,10 @@ function resolveBlocked() {
 
 function endGame(winner, score) {
   gameOver = true;
-  stopTimer();
+  gameTimer.stop();
   renderButtons();
 
-  const elapsed = elapsedSeconds();
+  const elapsed = gameTimer.getTime();
 
   if (winner === 'player') {
     wins++;
@@ -1174,8 +1165,8 @@ function endGame(winner, score) {
     launchConfetti();
     playSound('win');
 
-    // Save to Supabase
-    saveStats(score, playerMoves, elapsed);
+    // Save stats using shared module
+    gameStats.recordGame(true, { score, time: elapsed });
   } else if (winner === 'ai') {
     modalIcon.textContent  = '😞';
     modalTitle.textContent = 'IA venceu!';
@@ -1191,23 +1182,6 @@ function endGame(winner, score) {
   modalOverlay.classList.remove('hidden');
 }
 
-async function saveStats(score, moves, timeSeconds) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id:      user.id,
-      game:         'domino',
-      result:       'win',
-      score:        score,
-      moves:        moves,
-      time_seconds: timeSeconds
-    });
-  } catch (_) {
-    // silently ignore stats errors
-  }
-}
-
 // ===== CLEANUP =====
 window.addEventListener('beforeunload', async () => {
   if (isMultiplayer && mpState.subscription) {
@@ -1221,6 +1195,8 @@ window.addEventListener('beforeunload', async () => {
         .eq('id', roomId);
     }
   }
+  gameStats.destroy();
+  gameTimer.destroy();
 });
 
 // ===== KICK OFF =====

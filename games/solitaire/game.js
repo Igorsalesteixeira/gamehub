@@ -1,10 +1,18 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 // =============================================
 //  PACIÊNCIA (Klondike Solitaire) — game.js
 //  Mobile-optimized: touch targets, feedback, performance
 // =============================================
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
+// === GameStats ===
+const gameStats = new GameStats('solitaire', { autoSync: true });
+
+// === GameTimer ===
+let gameTimer = null;
 
 // Initialize audio on first user interaction
 let audioInitialized = false;
@@ -39,8 +47,7 @@ let selected = null;
 let desktopGhost = null;
 let ghostOffsetX = 0, ghostOffsetY = 0;
 
-let timerInterval  = null;
-let secondsElapsed = 0;
+let gameStarted = false;
 
 // ---- DOM ----
 const stockEl       = document.getElementById('stock');
@@ -55,7 +62,8 @@ document.getElementById('btn-undo').addEventListener('click', undo);
 
 // Game Design: Botão compartilhar no WhatsApp
 document.getElementById('btn-share')?.addEventListener('click', () => {
-  const text = `🏆 Venci a Paciência no Games Hub!\n\n⏱️ Tempo: ${winStats.textContent}\n🎮 Jogue você também: https://gameshub.com.br/games/solitaire/`;
+  const finalTime = gameTimer ? gameTimer.getFormatted() : '00:00';
+  const text = `🏆 Venci a Paciência no Games Hub!\n\n⏱️ Tempo: ${finalTime}\n🎮 Jogue você também: https://gameshub.com.br/games/solitaire/`;
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 });
 
@@ -95,13 +103,25 @@ function shuffle(arr) {
 function newGame() {
   // Salva derrota se o jogo anterior tinha começado e não foi vencido
   if (gameStarted && !checkWin()) {
-    saveGameStat('loss');
+    const finalTime = gameTimer ? gameTimer.getTime() : 0;
+    gameStats.recordGame(false, { time: finalTime });
   }
   gameStarted = false;
   selected = null;
-  clearInterval(timerInterval);
-  secondsElapsed = 0;
-  updateTimer();
+
+  // Destroy previous timer
+  if (gameTimer) {
+    gameTimer.destroy();
+  }
+
+  // Create new timer
+  gameTimer = new GameTimer({
+    onTick: () => {
+      if (timeDisplay) {
+        timeDisplay.textContent = `⏱ ${gameTimer.getFormatted()}`;
+      }
+    }
+  });
 
   const drawCount = state.drawCount || 1;
   const deck = buildDeck();
@@ -129,25 +149,8 @@ function newGame() {
   };
 
   playSound('shuffle');
-  startTimer();
+  gameTimer.start();
   render();
-}
-
-// =============================================
-//  TIMER
-// =============================================
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    secondsElapsed++;
-    updateTimer();
-  }, 1000);
-}
-
-function updateTimer() {
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
-  const s = String(secondsElapsed % 60).padStart(2,'0');
-  timeDisplay.textContent = `⏱ ${m}:${s}`;
 }
 
 // =============================================
@@ -984,12 +987,14 @@ function checkWin() {
 }
 
 function showWin() {
-  clearInterval(timerInterval);
-  saveGameStat('win');
+  const finalTime = gameTimer ? gameTimer.getTime() : 0;
+  gameTimer.stop();
+
+  // Save stats using GameStats
+  gameStats.recordGame(true, { time: finalTime });
+
   gameStarted = false; // evita salvar 'loss' ao clicar "Novo Jogo" depois
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
-  const s = String(secondsElapsed % 60).padStart(2,'0');
-  winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
+  winStats.textContent = `${state.moves} movimentos em ${gameTimer.getFormatted()}`;
   winModal.classList.add('show');
   playSound('win');
 }
@@ -1025,27 +1030,6 @@ function undo() {
   state.moves       = snap.moves;
   selected = null;
   render();
-}
-
-// =============================================
-//  STATS — salvar no Supabase
-// =============================================
-let gameStarted = false; // true quando o jogador fez pelo menos 1 movimento
-
-async function saveGameStat(result) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'solitaire',
-      result,
-      moves: state.moves,
-      time_seconds: secondsElapsed,
-    });
-  } catch (e) {
-    console.warn('Erro ao salvar stats:', e);
-  }
 }
 
 // =============================================

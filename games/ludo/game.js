@@ -1,5 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
 
 // =============================================
@@ -38,64 +40,35 @@ const HOME_COL = [
 // Starting positions in home base (before entering game)
 const HOME_BASE = [
   [[1,10],[3,10],[1,12],[3,12]], // red
-  [[11,1],[13,1],[11,3],[13,3]], // blue
-  [[11,10],[13,10],[11,12],[13,12]], // green
-  [[1,1],[3,1],[1,3],[3,3]],    // yellow
+  [[10,1],[12,1],[10,3],[12,3]], // blue
+  [[10,10],[12,10],[10,12],[12,12]], // green
+  [[1,1],[3,1],[1,3],[3,3]], // yellow
 ];
 
-// Where each color enters the PATH
+// Color start positions on PATH (index in PATH array)
 const COLOR_START = [0, 13, 26, 39];
 
-// Safe squares on PATH (absolute indices)
+// Safe positions (absolute PATH indices with stars)
 const SAFE_ABS = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
 
-// Color definitions
-const COLORS = ['red','blue','green','yellow'];
-const COLOR_HEX   = ['#e53935','#1e88e5','#43a047','#fdd835'];
-const COLOR_LIGHT = ['#ffcdd2','#bbdefb','#c8e6c9','#fff9c4'];
-const COLOR_DARK  = ['#b71c1c','#1565c0','#2e7d32','#f9a825'];
-const TOKEN_LETTERS = ['V','B','V','A']; // Vermelho, Azul, Verde, Amarelo
+// Colors
+const COLORS = ['Vermelho', 'Azul', 'Verde', 'Amarelo'];
+const COLOR_HEX = ['#d32f2f', '#1976d2', '#388e3c', '#fbc02d'];
+const COLOR_DARK = ['#b71c1c', '#0d47a1', '#1b5e20', '#f57f17'];
+const COLOR_LIGHT = ['#ffcdd2', '#bbdefb', '#c8e6c9', '#fff9c4'];
+const PLAYER_NAMES = ['Vermelho', 'Azul', 'Verde', 'Amarelo'];
 
-// Dice face unicode chars
-const DICE_FACES = ['', '\u2680','\u2681','\u2682','\u2683','\u2684','\u2685'];
-
-// Player names for display
-const PLAYER_NAMES = ['Você', 'Azul', 'Verde', 'Amarelo'];
-
-// ---- Game state ----
-let pieces;        // pieces[ci][ti] = { pos } where pos: -1=base, 0-51=path, 52-57=home col, >=58=finished
-let currentPlayer; // 0=red(human), 1-3=AI
-let diceValue;
-let rolled;        // has the current player rolled this turn?
-let gameOver;
-let finishOrder;   // order of players finishing
-let totalMoves;
-let startTime;
-let timerInterval;
-let animQueue = []; // animation queue
-let animating = false;
-let highlightedPieces; // Set of ti indices valid to move this turn
-let isProcessing = false; // Flag para prevenir cliques duplos
-
-// ---- Multiplayer state ----
-let multiplayerMode = false;
-let roomId = null;
-let myPlayerIndex = 0; // Which color this player controls
-let playersInRoom = []; // Array of player data {id, name, colorIndex}
-let myUserId = null;
-let realtimeChannel = null;
-let isHost = false;
-let playerCount = 4; // 2, 3, or 4 players
-let roomStatus = 'waiting'; // waiting, playing, finished
+// Dice faces
+const DICE_FACES = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 // ---- DOM ----
-const canvas    = document.getElementById('ludo-canvas');
-const ctx       = canvas.getContext('2d');
-const btnRoll   = document.getElementById('btn-roll');
-const btnNew    = document.getElementById('btn-new-game');
-const diceEl    = document.getElementById('dice-display');
-const turnMsg   = document.getElementById('turn-msg');
-const timerEl   = document.getElementById('timer-display');
+const canvas       = document.getElementById('board');
+const ctx          = canvas.getContext('2d');
+const btnRoll      = document.getElementById('btn-roll');
+const btnNew       = document.getElementById('btn-new');
+const diceEl       = document.getElementById('dice');
+const timerEl      = document.getElementById('timer');
+const turnMsg      = document.getElementById('turn-msg');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalIcon    = document.getElementById('modal-icon');
 const modalTitle   = document.getElementById('modal-title');
@@ -103,6 +76,39 @@ const modalMsg     = document.getElementById('modal-msg');
 const modalStats   = document.getElementById('modal-stats');
 const btnPlayAgain = document.getElementById('btn-play-again');
 const playersBar   = document.getElementById('players-bar');
+
+// ---- Shared Modules ----
+const gameStats = new GameStats('ludo', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: () => {
+    if (!gameOver) {
+      timerEl.textContent = gameTimer.getFormatted('MM:SS');
+    }
+  }
+});
+
+// ---- State ----
+let pieces = [];          // [colorIndex][tokenIndex] = { pos: -1..58 }
+let currentPlayer = 0;    // 0=red, 1=blue, 2=green, 3=yellow
+let diceValue = 0;
+let rolled = false;
+let highlightedPieces = new Set(); // token indices that can move
+let gameOver = false;
+let finishOrder = [];     // colors that finished
+let totalMoves = 0;
+let startTime = Date.now();
+let isProcessing = false;
+
+// Multiplayer state
+let multiplayerMode = false;
+let roomId = null;
+let myUserId = null;
+let myPlayerIndex = -1;   // which color am I (0-3), -1 = spectator
+let isHost = false;
+let playersInRoom = [];   // { id, name, color_index }
+let roomStatus = 'waiting';
+let realtimeChannel = null;
+let playerCount = 4;
 
 // =============================================
 // MULTIPLAYER SETUP
@@ -356,7 +362,7 @@ async function startMultiplayerGame() {
   gameOver = false;
   finishOrder = [];
   totalMoves = 0;
-  startTime = Date.now();
+  gameTimer.reset().start();
 
   await updateRoomState({
     status: 'playing',
@@ -430,13 +436,11 @@ function initGame() {
     gameOver = false;
     finishOrder = [];
     totalMoves = 0;
-    startTime = Date.now();
+    gameTimer.reset();
   }
 
   highlightedPieces = new Set();
   isProcessing = false;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimer, 1000);
 
   updateTimer();
   updateScores();
@@ -453,10 +457,7 @@ function initGame() {
 
 function updateTimer() {
   if (gameOver) return;
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
-  const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
-  const s = String(elapsed % 60).padStart(2,'0');
-  timerEl.textContent = m + ':' + s;
+  timerEl.textContent = gameTimer.getFormatted('MM:SS');
 }
 
 // ---- Geometry helpers ----
@@ -1173,10 +1174,10 @@ function checkWin(ci) {
 
 function endGame(humanWon, winnerCi = 0) {
   gameOver = true;
-  clearInterval(timerInterval);
+  gameTimer.stop();
   btnRoll.disabled = true;
 
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const elapsed = gameTimer.getTime();
 
   // Calculate position
   let pos;
@@ -1236,7 +1237,9 @@ function endGame(humanWon, winnerCi = 0) {
     playSound('win');
   }
 
-  saveStats(pos, totalMoves, elapsed);
+  // Save stats using shared module
+  const result = pos === 1 ? 'win' : 'loss';
+  gameStats.recordGame(result === 'win', { score: pos, time: elapsed });
 
   // Update room status in multiplayer
   if (multiplayerMode) {
@@ -1250,7 +1253,7 @@ function endGame(humanWon, winnerCi = 0) {
 
 function showGameEndModal() {
   // Called when game ends for non-active players in multiplayer
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const elapsed = gameTimer.getTime();
   const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
   const s = String(elapsed % 60).padStart(2,'0');
 
@@ -1283,24 +1286,6 @@ function showGameEndModal() {
   if (humanWon) {
     launchConfetti();
     playSound('win');
-  }
-}
-
-async function saveStats(finishPosition, moves, elapsed) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id,
-      game: multiplayerMode ? 'ludo_multiplayer' : 'ludo',
-      result: finishPosition === 1 ? 'win' : 'loss',
-      score: finishPosition,
-      moves: moves,
-      time_seconds: elapsed,
-      room_id: roomId || null
-    });
-  } catch (err) {
-    console.warn('Erro ao salvar stats:', err);
   }
 }
 
@@ -1423,6 +1408,8 @@ window.addEventListener('beforeunload', () => {
   if (realtimeChannel) {
     realtimeChannel.unsubscribe();
   }
+  gameStats.destroy();
+  gameTimer.destroy();
 });
 
 // ---- Start ----

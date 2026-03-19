@@ -1,6 +1,9 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
-// ===== Flappy Bird =====
+import { GameStats } from '../shared/game-core.js';
+import { GameLoop } from '../shared/game-loop.js';
+import { InputManager } from '../shared/input-manager.js';
+// ===== Flappy Bird (Refatorado) =====
 import { supabase } from '../../supabase.js';
 
 const canvas = document.getElementById('game-canvas');
@@ -20,11 +23,14 @@ const PIPE_SPEED = 2.5;
 const BIRD_SIZE = 24;
 
 let bird, pipes, score, bestScore, gameState, animId;
-let wingPhase = 0;   // 0..1 ciclo da animação de asa
-let shakeFrames = 0; // frames restantes de screen shake
+let wingPhase = 0;
+let shakeFrames = 0;
 
 bestScore = parseInt(localStorage.getItem('flappy_best') || '0');
 bestDisplay.textContent = bestScore;
+
+// ===== STATS =====
+const gameStats = new GameStats('flappybird', { autoSync: true });
 
 function init() {
   bird = { x: 80, y: H / 2, vy: 0, rotation: 0 };
@@ -34,8 +40,7 @@ function init() {
   wingPhase = 0;
   shakeFrames = 0;
   startMsg.classList.remove('hidden');
-  if (animId) cancelAnimationFrame(animId);
-  loop();
+  gameLoop.start();
 }
 
 function flap() {
@@ -60,7 +65,7 @@ function spawnPipe() {
   pipes.push({ x: W, topH, scored: false });
 }
 
-function update() {
+function update(dt) {
   if (gameState !== 'playing') return;
 
   // Bird physics
@@ -108,11 +113,17 @@ function update() {
 
 function die() {
   gameState = 'dead';
-  shakeFrames = 12; // screen shake por 12 frames
+  gameLoop.pause();
+  shakeFrames = 12;
   // Mobile: feedback tátil na morte (impacto)
   if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
   playSound('error');
-  if (score > bestScore) {
+
+  // Save stats
+  const isNewRecord = score > bestScore;
+  gameStats.recordGame(isNewRecord, { score });
+
+  if (isNewRecord) {
     bestScore = score;
     localStorage.setItem('flappy_best', bestScore);
     bestDisplay.textContent = bestScore;
@@ -153,12 +164,32 @@ function draw() {
   ctx.fillRect(0, H - 50, W, 8);
 
   // Pipes
+  ctx.fillStyle = '#73bf2e';
+  ctx.strokeStyle = '#558b2f';
+  ctx.lineWidth = 3;
+  for (const pipe of pipes) {
+    // Top pipe
+    ctx.fillRect(pipe.x, 0, PIPE_WIDTH, pipe.topH);
+    ctx.strokeRect(pipe.x, 0, PIPE_WIDTH, pipe.topH);
+    // Bottom pipe
+    const bottomY = pipe.topH + PIPE_GAP;
+    const bottomH = H - 50 - bottomY;
+    ctx.fillRect(pipe.x, bottomY, PIPE_WIDTH, bottomH);
+    ctx.strokeRect(pipe.x, bottomY, PIPE_WIDTH, bottomH);
+    // Pipe caps
+    ctx.fillRect(pipe.x - 2, pipe.topH - 20, PIPE_WIDTH + 4, 20);
+    ctx.strokeRect(pipe.x - 2, pipe.topH - 20, PIPE_WIDTH + 4, 20);
+    ctx.fillRect(pipe.x - 2, bottomY, PIPE_WIDTH + 4, 20);
+    ctx.strokeRect(pipe.x - 2, bottomY, PIPE_WIDTH + 4, 20);
+  }
+
+  // Bird
   ctx.save();
   ctx.translate(bird.x + BIRD_SIZE / 2, bird.y + BIRD_SIZE / 2);
   ctx.rotate((bird.rotation * Math.PI) / 180);
 
   // Asa animada (bate quando sobe, descansa quando cai)
-  const wingY = Math.sin(wingPhase) * 5; // oscilação vertical da asa
+  const wingY = Math.sin(wingPhase) * 5;
   ctx.fillStyle = '#e6a800';
   ctx.save();
   ctx.translate(-3, 2 + wingY);
@@ -216,17 +247,27 @@ function draw() {
   ctx.restore(); // fecha o save do screen shake
 }
 
-function loop() {
-  update();
-  draw();
-  animId = requestAnimationFrame(loop);
-}
+// ===== GAME LOOP =====
+const gameLoop = new GameLoop({
+  update,
+  render: draw,
+  fps: 60
+});
 
-// Input
-canvas.addEventListener('click', flap);
-canvas.addEventListener('touchstart', (e) => { e.preventDefault(); flap(); }, { passive: false });
-document.addEventListener('keydown', (e) => {
-  if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); flap(); }
+// ===== INPUT =====
+const inputManager = new InputManager({
+  keyboardTarget: document,
+  touchTarget: canvas
+});
+
+inputManager.on('tap', () => {
+  flap();
+});
+
+inputManager.on('keyPress', (key) => {
+  if (key === ' ' || key === 'ArrowUp') {
+    flap();
+  }
 });
 
 async function saveGameStat() {

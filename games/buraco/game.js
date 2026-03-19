@@ -1,6 +1,8 @@
 import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -12,6 +14,9 @@ function ensureAudio() {
     audioInitialized = true;
   }
 }
+
+// === GameStats ===
+const gameStats = new GameStats('buraco', { autoSync: true });
 
 // ===== MULTIPLAYER CONFIG =====
 const urlParams = new URLSearchParams(window.location.search);
@@ -753,7 +758,7 @@ function combinations(arr,k){
   if(k===0)return[[]];
   if(arr.length<k)return[];
   const[first,...rest]=arr;
-  return[...combinations(rest,k-1).map(c=>[first,...c]),...combinations(rest,k)];
+  return[...combinations(rest,k-1).map(c=>[first,...c]),...combinations(rest)];
 }
 
 // ===== END ROUND =====
@@ -779,8 +784,9 @@ async function endRound(playerDown=false,cpuDown=false){
 
   if(won)playSound('win');
 
+  // Save stats using GameStats (single player only)
   if (!IS_MULTIPLAYER) {
-    saveStats(won?'win':tied?'draw':'loss',score);
+    gameStats.recordGame(won, { score: score });
   }
 
   render();
@@ -789,11 +795,6 @@ async function endRound(playerDown=false,cpuDown=false){
     playerDown?'Você baixou!':cpuDown?'Oponente baixou!':'Rodada encerrada!',
     `Você: ${playerRoundScore>0?'+':''}${playerRoundScore}pts (Total: ${score})\nOponente: ${opponentRoundScore>0?'+':''}${opponentRoundScore}pts (Total: ${opponentScore})`
   );
-}
-
-async function saveStats(result,pts){
-  if(!session)return;
-  await supabase.from('game_stats').insert({user_id:session.user.id,game:'buraco',result,score:pts,time_seconds:0,moves:0});
 }
 
 // ===== RENDER =====

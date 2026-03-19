@@ -1,6 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -64,9 +66,6 @@ function buildLayout() {
 // ===== STATE =====
 let tiles = [];
 let selectedTile = null;
-let timerSeconds = 0;
-let timerInterval = null;
-let startTime = null;
 let gameOver = false;
 let hintTiles = [];
 
@@ -78,6 +77,14 @@ const modalIcon = document.getElementById('modal-icon');
 const modalTitle = document.getElementById('modal-title');
 const modalMsg = document.getElementById('modal-msg');
 const modalStats = document.getElementById('modal-stats');
+
+// GameStats e GameTimer
+const gameStats = new GameStats('mahjong', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    timerEl.textContent = formatted;
+  }
+});
 
 // ===== TILE SIZE (responsive) =====
 function getTileSize() {
@@ -175,7 +182,7 @@ function renderBoard() {
 
 function onTileClick(tile) {
   if (gameOver || tile.removed || !isFree(tile)) return;
-  if (!startTime) startTimer();
+  if (!gameTimer.isRunning()) gameTimer.start();
 
   hintTiles = [];
 
@@ -211,15 +218,13 @@ function checkEndCondition() {
   const remaining = tiles.filter(t => !t.removed).length;
   if (remaining === 0) {
     gameOver = true;
-    stopTimer();
+    gameTimer.stop();
     launchConfetti();
     playSound('win');
     modalIcon.textContent = '🏆';
     modalTitle.textContent = 'Parabens!';
     modalMsg.textContent = 'Voce removeu todas as pecas!';
-    const m = Math.floor(timerSeconds / 60);
-    const s = timerSeconds % 60;
-    modalStats.textContent = `Tempo: ${m}:${s.toString().padStart(2, '0')}`;
+    modalStats.textContent = `Tempo: ${gameTimer.getFormatted()}`;
     modalEl.classList.remove('hidden');
     saveStats('win');
     return;
@@ -228,7 +233,7 @@ function checkEndCondition() {
   const pairs = findPairs();
   if (pairs.length === 0) {
     gameOver = true;
-    stopTimer();
+    gameTimer.stop();
     modalIcon.textContent = '😔';
     modalTitle.textContent = 'Sem movimentos!';
     modalMsg.textContent = 'Nao ha mais pares disponiveis.';
@@ -249,36 +254,16 @@ function showHint() {
   }
 }
 
-// ===== TIMER =====
-function startTimer() {
-  startTime = Date.now();
-  initAudio();
-  timerInterval = setInterval(() => {
-    timerSeconds = Math.floor((Date.now() - startTime) / 1000);
-    const m = Math.floor(timerSeconds / 60);
-    const s = timerSeconds % 60;
-    timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
-  }, 1000);
-}
-function stopTimer() { clearInterval(timerInterval); }
-
 // ===== STATS =====
 async function saveStats(result) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id, game: 'mahjong', result, moves: 0, time_seconds: timerSeconds
-    });
-  } catch (e) { console.log('Stats save error:', e); }
+  gameStats.recordGame(result === 'win', { time: gameTimer.getTime() });
 }
 
 // ===== INIT =====
 function newGame() {
   gameOver = false;
-  stopTimer();
-  startTime = null;
-  timerSeconds = 0;
+  gameTimer.stop();
+  gameTimer.reset();
   timerEl.textContent = '0:00';
   selectedTile = null;
   hintTiles = [];

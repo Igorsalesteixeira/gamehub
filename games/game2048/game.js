@@ -1,7 +1,9 @@
-﻿import '../../auth-check.js';
-// ===== 2048 =====
+import '../../auth-check.js';
+// ===== 2048 (Refatorado) =====
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { InputManager } from '../shared/input-manager.js';
 
 const SIZE = 4;
 const boardEl = document.getElementById('board');
@@ -19,6 +21,9 @@ let score = 0;
 let bestScore = parseInt(localStorage.getItem('2048_best') || '0');
 let gameOver = false;
 let won = false;
+
+// ===== STATS =====
+const gameStats = new GameStats('game2048', { autoSync: true });
 
 function init() {
   grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
@@ -159,60 +164,51 @@ function canMove() {
   return false;
 }
 
-// Keyboard
-document.addEventListener('keydown', (e) => {
+// ===== INPUT MANAGER =====
+const inputManager = new InputManager({
+  keyboardTarget: document,
+  touchTarget: boardEl,
+  swipeThreshold: 30
+});
+
+// Keyboard input
+inputManager.on('keyPress', (key) => {
   const map = {
     ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
     a: 'left', d: 'right', w: 'up', s: 'down',
     A: 'left', D: 'right', W: 'up', S: 'down',
   };
-  if (map[e.key]) {
-    e.preventDefault();
-    move(map[e.key]);
+  if (map[key]) {
+    move(map[key]);
   }
 });
 
-// Touch/Swipe - Mobile optimized
-let touchStartX = 0, touchStartY = 0;
-let touchStartTime = 0;
+// Swipe input
+inputManager.on('swipe', (direction) => {
+  const dirMap = {
+    'left': 'left',
+    'right': 'right',
+    'up': 'up',
+    'down': 'down'
+  };
+  if (dirMap[direction]) {
+    move(dirMap[direction]);
+    // Mobile: feedback tátil (vibration) se disponível
+    if (navigator.vibrate) {
+      navigator.vibrate(15);
+    }
+  }
+});
 
-// Limitar touch ao board (não document inteiro)
-boardEl.addEventListener('touchstart', (e) => {
-  touchStartX = e.touches[0].clientX;
-  touchStartY = e.touches[0].clientY;
-  touchStartTime = Date.now();
+// Tap to init audio
+inputManager.on('tap', () => {
   initAudio();
-}, { passive: true });
-
-boardEl.addEventListener('touchend', (e) => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  const dt = Date.now() - touchStartTime;
-  const absDx = Math.abs(dx);
-  const absDy = Math.abs(dy);
-
-  // Mobile: threshold aumentado para 30px, max 500ms para swipe rápido
-  if (Math.max(absDx, absDy) < 30 || dt > 500) return;
-
-  // Prevenir scroll durante swipe
-  e.preventDefault();
-
-  if (absDx > absDy) {
-    move(dx > 0 ? 'right' : 'left');
-  } else {
-    move(dy > 0 ? 'down' : 'up');
-  }
-
-  // Mobile: feedback tátil (vibration) se disponível
-  if (navigator.vibrate) {
-    navigator.vibrate(15); // 15ms leve
-  }
-}, { passive: false });
+});
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
 
-// Game Design: botão compartilhar
+// Game Design: botao compartilhar
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🔢 Joguei 2048 no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScore}\n\n🎮 Jogue você também: https://gameshub.com.br/games/game2048/`);
 });

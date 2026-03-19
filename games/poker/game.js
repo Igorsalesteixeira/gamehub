@@ -1,6 +1,7 @@
 import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -13,6 +14,9 @@ function ensureAudio() {
     audioInitialized = true;
   }
 }
+
+// === GameStats ===
+const gameStats = new GameStats('poker', { autoSync: true });
 
 // ===== MULTIPLAYER STATE =====
 let isMultiplayer = false;
@@ -501,7 +505,7 @@ function combinations(arr,k){
   if(k===0)return[[]];
   if(arr.length===0)return[];
   const [first,...rest]=arr;
-  return[...combinations(rest,k-1).map(c=>[first,...c]),...combinations(rest,k)];
+  return[...combinations(rest,k-1).map(c=>[first,...c]),...combinations(rest)];
 }
 
 function evalFive(cards) {
@@ -855,8 +859,9 @@ async function showdown(){
 
   if(humanWon)playSound('win');
 
+  // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
-    saveStats(humanWon?'win':'loss',players[0].chips);
+    gameStats.recordGame(humanWon, { score: players[0].chips });
   }
 
   setTimeout(()=>{
@@ -881,8 +886,9 @@ function awardPot(winnerIdx){
   showModal(humanWon?'🏆':'😔',humanWon?'Você venceu!':w.name+' venceu!',`Todos desistiram · Pote: ${pot}`);
   if(humanWon)playSound('win');
 
+  // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
-    saveStats(humanWon?'win':'loss',players[0].chips);
+    gameStats.recordGame(humanWon, { score: players[0].chips });
   }
 
   setTimeout(()=>{
@@ -904,19 +910,6 @@ function endGame(){
   const myPlayer = players[playerSeat || 0];
   showModal('🎮','Fim de jogo!',myPlayer.chips>0?`Você terminou com ${myPlayer.chips} fichas!`:'Você ficou sem fichas!');
   document.getElementById('btn-modal-new').style.display='block';
-}
-
-// ===== STATS =====
-async function saveStats(result, score){
-  if(!session)return;
-  await supabase.from('game_stats').insert({
-    user_id:session.user.id,
-    game:'poker',
-    result,
-    score,
-    time_seconds:0,
-    moves:handCount,
-  });
 }
 
 // ===== RENDER =====

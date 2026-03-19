@@ -1,7 +1,10 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameLoop } from '../shared/game-loop.js';
+import { InputManager } from '../shared/input-manager.js';
 // =============================================
-//  BUBBLE SHOOTER — game.js
+//  BUBBLE SHOOTER — game.js (Refatorado)
 // =============================================
 import { supabase } from '../../supabase.js';
 
@@ -44,7 +47,6 @@ let gameRunning   = false;
 let gameOver      = false;
 let won           = false;
 let startTime     = 0;
-let animFrameId   = null;
 
 // Pop animations
 let popParticles  = []; // { x, y, color, r, alpha, vx, vy }
@@ -53,6 +55,9 @@ let floatParticles = []; // same but green tint
 // Shooter base position
 const SHOOTER_X = CW / 2;
 const SHOOTER_Y = CH - 30;
+
+// ---- STATS ----
+const gameStats = new GameStats('bubble-shooter', { autoSync: true });
 
 // =============================================
 //  CANVAS SETUP
@@ -394,6 +399,9 @@ async function triggerWin() {
   launchConfetti();
   playSound('win');
 
+  // Save stats
+  gameStats.recordGame(true, { score });
+
   // Save stats to Supabase
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -415,6 +423,9 @@ async function triggerWin() {
 function triggerGameOver() {
   gameRunning = false;
   gameOver    = true;
+
+  // Save stats
+  gameStats.recordGame(false, { score });
 
   overlayIcon.textContent  = '💥';
   overlayTitle.textContent = 'Fim de Jogo!';
@@ -450,8 +461,7 @@ function newGame() {
 
   overlay.classList.add('hidden');
 
-  if (animFrameId) cancelAnimationFrame(animFrameId);
-  loop();
+  gameLoop.start();
 }
 
 // =============================================
@@ -752,92 +762,84 @@ function updateAimFromPoint(clientX, clientY) {
 // =============================================
 //  MAIN LOOP
 // =============================================
-function loop() {
-  ctx.clearRect(0, 0, CW, CH);
+const gameLoop = new GameLoop({
+  update: (dt) => {
+    if (gameRunning) {
+      updateFlyingBubble();
+      updateParticles();
+    }
+  },
+  render: () => {
+    ctx.clearRect(0, 0, CW, CH);
 
-  // Background gradient
-  const bg = ctx.createLinearGradient(0, 0, 0, CH);
-  bg.addColorStop(0, '#0a0a1e');
-  bg.addColorStop(1, '#0f0f2e');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, CW, CH);
+    // Background gradient
+    const bg = ctx.createLinearGradient(0, 0, 0, CH);
+    bg.addColorStop(0, '#0a0a1e');
+    bg.addColorStop(1, '#0f0f2e');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, CW, CH);
 
-  if (!gameRunning) {
-    animFrameId = requestAnimationFrame(loop);
-    return;
-  }
+    if (!gameRunning) {
+      return;
+    }
 
-  updateFlyingBubble();
-  updateParticles();
-
-  drawGameOverLine();
-  drawGrid();
-  drawAimLine();
-  drawShooter();
-  drawFlyingBubble();
-  drawNextBubble();
-  drawShotsCounter();
-  drawParticles();
-
-  animFrameId = requestAnimationFrame(loop);
-}
+    drawGameOverLine();
+    drawGrid();
+    drawAimLine();
+    drawShooter();
+    drawFlyingBubble();
+    drawNextBubble();
+    drawShotsCounter();
+    drawParticles();
+    drawScore();
+  },
+  fps: 60
+});
 
 // =============================================
-//  INPUT EVENTS
+//  INPUT MANAGER
 // =============================================
+const inputManager = new InputManager({
+  keyboardTarget: document,
+  touchTarget: canvas
+});
+
 // Mouse move — aim
-canvas.addEventListener('mousemove', (e) => {
+inputManager.on('mouseMove', (pos) => {
   if (!gameRunning || flyingBubble) return;
-  updateAimFromPoint(e.clientX, e.clientY);
+  updateAimFromPoint(pos.x, pos.y);
 });
 
 // Mouse click — shoot
-canvas.addEventListener('click', (e) => {
-  if (!gameRunning) return;
-  if (flyingBubble) return;
-  updateAimFromPoint(e.clientX, e.clientY);
+inputManager.on('mouseDown', (pos) => {
+  if (!gameRunning || flyingBubble) return;
+  updateAimFromPoint(pos.x, pos.y);
   shootBubble();
 });
 
 // Touch move — aim
-canvas.addEventListener('touchmove', (e) => {
-  e.preventDefault();
+inputManager.on('swipe', (direction, data) => {
   if (!gameRunning || flyingBubble) return;
-  const t = e.touches[0];
-  updateAimFromPoint(t.clientX, t.clientY);
-}, { passive: false });
+  // Update aim from touch position
+});
 
-// Touch end — shoot
-canvas.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  if (!gameRunning) return;
-  if (flyingBubble) return;
-  if (e.changedTouches.length > 0) {
-    const t = e.changedTouches[0];
-    updateAimFromPoint(t.clientX, t.clientY);
-  }
+// Tap — shoot
+inputManager.on('tap', (pos) => {
+  if (!gameRunning || flyingBubble) return;
+  updateAimFromPoint(pos.x, pos.y);
   shootBubble();
-}, { passive: false });
-
-// Touch start — start aiming
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  if (!gameRunning) return;
-  const t = e.touches[0];
-  updateAimFromPoint(t.clientX, t.clientY);
-}, { passive: false });
+});
 
 // Keyboard — space to shoot, left/right to adjust aim
-document.addEventListener('keydown', (e) => {
+inputManager.on('keyPress', (key) => {
   if (!gameRunning) return;
-  if (e.code === 'Space' || e.code === 'ArrowUp') {
-    e.preventDefault();
+  if (key === ' ' || key === 'ArrowUp') {
     shootBubble();
   }
-  if (e.code === 'ArrowLeft') {
+  if (key === 'ArrowLeft') {
     aimAngle = Math.min((170 * Math.PI) / 180, aimAngle + 0.05);
   }
-  if (e.code === 'ArrowRight') {
+  if (key === 'ArrowRight') {
     aimAngle = Math.max((10 * Math.PI) / 180, aimAngle - 0.05);
   }
 });
@@ -855,4 +857,4 @@ btnStart.addEventListener('click', () => {
 setupCanvas();
 
 // Draw idle state (background only)
-animFrameId = requestAnimationFrame(loop);
+gameLoop.start();

@@ -1,14 +1,23 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// === GameStats ===
+const gameStats = new GameStats('pyramid', { autoSync: true });
+
+// === GameTimer ===
+let gameTimer = null;
 
 const SUITS = ['♠','♥','♦','♣'];
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const VALUES = {A:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,J:11,Q:12,K:13};
 
-let pyramid, stock, waste, selected, moves, timerInterval, seconds;
+let pyramid, stock, waste, selected, moves;
 
 function createDeck() {
   const deck = [];
@@ -37,12 +46,20 @@ function init() {
   waste = [];
   selected = null;
   moves = 0;
-  seconds = 0;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    seconds++;
-    document.getElementById('time-display').textContent = `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`;
-  }, 1000);
+
+  // Destroy previous timer if exists
+  if (gameTimer) {
+    gameTimer.destroy();
+  }
+
+  // Create new timer
+  gameTimer = new GameTimer({
+    onTick: (seconds) => {
+      document.getElementById('time-display').textContent = `${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`;
+    }
+  });
+  gameTimer.start();
+
   document.getElementById('moves-display').textContent = '0';
   document.getElementById('modal-overlay').style.display = 'none';
   document.getElementById('message').textContent = '';
@@ -164,10 +181,11 @@ function selectCard(type, row, col, card) {
 function checkWin() {
   const allRemoved = pyramid.every(row => row.every(c => c.removed));
   if (allRemoved) {
-    clearInterval(timerInterval);
+    const finalTime = gameTimer ? gameTimer.getTime() : 0;
+    gameTimer.stop();
     launchConfetti();
     playSound('win');
-    showModal('🏆 Você venceu!', `Parabens! Completou em ${moves} movimentos e ${Math.floor(seconds/60)}:${(seconds%60).toString().padStart(2,'0')}`, 'win');
+    showModal('🏆 Você venceu!', `Parabens! Completou em ${moves} movimentos e ${Math.floor(finalTime/60)}:${(finalTime%60).toString().padStart(2,'0')}`, 'win');
   }
 }
 
@@ -177,13 +195,9 @@ async function showModal(title, message, result) {
   document.getElementById('modal-message').textContent = message;
   document.getElementById('modal-overlay').style.display = 'flex';
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'pyramid', result, moves, time_seconds: seconds,
-      score: moves,
-    });
-  }
+  // Save stats using GameStats
+  const finalTime = gameTimer ? gameTimer.getTime() : 0;
+  gameStats.recordGame(true, { score: moves, time: finalTime });
 }
 
 document.getElementById('btn-new').addEventListener('click', init);

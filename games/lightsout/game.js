@@ -1,21 +1,32 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const SIZE = 5;
-let grid, moves, level, startTime;
+let grid, moves, level;
 const boardEl = document.getElementById('board');
 const movesEl = document.getElementById('moves');
 const levelEl = document.getElementById('level');
 const modal = document.getElementById('modal');
 const modalMsg = document.getElementById('modal-msg');
 
+// GameStats e GameTimer
+const gameStats = new GameStats('lightsout', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    // Timer é mostrado apenas no modal de vitória
+  }
+});
+
 function init() {
   grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
   moves = 0;
-  startTime = Date.now();
+  gameTimer.reset();
+  gameTimer.start();
   movesEl.textContent = 'Cliques: 0';
   modal.style.display = 'none';
 
@@ -69,18 +80,15 @@ function handleClick(r, c) {
 }
 
 async function win() {
-  const timeSec = Math.floor((Date.now() - startTime) / 1000);
+  gameTimer.stop();
+  const timeSec = gameTimer.getTime();
   launchConfetti();
   playSound('win');
-  modalMsg.textContent = `🎉 Nivel ${level} completo!\n${moves} cliques em ${Math.floor(timeSec/60)}:${(timeSec%60).toString().padStart(2,'0')}`;
+  modalMsg.textContent = `🎉 Nivel ${level} completo!\n${moves} cliques em ${gameTimer.getFormatted()}`;
   modal.style.display = 'flex';
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'lightsout', result: 'win', moves, time_seconds: timeSec
-    });
-  }
+  // Salva estatísticas usando GameStats
+  gameStats.recordGame(true, { moves: moves, time: timeSec });
 }
 
 document.getElementById('restart').addEventListener('click', init);

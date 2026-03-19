@@ -1,5 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { MultiplayerManager } from '../shared/multiplayer-manager.js';
 import { supabase } from '../../supabase.js';
 
 // --- Constants ---
@@ -28,6 +30,10 @@ const urlParams = new URLSearchParams(window.location.search);
 const ROOM_ID = urlParams.get('room');
 const IS_MULTIPLAYER = !!ROOM_ID;
 
+// --- Shared Modules ---
+const gameStats = new GameStats('reversi', { autoSync: true });
+let mpManager = null;
+
 // --- State ---
 let board = [];
 let currentPlayer = BLACK;
@@ -37,7 +43,6 @@ let isProcessing = false;
 let myColor = BLACK;      // In multiplayer: BLACK for player1, WHITE for player2
 let isMyTurn = true;      // In multiplayer: depends on turn
 let roomData = null;        // Multiplayer room data
-let channel = null;         // Supabase realtime channel
 let myUserId = null;        // Current user ID
 let player1Name = 'Jogador 1';
 let player2Name = 'Jogador 2';
@@ -128,87 +133,68 @@ async function initMultiplayer() {
     modeIndicator.classList.add('multiplayer-mode');
   }
 
+  // Initialize multiplayer manager
+  mpManager = new MultiplayerManager('reversi', ROOM_ID, {
+    tableName: 'game_rooms',
+    onConnect: () => console.log('[Reversi] Connected to multiplayer'),
+    onDisconnect: () => console.log('[Reversi] Disconnected from multiplayer'),
+    onError: (err) => console.error('[Reversi] Multiplayer error:', err)
+  });
+
   // Join room and get initial state
-  await joinRoom();
-}
+  const success = await mpManager.init();
+  if (!success) return;
 
-async function joinRoom() {
-  try {
-    // Get room data
-    const { data, error } = await supabase
-      .from('game_rooms')
-      .select('*')
-      .eq('id', ROOM_ID)
-      .single();
+  // Determine player role - player1 is BLACK, player2 is WHITE
+  roomData = mpManager.roomData;
+  const isPlayer1 = roomData.player1_id === myUserId;
+  myColor = isPlayer1 ? BLACK : WHITE;
+  isMyTurn = roomData.turn === (isPlayer1 ? 1 : 2);
 
-    if (error || !data) {
-      alert('Sala não encontrada!');
-      window.location.href = '/multiplayer.html';
-      return;
-    }
+  // Get player names
+  player1Name = roomData.player1_name || 'Jogador 1';
+  player2Name = roomData.player2_name || 'Jogador 2';
 
-    roomData = data;
-
-    // Determine player role - player1 is BLACK, player2 is WHITE
-    const isPlayer1 = data.player1_id === myUserId;
-    myColor = isPlayer1 ? BLACK : WHITE;
-    isMyTurn = data.turn === (isPlayer1 ? 1 : 2);
-
-    // Get player names
-    player1Name = data.player1_name || 'Jogador 1';
-    player2Name = data.player2_name || 'Jogador 2';
-
-    // Restore board state if exists
-    if (data.state && data.state.board) {
-      board = data.state.board;
-      currentPlayer = data.state.currentPlayer || BLACK;
-      gameOver = data.state.gameOver || false;
-      consecutivePasses = data.state.consecutivePasses || 0;
-      render();
-    }
-
-    // Subscribe to realtime changes
-    subscribeToRoom();
-
-    // Update turn indicator
-    updateTurnIndicator();
-
-  } catch (e) {
-    console.error('Erro ao entrar na sala:', e);
-    alert('Erro ao conectar à sala.');
+  // Restore board state if exists
+  if (roomData.state && roomData.state.board) {
+    board = roomData.state.board;
+    currentPlayer = roomData.state.currentPlayer || BLACK;
+    gameOver = roomData.state.gameOver || false;
+    consecutivePasses = roomData.state.consecutivePasses || 0;
+    render();
   }
+
+  // Subscribe to realtime changes
+  subscribeToRoom();
+
+  // Update turn indicator
+  updateTurnIndicator();
 }
 
 function subscribeToRoom() {
-  channel = supabase.channel(`room-${ROOM_ID}`);
+  if (!mpManager) return;
 
-  channel
-    .on('broadcast', { event: 'move' }, ({ payload }) => {
-      handleRemoteMove(payload);
-    })
-    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
-      // Update opponent name if just joined
-      if (payload.playerNumber === 2) {
-        player2Name = payload.playerName || 'Jogador 2';
-      }
-    })
-    .on('broadcast', { event: 'game_reset' }, () => {
-      resetGame(false); // Don't broadcast reset
-    })
-    .on('broadcast', { event: 'pass_turn' }, ({ payload }) => {
-      handleRemotePass(payload);
-    })
-    .subscribe((status) => {
-      console.log('Multiplayer status:', status);
+  // Handle move events
+  mpManager.on('move', (payload) => {
+    handleRemoteMove(payload);
+  });
 
-      // Notify other player we're here
-      const myPlayerNumber = roomData.player1_id === myUserId ? 1 : 2;
-      channel.send({
-        type: 'broadcast',
-        event: 'player_joined',
-        payload: { playerNumber: myPlayerNumber, playerName: myPlayerNumber === 1 ? player1Name : player2Name }
-      });
-    });
+  // Handle pass events
+  mpManager.on('pass_turn', (payload) => {
+    handleRemotePass(payload);
+  });
+
+  // Handle game reset
+  mpManager.on('game_reset', () => {
+    resetGame(false);
+  });
+
+  // Handle player joined
+  mpManager.on('player_joined', (payload) => {
+    if (payload.playerNumber === 2) {
+      player2Name = payload.playerName || 'Jogador 2';
+    }
+  });
 }
 
 async function handleRemoteMove(payload) {
@@ -251,12 +237,6 @@ async function handleRemoteMove(payload) {
   currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
   consecutivePasses = 0;
 
-  // Check if game over
-  if (payload.gameOver) {
-    setTimeout(() => endGame(), 800);
-    return;
-  }
-
   // Update turn
   const isPlayer1 = roomData.player1_id === myUserId;
   isMyTurn = currentPlayer === (isPlayer1 ? BLACK : WHITE);
@@ -294,7 +274,7 @@ async function handleRemotePass(payload) {
 }
 
 async function sendMove(pos, flips, player) {
-  if (!channel) return;
+  if (!mpManager) return;
 
   // Check if this move ends the game
   const counts = countPieces(board);
@@ -304,44 +284,28 @@ async function sendMove(pos, flips, player) {
   const willEndGame = isBoardFull || (nextMoves.length === 0 && getValidMoves(board, player).length === 0);
 
   // Broadcast to other player
-  channel.send({
-    type: 'broadcast',
-    event: 'move',
-    payload: { pos, flips, player, playerId: myUserId, gameOver: willEndGame }
-  });
+  await mpManager.send('move', { pos, flips, player, gameOver: willEndGame });
 
   // Update room state in database
-  try {
-    const nextTurn = currentPlayer === BLACK ? 2 : 1;
-    await supabase.from('game_rooms').update({
-      state: { board, currentPlayer, gameOver: willEndGame, consecutivePasses },
-      turn: nextTurn
-    }).eq('id', ROOM_ID);
-  } catch (e) {
-    console.warn('Erro ao salvar estado:', e);
-  }
+  const nextTurn = currentPlayer === BLACK ? 2 : 1;
+  await mpManager.updateState(
+    { board, currentPlayer, gameOver: willEndGame, consecutivePasses },
+    { turn: nextTurn }
+  );
 }
 
 async function sendPass() {
-  if (!channel) return;
+  if (!mpManager) return;
 
   // Broadcast pass
-  channel.send({
-    type: 'broadcast',
-    event: 'pass_turn',
-    payload: { playerId: myUserId, consecutivePasses }
-  });
+  await mpManager.send('pass_turn', { consecutivePasses });
 
   // Update room state
-  try {
-    const nextTurn = currentPlayer === BLACK ? 2 : 1;
-    await supabase.from('game_rooms').update({
-      state: { board, currentPlayer, gameOver: false, consecutivePasses },
-      turn: nextTurn
-    }).eq('id', ROOM_ID);
-  } catch (e) {
-    console.warn('Erro ao salvar estado:', e);
-  }
+  const nextTurn = currentPlayer === BLACK ? 2 : 1;
+  await mpManager.updateState(
+    { board, currentPlayer, gameOver: false, consecutivePasses },
+    { turn: nextTurn }
+  );
 }
 
 // --- Rendering ---
@@ -793,12 +757,9 @@ function endGame() {
     // Update room status
     if (ROOM_ID) {
       const isPlayer1 = roomData.player1_id === myUserId;
-      supabase.from('game_rooms').update({
-        status: 'finished',
-        winner: iWon ? myUserId : (isDraw ? null : 'opponent')
-      }).eq('id', ROOM_ID).then(() => {
-        saveGameStat(result);
-      });
+      if (mpManager) {
+        mpManager.finishGame(iWon ? myUserId : (isDraw ? null : 'opponent'));
+      }
     }
   } else {
     // Single player end game
@@ -820,9 +781,10 @@ function endGame() {
       title = 'Empate!';
       msg = `Preto ${black} x ${white} Branco`;
     }
-
-    saveGameStat(result);
   }
+
+  // Save stats using shared module
+  gameStats.recordGame(result === 'win', { score: Math.max(black, white) });
 
   turnEl.textContent = title;
   turnEl.className = 'turn-indicator';
@@ -833,25 +795,6 @@ function endGame() {
   modalOverlay.classList.remove('hidden');
 }
 
-// --- Supabase ---
-async function saveGameStat(result) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'reversi',
-      result: result,
-      moves: 0,
-      time_seconds: 0,
-      room_id: ROOM_ID,
-      is_multiplayer: IS_MULTIPLAYER
-    });
-  } catch (e) {
-    console.warn('Erro ao salvar stats:', e);
-  }
-}
-
 // --- Init ---
 function resetGame(shouldBroadcast = true) {
   modalOverlay.classList.add('hidden');
@@ -859,20 +802,16 @@ function resetGame(shouldBroadcast = true) {
   render();
   updateTurnIndicator();
 
-  if (IS_MULTIPLAYER && shouldBroadcast && channel) {
-    channel.send({
-      type: 'broadcast',
-      event: 'game_reset',
-      payload: {}
-    });
+  if (IS_MULTIPLAYER && shouldBroadcast && mpManager) {
+    mpManager.send('game_reset', {});
 
     // Reset room state
-    supabase.from('game_rooms').update({
-      state: { board: new Array(64).fill(EMPTY), currentPlayer: BLACK, gameOver: false, consecutivePasses: 0 },
-      turn: 1,
-      status: 'playing',
-      winner: null
-    }).eq('id', ROOM_ID);
+    mpManager.resetRoom({
+      board: new Array(64).fill(EMPTY),
+      currentPlayer: BLACK,
+      gameOver: false,
+      consecutivePasses: 0
+    });
 
     // Reset local multiplayer state
     const isPlayer1 = roomData.player1_id === myUserId;
@@ -889,6 +828,14 @@ function newGame() {
 
 btnNewGame.addEventListener('click', () => { initAudio(); playSound('click'); newGame(); });
 btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); newGame(); });
+
+// Cleanup
+window.addEventListener('beforeunload', () => {
+  if (mpManager) {
+    mpManager.cleanup();
+  }
+  gameStats.destroy();
+});
 
 // Start
 initMultiplayer().then(() => {

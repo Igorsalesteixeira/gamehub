@@ -1,7 +1,10 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { playSound, initAudio } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 // ===== Termo (Wordle BR) =====
 import { supabase } from '../../supabase.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -68,9 +71,11 @@ let targetWord = '';
 let currentRow = 0;
 let currentCol = 0;
 let gameOver = false;
-let wins = parseInt(localStorage.getItem('termo_wins') || '0');
 let board = []; // 6x5 array of letters
 let keyStates = {}; // letter -> best state
+
+// GameStats instance
+let gameStats = null;
 
 // Keyboard layout
 const KB_ROWS = [
@@ -79,7 +84,7 @@ const KB_ROWS = [
   ['ENTER','Z','X','C','V','B','N','M','⌫']
 ];
 
-// Game Design: Desafio Diário - palavra baseada na data
+// Game Design: Desafio Diario - palavra baseada na data
 function getDailyWord() {
   const today = new Date();
   const dateStr = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
@@ -93,8 +98,21 @@ function getDailyWord() {
 }
 
 function init() {
-  winsDisplay.textContent = wins;
-  // Game Design: Modo diário (todos jogam a mesma palavra por dia)
+  // Initialize GameStats
+  if (!gameStats) {
+    gameStats = new GameStats('termo', { autoSync: true });
+    // Load wins from localStorage for backward compatibility
+    const savedWins = parseInt(localStorage.getItem('termo_wins') || '0');
+    if (savedWins > 0) {
+      gameStats.update({ gamesWon: savedWins });
+    }
+  }
+
+  // Update display from GameStats
+  const stats = gameStats.get();
+  winsDisplay.textContent = stats.gamesWon;
+
+  // Game Design: Modo diario (todos jogam a mesma palavra por dia)
   targetWord = getDailyWord();
   currentRow = 0;
   currentCol = 0;
@@ -237,9 +255,13 @@ function submitGuess() {
   setTimeout(() => {
     if (guess === targetWord) {
       gameOver = true;
-      wins++;
-      localStorage.setItem('termo_wins', wins);
-      winsDisplay.textContent = wins;
+      // Update GameStats
+      if (gameStats) {
+        gameStats.recordGame(true, { moves: currentRow + 1 });
+        // Keep localStorage in sync for backward compatibility
+        localStorage.setItem('termo_wins', gameStats.get().gamesWon);
+        winsDisplay.textContent = gameStats.get().gamesWon;
+      }
       // Bounce animation
       tiles.forEach((tile, i) => {
         setTimeout(() => tile.classList.add('bounce'), i * 100);
@@ -255,6 +277,10 @@ function submitGuess() {
       if (currentRow >= MAX_GUESSES) {
         gameOver = true;
         playSound('error');
+        // Update GameStats for loss
+        if (gameStats) {
+          gameStats.recordGame(false, { moves: MAX_GUESSES });
+        }
         showModal('Que pena! 😔', 'Voce nao conseguiu adivinhar.');
         saveGameStat('loss');
       }
@@ -334,7 +360,7 @@ btnNewGame.addEventListener('click', () => {
   init();
 });
 
-// Supabase stats
+// Supabase stats - mantida para compatibilidade
 async function saveGameStat(result) {
   try {
     const { data: { session } } = await supabase.auth.getSession();

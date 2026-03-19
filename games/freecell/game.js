@@ -1,11 +1,19 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 // =============================================
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 //  FREECELL — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
+
+// === GameStats ===
+const gameStats = new GameStats('freecell', { autoSync: true });
+
+// === GameTimer ===
+let gameTimer = null;
 
 // Initialize audio on first user interaction
 let audioInitialized = false;
@@ -30,10 +38,7 @@ let state = {
 };
 
 let selected = null; // { source, colIndex?, cellIndex?, suit?, cardIndex? }
-let timerInterval  = null;
-let secondsElapsed = 0;
 let gameStarted    = false;
-let timerStarted   = false;
 
 // ---- DOM ----
 const movesDisplay = document.getElementById('moves-display');
@@ -78,14 +83,25 @@ function shuffle(arr) {
 function newGame() {
   ensureAudio();
   if (gameStarted && !checkWin()) {
-    saveGameStat('loss');
+    gameStats.recordGame(false, { score: state.moves });
   }
   gameStarted = false;
-  timerStarted = false;
   selected = null;
-  clearInterval(timerInterval);
-  secondsElapsed = 0;
-  updateTimer();
+
+  // Destroy previous timer if exists
+  if (gameTimer) {
+    gameTimer.destroy();
+  }
+
+  // Create new timer
+  gameTimer = new GameTimer({
+    onTick: () => {
+      if (timeDisplay) {
+        timeDisplay.textContent = `⏱ ${gameTimer.getFormatted()}`;
+      }
+    }
+  });
+  timeDisplay.textContent = `⏱ 00:00`;
 
   const deck = buildDeck();
   // Deal: first 4 columns get 7 cards, last 4 get 6
@@ -113,22 +129,10 @@ function newGame() {
 }
 
 // =============================================
-//  TIMER
+//  TIMER (replaced by GameTimer)
 // =============================================
 function startTimer() {
-  if (timerStarted) return;
-  timerStarted = true;
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    secondsElapsed++;
-    updateTimer();
-  }, 1000);
-}
-
-function updateTimer() {
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
-  const s = String(secondsElapsed % 60).padStart(2,'0');
-  timeDisplay.textContent = `⏱ ${m}:${s}`;
+  if (gameTimer) gameTimer.start();
 }
 
 // =============================================
@@ -869,11 +873,12 @@ function checkWin() {
 }
 
 function showWin() {
-  clearInterval(timerInterval);
-  saveGameStat('win');
+  if (gameTimer) gameTimer.stop();
+  const finalTime = gameTimer ? gameTimer.getTime() : 0;
+  gameStats.recordGame(true, { score: state.moves, time: finalTime });
   gameStarted = false;
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2,'0');
-  const s = String(secondsElapsed % 60).padStart(2,'0');
+  const m = String(Math.floor(finalTime / 60)).padStart(2,'0');
+  const s = String(finalTime % 60).padStart(2,'0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
   launchConfetti();
@@ -911,24 +916,6 @@ function undo() {
   render();
 }
 
-// =============================================
-//  STATS — Supabase
-// =============================================
-async function saveGameStat(result) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'freecell',
-      result: result,
-      moves: state.moves,
-      time_seconds: secondsElapsed,
-    });
-  } catch (e) {
-    console.warn('Erro ao salvar stats:', e);
-  }
-}
 
 // =============================================
 //  INIT

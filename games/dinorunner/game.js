@@ -1,6 +1,9 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-// ===== Dino Runner =====
+import { GameStats } from '../shared/game-core.js';
+import { GameLoop } from '../shared/game-loop.js';
+import { InputManager } from '../shared/input-manager.js';
+// ===== Dino Runner (Refatorado) =====
 import { supabase } from '../../supabase.js';
 
 const canvas = document.getElementById('game-canvas');
@@ -30,15 +33,18 @@ const MAX_SPEED = 14;
 const SPEED_INCREMENT = 0.001;
 
 // ===== ESTADO =====
-let dino, obstacles, clouds, score, bestScore, speed, gameState, animId, frameCount;
+let dino, obstacles, clouds, score, bestScore, speed, gameState, frameCount;
 let isDucking = false;
 let paused = false;
-let shakeFrames = 0;      // screen shake ao morrer
-let obstaclesCrossed = 0; // contador para combo
-let comboPopup = null;    // { text, x, y, alpha, frame }
+let shakeFrames = 0;
+let obstaclesCrossed = 0;
+let comboPopup = null;
 
 bestScore = parseInt(localStorage.getItem('dino_best') || '0');
 bestDisplay.textContent = bestScore;
+
+// ===== STATS =====
+const gameStats = new GameStats('dinorunner', { autoSync: true });
 
 // ===== CLASSES =====
 function createDino() {
@@ -120,13 +126,12 @@ function startGame() {
   initAudio();
   hideOverlay();
   gameState = 'playing';
-  if (animId) cancelAnimationFrame(animId);
-  loop();
+  gameLoop.start();
 }
 
 // ===== UPDATE =====
-function update() {
-  if (gameState !== 'playing') return;
+function update(dt) {
+  if (gameState !== 'playing' || paused) return;
 
   frameCount++;
   score = Math.floor(frameCount / 3);
@@ -221,9 +226,15 @@ function update() {
 
 function die() {
   gameState = 'dead';
+  gameLoop.pause();
   shakeFrames = 14;
   obstaclesCrossed = 0;
-  if (score > bestScore) {
+
+  // Save stats
+  const isNewRecord = score > bestScore;
+  gameStats.recordGame(isNewRecord, { score });
+
+  if (isNewRecord) {
     bestScore = score;
     localStorage.setItem('dino_best', bestScore);
     bestDisplay.textContent = bestScore;
@@ -448,11 +459,12 @@ function drawPtero(obs) {
   ctx.fillRect(obs.x + obs.w - 4, obs.y + 8, 3, 3);
 }
 
-function loop() {
-  if (!paused) update();
-  draw();
-  animId = requestAnimationFrame(loop);
-}
+// ===== GAME LOOP =====
+const gameLoop = new GameLoop({
+  update,
+  render: draw,
+  fps: 60
+});
 
 // ===== INPUT =====
 function jump() {
@@ -487,24 +499,27 @@ function duckEnd() {
   }
 }
 
-// Teclado
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-    if (gameState === 'playing') { paused = !paused; e.preventDefault(); return; }
+// Input Manager
+const inputManager = new InputManager({ keyboardTarget: document });
+
+inputManager.on('keyDown', (key) => {
+  if (key === 'p' || key === 'P' || key === 'Escape') {
+    if (gameState === 'playing') {
+      paused = !paused;
+    }
+    return;
   }
   if (paused) return;
-  if (e.key === ' ' || e.key === 'ArrowUp') {
-    e.preventDefault();
+  if (key === ' ' || key === 'ArrowUp') {
     jump();
   }
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
+  if (key === 'ArrowDown') {
     duckStart();
   }
 });
 
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'ArrowDown') {
+inputManager.on('keyUp', (key) => {
+  if (key === 'ArrowDown') {
     duckEnd();
   }
 });
@@ -530,25 +545,27 @@ btnStart.addEventListener('click', (e) => {
   }
 });
 
-// Mobile buttons
+// Mobile controls
 const mobileControls = document.getElementById('mobile-controls');
-mobileControls.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const action = e.target.dataset.action;
-  if (action === 'jump') jump();
-  if (action === 'duck') duckStart();
-}, { passive: false });
+if (mobileControls) {
+  mobileControls.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const action = e.target.dataset.action;
+    if (action === 'jump') jump();
+    if (action === 'duck') duckStart();
+  }, { passive: false });
 
-mobileControls.addEventListener('touchend', (e) => {
-  e.preventDefault();
-  const action = e.target.dataset.action;
-  if (action === 'duck') duckEnd();
-}, { passive: false });
+  mobileControls.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    const action = e.target.dataset.action;
+    if (action === 'duck') duckEnd();
+  }, { passive: false });
 
-mobileControls.addEventListener('click', (e) => {
-  const action = e.target.dataset.action;
-  if (action === 'jump') jump();
-});
+  mobileControls.addEventListener('click', (e) => {
+    const action = e.target.dataset.action;
+    if (action === 'jump') jump();
+  });
+}
 
 // ===== SUPABASE STATS =====
 async function saveGameStat() {
@@ -570,4 +587,3 @@ async function saveGameStat() {
 
 // ===== START =====
 init();
-loop();

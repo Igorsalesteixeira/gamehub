@@ -1,7 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
-// ===== Anagrama =====
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -25,8 +26,6 @@ let answerSlots = [];
 let round = 0;
 let score = 0;
 let hints = 3;
-let startTime = 0;
-let timerInterval = null;
 let gameOver = false;
 
 const answerArea = document.getElementById('answer-area');
@@ -39,6 +38,14 @@ const categoryEl = document.getElementById('category-name');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
+
+// GameStats e GameTimer
+const gameStats = new GameStats('anagram', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    timerEl.textContent = formatted;
+  }
+});
 
 function getWordOfLength(len) {
   const candidates = [];
@@ -169,7 +176,7 @@ function checkAnswer() {
 
   if (attempt === currentWord) {
     slots.forEach(s => { s.classList.remove('filled'); s.classList.add('correct'); });
-    const timeBonus = Math.max(0, 100 - getElapsed());
+    const timeBonus = Math.max(0, 100 - gameTimer.getTime());
     const roundScore = currentWord.length * 10 + timeBonus;
     score += roundScore;
     scoreEl.textContent = score;
@@ -266,15 +273,15 @@ function skipWord() {
 
 function endGame(won) {
   gameOver = true;
-  clearInterval(timerInterval);
-  const t = getElapsed();
+  gameTimer.stop();
+  const t = gameTimer.getTime();
   if (won) {
     launchConfetti();
     playSound('win');
   }
   modalTitle.textContent = won ? 'Parabéns!' : 'Fim de Jogo';
   modalTitle.className = won ? 'win' : 'loss';
-  modalMessage.textContent = `Pontuação final: ${score} pontos em ${Math.floor(t/60)}m ${t%60}s`;
+  modalMessage.textContent = `Pontuação final: ${score} pontos em ${gameTimer.getFormatted()}`;
   modalOverlay.classList.add('active');
   saveGameStat(won ? 'win' : 'loss', t);
 
@@ -283,41 +290,15 @@ function endGame(won) {
   if (shareBtn) {
     shareBtn.onclick = () => {
       const text = won
-        ? `🎉 Acabei de vencer no Anagrama no Games Hub! ${score} pontos em ${Math.floor(t/60)}m ${t%60}s. Jogue você também! 🎮 https://gameshub.com.br/games/anagram/`
+        ? `🎉 Acabei de vencer no Anagrama no Games Hub! ${score} pontos em ${gameTimer.getFormatted()}. Jogue você também! 🎮 https://gameshub.com.br/games/anagram/`
         : `🎮 Joguei Anagrama no Games Hub e fiz ${score} pontos! Tente bater meu recorde! 🎮 https://gameshub.com.br/games/anagram/`;
       shareOnWhatsApp(text);
     };
   }
 }
 
-// Timer
-function startTimer() {
-  startTime = Date.now();
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const s = getElapsed();
-    const m = Math.floor(s / 60);
-    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
-  }, 1000);
-}
-
-function getElapsed() {
-  return Math.floor((Date.now() - startTime) / 1000);
-}
-
 async function saveGameStat(result, timeSec) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'anagram',
-      result,
-      moves: score,
-      time_seconds: timeSec,
-      score: score
-    });
-  } catch (e) { console.error(e); }
+  gameStats.recordGame(result === 'win', { score: score, time: timeSec });
 }
 
 function newGame() {
@@ -327,8 +308,9 @@ function newGame() {
   hints = 3;
   gameOver = false;
   scoreEl.textContent = 0;
+  gameTimer.reset();
+  gameTimer.start();
   renderRound();
-  startTimer();
 }
 
 document.getElementById('btn-hint').addEventListener('click', useHint);

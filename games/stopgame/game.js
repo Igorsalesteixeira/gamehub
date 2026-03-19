@@ -1,13 +1,15 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { createCountdown } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
 const CATEGORIES = ['Nome', 'Animal', 'Fruta', 'Cidade', 'Objeto', 'Cor'];
 const LETTERS = 'ABCDEFGHIJLMNOPRS'.split('');
 
-let currentLetter, timerSeconds, timerInterval, round, totalScore, roundActive;
+let currentLetter, round, totalScore, roundActive;
 
 const letterEl = document.getElementById('letter');
 const timerEl = document.getElementById('timer');
@@ -15,6 +17,10 @@ const roundEl = document.getElementById('round');
 const scoreEl = document.getElementById('score');
 const catsEl = document.getElementById('categories');
 const resultsEl = document.getElementById('results');
+
+// GameStats e GameTimer (countdown)
+const gameStats = new GameStats('stopgame', { autoSync: true });
+let countdownTimer = null;
 
 function init() {
   round = 1;
@@ -36,8 +42,6 @@ function newRound() {
   currentLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
   letterEl.textContent = currentLetter;
   roundEl.textContent = round;
-  timerSeconds = 60;
-  timerEl.textContent = '60';
   timerEl.classList.remove('urgent');
   roundActive = true;
   resultsEl.style.display = 'none';
@@ -70,22 +74,27 @@ function newRound() {
     });
   });
 
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timerSeconds--;
-    timerEl.textContent = timerSeconds;
-    if (timerSeconds <= 10) {
-      timerEl.classList.add('urgent');
-      if (timerSeconds > 0) playSound('tick');
+  // Cria countdown de 60 segundos
+  if (countdownTimer) countdownTimer.destroy();
+  countdownTimer = createCountdown(60, {
+    onTick: (time) => {
+      timerEl.textContent = time;
+      if (time <= 10) {
+        timerEl.classList.add('urgent');
+        if (time > 0) playSound('tick');
+      }
+    },
+    onMaxTime: () => {
+      stopRound();
     }
-    if (timerSeconds <= 0) stopRound();
-  }, 1000);
+  });
+  countdownTimer.start();
 }
 
 function stopRound() {
   if (!roundActive) return;
   roundActive = false;
-  clearInterval(timerInterval);
+  if (countdownTimer) countdownTimer.stop();
 
   const inputs = catsEl.querySelectorAll('.cat-input');
   let roundScore = 0;
@@ -145,12 +154,7 @@ document.getElementById('new-round').addEventListener('click', () => {
 
 async function saveStats() {
   if (totalScore === 0) return;
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'stopgame', result: 'win', score: totalScore, moves: totalScore, time_seconds: 0
-    });
-  }
+  gameStats.recordGame(true, { score: totalScore, moves: totalScore });
 }
 
 init();

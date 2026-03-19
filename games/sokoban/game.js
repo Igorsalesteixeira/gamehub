@@ -1,9 +1,11 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+
 // =============================================
-//  SOKOBAN — game.js
+//  SOKOBAN — game.js (refatorado com módulos compartilhados)
 // =============================================
-import { supabase } from '../../supabase.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -150,6 +152,9 @@ let history  = [];  // for undo: [{player, boxes, moves}]
 let rows     = 0;
 let cols     = 0;
 let playing  = false;
+
+// GameStats - Sokoban não usa timer, apenas moves
+const gameStats = new GameStats('sokoban', { autoSync: true });
 
 // =============================================
 //  PARSE LEVEL
@@ -467,22 +472,10 @@ window.addEventListener('resize', () => {
 });
 
 // =============================================
-//  STATS — Supabase
+//  STATS
 // =============================================
 async function saveGameStat() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'sokoban',
-      result: 'win',
-      moves: moves,
-      time_seconds: 0,
-    });
-  } catch (e) {
-    console.warn('Erro ao salvar stats:', e);
-  }
+  gameStats.recordGame(true, { moves: moves });
 }
 
 // =============================================

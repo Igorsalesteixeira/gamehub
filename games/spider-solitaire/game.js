@@ -1,11 +1,19 @@
 ﻿import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 // =============================================
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// === GameStats ===
+const gameStats = new GameStats('spider', { autoSync: true });
+
+// === GameTimer ===
+let gameTimer = null;
 
 // Initialize audio on first user interaction
 let audioInitialized = false;
@@ -36,8 +44,6 @@ let state = {
 // Card object: { rank, suit, faceUp }
 // rank: index 0..12 (A=0, K=12)
 
-let timerInterval = null;
-let secondsElapsed = 0;
 let selectedCard = null; // { colIndex, cardIndex }
 
 // ---- DOM refs ----
@@ -91,9 +97,21 @@ function shuffle(arr) {
 function newGame() {
   ensureAudio();
   selectedCard = null;
-  clearInterval(timerInterval);
-  secondsElapsed = 0;
-  updateTimer();
+
+  // Destroy previous timer if exists
+  if (gameTimer) {
+    gameTimer.destroy();
+  }
+
+  // Create new timer
+  gameTimer = new GameTimer({
+    onTick: () => {
+      if (timeDisplay) {
+        timeDisplay.textContent = `⏱ ${gameTimer.getFormatted()}`;
+      }
+    }
+  });
+  timeDisplay.textContent = `⏱ 00:00`;
 
   const suitCount = state.suitCount || 1;
   const deck = buildDeck(suitCount);
@@ -131,26 +149,13 @@ function newGame() {
   };
 
   playSound('shuffle');
-  startTimer();
+  gameTimer.start();
   render();
 }
 
 // =============================================
-//  TIMER
+//  TIMER (replaced by GameTimer)
 // =============================================
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    secondsElapsed++;
-    updateTimer();
-  }, 1000);
-}
-
-function updateTimer() {
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-  const s = String(secondsElapsed % 60).padStart(2, '0');
-  timeDisplay.textContent = `⏱ ${m}:${s}`;
-}
 
 // =============================================
 //  RENDER
@@ -489,32 +494,17 @@ function undo() {
 //  WIN SCREEN
 // =============================================
 function showWin() {
-  clearInterval(timerInterval);
-  const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-  const s = String(secondsElapsed % 60).padStart(2, '0');
+  if (gameTimer) gameTimer.stop();
+  const finalTime = gameTimer ? gameTimer.getTime() : 0;
+  const m = String(Math.floor(finalTime / 60)).padStart(2, '0');
+  const s = String(finalTime % 60).padStart(2, '0');
   winStats.textContent = `${state.moves} movimentos em ${m}:${s}`;
   winModal.classList.add('show');
   launchConfetti();
   playSound('win');
-  saveGameStat();
+  gameStats.recordGame(true, { score: state.moves, time: finalTime });
 }
 
-// =============================================
-//  STATS — Supabase
-// =============================================
-async function saveGameStat() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'spider',
-      result: 'win',
-      moves: state.moves,
-      time_seconds: secondsElapsed,
-    });
-  } catch (e) { console.warn('Erro ao salvar stats:', e); }
-}
 
 // =============================================
 //  INIT

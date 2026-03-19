@@ -1,7 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
-// ===== Caça-Palavras =====
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -28,8 +29,6 @@ let selecting = false;
 let selStart = null;
 let selEnd = null;
 let foundLines = [];
-let timerInterval = null;
-let startTime = 0;
 
 const canvas = document.getElementById('grid-canvas');
 const ctx = canvas.getContext('2d');
@@ -38,6 +37,16 @@ const timerEl = document.getElementById('timer-display');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalTitle = document.getElementById('modal-title');
 const modalMessage = document.getElementById('modal-message');
+
+// GameStats e GameTimer
+const gameStats = new GameStats('wordsearch', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    timerEl.textContent = formatted;
+  }
+});
+
+let placedWords = [];
 
 function pickWords() {
   const catKeys = Object.keys(CATEGORIES);
@@ -87,8 +96,6 @@ function fillRandom(grid) {
     for (let c = 0; c < GRID_SIZE; c++)
       if (grid[r][c] === '') grid[r][c] = letters[Math.floor(Math.random() * 26)];
 }
-
-let placedWords = [];
 
 function generatePuzzle() {
   let attempts = 0;
@@ -298,28 +305,13 @@ canvas.addEventListener('touchend', e => {
   draw();
 });
 
-// Timer
-function startTimer() {
-  startTime = Date.now();
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const s = Math.floor((Date.now() - startTime) / 1000);
-    const m = Math.floor(s / 60);
-    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
-  }, 1000);
-}
-
-function getElapsed() {
-  return Math.floor((Date.now() - startTime) / 1000);
-}
-
 function onWin() {
-  clearInterval(timerInterval);
-  const t = getElapsed();
+  gameTimer.stop();
+  const t = gameTimer.getTime();
   launchConfetti();
   playSound('win');
   modalTitle.textContent = 'Parabéns!';
-  modalMessage.textContent = `Você encontrou todas as ${words.length} palavras em ${Math.floor(t/60)}m ${t%60}s!`;
+  modalMessage.textContent = `Você encontrou todas as ${words.length} palavras em ${gameTimer.getFormatted()}!`;
   modalOverlay.classList.add('active');
   saveGameStat(t);
 
@@ -327,24 +319,14 @@ function onWin() {
   const shareBtn = document.getElementById('btn-share');
   if (shareBtn) {
     shareBtn.onclick = () => {
-      const text = `🎉 Acabei de completar o Caça-Palavras no Games Hub! Encontrei ${words.length} palavras em ${Math.floor(t/60)}m ${t%60}s. Jogue você também! 🎮 https://gameshub.com.br/games/wordsearch/`;
+      const text = `🎉 Acabei de completar o Caça-Palavras no Games Hub! Encontrei ${words.length} palavras em ${gameTimer.getFormatted()}. Jogue você também! 🎮 https://gameshub.com.br/games/wordsearch/`;
       shareOnWhatsApp(text);
     };
   }
 }
 
 async function saveGameStat(timeSec) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'wordsearch',
-      result: 'win',
-      moves: words.length,
-      time_seconds: timeSec
-    });
-  } catch (e) { console.error(e); }
+  gameStats.recordGame(true, { moves: words.length, time: timeSec });
 }
 
 function renderWordList() {
@@ -368,7 +350,8 @@ function newGame() {
   initCanvas();
   renderWordList();
   draw();
-  startTimer();
+  gameTimer.reset();
+  gameTimer.start();
 }
 
 document.getElementById('btn-new').addEventListener('click', () => {

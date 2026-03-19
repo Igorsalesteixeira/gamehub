@@ -1,7 +1,10 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -66,10 +69,24 @@ let category = '';
 let guessedLetters = new Set();
 let wrongGuesses = 0;
 let gameOver = false;
-let wins = parseInt(localStorage.getItem('forca_wins') || '0');
+
+// GameStats instance
+let gameStats = null;
 
 function init() {
-  winsDisplay.textContent = wins;
+  // Initialize GameStats
+  if (!gameStats) {
+    gameStats = new GameStats('hangman', { autoSync: true });
+    // Load wins from localStorage for backward compatibility
+    const savedWins = parseInt(localStorage.getItem('forca_wins') || '0');
+    if (savedWins > 0) {
+      gameStats.update({ gamesWon: savedWins });
+    }
+  }
+
+  // Update display from GameStats
+  const stats = gameStats.get();
+  winsDisplay.textContent = stats.gamesWon;
 
   // Pick random category and word
   const categories = Object.keys(WORD_BANK);
@@ -163,9 +180,13 @@ function handleGuess(letter) {
     const allRevealed = [...targetWord].every(l => guessedLetters.has(l));
     if (allRevealed) {
       gameOver = true;
-      wins++;
-      localStorage.setItem('forca_wins', wins);
-      winsDisplay.textContent = wins;
+      // Update GameStats
+      if (gameStats) {
+        gameStats.recordGame(true, { moves: wrongGuesses });
+        // Keep localStorage in sync for backward compatibility
+        localStorage.setItem('forca_wins', gameStats.get().gamesWon);
+        winsDisplay.textContent = gameStats.get().gamesWon;
+      }
       launchConfetti();
       playSound('win');
       setTimeout(() => {
@@ -184,6 +205,10 @@ function handleGuess(letter) {
     if (wrongGuesses >= MAX_WRONG) {
       gameOver = true;
       playSound('gameover');
+      // Update GameStats for loss
+      if (gameStats) {
+        gameStats.recordGame(false, { moves: wrongGuesses });
+      }
       // Reveal word
       const slots = wordDisplay.querySelectorAll('.letter-slot');
       [...targetWord].forEach((l, i) => {
@@ -241,7 +266,7 @@ btnNewGame.addEventListener('click', () => {
   init();
 });
 
-// Supabase
+// Supabase stats - mantida para compatibilidade
 async function saveGameStat(result) {
   try {
     const { data: { session } } = await supabase.auth.getSession();

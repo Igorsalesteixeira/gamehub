@@ -1,7 +1,10 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameLoop } from '../shared/game-loop.js';
+import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
 // =============================================
-//  PAC-MAN — game.js
+//  PAC-MAN — game.js (Refatorado)
 // =============================================
 import { supabase } from '../../supabase.js';
 
@@ -65,12 +68,10 @@ let ghosts = [];
 let score = 0;
 let lives = 3;
 let level = 1;
-let bestScore = parseInt(localStorage.getItem('pacman_best') || '0');
 let totalDots = 0;
 let dotsEaten = 0;
 let running = false;
 let paused = false;
-let gameLoop = null;
 let tickCount = 0;
 let frightenedTimer = 0;
 let cellSize = 0;
@@ -90,7 +91,8 @@ const SCATTER_CORNERS = [
   { x: 1, y: ROWS - 2 },  // bottom-left
 ];
 
-bestDisplay.textContent = bestScore;
+// ---- STATS ----
+const gameStats = new GameStats('pacman', { autoSync: true });
 
 // =============================================
 //  CANVAS SIZING
@@ -152,6 +154,9 @@ function initGame() {
   frightenedTimer = 0;
   scoreDisplay.textContent = 0;
   livesDisplay.textContent = 3;
+
+  // Reset directional input
+  directionalInput.reset();
 }
 
 function resetPositions() {
@@ -161,6 +166,7 @@ function resetPositions() {
   pacman.nextDir = { x: 0, y: 0 };
   createGhosts();
   frightenedTimer = 0;
+  directionalInput.reset();
 }
 
 // =============================================
@@ -317,6 +323,12 @@ function tick() {
     }
   }
 
+  // Apply directional input
+  const newDir = directionalInput.applyDirection();
+  if (newDir.x !== 0 || newDir.y !== 0) {
+    pacman.nextDir = newDir;
+  }
+
   // Move pac-man
   movePacman();
 
@@ -446,18 +458,15 @@ function startGame() {
   overlay.classList.add('hidden');
   running = true;
   paused = false;
-  gameLoop = setInterval(() => { if (!paused) tick(); }, TICK_MS);
+  gameLoop.start();
 }
 
 function gameOver() {
   running = false;
-  clearInterval(gameLoop);
+  gameLoop.pause();
 
-  if (score > bestScore) {
-    bestScore = score;
-    localStorage.setItem('pacman_best', String(bestScore));
-    bestDisplay.textContent = bestScore;
-  }
+  // Save stats
+  gameStats.recordGame(false, { score });
 
   saveGameStat();
 
@@ -670,50 +679,52 @@ function drawGhostEyes(cx, cy, cs, g) {
 }
 
 // =============================================
-//  CONTROLS — Keyboard
+//  GAME LOOP
 // =============================================
-document.addEventListener('keydown', e => {
-  if (!running) {
-    if (e.key === 'Enter' || e.key === ' ') { startGame(); e.preventDefault(); }
-    return;
-  }
-  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-    paused = !paused; e.preventDefault(); draw(); return;
-  }
-  if (paused) return;
-  switch (e.key) {
-    case 'ArrowUp':    case 'w': case 'W': pacman.nextDir = { x: 0, y: -1 }; break;
-    case 'ArrowDown':  case 's': case 'S': pacman.nextDir = { x: 0, y: 1 };  break;
-    case 'ArrowLeft':  case 'a': case 'A': pacman.nextDir = { x: -1, y: 0 }; break;
-    case 'ArrowRight': case 'd': case 'D': pacman.nextDir = { x: 1, y: 0 };  break;
-  }
-  e.preventDefault();
+const gameLoop = new GameLoop({
+  update: (dt) => {
+    if (running && !paused) {
+      // Accumulate time for tick-based movement
+      gameLoop._tickAccumulator = (gameLoop._tickAccumulator || 0) + dt;
+      if (gameLoop._tickAccumulator >= TICK_MS) {
+        gameLoop._tickAccumulator -= TICK_MS;
+        tick();
+      }
+    }
+  },
+  render: () => {
+    if (running) {
+      draw();
+    }
+  },
+  fps: 60
 });
 
 // =============================================
-//  CONTROLS — Touch swipe
+//  INPUT MANAGER
 // =============================================
-let touchStart = null;
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault();
-  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => { e.preventDefault(); }, { passive: false });
-
-canvas.addEventListener('touchend', e => {
-  if (!touchStart || !running) return;
-  const dx = e.changedTouches[0].clientX - touchStart.x;
-  const dy = e.changedTouches[0].clientY - touchStart.y;
-  touchStart = null;
-  if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
-
-  if (Math.abs(dx) > Math.abs(dy)) {
-    pacman.nextDir = dx > 0 ? { x: 1, y: 0 } : { x: -1, y: 0 };
-  } else {
-    pacman.nextDir = dy > 0 ? { x: 0, y: 1 } : { x: 0, y: -1 };
+const directionalInput = createDirectionalInput({
+  onDirectionChange: (dir) => {
+    if (running && !paused) {
+      pacman.nextDir = dir;
+    }
   }
-}, { passive: false });
+});
+
+// Keyboard pause/start
+const inputManager = new InputManager({ keyboardTarget: document });
+inputManager.on('keyDown', (key) => {
+  if (!running) {
+    if (key === 'Enter' || key === ' ') {
+      startGame();
+    }
+    return;
+  }
+  if (key === 'p' || key === 'P' || key === 'Escape') {
+    paused = !paused;
+    draw();
+  }
+});
 
 // =============================================
 //  CONTROLS — Mobile buttons

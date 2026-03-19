@@ -1,6 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats, GameStorage } from '../shared/game-core.js';
+// ===== Cookie Clicker (Refatorado) =====
 
 let cookies = 0, cps = 0, cpc = 1, totalEarned = 0;
 const countEl = document.getElementById('count');
@@ -18,6 +20,10 @@ const upgrades = [
   { name: 'Duplo Clique', desc: '+1 por clique', icon: '✌️', baseCost: 500, cps: 0, cpcAdd: 1, owned: 0 },
   { name: 'Mega Clique', desc: '+5 por clique', icon: '💪', baseCost: 5000, cps: 0, cpcAdd: 5, owned: 0 },
 ];
+
+// ===== STATS =====
+const gameStats = new GameStats('cookieclicker', { autoSync: true });
+const gameStorage = new GameStorage('cookieclicker');
 
 function getCost(u) {
   return Math.floor(u.baseCost * Math.pow(1.15, u.owned));
@@ -113,19 +119,18 @@ setInterval(() => {
 // Save/Load
 function save() {
   const state = { cookies, cpc, totalEarned, upgrades: upgrades.map(u => u.owned) };
-  localStorage.setItem('cookieclicker_save', JSON.stringify(state));
+  gameStorage.set('save', state);
 }
 
 function load() {
-  const raw = localStorage.getItem('cookieclicker_save');
-  if (!raw) return;
+  const data = gameStorage.get('save');
+  if (!data) return;
   try {
-    const state = JSON.parse(raw);
-    cookies = state.cookies || 0;
-    cpc = state.cpc || 1;
-    totalEarned = state.totalEarned || 0;
-    if (state.upgrades) {
-      state.upgrades.forEach((owned, i) => { if (upgrades[i]) upgrades[i].owned = owned; });
+    cookies = data.cookies || 0;
+    cpc = data.cpc || 1;
+    totalEarned = data.totalEarned || 0;
+    if (data.upgrades) {
+      data.upgrades.forEach((owned, i) => { if (upgrades[i]) upgrades[i].owned = owned; });
     }
     recalcCPS();
   } catch (e) {}

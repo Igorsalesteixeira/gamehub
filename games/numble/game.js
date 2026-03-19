@@ -1,6 +1,7 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -25,6 +26,9 @@ const modalIcon = document.getElementById('modal-icon');
 const modalTitle = document.getElementById('modal-title');
 const modalMsg = document.getElementById('modal-msg');
 const modalStats = document.getElementById('modal-stats');
+
+// GameStats - Numble não usa timer, apenas tentativas
+const gameStats = new GameStats('numble', { autoSync: true });
 
 // ===== EQUATION GENERATION =====
 function generateEquation() {
@@ -267,13 +271,7 @@ document.addEventListener('keydown', (e) => {
 
 // ===== STATS =====
 async function saveStats(result, moves) {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('game_stats').insert({
-      user_id: user.id, game: 'numble', result, moves, time_seconds: 0
-    });
-  } catch (e) { console.log('Stats save error:', e); }
+  gameStats.recordGame(result === 'win', { moves: moves });
 }
 
 // ===== INIT =====

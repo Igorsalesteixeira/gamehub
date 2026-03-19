@@ -1,6 +1,7 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
 
 // Initialize audio on first user interaction
 let audioInitialized = false;
@@ -10,6 +11,9 @@ function ensureAudio() {
     audioInitialized = true;
   }
 }
+
+// === GameStats ===
+const gameStats = new GameStats('blackjack', { autoSync: true });
 
 // === DOM Elements ===
 const dealerHandEl = document.getElementById('dealer-hand');
@@ -361,28 +365,13 @@ function endRound(result, title, message) {
     modalOverlay.classList.add('active');
   }, 800);
 
-  saveGameStat(result);
+  // Save stats using GameStats
+  const won = result === 'win' || result === 'blackjack';
+  gameStats.recordGame(won, { score: won ? currentBet : 0 });
 }
 
 function closeModal() {
   modalOverlay.classList.remove('active');
-}
-
-// === Supabase Stats ===
-async function saveGameStat(result) {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id,
-      game: 'blackjack',
-      result: result,
-      moves: 0,
-      time_seconds: 0,
-    });
-  } catch (e) {
-    console.warn('Erro ao salvar stats:', e);
-  }
 }
 
 // === Event Listeners ===

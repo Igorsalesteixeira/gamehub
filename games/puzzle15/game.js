@@ -1,7 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-// ===== Puzzle 15 =====
-import { supabase } from '../../supabase.js';
+import { GameStats } from '../shared/game-core.js';
+import { GameTimer } from '../shared/timer.js';
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -15,12 +16,18 @@ const btnPlayAgain = document.getElementById('btn-play-again');
 
 let tiles = [];
 let moves = 0;
-let timerSeconds = 0;
-let timerInterval = null;
 let gameStarted = false;
 let gameOver = false;
 let lastMovedIndex = -1; // índice de destino da peça que acabou de mover
 let lastMoveDir = '';    // direção da animação
+
+// GameStats e GameTimer
+const gameStats = new GameStats('puzzle15', { autoSync: true });
+const gameTimer = new GameTimer({
+  onTick: (time, formatted) => {
+    timerDisplay.textContent = formatted;
+  }
+});
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -42,11 +49,11 @@ function isSolvable(arr) {
 }
 
 function init() {
-  stopTimer();
+  gameTimer.stop();
+  gameTimer.reset();
   gameStarted = false;
   gameOver = false;
   moves = 0;
-  timerSeconds = 0;
   movesDisplay.textContent = '0';
   timerDisplay.textContent = '0:00';
   modalOverlay.classList.remove('show');
@@ -85,7 +92,7 @@ function handleClick(index) {
   const isAdjacent = (Math.abs(row - eRow) + Math.abs(col - eCol)) === 1;
   if (!isAdjacent) return;
 
-  if (!gameStarted) { gameStarted = true; startTimer(); initAudio(); }
+  if (!gameStarted) { gameStarted = true; gameTimer.start(); initAudio(); }
 
   // Calcular direção da animação (tile vai do index para emptyIndex)
   if (row < eRow) lastMoveDir = 'slide-up';
@@ -103,11 +110,11 @@ function handleClick(index) {
 
   if (isWon()) {
     gameOver = true;
-    stopTimer();
+    gameTimer.stop();
     launchConfetti();
     playSound('win');
     setTimeout(() => {
-      modalMessage.textContent = `${moves} movimentos em ${formatTime(timerSeconds)}`;
+      modalMessage.textContent = `${moves} movimentos em ${gameTimer.getFormatted()}`;
       modalOverlay.classList.add('show');
       saveGameStat();
     }, 300);
@@ -120,17 +127,6 @@ function isWon() {
   return tiles[15] === 0;
 }
 
-function startTimer() {
-  if (timerInterval) return;
-  timerInterval = setInterval(() => {
-    timerSeconds++;
-    timerDisplay.textContent = formatTime(timerSeconds);
-  }, 1000);
-}
-
-function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
-function formatTime(s) { return `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`; }
-
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
 
@@ -139,14 +135,7 @@ document.getElementById('btn-share')?.addEventListener('click', () => {
 });
 
 async function saveGameStat() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'puzzle15',
-      result: 'win', moves: moves, time_seconds: timerSeconds,
-    });
-  } catch (e) { console.warn('Erro ao salvar stats:', e); }
+  gameStats.recordGame(true, { moves: moves, time: gameTimer.getTime() });
 }
 
 init();
