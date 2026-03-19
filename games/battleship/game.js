@@ -176,7 +176,8 @@ async function initMultiplayer() {
 
   if (error && error.code !== 'PGRST116') {
     console.error('Error fetching room:', error);
-    turnIndicator.textContent = 'Erro ao conectar';
+    console.error('Error details:', JSON.stringify(error));
+    turnIndicator.textContent = 'Erro ao conectar: ' + (error.message || error.code || 'desconhecido');
     return;
   }
 
@@ -201,7 +202,8 @@ async function initMultiplayer() {
 
     if (createError) {
       console.error('Error creating room:', createError);
-      turnIndicator.textContent = 'Erro ao criar sala';
+      console.error('Create error details:', JSON.stringify(createError));
+      turnIndicator.textContent = 'Erro ao criar sala: ' + (createError.message || createError.code || 'desconhecido');
       return;
     }
 
