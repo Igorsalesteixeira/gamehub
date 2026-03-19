@@ -795,11 +795,8 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
       executeMoveChain(step.row, step.col, chain, owner, callback, stepIndex + 1);
     }, 300);
   } else {
-    // After CPU move, save history so player can undo
-    if (owner === CPU) {
-      saveHistory();
-      updateUndoButton();
-    }
+    // CPU move complete - update UI
+    updateUndoButton();
     callback();
   }
 }
