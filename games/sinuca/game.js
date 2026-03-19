@@ -2,6 +2,234 @@ import '../../auth-check.js?v=4';
 import { supabase } from '../../supabase.js?v=2';
 import { launchConfetti, playSound, initAudio } from '../shared/game-design-utils.js?v=4';
 
+// ===== Sistema de Partículas (Poeira) =====
+let particles = [];
+
+class Particle {
+  constructor(x, y, color) {
+    this.x = x;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
+    this.life = 1.0;
+    this.decay = 0.02 + Math.random() * 0.02;
+    this.color = color;
+    this.size = 2 + Math.random() * 3;
+  }
+
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+    this.size *= 0.98;
+  }
+
+  draw(ctx) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.life * 0.6;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function createDust(x, y, color = '#8b7355', count = 8) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle(x, y, color));
+  }
+}
+
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => p.update());
+}
+
+function drawParticles(ctx) {
+  particles.forEach(p => p.draw(ctx));
+}
+
+// ===== Animação de Bola Caindo na Cacapa =====
+let pocketingBalls = [];
+
+class PocketingAnimation {
+  constructor(ball, pocketX, pocketY) {
+    this.ball = ball;
+    this.pocketX = pocketX;
+    this.pocketY = pocketY;
+    this.scale = 1;
+    this.alpha = 1;
+    this.offsetY = 0;
+  }
+
+  update() {
+    this.scale *= 0.95;
+    this.offsetY += 2;
+    this.alpha -= 0.05;
+  }
+
+  draw(ctx) {
+    if (this.alpha <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.translate(this.pocketX, this.pocketY + this.offsetY);
+    ctx.scale(this.scale, this.scale);
+
+    // Desenhar bola
+    ctx.beginPath();
+    ctx.arc(0, 0, BALL_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = this.ball.color;
+    ctx.fill();
+
+    // Brilho
+    ctx.beginPath();
+    ctx.arc(-3, -3, 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+function updatePocketingAnimations() {
+  pocketingBalls.forEach(p => p.update());
+  pocketingBalls = pocketingBalls.filter(p => p.alpha > 0);
+}
+
+function drawPocketingAnimations(ctx) {
+  pocketingBalls.forEach(p => p.draw(ctx));
+}
+
+// ===== Sons da Sinuca =====
+const SOUNDS = {
+  cueHit: 'cue_hit',
+  ballHit: 'ball_hit',
+  wallHit: 'wall_hit',
+  pocket: 'pocket',
+  win: 'win'
+};
+
+function playGameSound(soundType) {
+  try {
+    playSound(soundType);
+  } catch (e) {
+    // Fallback se o som não existir
+    console.log('Sound:', soundType);
+  }
+}
+
+// ===== Sistema de Placar Elaborado =====
+let floatingTexts = [];
+let lastPottedBall = null;
+let scoreGlow = { player: 0, cpu: 0 };
+let displayedScore = { player: 0, cpu: 0 };
+
+class FloatingText {
+  constructor(x, y, text, color = '#fff') {
+    this.x = x;
+    this.y = y;
+    this.text = text;
+    this.color = color;
+    this.life = 1.0;
+    this.vy = -1.5;
+    this.scale = 1;
+  }
+
+  update() {
+    this.y += this.vy;
+    this.life -= 0.02;
+    this.vy *= 0.95;
+    if (this.life > 0.5) {
+      this.scale = 1 + (1 - this.life) * 2;
+    } else {
+      this.scale = 1.5 - (0.5 - this.life);
+    }
+  }
+
+  draw(ctx) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.font = `bold ${16 * this.scale}px Nunito`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(this.text, this.x, this.y);
+    ctx.restore();
+  }
+}
+
+function addFloatingScore(x, y, points, isPlayer) {
+  const color = isPlayer ? '#4ade80' : '#f87171';
+  const text = `+${points}`;
+  floatingTexts.push(new FloatingText(x, y, text, color));
+}
+
+function updateFloatingTexts() {
+  floatingTexts.forEach(t => t.update());
+  floatingTexts = floatingTexts.filter(t => t.life > 0);
+
+  // Atualizar brilho do placar
+  scoreGlow.player = Math.max(0, scoreGlow.player - 0.05);
+  scoreGlow.cpu = Math.max(0, scoreGlow.cpu - 0.05);
+
+  // Animar contagem de pontos subindo
+  if (displayedScore.player < playerScore) {
+    displayedScore.player += 0.5;
+  } else if (displayedScore.player > playerScore) {
+    displayedScore.player = playerScore;
+  }
+  if (displayedScore.cpu < cpuScore) {
+    displayedScore.cpu += 0.5;
+  } else if (displayedScore.cpu > cpuScore) {
+    displayedScore.cpu = cpuScore;
+  }
+}
+
+function drawFloatingTexts(ctx) {
+  floatingTexts.forEach(t => t.draw(ctx));
+}
+
+function drawLastPottedBall(ctx) {
+  if (!lastPottedBall) return;
+
+  const x = TABLE_WIDTH - 60;
+  const y = TABLE_HEIGHT - 40;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(x - 50, y - 25, 100, 50);
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 50, y - 25, 100, 50);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 12px Nunito';
+  ctx.textAlign = 'center';
+  ctx.fillText('Última bola:', x, y - 12);
+
+  // Desenhar bola
+  ctx.beginPath();
+  ctx.arc(x, y + 8, 10, 0, Math.PI * 2);
+  ctx.fillStyle = lastPottedBall.color;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Brilho
+  ctx.beginPath();
+  ctx.arc(x - 3, y + 5, 3, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fill();
+
+  ctx.restore();
+}
+
 // ===== Sinuca (Bilhar) =====
 // Fisica de colisao circular, atrito e IA
 
@@ -98,21 +326,30 @@ class Ball {
 
     // Colisão com paredes
     const margin = 30;
+    let hitWall = false;
     if (this.x - this.radius < margin) {
       this.x = margin + this.radius;
       this.vx *= -WALL_BOUNCE;
+      hitWall = true;
     }
     if (this.x + this.radius > TABLE_WIDTH - margin) {
       this.x = TABLE_WIDTH - margin - this.radius;
       this.vx *= -WALL_BOUNCE;
+      hitWall = true;
     }
     if (this.y - this.radius < margin) {
       this.y = margin + this.radius;
       this.vy *= -WALL_BOUNCE;
+      hitWall = true;
     }
     if (this.y + this.radius > TABLE_HEIGHT - margin) {
       this.y = TABLE_HEIGHT - margin - this.radius;
       this.vy *= -WALL_BOUNCE;
+      hitWall = true;
+    }
+    // Som de colisão com parede
+    if (hitWall && !this.potted && (Math.abs(this.vx) > 1 || Math.abs(this.vy) > 1)) {
+      playGameSound(SOUNDS.wallHit);
     }
 
     // Verificar se caiu no buraco
@@ -129,6 +366,10 @@ class Ball {
         this.vx = 0;
         this.vy = 0;
         playSound('pop');
+        // Adicionar animação de cair na cacapa
+        pocketingBalls.push(new PocketingAnimation(this, pocket.x, pocket.y));
+        // Som de encaçapar
+        playGameSound(SOUNDS.pocket);
         return true;
       }
     }
@@ -191,6 +432,12 @@ function init() {
   aimStart = null;
   aimCurrent = null;
   power = 0;
+  particles = [];
+  pocketingBalls = [];
+  floatingTexts = [];
+  lastPottedBall = null;
+  scoreGlow = { player: 0, cpu: 0 };
+  displayedScore = { player: 0, cpu: 0 };
 
   updateScoreDisplay();
 
@@ -275,9 +522,14 @@ function checkBallCollisions() {
         b2.vx -= impulse * nx;
         b2.vy -= impulse * ny;
 
-        // Som de colisão suave
+        // Som de colisão e partículas
         if (Math.abs(impulse) > 0.5) {
           playSound('click');
+          // Adicionar partículas de poeira no ponto de colisão
+          const collisionX = b1.x + nx * b1.radius;
+          const collisionY = b1.y + ny * b1.radius;
+          const dustColor = b1.color === BALL_COLORS.white ? '#d4d4d4' : b1.color;
+          createDust(collisionX, collisionY, dustColor, 5);
         }
       }
     }
@@ -460,12 +712,19 @@ function update() {
         handleFoul('white');
         return;
       } else {
-        // Pontuação
-        if (currentPlayer === 'player') {
+        // Pontuação com animação
+        const isPlayer = currentPlayer === 'player';
+        if (isPlayer) {
           playerScore += ball.points;
+          scoreGlow.player = 1.0;
         } else {
           cpuScore += ball.points;
+          scoreGlow.cpu = 1.0;
         }
+        // Adicionar texto flutuante de pontos
+        addFloatingScore(ball.x, ball.y, ball.points, isPlayer);
+        // Registrar última bola encaçapada
+        lastPottedBall = { color: ball.color, points: ball.points };
         updateScoreDisplay();
       }
     }
@@ -563,8 +822,28 @@ function endGame() {
 }
 
 function updateScoreDisplay() {
-  playerScoreEl.textContent = playerScore;
-  cpuScoreEl.textContent = cpuScore;
+  // Atualizar texto do placar com valores arredondados
+  playerScoreEl.textContent = Math.floor(displayedScore.player);
+  cpuScoreEl.textContent = Math.floor(displayedScore.cpu);
+
+  // Efeito de brilho no placar quando marca ponto
+  if (scoreGlow.player > 0) {
+    const intensity = Math.floor(scoreGlow.player * 255);
+    playerScoreEl.style.textShadow = `0 0 ${10 + scoreGlow.player * 20}px rgba(74, 222, 128, ${scoreGlow.player})`;
+    playerScoreEl.style.color = `rgb(${74 + intensity * 0.5}, ${222}, ${128 + intensity * 0.5})`;
+  } else {
+    playerScoreEl.style.textShadow = 'none';
+    playerScoreEl.style.color = '#4ade80';
+  }
+
+  if (scoreGlow.cpu > 0) {
+    const intensity = Math.floor(scoreGlow.cpu * 255);
+    cpuScoreEl.style.textShadow = `0 0 ${10 + scoreGlow.cpu * 20}px rgba(248, 113, 113, ${scoreGlow.cpu})`;
+    cpuScoreEl.style.color = `rgb(${248}, ${113 + intensity * 0.3}, ${113 + intensity * 0.3})`;
+  } else {
+    cpuScoreEl.style.textShadow = 'none';
+    cpuScoreEl.style.color = '#f87171';
+  }
 }
 
 // ===== Renderização =====
@@ -702,6 +981,8 @@ function handleEnd(evt) {
     cueBall.vx = Math.cos(angle) * power;
     cueBall.vy = Math.sin(angle) * power;
 
+    // Som de tacada
+    playGameSound(SOUNDS.cueHit);
     playSound('shoot');
 
     ballsPottedThisTurn = [];
@@ -749,7 +1030,14 @@ async function saveGameStat(result) {
 // Game Loop
 function gameLoop() {
   update();
+  updateParticles();
+  updatePocketingAnimations();
+  updateFloatingTexts();
   draw();
+  drawParticles(ctx);
+  drawPocketingAnimations(ctx);
+  drawFloatingTexts(ctx);
+  drawLastPottedBall(ctx);
   requestAnimationFrame(gameLoop);
 }
 
