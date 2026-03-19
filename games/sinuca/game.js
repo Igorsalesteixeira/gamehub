@@ -313,61 +313,34 @@ const POCKETS = [
   { x: TABLE_WIDTH - 20, y: TABLE_HEIGHT - 20 }  // baixo-direito
 ];
 
-// ===== Configuração 3D Unificada =====
-// Perspectiva plana - visão de cima ligeiramente inclinada
-const PERSPECTIVE = {
-  enabled: true,
-  vanishingPointX: TABLE_WIDTH / 2,
-  vanishingPointY: -400,  // Muito acima da tela para perspectiva quase ortográfica
-  depth: 0.05             // Perspectiva muito sutil (quase plana)
-};
+// ===== Configuração da Mesa 2D Clássica =====
+// Mesa profissional de sinuca - vista de topo levemente inclinada
+// Proporção 2:1, centralizada no canvas 800x400 com margens de 60px
 
-// Luz fixa (sem seguir mouse)
-const dynamicLight = { x: TABLE_WIDTH * 0.25, y: TABLE_HEIGHT * 0.25 };
+const TABLE_MARGIN = 60;
+const TABLE_PLAYABLE_WIDTH = TABLE_WIDTH - TABLE_MARGIN * 2;   // 680px
+const TABLE_PLAYABLE_HEIGHT = TABLE_PLAYABLE_WIDTH / 2;          // 340px (proporção 2:1)
+const TABLE_VERTICAL_MARGIN = (TABLE_HEIGHT - TABLE_PLAYABLE_HEIGHT) / 2; // 30px
 
-// Área jogável da mesa em coordenadas do mundo
-// Posicionada para ficar centralizada e alinhada no canvas
+// Área jogável da mesa (coordenadas diretas no canvas)
 const TABLE_3D = {
-  x: 120,           // Posição X no canvas (margem esquerda)
-  y: 100,           // Posição Y no canvas (topo)
-  width: 560,       // Largura da área jogável
-  height: 220,      // Altura da área jogável (proporção mais realista)
-  depth: 0          // Plano da mesa (z=0)
+  x: TABLE_MARGIN,                              // 60px da esquerda
+  y: TABLE_VERTICAL_MARGIN,                     // 30px do topo
+  width: TABLE_PLAYABLE_WIDTH,                  // 680px
+  height: TABLE_PLAYABLE_HEIGHT,                // 340px
+  right: TABLE_MARGIN + TABLE_PLAYABLE_WIDTH,   // 740px
+  bottom: TABLE_VERTICAL_MARGIN + TABLE_PLAYABLE_HEIGHT // 370px
 };
 
-// Função de projeção 3D unificada - perspectiva plana
+// Função de projeção simplificada - coordenadas diretas, sem perspectiva 3D
 function project3D(worldX, worldY, worldZ) {
-  // Escala muito sutil baseada na profundidade Y relativa à mesa
-  const normalizedY = (worldY - TABLE_3D.y) / TABLE_3D.height;
-  const scale = 1 - normalizedY * PERSPECTIVE.depth;
-
-  // Projeção com mínima convergência - mantém linhas quase paralelas
-  const dx = worldX - PERSPECTIVE.vanishingPointX;
-  const convergence = (1 - scale) * 0.2;  // Fator de convergência reduzido
-  const projX = worldX - dx * convergence;
-  const projY = worldY - worldZ * scale;
-
-  return { x: projX, y: projY, scale };
+  // Retorna coordenadas diretas com escala 1 (sem transformação)
+  return { x: worldX, y: worldY, scale: 1 };
 }
 
-// Função inversa: converte coordenadas de tela para mundo 3D
+// Função inversa simplificada - coordenadas diretas
 function screenToWorld(screenX, screenY) {
-  // Resolve iterativamente: encontra worldX/worldY que projetam para screenX/screenY
-  let worldX = screenX;
-  let worldY = screenY;
-
-  for (let i = 0; i < 10; i++) {
-    const proj = project3D(worldX, worldY, 0);
-    const errorX = screenX - proj.x;
-    const errorY = screenY - proj.y;
-
-    if (Math.abs(errorX) < 1 && Math.abs(errorY) < 1) break;
-
-    worldX += errorX / proj.scale;
-    worldY += errorY / proj.scale;
-  }
-
-  return { x: worldX, y: worldY };
+  return { x: screenX, y: screenY };
 }
 
 // Funções auxiliares de cor
@@ -475,12 +448,12 @@ class Ball {
     // Posições das caçapas em coordenadas do mundo (mesma lógica do drawPockets3D)
     const pocketRadius = 18;
     const pockets = [
-      { x: TABLE_3D.x + 25, y: TABLE_3D.y + 25 },           // topo-esquerdo
-      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + 15 }, // topo-meio
-      { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + 25 },         // topo-direito
-      { x: TABLE_3D.x + 25, y: TABLE_3D.y + TABLE_3D.height - 25 },        // baixo-esquerdo
-      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + TABLE_3D.height - 15 }, // baixo-meio
-      { x: TABLE_3D.x + TABLE_3D.width - 25, y: TABLE_3D.y + TABLE_3D.height - 25 }        // baixo-direito
+      { x: TABLE_3D.x + 30, y: TABLE_3D.y + 30 },                     // topo-esquerdo
+      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + 22 }, // topo-meio
+      { x: TABLE_3D.x + TABLE_3D.width - 30, y: TABLE_3D.y + 30 },    // topo-direito
+      { x: TABLE_3D.x + 30, y: TABLE_3D.y + TABLE_3D.height - 30 },   // baixo-esquerdo
+      { x: (TABLE_3D.x + TABLE_3D.x + TABLE_3D.width) / 2, y: TABLE_3D.y + TABLE_3D.height - 22 }, // baixo-meio
+      { x: TABLE_3D.x + TABLE_3D.width - 30, y: TABLE_3D.y + TABLE_3D.height - 30 }   // baixo-direito
     ];
 
     for (const pocket of pockets) {
@@ -583,6 +556,12 @@ function init() {
 
   updateScoreDisplay();
 
+  // Inicializar medidor de força em 0%
+  if (powerFill) {
+    powerFill.style.height = '0%';
+    powerFill.style.width = '0%';
+  }
+
   // Bola branca (taco) - posição inicial na área 3D
   cueBall = new Ball(TABLE_3D.x + 100, TABLE_3D.y + TABLE_3D.height / 2, BALL_COLORS.white, 'white', 0);
   balls.push(cueBall);
@@ -680,7 +659,24 @@ function checkBallCollisions() {
 
 // ===== IA do Computador =====
 function makeCPUMove() {
-  if (gameOver) return;
+  console.log('[DEBUG] makeCPUMove chamada - gameState:', gameState, 'currentPlayer:', currentPlayer);
+
+  if (gameOver) {
+    console.log('[DEBUG] makeCPUMove abortada - game over');
+    return;
+  }
+
+  // Só executar se for realmente a vez do CPU
+  if (currentPlayer !== 'cpu') {
+    console.log('[DEBUG] makeCPUMove abortada - não é vez do CPU');
+    return;
+  }
+
+  // Só executar se estivermos no estado correto
+  if (gameState !== 'cpu_turn' && gameState !== 'aiming') {
+    console.log('[DEBUG] makeCPUMove abortada - estado incorreto:', gameState);
+    return;
+  }
 
   // Garantir que a bola branca esteja disponível
   if (!cueBall || cueBall.potted) {
@@ -695,10 +691,16 @@ function makeCPUMove() {
 
   gameState = 'shooting';
   currentPlayer = 'cpu';
+  console.log('[DEBUG] CPU iniciando jogada - gameState: shooting');
 
   // Pequeno delay para simular "pensamento" da IA
   setTimeout(() => {
-    if (gameOver) return;
+    if (gameOver) {
+      console.log('[DEBUG] CPU timeout abortado - game over');
+      return;
+    }
+
+    console.log('[DEBUG] CPU calculando jogada...');
 
     // Encontrar a melhor jogada
     const targetBall = findBestTarget();
@@ -749,6 +751,8 @@ function makeCPUMove() {
 
     ballsPottedThisTurn = [];
     gameState = 'moving';
+    console.log('[DEBUG] CPU finalizou jogada - gameState: moving, velocidade:',
+      Math.sqrt(cueBall.vx * cueBall.vx + cueBall.vy * cueBall.vy).toFixed(2));
   }, 500); // 500ms de "pensamento"
 }
 
@@ -914,6 +918,7 @@ function update() {
 
   // Verificar fim do turno
   if (gameState === 'moving' && !anyMoving) {
+    console.log('[DEBUG] Bolas pararam - chamando endTurn()');
     endTurn();
   }
 
@@ -922,11 +927,23 @@ function update() {
 }
 
 function endTurn() {
+  // Guarda para evitar chamadas múltiplas enquanto processa o fim do turno
+  if (gameState !== 'moving') {
+    console.log('[DEBUG] endTurn ignorada - gameState não é moving:', gameState);
+    return;
+  }
+
+  console.log('[DEBUG] endTurn iniciada - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length);
+
   const pottedCount = ballsPottedThisTurn.filter(b => b.type !== 'white').length;
+  console.log('[DEBUG] Bolas encaçapadas neste turno (exceto branca):', pottedCount);
 
   if (pottedCount === 0) {
     // Não encaçapou nada - troca de jogador
     currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
+    console.log('[DEBUG] Jogador alternado para:', currentPlayer);
+  } else {
+    console.log('[DEBUG] Jogador continua (encaçapou', pottedCount, 'bola(s)):', currentPlayer);
   }
   // Se encaçapou, continua jogando
 
@@ -937,19 +954,25 @@ function endTurn() {
     cueBall.y = TABLE_3D.y + TABLE_3D.height / 2;
     cueBall.vx = 0;
     cueBall.vy = 0;
+    console.log('[DEBUG] Bola branca reposicionada');
   }
 
   ballsPottedThisTurn = [];
 
   if (currentPlayer === 'cpu') {
-    // A IA será chamada e gerenciará seu próprio estado
+    // Mudar estado imediatamente para evitar chamadas repetidas de endTurn
+    gameState = 'cpu_turn';
+    console.log('[DEBUG] Agendando jogada do CPU em 800ms');
     setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
+    console.log('[DEBUG] Turno do jogador - gameState: aiming');
   }
 }
 
 function handleFoul(reason) {
+  console.log('[DEBUG] handleFoul chamada - reason:', reason, 'currentPlayer:', currentPlayer);
+
   // Penalidade por faul
   cueBall.potted = false;
   cueBall.x = TABLE_3D.x + 100;
@@ -961,11 +984,16 @@ function handleFoul(reason) {
   currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
   ballsPottedThisTurn = [];
 
+  console.log('[DEBUG] Após foul - novo currentPlayer:', currentPlayer);
+
   if (currentPlayer === 'cpu') {
-    // A IA será chamada e gerenciará seu próprio estado
+    // Mudar estado imediatamente para evitar chamadas repetidas de endTurn/update
+    gameState = 'cpu_turn';
+    console.log('[DEBUG] Agendando jogada do CPU após foul em 800ms');
     setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
+    console.log('[DEBUG] Turno do jogador após foul - gameState: aiming');
   }
 }
 
@@ -1028,180 +1056,220 @@ function updateScoreDisplay() {
   }
 }
 
-// ===== Renderização 3D =====
+// ===== Renderização da Mesa 2D Clássica =====
 function drawTable3D() {
-  // Limpar canvas
+  // Limpar canvas com fundo escuro
   ctx.fillStyle = '#1a1a1a';
   ctx.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
 
-  // Cantos da mesa em coordenadas do mundo
+  // Dimensões da mesa
   const world = {
+    leftX: TABLE_3D.x,
+    rightX: TABLE_3D.x + TABLE_3D.width,
     topY: TABLE_3D.y,
     bottomY: TABLE_3D.y + TABLE_3D.height,
-    leftX: TABLE_3D.x,
-    rightX: TABLE_3D.x + TABLE_3D.width
+    centerX: TABLE_3D.x + TABLE_3D.width / 2,
+    centerY: TABLE_3D.y + TABLE_3D.height / 2
   };
 
-  // Projetar cantos para coordenadas de tela
-  const proj = {
-    topLeft: project3D(world.leftX, world.topY, 0),
-    topRight: project3D(world.rightX, world.topY, 0),
-    bottomLeft: project3D(world.leftX, world.bottomY, 0),
-    bottomRight: project3D(world.rightX, world.bottomY, 0)
-  };
+  // === 1. BASE DE MADEIRA (estrutura externa) ===
+  const woodFrame = 25; // Espessura da moldura de madeira
 
-  // Desenhar base da mesa (madeira) - área maior que o feltro
-  const woodMargin = 40;
-  const woodTopLeft = project3D(world.leftX - woodMargin, world.topY - woodMargin, -20);
-  const woodTopRight = project3D(world.rightX + woodMargin, world.topY - woodMargin, -20);
-  const woodBottomLeft = project3D(world.leftX - woodMargin, world.bottomY + woodMargin, -20);
-  const woodBottomRight = project3D(world.rightX + woodMargin, world.bottomY + woodMargin, -20);
-
-  const woodGradient = ctx.createLinearGradient(0, woodTopLeft.y, 0, woodBottomLeft.y);
-  woodGradient.addColorStop(0, '#3d2817');
-  woodGradient.addColorStop(0.5, '#5a3d2a');
-  woodGradient.addColorStop(1, '#2d1f14');
-
-  ctx.fillStyle = woodGradient;
-  ctx.beginPath();
-  ctx.moveTo(woodTopLeft.x, woodTopLeft.y);
-  ctx.lineTo(woodTopRight.x, woodTopRight.y);
-  ctx.lineTo(woodBottomRight.x, woodBottomRight.y);
-  ctx.lineTo(woodBottomLeft.x, woodBottomLeft.y);
-  ctx.closePath();
+  // Madeira externa - retângulo arredondado
+  ctx.fillStyle = '#4a3728';
+  roundRect(ctx, world.leftX - woodFrame, world.topY - woodFrame,
+            TABLE_3D.width + woodFrame * 2, TABLE_3D.height + woodFrame * 2, 15);
   ctx.fill();
 
-  // Borda de madeira (lateral)
-  ctx.strokeStyle = '#2d1f14';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+  // Sombra da base
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 5;
 
-  // Desenhar feltro (área jogável)
-  const feltGradient = ctx.createLinearGradient(0, proj.topLeft.y, 0, proj.bottomLeft.y);
-  feltGradient.addColorStop(0, '#1a4d3e');
-  feltGradient.addColorStop(0.3, '#2d6a4f');
-  feltGradient.addColorStop(0.7, '#245a42');
-  feltGradient.addColorStop(1, '#1a4d3e');
-
-  ctx.fillStyle = feltGradient;
-  ctx.beginPath();
-  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
-  ctx.lineTo(proj.topRight.x, proj.topRight.y);
-  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
-  ctx.lineTo(proj.bottomLeft.x, proj.bottomLeft.y);
-  ctx.closePath();
+  // Madeira interna (mais clara)
+  ctx.fillStyle = '#5c4033';
+  roundRect(ctx, world.leftX - 15, world.topY - 15,
+            TABLE_3D.width + 30, TABLE_3D.height + 30, 10);
   ctx.fill();
 
-  // Bordas emborrachadas (cushions)
-  const cushionColor = '#4a3728';
-  const cushionWidth = 12;
+  // Reset shadow
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  // === 2. BORDAS EMBORRACHADAS (cushions) ===
+  const cushionWidth = 18;
+  const cushionColor = '#3d2820';
+  const cushionHighlight = '#5a3d2a';
 
   // Cushion superior
-  const cTopInnerLeft = project3D(world.leftX, world.topY + cushionWidth, 5);
-  const cTopInnerRight = project3D(world.rightX, world.topY + cushionWidth, 5);
   ctx.fillStyle = cushionColor;
-  ctx.beginPath();
-  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
-  ctx.lineTo(proj.topRight.x, proj.topRight.y);
-  ctx.lineTo(cTopInnerRight.x, cTopInnerRight.y);
-  ctx.lineTo(cTopInnerLeft.x, cTopInnerLeft.y);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillRect(world.leftX, world.topY, TABLE_3D.width, cushionWidth);
+  // Destaque do cushion
+  ctx.fillStyle = cushionHighlight;
+  ctx.fillRect(world.leftX + cushionWidth, world.topY + 2,
+               TABLE_3D.width - cushionWidth * 2, 3);
 
   // Cushion inferior
-  const cBottomInnerLeft = project3D(world.leftX, world.bottomY - cushionWidth, 5);
-  const cBottomInnerRight = project3D(world.rightX, world.bottomY - cushionWidth, 5);
-  ctx.beginPath();
-  ctx.moveTo(proj.bottomLeft.x, proj.bottomLeft.y);
-  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
-  ctx.lineTo(cBottomInnerRight.x, cBottomInnerRight.y);
-  ctx.lineTo(cBottomInnerLeft.x, cBottomInnerLeft.y);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = cushionColor;
+  ctx.fillRect(world.leftX, world.bottomY - cushionWidth, TABLE_3D.width, cushionWidth);
+  // Destaque do cushion
+  ctx.fillStyle = cushionHighlight;
+  ctx.fillRect(world.leftX + cushionWidth, world.bottomY - cushionWidth + 2,
+               TABLE_3D.width - cushionWidth * 2, 3);
 
   // Cushion esquerdo
-  const cLeftInnerTop = project3D(world.leftX + cushionWidth, world.topY, 5);
-  const cLeftInnerBottom = project3D(world.leftX + cushionWidth, world.bottomY, 5);
-  ctx.beginPath();
-  ctx.moveTo(proj.topLeft.x, proj.topLeft.y);
-  ctx.lineTo(proj.bottomLeft.x, proj.bottomLeft.y);
-  ctx.lineTo(cLeftInnerBottom.x, cLeftInnerBottom.y);
-  ctx.lineTo(cLeftInnerTop.x, cLeftInnerTop.y);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = cushionColor;
+  ctx.fillRect(world.leftX, world.topY, cushionWidth, TABLE_3D.height);
+  // Destaque
+  ctx.fillStyle = cushionHighlight;
+  ctx.fillRect(world.leftX + 2, world.topY + cushionWidth, 3,
+               TABLE_3D.height - cushionWidth * 2);
 
   // Cushion direito
-  const cRightInnerTop = project3D(world.rightX - cushionWidth, world.topY, 5);
-  const cRightInnerBottom = project3D(world.rightX - cushionWidth, world.bottomY, 5);
-  ctx.beginPath();
-  ctx.moveTo(proj.topRight.x, proj.topRight.y);
-  ctx.lineTo(proj.bottomRight.x, proj.bottomRight.y);
-  ctx.lineTo(cRightInnerBottom.x, cRightInnerBottom.y);
-  ctx.lineTo(cRightInnerTop.x, cRightInnerTop.y);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = cushionColor;
+  ctx.fillRect(world.rightX - cushionWidth, world.topY, cushionWidth, TABLE_3D.height);
+  // Destaque
+  ctx.fillStyle = cushionHighlight;
+  ctx.fillRect(world.rightX - cushionWidth + 2, world.topY + cushionWidth, 3,
+               TABLE_3D.height - cushionWidth * 2);
 
-  // Linha de partida (semicírculo)
-  const lineX = world.leftX + 100;
-  const lineTop = project3D(lineX, world.topY + 20, 0);
-  const lineBottom = project3D(lineX, world.bottomY - 20, 0);
+  // === 3. FELTRO VERDE (área jogável) ===
+  const feltX = world.leftX + cushionWidth;
+  const feltY = world.topY + cushionWidth;
+  const feltW = TABLE_3D.width - cushionWidth * 2;
+  const feltH = TABLE_3D.height - cushionWidth * 2;
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(lineTop.x, lineTop.y);
-  ctx.lineTo(lineBottom.x, lineBottom.y);
-  ctx.stroke();
+  // Gradiente do feltro verde
+  const feltGradient = ctx.createLinearGradient(feltX, feltY, feltX, feltY + feltH);
+  feltGradient.addColorStop(0, '#1e5945');
+  feltGradient.addColorStop(0.5, '#256f52');
+  feltGradient.addColorStop(1, '#1e5945');
 
-  // Semicírculo da cabeça
-  const centerY = (world.topY + world.bottomY) / 2;
-  const centerProj = project3D(lineX, centerY, 0);
-  const radius = 60;
-  ctx.beginPath();
-  ctx.arc(centerProj.x, centerProj.y, radius * centerProj.scale, -Math.PI/2, Math.PI/2);
-  ctx.stroke();
+  ctx.fillStyle = feltGradient;
+  ctx.fillRect(feltX, feltY, feltW, feltH);
 
-  // Desenhar caçapas
-  drawPockets3D(ctx, world, proj);
-}
-
-function drawPockets3D(ctx, world, proj) {
-  const pocketRadius = 18;
-
-  // Posições das caçapas em coordenadas do mundo
-  const pockets = [
-    { x: world.leftX + 25, y: world.topY + 25 },           // topo-esquerdo
-    { x: (world.leftX + world.rightX) / 2, y: world.topY + 15 }, // topo-meio
-    { x: world.rightX - 25, y: world.topY + 25 },         // topo-direito
-    { x: world.leftX + 25, y: world.bottomY - 25 },        // baixo-esquerdo
-    { x: (world.leftX + world.rightX) / 2, y: world.bottomY - 15 }, // baixo-meio
-    { x: world.rightX - 25, y: world.bottomY - 25 }        // baixo-direito
-  ];
-
-  // Desenhar caçapas
-  ctx.fillStyle = '#0a0a0a';
-  for (const pocket of pockets) {
-    const p = project3D(pocket.x, pocket.y, 0);
-    const rx = pocketRadius * p.scale;
-    const ry = pocketRadius * p.scale * 0.7; // Elipse por causa da perspectiva
-
+  // Textura sutil do feltro (linhas cruzadas)
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < feltW; i += 20) {
     ctx.beginPath();
-    ctx.ellipse(p.x, p.y, rx, ry, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Sombra interna
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.moveTo(feltX + i, feltY);
+    ctx.lineTo(feltX + i, feltY + feltH);
+    ctx.stroke();
+  }
+  for (let i = 0; i < feltH; i += 20) {
     ctx.beginPath();
-    ctx.ellipse(p.x + 2, p.y + 2, rx * 0.8, ry * 0.8, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#0a0a0a';
+    ctx.moveTo(feltX, feltY + i);
+    ctx.lineTo(feltX + feltW, feltY + i);
+    ctx.stroke();
   }
 
-  // Retornar posições projetadas para uso na detecção de colisão
-  return pockets.map((pocket, i) => {
-    const p = project3D(pocket.x, pocket.y, 0);
-    return { x: p.x, y: p.y, radius: pocketRadius * p.scale, scale: p.scale };
-  });
+  // === 4. MARCAÇÕES DA MESA ===
+  // Linha de partida (head string)
+  const headStringX = feltX + 100;
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(headStringX, feltY + 5);
+  ctx.lineTo(headStringX, feltY + feltH - 5);
+  ctx.stroke();
+
+  // Semicírculo da cabeça (D)
+  ctx.beginPath();
+  ctx.arc(headStringX, feltY + feltH / 2, 50, -Math.PI / 2, Math.PI / 2);
+  ctx.stroke();
+
+  // Marcação do meio
+  const midX = feltX + feltW / 2;
+  ctx.beginPath();
+  ctx.moveTo(midX, feltY);
+  ctx.lineTo(midX, feltY + feltH);
+  ctx.stroke();
+
+  // Marcações de ponto no meio
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  for (let i = 0; i < 5; i++) {
+    const y = feltY + feltH / 2 - 40 + i * 20;
+    ctx.beginPath();
+    ctx.arc(midX, y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // === 5. CAÇAPAS ===
+  drawPockets3D(ctx, world);
+}
+
+// Função auxiliar para desenhar retângulo arredondado
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function drawPockets3D(ctx, world) {
+  const pocketRadius = 20;
+
+  // Posições das 6 caçapas (3 em cima, 3 embaixo)
+  const pockets = [
+    { x: world.leftX + 30, y: world.topY + 30 },                     // topo-esquerdo
+    { x: (world.leftX + world.rightX) / 2, y: world.topY + 22 },     // topo-meio
+    { x: world.rightX - 30, y: world.topY + 30 },                    // topo-direito
+    { x: world.leftX + 30, y: world.bottomY - 30 },                  // baixo-esquerdo
+    { x: (world.leftX + world.rightX) / 2, y: world.bottomY - 22 },  // baixo-meio
+    { x: world.rightX - 30, y: world.bottomY - 30 }                  // baixo-direito
+  ];
+
+  // Desenhar caçapas circulares pretas com sombra
+  for (const pocket of pockets) {
+    // Sombra externa da caçapa
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath();
+    ctx.arc(pocket.x + 2, pocket.y + 2, pocketRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Fundo preto da caçapa
+    ctx.fillStyle = '#0a0a0a';
+    ctx.beginPath();
+    ctx.arc(pocket.x, pocket.y, pocketRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Borda da caçapa (tom mais claro)
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(pocket.x, pocket.y, pocketRadius - 1, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Profundidade interna (gradiente)
+    const pocketGrad = ctx.createRadialGradient(
+      pocket.x - 5, pocket.y - 5, 0,
+      pocket.x, pocket.y, pocketRadius
+    );
+    pocketGrad.addColorStop(0, '#1a1a1a');
+    pocketGrad.addColorStop(1, '#000000');
+
+    ctx.fillStyle = pocketGrad;
+    ctx.beginPath();
+    ctx.arc(pocket.x, pocket.y, pocketRadius - 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Retornar posições para uso na detecção de colisão
+  return pockets.map(pocket => ({
+    x: pocket.x,
+    y: pocket.y,
+    radius: pocketRadius,
+    scale: 1
+  }));
 }
 
 function draw() {
@@ -1316,8 +1384,18 @@ function drawAimLine3D() {
 
   // Atualizar barra de força
   const powerPercent = (power / MAX_POWER) * 100;
+  // Atualizar height (desktop - vertical) e width (mobile - horizontal)
+  powerFill.style.height = `${powerPercent}%`;
   powerFill.style.width = `${powerPercent}%`;
-  powerFill.style.background = powerPercent > 70 ? '#ef4444' : powerPercent > 40 ? '#fbbf24' : '#22c55e';
+
+  // Cores: verde (0-40%), amarelo (40-70%), vermelho (70-100%)
+  if (powerPercent > 70) {
+    powerFill.style.background = '#ef4444';
+  } else if (powerPercent > 40) {
+    powerFill.style.background = '#fbbf24';
+  } else {
+    powerFill.style.background = '#22c55e';
+  }
 }
 
 // ===== Input Handling =====
@@ -1377,8 +1455,16 @@ function handleEnd(evt) {
 
   // Atualizar medidor de força
   const powerPercent = (power / MAX_POWER) * 100;
+  powerFill.style.height = `${powerPercent}%`;
   powerFill.style.width = `${powerPercent}%`;
-  powerFill.style.background = powerPercent > 70 ? '#ef4444' : powerPercent > 40 ? '#fbbf24' : '#22c55e';
+
+  if (powerPercent > 70) {
+    powerFill.style.background = '#ef4444';
+  } else if (powerPercent > 40) {
+    powerFill.style.background = '#fbbf24';
+  } else {
+    powerFill.style.background = '#22c55e';
+  }
 
   if (power > 1) {
     const angle = Math.atan2(dy, dx);
@@ -1398,6 +1484,7 @@ function handleEnd(evt) {
   aimStart = null;
   aimCurrent = null;
   power = 0;
+  powerFill.style.height = '0%';
   powerFill.style.width = '0%';
 }
 
