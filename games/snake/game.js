@@ -14,16 +14,20 @@ const BASE_SPEED = 150; // ms per tick (decreases as score grows)
 const MIN_SPEED  = 60;
 
 // ---- DOM ----
-const canvas      = document.getElementById('game-canvas');
-const ctx         = canvas.getContext('2d');
-const overlay     = document.getElementById('overlay');
-const overlayIcon = document.getElementById('overlay-icon');
-const overlayTitle= document.getElementById('overlay-title');
-const overlayMsg  = document.getElementById('overlay-msg');
-const overlayScore= document.getElementById('overlay-score');
-const btnStart    = document.getElementById('btn-start');
-const scoreDisplay= document.getElementById('score-display');
-const bestDisplay = document.getElementById('best-display');
+let canvas, ctx, overlay, overlayIcon, overlayTitle, overlayMsg, overlayScore, btnStart, scoreDisplay, bestDisplay;
+
+function initDOM() {
+  canvas       = document.getElementById('game-canvas');
+  ctx          = canvas.getContext('2d');
+  overlay      = document.getElementById('overlay');
+  overlayIcon  = document.getElementById('overlay-icon');
+  overlayTitle = document.getElementById('overlay-title');
+  overlayMsg   = document.getElementById('overlay-msg');
+  overlayScore = document.getElementById('overlay-score');
+  btnStart     = document.getElementById('btn-start');
+  scoreDisplay = document.getElementById('score-display');
+  bestDisplay  = document.getElementById('best-display');
+}
 
 // ---- Stats e Best Score ----
 const stats = new GameStats('snake');
@@ -632,24 +636,26 @@ new MobileButtonHandler('.ctrl-btn', {
 function init() {
   console.log('[Snake] Inicializando jogo...');
 
-  // Re-seleciona elementos DOM que podem não ter sido carregados
-  const btnStartLocal = document.getElementById('btn-start');
-  console.log('[Snake] Botão encontrado:', btnStartLocal);
+  // Inicializa elementos DOM primeiro
+  initDOM();
+  console.log('[Snake] Botão encontrado:', btnStart);
 
   initGame();
   draw();
 
   // Registra event listener do botão com debug
-  if (btnStartLocal) {
-    btnStartLocal.addEventListener('click', (e) => {
+  if (btnStart) {
+    btnStart.addEventListener('click', (e) => {
       console.log('[Snake] Botão Jogar clicado!');
       e.preventDefault();
+      e.stopPropagation();
       startGame();
     });
     // Touch para iOS
-    btnStartLocal.addEventListener('touchstart', (e) => {
+    btnStart.addEventListener('touchstart', (e) => {
       console.log('[Snake] Botão Jogar tocado!');
       e.preventDefault();
+      e.stopPropagation();
       startGame();
     }, { passive: false });
     console.log('[Snake] Event listeners registrados no botão');
