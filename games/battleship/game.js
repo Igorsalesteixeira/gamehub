@@ -184,11 +184,13 @@ async function initMultiplayer() {
   if (!room) {
     // Create new room as player 1 (host)
     mpPlayerNumber = 1;
+    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const { error: createError } = await supabase
       .from('game_rooms')
       .insert({
         id: ROOM_ID,
         player1_id: mpPlayerId,
+        code: roomCode,
         status: 'waiting',
         turn: 1,
         state: {

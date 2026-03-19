@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Pac-Man Online Gratis - Games Hub</title>
   <meta name="description" content="Jogue Pac-Man online e de graca. Coma todos os pontos, fuja dos fantasmas e bata seu recorde! Sem download." />
   <meta name="keywords" content="pacman online, pac-man gratis, jogo pacman, pac man online" />
@@ -17,10 +17,10 @@
   <meta name="twitter:title" content="Pac-Man Online Gratis - Games Hub" />
   <meta name="twitter:description" content="Jogue Pac-Man online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=6" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=7" />
+  <meta name="theme-color" content="#000000" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
@@ -50,12 +50,12 @@
 <body>
 
   <header class="topbar">
-    <a href="../../index.html" class="btn-back">← Voltar</a>
-    <h1 class="game-title">🟡 Pac-Man</h1>
+    <a href="../../index.html" class="btn-back">← VOLTAR</a>
+    <h1 class="game-title">PAC-MAN</h1>
     <div class="stats">
-      <span>⭐ <span id="score-display">0</span></span>
-      <span>❤️ <span id="lives-display">3</span></span>
-      <span>🏆 <span id="best-display">0</span></span>
+      <span>SCORE:<span id="score-display">0</span></span>
+      <span>LIVES:<span id="lives-display">3</span></span>
+      <span>HIGH:<span id="best-display">0</span></span>
     </div>
   </header>
 
@@ -65,12 +65,12 @@
     <!-- Overlay de inicio / game over -->
     <div class="modal-overlay" id="overlay">
       <div class="modal">
-        <div class="modal-icon" id="overlay-icon">🟡</div>
-        <h2 id="overlay-title">Pac-Man</h2>
-        <p id="overlay-msg">Use as setas, WASD ou os botoes para jogar</p>
+        <div class="modal-icon" id="overlay-icon">C</div>
+        <h2 id="overlay-title">PAC-MAN</h2>
+        <p id="overlay-msg">USE AS SETAS, WASD OU BOTOES</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-primary" id="btn-start">Jogar</button>
-        <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">📱 Compartilhar</button>
+        <button class="btn btn-primary" id="btn-start">INSERT COIN</button>
+        <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">COMPARTILHAR</button>
       </div>
     </div>
   </div>
@@ -91,19 +91,19 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=9"></script>
+  <script type="module" src="game.js?v=10"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
-    <h2>Como jogar Pac-Man Online</h2>
+    <h2>COMO JOGAR PAC-MAN ONLINE</h2>
     <p>Pac-Man é um dos jogos mais icônicos de todos os tempos. Navegue pelo labirinto comendo todos os pontinhos enquanto foge dos 4 fantasmas coloridos. Coma as frutas grandes (power pellets) para ficar temporariamente poderoso e devorar os fantasmas assustados. Jogue pac-man online grátis sem download.</p>
-    <h3>Regras</h3>
+    <h3>REGRAS</h3>
     <ul>
       <li>Use as setas, WASD ou os botões na tela para mover o Pac-Man pelo labirinto.</li>
       <li>Coma todos os pontinhos para completar o nível; pontinhos grandes dão poderes especiais.</li>
       <li>Encostar em um fantasma (sem poder especial ativo) custa uma vida.</li>
     </ul>
-    <h3>Dicas</h3>
+    <h3>DICAS</h3>
     <ul>
       <li>Aprenda os padrões de movimento dos fantasmas — cada um tem comportamento diferente.</li>
       <li>Use os corredores laterais para escapar rapidamente de situações difíceis.</li>
