@@ -4,6 +4,7 @@ import { supabase } from '../../supabase.js';
 
 // =============================================
 //  LUDO — Complete Brazilian rules implementation
+//  + Multiplayer Online via Supabase Realtime
 // =============================================
 
 // ---- Board geometry ----
@@ -58,6 +59,9 @@ const TOKEN_LETTERS = ['V','B','V','A']; // Vermelho, Azul, Verde, Amarelo
 // Dice face unicode chars
 const DICE_FACES = ['', '\u2680','\u2681','\u2682','\u2683','\u2684','\u2685'];
 
+// Player names for display
+const PLAYER_NAMES = ['Você', 'Azul', 'Verde', 'Amarelo'];
+
 // ---- Game state ----
 let pieces;        // pieces[ci][ti] = { pos } where pos: -1=base, 0-51=path, 52-57=home col, >=58=finished
 let currentPlayer; // 0=red(human), 1-3=AI
@@ -73,6 +77,17 @@ let animating = false;
 let highlightedPieces; // Set of ti indices valid to move this turn
 let isProcessing = false; // Flag para prevenir cliques duplos
 
+// ---- Multiplayer state ----
+let multiplayerMode = false;
+let roomId = null;
+let myPlayerIndex = 0; // Which color this player controls
+let playersInRoom = []; // Array of player data {id, name, colorIndex}
+let myUserId = null;
+let realtimeChannel = null;
+let isHost = false;
+let playerCount = 4; // 2, 3, or 4 players
+let roomStatus = 'waiting'; // waiting, playing, finished
+
 // ---- DOM ----
 const canvas    = document.getElementById('ludo-canvas');
 const ctx       = canvas.getContext('2d');
@@ -87,29 +102,351 @@ const modalTitle   = document.getElementById('modal-title');
 const modalMsg     = document.getElementById('modal-msg');
 const modalStats   = document.getElementById('modal-stats');
 const btnPlayAgain = document.getElementById('btn-play-again');
+const playersBar   = document.getElementById('players-bar');
 
-// ---- Init ----
-function initGame() {
-  pieces = Array.from({length: 4}, (_, ci) =>
+// =============================================
+// MULTIPLAYER SETUP
+// =============================================
+
+function getRoomIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('room');
+}
+
+async function initMultiplayer() {
+  roomId = getRoomIdFromURL();
+  if (!roomId) return false;
+
+  multiplayerMode = true;
+
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    myUserId = user.id;
+  } else {
+    // Generate anonymous ID for non-logged users
+    myUserId = 'anon_' + Math.random().toString(36).substring(2, 15);
+  }
+
+  // Join or create room
+  await joinRoom();
+
+  // Setup realtime subscription
+  setupRealtimeSubscription();
+
+  return true;
+}
+
+async function joinRoom() {
+  try {
+    // Check if room exists
+    const { data: room, error } = await supabase
+      .from('ludo_rooms')
+      .select('*')
+      .eq('id', roomId)
+      .single();
+
+    if (error && error.code === 'PGRST116') {
+      // Room doesn't exist - create it
+      isHost = true;
+      const { data: newRoom, error: createError } = await supabase
+        .from('ludo_rooms')
+        .insert({
+          id: roomId,
+          host_id: myUserId,
+          status: 'waiting',
+          players: [{ id: myUserId, name: getPlayerName(), color_index: 0 }],
+          current_player: 0,
+          pieces: initializePieces(),
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      playersInRoom = newRoom.players;
+      myPlayerIndex = 0;
+      playerCount = 2; // Default to 2 players, host can change
+    } else if (room) {
+      // Join existing room
+      isHost = room.host_id === myUserId;
+
+      // Check if already in room
+      const existingPlayer = room.players.find(p => p.id === myUserId);
+      if (existingPlayer) {
+        myPlayerIndex = existingPlayer.color_index;
+        playersInRoom = room.players;
+      } else if (room.players.length < 4 && room.status === 'waiting') {
+        // Find available color
+        const usedColors = room.players.map(p => p.color_index);
+        const availableColor = [0, 1, 2, 3].find(c => !usedColors.includes(c));
+
+        const newPlayer = { id: myUserId, name: getPlayerName(), color_index: availableColor };
+        playersInRoom = [...room.players, newPlayer];
+        myPlayerIndex = availableColor;
+
+        // Update room
+        await supabase
+          .from('ludo_rooms')
+          .update({ players: playersInRoom })
+          .eq('id', roomId);
+      } else {
+        // Room full or game started - join as spectator
+        myPlayerIndex = -1;
+        playersInRoom = room.players;
+      }
+
+      playerCount = room.player_count || 4;
+      roomStatus = room.status;
+
+      // Load game state if already playing
+      if (room.status === 'playing' || room.status === 'finished') {
+        pieces = room.pieces;
+        currentPlayer = room.current_player;
+        finishOrder = room.finish_order || [];
+        gameOver = room.status === 'finished';
+      }
+    }
+
+    updatePlayersUI();
+    return true;
+  } catch (err) {
+    console.error('Error joining room:', err);
+    multiplayerMode = false;
+    return false;
+  }
+}
+
+function getPlayerName() {
+  // Try to get from localStorage or generate random name
+  const savedName = localStorage.getItem('ludo_player_name');
+  if (savedName) return savedName;
+  return 'Jogador ' + Math.floor(Math.random() * 999);
+}
+
+function initializePieces() {
+  return Array.from({length: 4}, (_, ci) =>
     Array.from({length: 4}, () => ({ pos: -1 }))
   );
+}
+
+function setupRealtimeSubscription() {
+  realtimeChannel = supabase
+    .channel(`ludo_room_${roomId}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'ludo_rooms',
+      filter: `id=eq.${roomId}`
+    }, (payload) => {
+      handleRoomUpdate(payload.new);
+    })
+    .subscribe();
+}
+
+function handleRoomUpdate(room) {
+  if (!room) return;
+
+  playersInRoom = room.players || playersInRoom;
+  playerCount = room.player_count || playerCount;
+  roomStatus = room.status;
+
+  // Update UI
+  updatePlayersUI();
+
+  // Sync game state
+  if (room.status === 'playing' || room.status === 'finished') {
+    // Only update if it's not my turn (to avoid conflicts)
+    if (currentPlayer !== myPlayerIndex || room.last_move_by !== myUserId) {
+      pieces = room.pieces;
+      currentPlayer = room.current_player;
+      diceValue = room.dice_value;
+      rolled = room.rolled;
+      finishOrder = room.finish_order || [];
+      gameOver = room.status === 'finished';
+
+      updateScores();
+      setActiveChip(currentPlayer);
+      updateTurnMsg();
+      drawBoard();
+
+      if (gameOver) {
+        showGameEndModal();
+      }
+    }
+  }
+
+  // Show start button for host when enough players
+  if (isHost && room.status === 'waiting' && playersInRoom.length >= 2) {
+    showStartGameButton();
+  }
+}
+
+async function updateRoomState(updates) {
+  if (!multiplayerMode || !roomId) return;
+
+  try {
+    await supabase
+      .from('ludo_rooms')
+      .update({
+        ...updates,
+        last_updated: new Date().toISOString(),
+        last_move_by: myUserId
+      })
+      .eq('id', roomId);
+  } catch (err) {
+    console.error('Error updating room:', err);
+  }
+}
+
+function updatePlayersUI() {
+  // Update player chips with actual names
+  playersInRoom.forEach((player, idx) => {
+    const chip = document.getElementById(`chip-${player.color_index}`);
+    if (chip) {
+      const nameEl = chip.querySelector('.chip-name');
+      if (nameEl) {
+        nameEl.textContent = player.id === myUserId ? 'Você' : player.name;
+      }
+
+      // Mark my player
+      if (player.color_index === myPlayerIndex) {
+        chip.classList.add('is-me');
+      }
+    }
+  });
+
+  // Update player count display if in multiplayer waiting room
+  if (roomStatus === 'waiting') {
+    const waitingMsg = document.getElementById('waiting-msg');
+    if (waitingMsg) {
+      waitingMsg.textContent = `Aguardando jogadores... (${playersInRoom.length}/4)`;
+    }
+  }
+}
+
+function showStartGameButton() {
+  let startBtn = document.getElementById('btn-start-multiplayer');
+  if (!startBtn) {
+    startBtn = document.createElement('button');
+    startBtn.id = 'btn-start-multiplayer';
+    startBtn.className = 'btn btn-primary';
+    startBtn.textContent = 'Iniciar Jogo';
+    startBtn.addEventListener('click', startMultiplayerGame);
+
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.insertBefore(startBtn, controls.firstChild);
+    }
+  }
+}
+
+async function startMultiplayerGame() {
+  if (!isHost) return;
+
+  // Determine player count
+  playerCount = Math.min(playersInRoom.length, 4);
+
+  // Initialize game state
+  pieces = initializePieces();
   currentPlayer = 0;
   diceValue = 0;
   rolled = false;
   gameOver = false;
   finishOrder = [];
   totalMoves = 0;
+  startTime = Date.now();
+
+  await updateRoomState({
+    status: 'playing',
+    player_count: playerCount,
+    pieces: pieces,
+    current_player: 0,
+    dice_value: 0,
+    rolled: false,
+    finish_order: [],
+    started_at: new Date().toISOString()
+  });
+
+  // Remove start button
+  const startBtn = document.getElementById('btn-start-multiplayer');
+  if (startBtn) startBtn.remove();
+
+  // Remove waiting message
+  const waitingMsg = document.getElementById('waiting-msg');
+  if (waitingMsg) waitingMsg.remove();
+
+  initGame();
+}
+
+function showMultiplayerWaitingUI() {
+  // Add waiting message
+  let waitingMsg = document.getElementById('waiting-msg');
+  if (!waitingMsg) {
+    waitingMsg = document.createElement('div');
+    waitingMsg.id = 'waiting-msg';
+    waitingMsg.className = 'waiting-msg';
+    waitingMsg.textContent = `Aguardando jogadores... (${playersInRoom.length}/4)`;
+
+    const controls = document.querySelector('.controls');
+    if (controls) {
+      controls.insertBefore(waitingMsg, controls.firstChild);
+    }
+  }
+
+  // Disable roll button until game starts
+  btnRoll.disabled = true;
+  btnRoll.textContent = 'Aguardando...';
+}
+
+// =============================================
+// GAME INIT
+// =============================================
+
+async function init() {
+  // Check for multiplayer mode
+  const isMultiplayer = await initMultiplayer();
+
+  if (isMultiplayer) {
+    if (roomStatus === 'waiting') {
+      showMultiplayerWaitingUI();
+    }
+    // Game state will be loaded from room if already playing
+  }
+
+  initGame();
+}
+
+function initGame() {
+  // If multiplayer and not host, don't reinitialize pieces
+  if (!multiplayerMode || (multiplayerMode && isHost && roomStatus === 'waiting')) {
+    pieces = Array.from({length: 4}, (_, ci) =>
+      Array.from({length: 4}, () => ({ pos: -1 }))
+    );
+    currentPlayer = 0;
+    diceValue = 0;
+    rolled = false;
+    gameOver = false;
+    finishOrder = [];
+    totalMoves = 0;
+    startTime = Date.now();
+  }
+
   highlightedPieces = new Set();
   isProcessing = false;
-  startTime = Date.now();
   clearInterval(timerInterval);
   timerInterval = setInterval(updateTimer, 1000);
 
   updateTimer();
   updateScores();
-  setActiveChip(0);
+  setActiveChip(currentPlayer);
   updateTurnMsg();
-  btnRoll.disabled = false;
+
+  if (!multiplayerMode || roomStatus === 'playing') {
+    btnRoll.disabled = false;
+  }
+
   modalOverlay.classList.add('hidden');
   drawBoard();
 }
@@ -387,14 +724,16 @@ function drawAllPieces() {
   drawFinishedAtCenter(finishedByCi);
 
   // Draw highlight rings on valid pieces
-  if (!rolled || currentPlayer !== 0) return;
+  const isMyTurn = multiplayerMode ? currentPlayer === myPlayerIndex : currentPlayer === 0;
+  if (!rolled || !isMyTurn) return;
+
   for (const ti of highlightedPieces) {
-    const pos = pieces[0][ti].pos;
+    const pos = pieces[myPlayerIndex !== -1 ? myPlayerIndex : 0][ti].pos;
     let gridPos;
     if (pos === -1) {
-      gridPos = HOME_BASE[0][ti];
+      gridPos = HOME_BASE[myPlayerIndex !== -1 ? myPlayerIndex : 0][ti];
     } else {
-      gridPos = getGrid(0, pos);
+      gridPos = getGrid(myPlayerIndex !== -1 ? myPlayerIndex : 0, pos);
     }
     if (!gridPos) continue;
     const [cx, cy] = gridToCanvas(gridPos[0], gridPos[1]);
@@ -539,20 +878,55 @@ function updateTurnMsg(msg) {
     turnMsg.textContent = msg;
     return;
   }
-  if (currentPlayer === 0) {
-    if (!rolled) {
-      turnMsg.textContent = 'Sua vez — role o dado!';
-    } else if (highlightedPieces.size === 0) {
-      turnMsg.textContent = 'Nenhum movimento possível.';
-    } else {
-      turnMsg.textContent = `Você rolou ${diceValue} — clique em uma peça!`;
+
+  if (multiplayerMode) {
+    // Multiplayer turn messages
+    if (roomStatus === 'waiting') {
+      turnMsg.textContent = 'Aguardando mais jogadores...';
+      gameWrapper.classList.remove('thinking');
+      return;
     }
-    gameWrapper.classList.remove('thinking');
+
+    const currentPlayerName = getCurrentPlayerName();
+
+    if (currentPlayer === myPlayerIndex) {
+      if (!rolled) {
+        turnMsg.textContent = 'Sua vez — role o dado!';
+      } else if (highlightedPieces.size === 0) {
+        turnMsg.textContent = 'Nenhum movimento possível.';
+      } else {
+        turnMsg.textContent = `Você rolou ${diceValue} — clique em uma peça!`;
+      }
+      gameWrapper.classList.remove('thinking');
+    } else {
+      turnMsg.textContent = `Vez de ${currentPlayerName}...`;
+      gameWrapper.classList.add('thinking');
+    }
   } else {
-    const names = ['','Azul','Verde','Amarelo'];
-    turnMsg.textContent = `Computador ${names[currentPlayer]} pensando...`;
-    gameWrapper.classList.add('thinking');
+    // Single player mode
+    if (currentPlayer === 0) {
+      if (!rolled) {
+        turnMsg.textContent = 'Sua vez — role o dado!';
+      } else if (highlightedPieces.size === 0) {
+        turnMsg.textContent = 'Nenhum movimento possível.';
+      } else {
+        turnMsg.textContent = `Você rolou ${diceValue} — clique em uma peça!`;
+      }
+      gameWrapper.classList.remove('thinking');
+    } else {
+      const names = ['','Azul','Verde','Amarelo'];
+      turnMsg.textContent = `Computador ${names[currentPlayer]} pensando...`;
+      gameWrapper.classList.add('thinking');
+    }
   }
+}
+
+function getCurrentPlayerName() {
+  const player = playersInRoom.find(p => p.color_index === currentPlayer);
+  if (player) {
+    return player.id === myUserId ? 'Você' : player.name;
+  }
+  return PLAYER_NAMES[currentPlayer];
 }
 
 // ---- Dice ----
@@ -576,16 +950,31 @@ function startTurn(ci) {
   setActiveChip(ci);
   updateTurnMsg();
 
-  if (ci === 0) {
-    btnRoll.disabled = false;
+  if (multiplayerMode) {
+    // In multiplayer, only enable controls for current player
+    if (ci === myPlayerIndex && roomStatus === 'playing') {
+      btnRoll.disabled = false;
+    } else {
+      btnRoll.disabled = true;
+    }
   } else {
-    btnRoll.disabled = true;
-    setTimeout(() => doAITurn(ci), 700);
+    // Single player
+    if (ci === 0) {
+      btnRoll.disabled = false;
+    } else {
+      btnRoll.disabled = true;
+      setTimeout(() => doAITurn(ci), 700);
+    }
   }
 }
 
 function handleRoll() {
-  if (rolled || gameOver || currentPlayer !== 0 || isProcessing) return;
+  if (rolled || gameOver || isProcessing) return;
+
+  // Check if it's my turn in multiplayer
+  if (multiplayerMode && currentPlayer !== myPlayerIndex) return;
+  if (multiplayerMode && roomStatus !== 'playing') return;
+
   initAudio();
   btnRoll.disabled = true;
   rolled = true;
@@ -593,13 +982,22 @@ function handleRoll() {
   showDice(diceValue);
   totalMoves++;
 
-  const moves = validMoves(0, diceValue);
+  const activePlayer = multiplayerMode ? myPlayerIndex : 0;
+  const moves = validMoves(activePlayer, diceValue);
   highlightedPieces = new Set(moves);
+
+  // Sync to server in multiplayer
+  if (multiplayerMode) {
+    updateRoomState({
+      dice_value: diceValue,
+      rolled: true
+    });
+  }
 
   if (moves.length === 0) {
     updateTurnMsg(`Você rolou ${diceValue} — sem movimentos. Próximo turno.`);
     drawBoard();
-    setTimeout(() => nextTurn(0, diceValue, false), 1200);
+    setTimeout(() => nextTurn(activePlayer, diceValue, false), 1200);
     return;
   }
 
@@ -607,7 +1005,7 @@ function handleRoll() {
     // Auto-move single valid piece after brief delay
     updateTurnMsg(`Você rolou ${diceValue} — movendo automaticamente!`);
     drawBoard();
-    setTimeout(() => movePiece(0, moves[0]), 600);
+    setTimeout(() => movePiece(activePlayer, moves[0]), 600);
     return;
   }
 
@@ -616,7 +1014,13 @@ function handleRoll() {
 }
 
 function handleCanvasClick(e) {
-  if (!rolled || gameOver || currentPlayer !== 0 || highlightedPieces.size === 0 || isProcessing) return;
+  if (!rolled || gameOver || isProcessing) return;
+
+  // Check if it's my turn in multiplayer
+  const activePlayer = multiplayerMode ? myPlayerIndex : 0;
+  if (multiplayerMode && currentPlayer !== myPlayerIndex) return;
+  if (highlightedPieces.size === 0) return;
+
   initAudio();
 
   const rect = canvas.getBoundingClientRect();
@@ -627,18 +1031,18 @@ function handleCanvasClick(e) {
 
   // Find which piece was clicked
   for (const ti of highlightedPieces) {
-    const pos = pieces[0][ti].pos;
+    const pos = pieces[activePlayer][ti].pos;
     let gridPos;
     if (pos === -1) {
-      gridPos = HOME_BASE[0][ti];
+      gridPos = HOME_BASE[activePlayer][ti];
     } else {
-      gridPos = getGrid(0, pos);
+      gridPos = getGrid(activePlayer, pos);
     }
     if (!gridPos) continue;
     const [cx, cy] = gridToCanvas(gridPos[0], gridPos[1]);
     const dist = Math.hypot(mx - cx, my - cy);
     if (dist <= CELL * 0.5) {
-      movePiece(0, ti);
+      movePiece(activePlayer, ti);
       return;
     }
   }
@@ -660,6 +1064,7 @@ function movePiece(ci, ti) {
 
   // Check capture
   let captured = false;
+  let capturedPlayer = null;
   if (newPos < 52 && newPos >= 0) {
     const newAbsPath = (COLOR_START[ci] + newPos) % 52;
     for (let oci = 0; oci < 4; oci++) {
@@ -671,7 +1076,10 @@ function movePiece(ci, ti) {
         if (opAbs === newAbsPath && !SAFE_ABS.has(newAbsPath)) {
           pieces[oci][oti].pos = -1;
           captured = true;
-          if (ci === 0) updateTurnMsg(`Captura! Peça ${COLORS[oci]} voltou para a base!`);
+          capturedPlayer = oci;
+          if (ci === myPlayerIndex || (!multiplayerMode && ci === 0)) {
+            updateTurnMsg(`Captura! Peça ${COLORS[oci]} voltou para a base!`);
+          }
         }
       }
     }
@@ -680,16 +1088,31 @@ function movePiece(ci, ti) {
   updateScores();
   drawBoard();
 
+  // Sync to server in multiplayer
+  if (multiplayerMode) {
+    updateRoomState({
+      pieces: pieces,
+      current_player: currentPlayer,
+      rolled: false
+    });
+  }
+
   // Check if finished
+  let finishedPiece = false;
   if (newPos >= 58) {
-    finishOrder.push(ci);
-    if (ci === 0) updateTurnMsg('Uma peça chegou ao centro!');
+    if (!finishOrder.includes(ci)) {
+      finishOrder.push(ci);
+    }
+    finishedPiece = true;
+    if (ci === myPlayerIndex || (!multiplayerMode && ci === 0)) {
+      updateTurnMsg('Uma peça chegou ao centro!');
+    }
     if (checkWin(ci)) return;
   }
 
   // Extra turn only on rolling 6
   const extraTurn = diceValue === 6;
-  if (ci === 0) {
+  if (ci === myPlayerIndex || (!multiplayerMode && ci === 0)) {
     updateTurnMsg(extraTurn ? 'Tirou 6 — jogue novamente!' : '');
   }
   setTimeout(() => nextTurn(ci, diceValue, extraTurn), 400);
@@ -698,12 +1121,26 @@ function movePiece(ci, ti) {
 function nextTurn(ci, dice, extraTurn) {
   isProcessing = false;
   if (gameOver) return;
+
+  let nextCi;
   if (extraTurn) {
-    startTurn(ci);
+    nextCi = ci;
   } else {
-    const nextCi = getNextPlayer(ci);
-    startTurn(nextCi);
+    nextCi = getNextPlayer(ci);
   }
+
+  // Update current player
+  currentPlayer = nextCi;
+
+  // Sync to server in multiplayer
+  if (multiplayerMode) {
+    updateRoomState({
+      current_player: nextCi,
+      rolled: false
+    });
+  }
+
+  startTurn(nextCi);
 }
 
 function getNextPlayer(ci) {
@@ -711,7 +1148,14 @@ function getNextPlayer(ci) {
   let next = (ci + 1) % 4;
   let tries = 0;
   while (tries < 4) {
-    if (pieces[next].some(p => p.pos < 58)) return next;
+    // In multiplayer, skip players not in room
+    if (multiplayerMode) {
+      const playerInRoom = playersInRoom.some(p => p.color_index === next);
+      const hasPieces = pieces[next].some(p => p.pos < 58);
+      if (playerInRoom && hasPieces) return next;
+    } else {
+      if (pieces[next].some(p => p.pos < 58)) return next;
+    }
     next = (next + 1) % 4;
     tries++;
   }
@@ -721,30 +1165,69 @@ function getNextPlayer(ci) {
 function checkWin(ci) {
   if (pieces[ci].every(p => p.pos >= 58)) {
     // First player to get all 4 tokens to center wins the game
-    endGame(ci === 0);
+    endGame(ci === myPlayerIndex || (!multiplayerMode && ci === 0), ci);
     return true;
   }
   return false;
 }
 
-function endGame(humanWon) {
+function endGame(humanWon, winnerCi = 0) {
   gameOver = true;
   clearInterval(timerInterval);
   btnRoll.disabled = true;
 
   const elapsed = Math.floor((Date.now() - startTime) / 1000);
-  const finishPos = finishOrder.indexOf(0) + 1;
-  const pos = humanWon ? 1 : (finishPos > 0 ? finishPos : 4);
+
+  // Calculate position
+  let pos;
+  if (multiplayerMode) {
+    const myFinishPos = finishOrder.indexOf(myPlayerIndex) + 1;
+    pos = myFinishPos > 0 ? myFinishPos : playersInRoom.length;
+  } else {
+    const finishPos = finishOrder.indexOf(0) + 1;
+    pos = humanWon ? 1 : (finishPos > 0 ? finishPos : 4);
+  }
+
+  // Get winner name
+  let winnerName;
+  if (multiplayerMode) {
+    const winner = playersInRoom.find(p => p.color_index === winnerCi);
+    winnerName = winner ? (winner.id === myUserId ? 'Você' : winner.name) : PLAYER_NAMES[winnerCi];
+  } else {
+    winnerName = humanWon ? 'Você' : 'Computador';
+  }
 
   modalIcon.textContent = humanWon ? '🏆' : '😔';
   modalTitle.textContent = humanWon ? 'Você Venceu!' : 'Fim de Jogo';
-  modalMsg.textContent = humanWon
-    ? 'Parabéns! Todas as suas peças chegaram ao centro!'
-    : 'O computador ganhou desta vez. Tente novamente!';
+
+  if (multiplayerMode) {
+    modalMsg.textContent = humanWon
+      ? 'Parabéns! Você foi o primeiro a chegar ao centro!'
+      : `${winnerName} venceu o jogo!`;
+  } else {
+    modalMsg.textContent = humanWon
+      ? 'Parabéns! Todas as suas peças chegaram ao centro!'
+      : 'O computador ganhou desta vez. Tente novamente!';
+  }
 
   const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
   const s = String(elapsed % 60).padStart(2,'0');
-  modalStats.innerHTML = `Posição: ${pos}º lugar &nbsp;|&nbsp; Tempo: ${m}:${s} &nbsp;|&nbsp; Jogadas: ${totalMoves}`;
+
+  if (multiplayerMode) {
+    // Show finish order
+    let finishText = '';
+    if (finishOrder.length > 0) {
+      finishText = '<br>Classificação:<br>';
+      finishOrder.forEach((colorIdx, idx) => {
+        const player = playersInRoom.find(p => p.color_index === colorIdx);
+        const name = player ? (player.id === myUserId ? 'Você' : player.name) : PLAYER_NAMES[colorIdx];
+        finishText += `${idx + 1}º: ${name}<br>`;
+      });
+    }
+    modalStats.innerHTML = `Tempo: ${m}:${s} &nbsp;|&nbsp; Jogadas: ${totalMoves}${finishText}`;
+  } else {
+    modalStats.innerHTML = `Posição: ${pos}º lugar &nbsp;|&nbsp; Tempo: ${m}:${s} &nbsp;|&nbsp; Jogadas: ${totalMoves}`;
+  }
 
   modalOverlay.classList.remove('hidden');
 
@@ -752,7 +1235,55 @@ function endGame(humanWon) {
     launchConfetti();
     playSound('win');
   }
+
   saveStats(pos, totalMoves, elapsed);
+
+  // Update room status in multiplayer
+  if (multiplayerMode) {
+    updateRoomState({
+      status: 'finished',
+      winner: winnerCi,
+      finish_order: finishOrder
+    });
+  }
+}
+
+function showGameEndModal() {
+  // Called when game ends for non-active players in multiplayer
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const m = String(Math.floor(elapsed / 60)).padStart(2,'0');
+  const s = String(elapsed % 60).padStart(2,'0');
+
+  // Get winner
+  const winnerCi = finishOrder[0] || 0;
+  const winner = playersInRoom.find(p => p.color_index === winnerCi);
+  const winnerName = winner ? (winner.id === myUserId ? 'Você' : winner.name) : PLAYER_NAMES[winnerCi];
+  const humanWon = winnerCi === myPlayerIndex;
+
+  modalIcon.textContent = humanWon ? '🏆' : '😔';
+  modalTitle.textContent = humanWon ? 'Você Venceu!' : 'Fim de Jogo';
+  modalMsg.textContent = humanWon
+    ? 'Parabéns! Você foi o primeiro a chegar ao centro!'
+    : `${winnerName} venceu o jogo!`;
+
+  // Show finish order
+  let finishText = '';
+  if (finishOrder.length > 0) {
+    finishText = '<br>Classificação:<br>';
+    finishOrder.forEach((colorIdx, idx) => {
+      const player = playersInRoom.find(p => p.color_index === colorIdx);
+      const name = player ? (player.id === myUserId ? 'Você' : player.name) : PLAYER_NAMES[colorIdx];
+      finishText += `${idx + 1}º: ${name}<br>`;
+    });
+  }
+  modalStats.innerHTML = `Tempo: ${m}:${s} &nbsp;|&nbsp; Jogadas: ${totalMoves}${finishText}`;
+
+  modalOverlay.classList.remove('hidden');
+
+  if (humanWon) {
+    launchConfetti();
+    playSound('win');
+  }
 }
 
 async function saveStats(finishPosition, moves, elapsed) {
@@ -761,11 +1292,12 @@ async function saveStats(finishPosition, moves, elapsed) {
     if (!user) return;
     await supabase.from('game_stats').insert({
       user_id: user.id,
-      game: 'ludo',
+      game: multiplayerMode ? 'ludo_multiplayer' : 'ludo',
       result: finishPosition === 1 ? 'win' : 'loss',
       score: finishPosition,
       moves: moves,
       time_seconds: elapsed,
+      room_id: roomId || null
     });
   } catch (err) {
     console.warn('Erro ao salvar stats:', err);
@@ -848,8 +1380,50 @@ function aiChooseMove(ci, dice, moves) {
 // ---- Events ----
 btnRoll.addEventListener('click', handleRoll);
 canvas.addEventListener('click', handleCanvasClick);
-btnNew.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
-btnPlayAgain.addEventListener('click', () => { initAudio(); playSound('click'); initGame(); });
+btnNew.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  if (multiplayerMode && roomId) {
+    // Leave room and go to new game
+    if (realtimeChannel) {
+      realtimeChannel.unsubscribe();
+    }
+    window.location.href = 'index.html';
+  } else {
+    initGame();
+  }
+});
+btnPlayAgain.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  if (multiplayerMode && roomId) {
+    // Reset room for new game
+    if (isHost) {
+      initGame();
+      updateRoomState({
+        status: 'playing',
+        pieces: pieces,
+        current_player: 0,
+        dice_value: 0,
+        rolled: false,
+        finish_order: [],
+        started_at: new Date().toISOString()
+      });
+    } else {
+      // Non-host players just reload
+      window.location.reload();
+    }
+  } else {
+    initGame();
+  }
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  if (realtimeChannel) {
+    realtimeChannel.unsubscribe();
+  }
+});
 
 // ---- Start ----
-initGame();
+init();

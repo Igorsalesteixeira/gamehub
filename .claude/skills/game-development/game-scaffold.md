@@ -117,10 +117,125 @@ test.describe(`🎮 ${game} - Testes Críticos`, () => {
 - [ ] Botões mínimo 44x44px
 
 ### 7. Multiplayer (se aplicável)
-- [ ] Canal Supabase configurado
-- [ ] Botão "Jogar com Amigos" (apenas se multiplayer)
-- [ ] Indicador de presença
-- [ ] Sync de estado
+
+#### Checklist Multiplayer
+- [ ] Detectar modo via URL (`?room=UUID`)
+- [ ] Conectar ao Supabase Channel
+- [ ] Implementar broadcast de movimentos
+- [ ] Sincronizar estado inicial ao entrar
+- [ ] Indicador de "Vez do oponente"
+- [ ] Handler de desconexão/reconexão
+- [ ] Testes E2E com dois browsers
+
+#### Template de Código Multiplayer
+
+```javascript
+// === Multiplayer Setup ===
+const urlParams = new URLSearchParams(window.location.search);
+const ROOM_ID = urlParams.get('room');
+const IS_MULTIPLAYER = !!ROOM_ID;
+
+let channel = null;
+let myUserId = null;
+let isMyTurn = false;
+let mySymbol = 'X';
+
+// Inicializar multiplayer
+async function initMultiplayer() {
+  if (!IS_MULTIPLAYER) return;
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/auth.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
+  }
+  myUserId = session.user.id;
+
+  // Conectar à sala
+  const { data: room } = await supabase
+    .from('game_rooms')
+    .select('*')
+    .eq('id', ROOM_ID)
+    .single();
+
+  if (!room) {
+    alert('Sala não encontrada!');
+    window.location.href = '/multiplayer.html';
+    return;
+  }
+
+  // Determinar papel (Player 1 ou 2)
+  const isPlayer1 = room.player1_id === myUserId;
+  mySymbol = isPlayer1 ? 'X' : 'O';
+  isMyTurn = room.turn === (isPlayer1 ? 1 : 2);
+
+  // Restaurar estado
+  if (room.state) {
+    gameState = room.state;
+    renderGame();
+  }
+
+  // Subscribe to realtime
+  subscribeToRoom();
+}
+
+function subscribeToRoom() {
+  channel = supabase.channel(`room-${ROOM_ID}`);
+
+  channel
+    .on('broadcast', { event: 'move' }, ({ payload }) => {
+      if (payload.playerId !== myUserId) {
+        applyRemoteMove(payload);
+      }
+    })
+    .subscribe();
+}
+
+async function sendMove(moveData) {
+  // Broadcast to opponent
+  channel.send({
+    type: 'broadcast',
+    event: 'move',
+    payload: { ...moveData, playerId: myUserId }
+  });
+
+  // Save to database
+  await supabase.from('game_rooms').update({
+    state: gameState,
+    turn: isMyTurn ? 2 : 1
+  }).eq('id', ROOM_ID);
+}
+
+// No handler de clique:
+if (IS_MULTIPLAYER && !isMyTurn) return; // Bloquear se não for sua vez
+```
+
+#### CSS para Multiplayer
+
+```css
+.mode-indicator {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+}
+
+.mode-indicator.multiplayer-mode {
+  background: #4ecdc4;
+  color: #1a1a2e;
+}
+
+.turn-indicator.waiting {
+  opacity: 0.7;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+```
 
 ### 8. Performance
 - [ ] Game loop em 60fps

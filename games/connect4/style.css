@@ -27,6 +27,32 @@ body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-
 .modal p { font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem; }
 @media (max-width: 480px) { .board { max-width: 320px; gap: 4px; padding: 8px; } }
 
+/* ===== MULTIPLAYER MODE ===== */
+.mode-indicator {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  color: #a78bfa;
+  margin-bottom: 0.5rem;
+}
+
+.mode-indicator.multiplayer-mode {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+}
+
+.status.waiting {
+  color: #fbbf24;
+  animation: pulse-text 1.5s ease infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;

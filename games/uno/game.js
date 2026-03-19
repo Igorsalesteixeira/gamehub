@@ -1,4 +1,4 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -12,6 +12,18 @@ function ensureAudio() {
     audioInitialized = true;
   }
 }
+
+// === MULTIPLAYER STATE ===
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get('room');
+const isMultiplayer = !!roomId;
+let playerId = null; // 0 or 1 in multiplayer
+let opponentId = null; // 1 or 0 in multiplayer
+let multiplayerChannel = null;
+let isHost = false;
+let playerName = '';
+let opponentName = '';
+let opponentConnected = false;
 
 // === DOM ===
 const playerHandEl = document.getElementById('player-hand');
@@ -39,7 +51,7 @@ const SPECIAL_LABELS = { skip: '⊘', reverse: '⟳', draw2: '+2', wild: '★', 
 // === STATE ===
 let drawPile = [];
 let discardPile = [];
-let hands = [[], [], [], []]; // 0=player, 1-3=CPU
+let hands = [[], [], [], []]; // 0=player, 1-3=CPU (or 0=host, 1=guest in 2-player MP)
 let currentPlayer = 0;
 let direction = 1; // 1=clockwise, -1=counter
 let currentColor = '';
@@ -121,11 +133,18 @@ function createUnoCardEl(card, clickable = false) {
   return el;
 }
 
+function createCardBackEl() {
+  const el = document.createElement('div');
+  el.className = 'opp-card-back';
+  return el;
+}
+
 // === RENDER ===
 function render() {
-  // Player hand
+  // Player hand - only show own cards
   playerHandEl.innerHTML = '';
-  hands[0].forEach((card, i) => {
+  const myHand = isMultiplayer ? hands[playerId] : hands[0];
+  myHand.forEach((card, i) => {
     const el = createUnoCardEl(card, true);
     el.addEventListener('click', () => playerPlayCard(i));
     el.addEventListener('touchend', (e) => { e.preventDefault(); playerPlayCard(i); });
@@ -144,7 +163,28 @@ function render() {
     discardPileEl.appendChild(label);
   }
 
-  // Opponents
+  if (isMultiplayer) {
+    // Multiplayer: show opponent (only 1 opponent)
+    renderMultiplayerOpponent();
+  } else {
+    // Single player: show 3 CPU opponents
+    renderSinglePlayerOpponents();
+  }
+
+  // Direction
+  directionEl.textContent = direction === 1 ? '→' : '←';
+
+  // UNO badge
+  const myCards = isMultiplayer ? hands[playerId] : hands[0];
+  unoBadge.style.display = (myCards.length === 1 && calledUno) ? '' : 'none';
+
+  // Draw button - only enable on my turn
+  const myTurn = isMultiplayer ? (currentPlayer === playerId) : (currentPlayer === 0);
+  btnDraw.disabled = !myTurn || !gameActive;
+  btnUno.style.display = (myCards.length === 2 && myTurn && gameActive) ? '' : 'none';
+}
+
+function renderSinglePlayerOpponents() {
   for (let i = 1; i <= 3; i++) {
     const countEl = document.getElementById(`opp-count-${i}`);
     const cardsEl = document.getElementById(`opp-cards-${i}`);
@@ -154,9 +194,7 @@ function render() {
     cardsEl.innerHTML = '';
     const show = Math.min(hands[i].length, 10);
     for (let j = 0; j < show; j++) {
-      const back = document.createElement('div');
-      back.className = 'opp-card-back';
-      cardsEl.appendChild(back);
+      cardsEl.appendChild(createCardBackEl());
     }
 
     oppEl.classList.toggle('active-turn', currentPlayer === i && gameActive);
@@ -167,16 +205,51 @@ function render() {
   const isPlayerTurn = currentPlayer === 0 && gameActive;
   playerSection?.classList.toggle('active-turn', isPlayerTurn);
   playerSection?.classList.toggle('disabled', !isPlayerTurn);
+}
 
-  // Direction
-  directionEl.textContent = direction === 1 ? '→' : '←';
+function renderMultiplayerOpponent() {
+  // Update opponent display
+  const oppCountEl = document.getElementById('opp-count-1');
+  const oppCardsEl = document.getElementById('opp-cards-1');
+  const oppEl = document.getElementById('opponent-1');
+  const oppNameEl = document.querySelector('#opponent-1 .opp-name');
 
-  // UNO badge
-  unoBadge.style.display = (hands[0].length === 1 && calledUno) ? '' : 'none';
+  if (oppNameEl) oppNameEl.textContent = opponentName || 'Oponente';
+  if (oppCountEl) oppCountEl.textContent = hands[opponentId]?.length || 0;
+  if (oppCardsEl) {
+    oppCardsEl.innerHTML = '';
+    const cardCount = hands[opponentId]?.length || 0;
+    const show = Math.min(cardCount, 10);
+    for (let j = 0; j < show; j++) {
+      oppCardsEl.appendChild(createCardBackEl());
+    }
+  }
 
-  // Draw button
-  btnDraw.disabled = currentPlayer !== 0 || !gameActive;
-  btnUno.style.display = (hands[0].length === 2 && currentPlayer === 0 && gameActive) ? '' : 'none';
+  if (oppEl) {
+    oppEl.classList.toggle('active-turn', currentPlayer === opponentId && gameActive);
+  }
+
+  // Player section turn indicator
+  const playerSection = document.querySelector('.player-section');
+  const isPlayerTurn = currentPlayer === playerId && gameActive;
+  playerSection?.classList.toggle('active-turn', isPlayerTurn);
+  playerSection?.classList.toggle('disabled', !isPlayerTurn);
+
+  // Update connection status
+  updateConnectionStatus();
+}
+
+function updateConnectionStatus() {
+  const statusEl = document.getElementById('connection-status');
+  if (statusEl) {
+    if (opponentConnected) {
+      statusEl.textContent = '🟢 Oponente conectado';
+      statusEl.className = 'connection-status connected';
+    } else {
+      statusEl.textContent = '🔴 Aguardando oponente...';
+      statusEl.className = 'connection-status waiting';
+    }
+  }
 }
 
 // === GAME LOGIC ===
@@ -193,10 +266,15 @@ function hasPlayableCard(hand) {
 }
 
 function playerPlayCard(index) {
-  if (currentPlayer !== 0 || !gameActive || isProcessing) return;
+  const myId = isMultiplayer ? playerId : 0;
+  if (currentPlayer !== myId || !gameActive || isProcessing) return;
+
   isProcessing = true;
   ensureAudio();
-  const card = hands[0][index];
+
+  const myHand = isMultiplayer ? hands[playerId] : hands[0];
+  const card = myHand[index];
+
   if (!canPlay(card)) {
     messageEl.textContent = 'Carta invalida! Jogue uma carta compativel.';
     playSound('error');
@@ -205,17 +283,18 @@ function playerPlayCard(index) {
   }
 
   // UNO check - must call UNO before playing second-to-last card
-  if (hands[0].length === 2 && !calledUno) {
-    // Penalty: draw 2 cards
+  if (myHand.length === 2 && !calledUno) {
     messageEl.textContent = 'Voce esqueceu de gritar UNO! +2 cartas de penalidade.';
-    hands[0].push(drawCard());
-    hands[0].push(drawCard());
+    const c1 = drawCard();
+    const c2 = drawCard();
+    if (c1) myHand.push(c1);
+    if (c2) myHand.push(c2);
     isProcessing = false;
     render();
     return;
   }
 
-  hands[0].splice(index, 1);
+  myHand.splice(index, 1);
   moveCount++;
 
   if (card.type === 'wild') {
@@ -224,7 +303,7 @@ function playerPlayCard(index) {
     return;
   }
 
-  playCardEffect(card, 0);
+  playCardEffect(card, myId);
 }
 
 function showColorPicker() {
@@ -236,7 +315,17 @@ function showColorPicker() {
       colorPickerOverlay.style.display = 'none';
       pendingWildCard.color = color;
       currentColor = color;
-      playCardEffect(pendingWildCard, 0);
+
+      // In multiplayer, sync color choice
+      if (isMultiplayer) {
+        broadcastMove({
+          type: 'wild_color',
+          color: color,
+          card: pendingWildCard
+        });
+      }
+
+      playCardEffect(pendingWildCard, isMultiplayer ? playerId : 0);
       pendingWildCard = null;
     };
   });
@@ -254,7 +343,8 @@ function playCardEffect(card, player) {
   currentColor = card.color;
 
   // Check win
-  if (hands[player].length === 0) {
+  const playerHand = isMultiplayer ? hands[player] : hands[player];
+  if (playerHand.length === 0) {
     endGame(player);
     return;
   }
@@ -298,26 +388,46 @@ function playCardEffect(card, player) {
   isProcessing = false;
   render();
 
-  if (gameActive && currentPlayer !== 0) {
+  // Broadcast move in multiplayer
+  if (isMultiplayer && gameActive) {
+    broadcastMove({
+      type: 'play_card',
+      card: card,
+      player: player,
+      currentPlayer: currentPlayer,
+      direction: direction,
+      currentColor: currentColor,
+      hands: hands.map(h => h.length), // Only send card counts
+      drawPileCount: drawPile.length,
+      discardPile: discardPile
+    });
+  }
+
+  // CPU turn in single player
+  if (!isMultiplayer && gameActive && currentPlayer !== 0) {
     setTimeout(() => cpuTurn(), 900);
   }
 }
 
 function advancePlayer() {
-  currentPlayer = (currentPlayer + direction + 4) % 4;
+  const numPlayers = isMultiplayer ? 2 : 4;
+  currentPlayer = (currentPlayer + direction + numPlayers) % numPlayers;
 }
 
 function getPlayerName(p) {
+  if (isMultiplayer) {
+    return p === playerId ? 'Voce' : (opponentName || 'Oponente');
+  }
   return p === 0 ? 'Voce' : `CPU ${p}`;
 }
 
-// === CPU AI ===
+// === CPU AI (Single Player Only) ===
 function showCpuThinking() {
   messageEl.innerHTML = `CPU ${currentPlayer} está pensando <span class="thinking-dots"><span></span><span></span><span></span></span>`;
 }
 
 function cpuTurn() {
-  if (!gameActive || currentPlayer === 0) return;
+  if (!gameActive || currentPlayer === 0 || isMultiplayer) return;
 
   showCpuThinking();
 
@@ -327,7 +437,7 @@ function cpuTurn() {
 }
 
 function cpuTurnActual() {
-  if (!gameActive || currentPlayer === 0) return;
+  if (!gameActive || currentPlayer === 0 || isMultiplayer) return;
 
   const hand = hands[currentPlayer];
   const playable = [];
@@ -425,16 +535,307 @@ function cpuPlayIndex(index) {
   playCardEffect(card, player);
 }
 
+// === MULTIPLAYER FUNCTIONS ===
+async function initMultiplayer() {
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    messageEl.textContent = 'Faca login para jogar multiplayer.';
+    setTimeout(() => {
+      window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+    }, 2000);
+    return;
+  }
+
+  playerName = user.user_metadata?.name || user.email?.split('@')[0] || 'Jogador';
+
+  // Check if room exists
+  const { data: room, error } = await supabase
+    .from('uno_rooms')
+    .select('*')
+    .eq('id', roomId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error checking room:', error);
+    messageEl.textContent = 'Erro ao conectar a sala.';
+    return;
+  }
+
+  if (!room) {
+    // Create room as host
+    isHost = true;
+    playerId = 0;
+    opponentId = 1;
+
+    const { error: createError } = await supabase
+      .from('uno_rooms')
+      .insert({
+        id: roomId,
+        host_id: user.id,
+        host_name: playerName,
+        status: 'waiting',
+        game_state: null
+      });
+
+    if (createError) {
+      console.error('Error creating room:', createError);
+      messageEl.textContent = 'Erro ao criar sala.';
+      return;
+    }
+  } else {
+    // Join existing room
+    if (room.guest_id && room.guest_id !== user.id) {
+      messageEl.textContent = 'Sala cheia!';
+      return;
+    }
+
+    isHost = false;
+    playerId = 1;
+    opponentId = 0;
+    opponentName = room.host_name;
+
+    // Update room with guest info
+    await supabase
+      .from('uno_rooms')
+      .update({
+        guest_id: user.id,
+        guest_name: playerName,
+        status: 'playing'
+      })
+      .eq('id', roomId);
+  }
+
+  // Setup realtime subscription
+  setupMultiplayerChannel();
+
+  // Update UI for multiplayer
+  updateMultiplayerUI();
+
+  // Start game if host, wait if guest
+  if (isHost) {
+    messageEl.textContent = 'Aguardando oponente...';
+    // Wait for opponent to join
+    waitForOpponent();
+  } else {
+    messageEl.textContent = 'Conectado! Aguardando inicio...';
+    // Load game state from host
+    loadGameState();
+  }
+}
+
+function setupMultiplayerChannel() {
+  multiplayerChannel = supabase
+    .channel(`uno:${roomId}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'uno_rooms',
+      filter: `id=eq.${roomId}`
+    }, (payload) => {
+      handleRoomUpdate(payload.new);
+    })
+    .subscribe();
+}
+
+function handleRoomUpdate(room) {
+  if (!room) return;
+
+  // Update opponent info
+  if (isHost && room.guest_name) {
+    opponentName = room.guest_name;
+    opponentConnected = true;
+  } else if (!isHost) {
+    opponentName = room.host_name;
+    opponentConnected = true;
+  }
+
+  // Update game state
+  if (room.game_state) {
+    const state = room.game_state;
+
+    // Only update if it's from the other player or initial state
+    if (state.player !== playerId) {
+      drawPile = state.drawPile || drawPile;
+      discardPile = state.discardPile || discardPile;
+      hands = state.hands || hands;
+      currentPlayer = state.currentPlayer !== undefined ? state.currentPlayer : currentPlayer;
+      direction = state.direction !== undefined ? state.direction : direction;
+      currentColor = state.currentColor || currentColor;
+      gameActive = state.gameActive !== undefined ? state.gameActive : gameActive;
+
+      render();
+
+      // Check for game end
+      if (state.winner !== undefined) {
+        endGame(state.winner);
+      }
+    }
+  }
+
+  // Update status
+  if (room.status === 'playing' && !gameActive && isHost) {
+    startMultiplayerGame();
+  }
+
+  updateConnectionStatus();
+}
+
+async function waitForOpponent() {
+  const checkInterval = setInterval(async () => {
+    const { data: room } = await supabase
+      .from('uno_rooms')
+      .select('*')
+      .eq('id', roomId)
+      .single();
+
+    if (room?.guest_id) {
+      clearInterval(checkInterval);
+      opponentName = room.guest_name;
+      opponentConnected = true;
+      await supabase
+        .from('uno_rooms')
+        .update({ status: 'playing' })
+        .eq('id', roomId);
+      startMultiplayerGame();
+    }
+  }, 1000);
+}
+
+async function loadGameState() {
+  const { data: room } = await supabase
+    .from('uno_rooms')
+    .select('*')
+    .eq('id', roomId)
+    .single();
+
+  if (room?.game_state) {
+    handleRoomUpdate(room);
+  }
+}
+
+function startMultiplayerGame() {
+  // Initialize game state
+  drawPile = shuffle(createDeck());
+  discardPile = [];
+  hands = [[], []]; // Only 2 players in multiplayer
+  currentPlayer = 0;
+  direction = 1;
+  gameActive = true;
+  calledUno = false;
+  moveCount = 0;
+
+  // Deal 7 cards each
+  for (let round = 0; round < 7; round++) {
+    for (let p = 0; p < 2; p++) {
+      hands[p].push(drawCard());
+    }
+  }
+
+  // First discard - must be a number card
+  let firstCard;
+  do {
+    firstCard = drawCard();
+    if (firstCard.type !== 'number') {
+      drawPile.unshift(firstCard);
+      shuffle(drawPile);
+    }
+  } while (firstCard.type !== 'number');
+
+  discardPile.push(firstCard);
+  currentColor = firstCard.color;
+
+  // Save initial state
+  saveGameState();
+
+  messageEl.textContent = isHost ? 'Sua vez!' : 'Vez do oponente';
+  render();
+}
+
+async function saveGameState() {
+  const state = {
+    drawPile,
+    discardPile,
+    hands,
+    currentPlayer,
+    direction,
+    currentColor,
+    gameActive,
+    player: playerId
+  };
+
+  await supabase
+    .from('uno_rooms')
+    .update({ game_state: state })
+    .eq('id', roomId);
+}
+
+async function broadcastMove(move) {
+  // Merge move with current state and save
+  const state = {
+    drawPile,
+    discardPile,
+    hands,
+    currentPlayer,
+    direction,
+    currentColor,
+    gameActive,
+    player: playerId,
+    lastMove: move
+  };
+
+  await supabase
+    .from('uno_rooms')
+    .update({ game_state: state })
+    .eq('id', roomId);
+}
+
+function updateMultiplayerUI() {
+  // Hide CPU opponents in multiplayer
+  const opp2 = document.getElementById('opponent-2');
+  const opp3 = document.getElementById('opponent-3');
+  if (opp2) opp2.style.display = 'none';
+  if (opp3) opp3.style.display = 'none';
+
+  // Update opponent 1 label
+  const opp1Name = document.querySelector('#opponent-1 .opp-name');
+  if (opp1Name) opp1Name.textContent = opponentName || 'Oponente';
+
+  // Add connection status indicator
+  const topbar = document.querySelector('.topbar');
+  if (topbar && !document.getElementById('connection-status')) {
+    const statusEl = document.createElement('div');
+    statusEl.id = 'connection-status';
+    statusEl.className = 'connection-status waiting';
+    statusEl.textContent = '🔴 Aguardando oponente...';
+    topbar.appendChild(statusEl);
+  }
+}
+
 // === DRAW BUTTON ===
 btnDraw.addEventListener('click', () => {
-  if (currentPlayer !== 0 || !gameActive || isProcessing) return;
+  const myId = isMultiplayer ? playerId : 0;
+  if (currentPlayer !== myId || !gameActive || isProcessing) return;
+
   isProcessing = true;
   ensureAudio();
+
+  const myHand = isMultiplayer ? hands[playerId] : hands[0];
   const c = drawCard();
   if (c) {
-    hands[0].push(c);
+    myHand.push(c);
     playSound('deal');
     messageEl.textContent = 'Voce comprou uma carta.';
+
+    // Broadcast draw in multiplayer
+    if (isMultiplayer) {
+      broadcastMove({
+        type: 'draw',
+        player: playerId,
+        hands: hands.map(h => h.length),
+        drawPileCount: drawPile.length
+      });
+    }
 
     // Can play the drawn card?
     if (canPlay(c)) {
@@ -444,11 +845,19 @@ btnDraw.addEventListener('click', () => {
       return;
     }
   }
+
   advancePlayer();
   calledUno = false;
   isProcessing = false;
   render();
-  if (currentPlayer !== 0) {
+
+  if (isMultiplayer) {
+    broadcastMove({
+      type: 'turn_end',
+      player: playerId,
+      currentPlayer: currentPlayer
+    });
+  } else if (currentPlayer !== 0) {
     setTimeout(() => cpuTurn(), 700);
   }
 });
@@ -459,19 +868,43 @@ btnUno.addEventListener('click', () => {
   calledUno = true;
   messageEl.textContent = 'Voce gritou UNO!';
   btnUno.style.display = 'none';
+
+  if (isMultiplayer) {
+    broadcastMove({
+      type: 'uno_call',
+      player: playerId
+    });
+  }
+
   render();
 });
 
 // === END GAME ===
 function endGame(winner) {
   gameActive = false;
-  const won = winner === 0;
+  const myId = isMultiplayer ? playerId : 0;
+  const won = winner === myId;
 
-  modalIcon.textContent = won ? '🏆' : '😢';
-  modalTitle.textContent = won ? 'Voce Venceu!' : `CPU ${winner} Venceu!`;
-  modalMessage.textContent = won
-    ? `Parabens! Voce se livrou de todas as cartas em ${moveCount} jogadas!`
-    : `CPU ${winner} ficou sem cartas primeiro.`;
+  if (isMultiplayer) {
+    modalIcon.textContent = won ? '🏆' : '😢';
+    modalTitle.textContent = won ? 'Voce Venceu!' : `${opponentName || 'Oponente'} Venceu!`;
+    modalMessage.textContent = won
+      ? 'Parabens! Voce venceu o jogo!'
+      : 'O oponente ficou sem cartas primeiro.';
+
+    // Broadcast win
+    broadcastMove({
+      type: 'game_end',
+      winner: winner
+    });
+  } else {
+    modalIcon.textContent = won ? '🏆' : '😢';
+    modalTitle.textContent = won ? 'Voce Venceu!' : `CPU ${winner} Venceu!`;
+    modalMessage.textContent = won
+      ? `Parabens! Voce se livrou de todas as cartas em ${moveCount} jogadas!`
+      : `CPU ${winner} ficou sem cartas primeiro.`;
+  }
+
   modalOverlay.classList.add('active');
 
   if (won) {
@@ -484,7 +917,9 @@ function endGame(winner) {
   btnDraw.disabled = true;
   btnNew.style.display = '';
 
-  saveStats(won ? 'win' : 'loss');
+  if (!isMultiplayer) {
+    saveStats(won ? 'win' : 'loss');
+  }
 }
 
 async function saveStats(result) {
@@ -503,6 +938,8 @@ async function saveStats(result) {
 
 // === START GAME ===
 function startGame() {
+  if (isMultiplayer) return; // Multiplayer starts differently
+
   ensureAudio();
   isProcessing = false;
   drawPile = shuffle(createDeck());
@@ -544,21 +981,42 @@ function startGame() {
 // === EVENTS ===
 modalBtn.addEventListener('click', () => {
   modalOverlay.classList.remove('active');
-  startGame();
+  if (isMultiplayer) {
+    // Return to lobby or refresh
+    window.location.href = '/games/uno/';
+  } else {
+    startGame();
+  }
 });
 
 document.getElementById('btn-share')?.addEventListener('click', () => {
-  shareOnWhatsApp(`🎉 Ganhei no Uno do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/uno/`);
+  if (isMultiplayer) {
+    shareOnWhatsApp(`🎉 Ganhei no Uno multiplayer do Games Hub! Jogue tambem: https://gameshub.com.br/games/uno/?room=${roomId}`);
+  } else {
+    shareOnWhatsApp(`🎉 Ganhei no Uno do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/uno/`);
+  }
 });
 
 btnNew.addEventListener('click', () => {
   btnNew.style.display = 'none';
-  startGame();
+  if (isMultiplayer) {
+    // Restart multiplayer game
+    if (isHost) {
+      startMultiplayerGame();
+    }
+  } else {
+    startGame();
+  }
 });
 
 drawPileEl.addEventListener('click', () => {
-  if (currentPlayer === 0 && gameActive) btnDraw.click();
+  const myId = isMultiplayer ? playerId : 0;
+  if (currentPlayer === myId && gameActive) btnDraw.click();
 });
 
 // === INIT ===
-startGame();
+if (isMultiplayer) {
+  initMultiplayer();
+} else {
+  startGame();
+}

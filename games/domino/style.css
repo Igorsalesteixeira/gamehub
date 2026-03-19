@@ -76,6 +76,90 @@ body {
   margin: 0 auto;
 }
 
+/* ===== OPPONENT SECTION (Multiplayer) ===== */
+.opponent-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.opponent-section .hand-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.35rem 0.8rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.opponent-hand {
+  opacity: 0.8;
+}
+
+/* Back of tile styling */
+.domino.back-tile {
+  background: linear-gradient(145deg, #2d3436, #1e272e);
+  border-color: #636e72;
+  cursor: default;
+}
+
+.domino.back-tile:hover {
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.back-pattern {
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 8px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-pattern::after {
+  content: '🁢';
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+/* ===== MULTIPLAYER STATUS ===== */
+.mp-status {
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 auto;
+  max-width: 90%;
+}
+
+.mp-status.waiting {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: #fff;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.mp-status.playing {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #fff;
+}
+
+.mp-status.error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+
+.mp-status.hidden {
+  display: none;
+}
+
 /* ===== CHAIN SECTION ===== */
 .chain-section {
   background: rgba(255,255,255,0.05);
@@ -481,6 +565,14 @@ body {
 .game-info li { margin-bottom: 0.2rem; }
 .game-info strong { color: #ffd700; }
 
+.game-info code {
+  background: rgba(255,255,255,0.1);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   .chain-scroll-wrap { min-height: 90px; padding: 0.5rem 0.6rem; }
@@ -489,4 +581,9 @@ body {
   .domino.chain-tile { width: 44px; height: 22px; }
   .topbar-info { gap: 0.25rem; }
   .info-badge { font-size: 0.72rem; padding: 0.15rem 0.4rem; }
+
+  .mp-status {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
 }

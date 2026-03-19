@@ -6,28 +6,28 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Uno Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Uno online e de graca contra 3 computadores. Regras oficiais com cartas especiais!" />
-  <meta name="keywords" content="uno online, uno gratis, jogo de cartas online, uno navegador" />
+  <meta name="description" content="Jogue Uno online e de graca contra 3 computadores ou contra amigos no multiplayer. Regras oficiais com cartas especiais!" />
+  <meta name="keywords" content="uno online, uno gratis, jogo de cartas online, uno navegador, uno multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/uno/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Uno Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Uno online e de graca contra 3 CPUs!" />
+  <meta property="og:description" content="Jogue Uno online e de graca contra 3 CPUs ou amigos no multiplayer!" />
   <meta property="og:url" content="https://gameshub.com.br/games/uno/" />
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=2" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Uno",
-    "description": "Jogue Uno online grátis contra 3 computadores. Regras oficiais com cartas especiais como +2, +4 e Reverso.",
+    "description": "Jogue Uno online grátis contra 3 computadores ou amigos no multiplayer. Regras oficiais com cartas especiais como +2, +4 e Reverso.",
     "url": "https://gameshub.com.br/games/uno/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -54,6 +54,22 @@
   </header>
 
   <main class="game-area">
+    <!-- Lobby for multiplayer -->
+    <div class="multiplayer-lobby" id="multiplayer-lobby" style="display:none">
+      <div class="lobby-content">
+        <h2>Sala Multiplayer</h2>
+        <div class="room-info">
+          <p>Compartilhe este link com um amigo:</p>
+          <div class="room-link-box">
+            <input type="text" id="room-link" readonly />
+            <button class="btn btn-blue" id="btn-copy-link">Copiar</button>
+          </div>
+        </div>
+        <div class="lobby-status" id="lobby-status">Aguardando oponente...</div>
+        <button class="btn btn-orange" id="btn-start-mp" style="display:none">Iniciar Jogo</button>
+      </div>
+    </div>
+
     <div class="opponents">
       <div class="opponent" id="opponent-1">
         <div class="opp-name">CPU 1</div>
@@ -94,6 +110,16 @@
     </div>
 
     <div id="message" class="message"></div>
+
+    <!-- Multiplayer controls -->
+    <div class="multiplayer-controls" id="multiplayer-controls" style="display:none">
+      <button class="btn btn-secondary" id="btn-create-room">Criar Sala</button>
+      <span>ou</span>
+      <div class="join-room-box">
+        <input type="text" id="room-code-input" placeholder="Codigo da sala" maxlength="20" />
+        <button class="btn btn-secondary" id="btn-join-room">Entrar</button>
+      </div>
+    </div>
   </main>
 
   <div class="modal-overlay" id="modal-overlay">
@@ -102,7 +128,7 @@
       <h2 id="modal-title"></h2>
       <p id="modal-message"></p>
       <button class="btn btn-primary" id="modal-btn">Jogar Novamente</button>
-      <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
+      <button class="btn btn-whatsapp" id="btn-share">&#128241; Compartilhar no WhatsApp</button>
     </div>
   </div>
 
@@ -119,23 +145,30 @@
   </div>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=7'; initSidebar({ active: 'uno' });</script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=9"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Uno Online</h2>
-    <p>Uno é o famoso jogo de cartas de correspondência de cores e números. Jogue contra 3 computadores e tente ser o primeiro a ficar sem cartas. Use cartas especiais estrategicamente para atrapalhar os adversários — e lembre-se de gritar "UNO!" quando restar só uma carta. Jogue uno online grátis.</p>
+    <p>Uno é o famoso jogo de cartas de correspondência de cores e números. Jogue contra 3 computadores ou desafie um amigo no multiplayer e tente ser o primeiro a ficar sem cartas. Use cartas especiais estrategicamente para atrapalhar os adversarios — e lembre-se de gritar "UNO!" quando restar so uma carta.</p>
     <h3>Regras</h3>
     <ul>
-      <li>Jogue uma carta que corresponda à cor, número ou símbolo da carta no topo do descarte.</li>
-      <li>+2 obriga o próximo jogador a comprar 2 cartas; +4 coringa obriga a comprar 4.</li>
-      <li>Se não tiver carta jogável, compre uma carta do monte.</li>
-      <li>Clique em "UNO!" quando tiver apenas uma carta para não ser penalizado.</li>
+      <li>Jogue uma carta que corresponda a cor, numero ou simbolo da carta no topo do descarte.</li>
+      <li>+2 obriga o proximo jogador a comprar 2 cartas; +4 coringa obriga a comprar 4.</li>
+      <li>Se nao tiver carta jogavel, compre uma carta do monte.</li>
+      <li>Clique em "UNO!" quando tiver apenas uma carta para nao ser penalizado.</li>
+    </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Crie uma sala e compartilhe o link com um amigo.</li>
+      <li>Cada jogador ve apenas suas proprias cartas.</li>
+      <li>O oponente ve apenas as costas das suas cartas e a quantidade.</li>
+      <li>Cartas especiais afetam ambos os jogadores.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>Guarde cartas +4 e coringas para momentos críticos ou para bloquear um adversário prestes a vencer.</li>
-      <li>Tente mudar para uma cor onde você tenha muitas cartas — dificulta os oponentes.</li>
+      <li>Guarde cartas +4 e coringas para momentos criticos ou para bloquear um adversario prestes a vencer.</li>
+      <li>Tente mudar para uma cor onde voce tenha muitas cartas — dificulta os oponentes.</li>
     </ul>
   </section>
 </body>

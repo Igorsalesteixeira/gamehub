@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Poker Texas Hold'em Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Poker Texas Hold'em online e de graca contra o computador. Fichas, apostas, blefe e muito mais!" />
-  <meta name="keywords" content="poker online gratis, texas holdem online, poker brasil, jogar poker" />
+  <meta name="description" content="Jogue Poker Texas Hold'em online e de graca contra o computador ou com amigos. Fichas, apostas, blefe e muito mais!" />
+  <meta name="keywords" content="poker online gratis, texas holdem online, poker brasil, jogar poker, poker multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/poker/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Poker Texas Hold'em Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Poker Texas Hold'em online e de graca contra o computador!" />
+  <meta property="og:description" content="Jogue Poker Texas Hold'em online e de graca contra o computador ou com amigos!" />
   <meta property="og:url" content="https://gameshub.com.br/games/poker/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
@@ -18,18 +18,18 @@
   <meta name="twitter:description" content="Jogue Poker Texas Hold'em online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Poker Texas Hold'em",
-    "description": "Jogue Poker Texas Hold'em online gratis contra o computador com fichas, apostas e blefe.",
+    "description": "Jogue Poker Texas Hold'em online gratis contra o computador ou com amigos. Fichas, apostas e blefe.",
     "url": "https://gameshub.com.br/games/poker/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -52,6 +52,9 @@
   </header>
 
   <div class="game-wrapper">
+    <!-- Multiplayer Status -->
+    <div id="multiplayer-status" class="multiplayer-status"></div>
+
     <div class="poker-table">
       <!-- CPU opponents -->
       <div class="opponents-row">
@@ -132,11 +135,15 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'poker' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Poker Texas Hold'em Online</h2>
-    <p>O Poker Texas Hold'em é o estilo de poker mais popular do mundo. Cada jogador recebe 2 cartas privativas (hole cards) e usa 5 cartas comunitárias para formar a melhor mão de 5 cartas possível. Jogue poker online grátis contra 3 adversários controlados pelo computador.</p>
+    <p>O Poker Texas Hold'em é o estilo de poker mais popular do mundo. Cada jogador recebe 2 cartas privativas (hole cards) e usa 5 cartas comunitárias para formar a melhor mão de 5 cartas possível. Jogue poker online grátis contra o computador ou desafie um amigo no modo multiplayer!</p>
+
+    <h3>Modo Multiplayer</h3>
+    <p>Clique em "Criar Sala Multiplayer" para jogar contra um amigo. Compartilhe o link gerado e aguarde o oponente entrar na sala. As cartas são sincronizadas em tempo real via Supabase Realtime.</p>
+
     <h3>Ordem das mãos (do maior para o menor)</h3>
     <ul>
       <li><strong>Royal Flush</strong> — A-K-Q-J-10 do mesmo naipe</li>

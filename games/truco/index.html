@@ -6,28 +6,28 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Truco Mineiro Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Truco Mineiro online e de graca contra o computador. Primeiro a 12 pontos vence!" />
-  <meta name="keywords" content="truco online, truco mineiro, jogo de cartas gratis, truco gratis" />
+  <meta name="description" content="Jogue Truco Mineiro online e de graca contra o computador ou amigos. Primeiro a 12 pontos vence!" />
+  <meta name="keywords" content="truco online, truco mineiro, jogo de cartas gratis, truco gratis, multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/truco/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Truco Mineiro Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Truco Mineiro online e de graca!" />
+  <meta property="og:description" content="Jogue Truco Mineiro online e de graca contra o computador ou amigos!" />
   <meta property="og:url" content="https://gameshub.com.br/games/truco/" />
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=2" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=9" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Truco Mineiro",
-    "description": "Jogue Truco Mineiro online grátis contra o computador. Primeiro a 12 pontos vence a partida.",
+    "description": "Jogue Truco Mineiro online grátis contra o computador ou amigos. Primeiro a 12 pontos vence a partida.",
     "url": "https://gameshub.com.br/games/truco/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -49,8 +49,8 @@
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
     <h1 class="game-title">&#127183; Truco Mineiro</h1>
     <div class="stats">
-      <span>Voce: <strong id="player-score">0</strong></span>
-      <span>CPU: <strong id="cpu-score">0</strong></span>
+      <span>Você: <strong id="player-score">0</strong></span>
+      <span id="opponent-label">CPU: <strong id="cpu-score">0</strong></span>
     </div>
   </header>
 
@@ -58,22 +58,32 @@
     <div class="round-info">
       <span>Rodada: <strong id="round-num">1</strong>/3</span>
       <span>Valor: <strong id="hand-value">1</strong> pt(s)</span>
-      <span id="round-score-display">Rodadas: Voce 0 x 0 CPU</span>
+      <span id="round-score-display">Rodadas: Você 0 x 0 CPU</span>
+    </div>
+
+    <!-- Multiplayer Controls -->
+    <div id="multiplayer-controls" class="multiplayer-controls" style="display: none;">
+      <button class="btn btn-blue" id="btn-create-room">Criar Sala</button>
+      <span class="or-divider">ou</span>
+      <div class="join-room">
+        <input type="text" id="room-input" placeholder="Código da sala" maxlength="20">
+        <button class="btn btn-green" id="btn-join-room">Entrar</button>
+      </div>
     </div>
 
     <section class="table">
       <div class="cpu-zone">
-        <div class="zone-label">CPU</div>
+        <div class="zone-label" id="opponent-zone-label">CPU</div>
         <div class="cpu-hand" id="cpu-hand"></div>
       </div>
 
       <div class="played-cards">
         <div class="played-col">
-          <div class="played-label">Voce jogou</div>
+          <div class="played-label" id="player-played-label">Você jogou</div>
           <div id="player-played" class="played-slot"></div>
         </div>
         <div class="played-col">
-          <div class="played-label">CPU jogou</div>
+          <div class="played-label" id="opponent-played-label">CPU jogou</div>
           <div id="cpu-played" class="played-slot"></div>
         </div>
       </div>
@@ -88,7 +98,7 @@
       <button class="btn btn-orange" id="btn-truco">&#128293; Truco!</button>
       <button class="btn btn-green" id="btn-accept" style="display:none">Aceitar</button>
       <button class="btn btn-red" id="btn-decline" style="display:none">Correr</button>
-      <button class="btn btn-blue" id="btn-new" style="display:none">Nova Mao</button>
+      <button class="btn btn-blue" id="btn-new" style="display:none">Nova Mão</button>
     </div>
 
     <div id="message" class="message"></div>
@@ -100,12 +110,12 @@
       <h2 id="modal-title"></h2>
       <p id="modal-message"></p>
       <button class="btn btn-primary" id="modal-btn">Jogar Novamente</button>
-      <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
+      <button class="btn btn-whatsapp" id="btn-share">&#128241; Compartilhar no WhatsApp</button>
     </div>
   </div>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=7'; initSidebar({ active: 'truco' });</script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=10"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
@@ -115,7 +125,13 @@
     <ul>
       <li>Cada mão tem 3 rodadas; quem vencer 2 rodadas ganha a mão e os pontos apostados.</li>
       <li>Clique em "Truco!" para aumentar a aposta; o adversário pode aceitar, correr ou re-trucar.</li>
-      <li>A hierarquia das cartas (de maior para menor): 4, 7, Ás, 2, 3, Rei, Valete, Dama, 6, 5.</li>
+      <li>A hierarquia das cartas (de maior para menor): 4♣, 7♥, A♠, 7♦, 3, 2, A, K, J, Q, 7, 6, 5, 4.</li>
+    </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Para jogar com amigos, adicione <code>?room=SEU_CODIGO</code> na URL.</li>
+      <li>Compartilhe o link da sala com seu amigo para jogar online.</li>
+      <li>As cartas são sincronizadas entre os jogadores em tempo real.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>

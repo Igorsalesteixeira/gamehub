@@ -1,19 +1,38 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 
-// === State ===
-const PLAYER = 'X';
-const CPU = 'O';
+// =============================================
+//  Jogo da Velha (Tic-Tac-Toe) - Games Hub
+//  Suporta: Single Player (vs CPU) | Multiplayer
+// =============================================
+
 const WIN_COMBOS = [
   [0,1,2],[3,4,5],[6,7,8], // rows
   [0,3,6],[1,4,7],[2,5,8], // cols
   [0,4,8],[2,4,6],         // diags
 ];
 
+// === Game Mode Detection ===
+const urlParams = new URLSearchParams(window.location.search);
+const ROOM_ID = urlParams.get('room');
+const IS_MULTIPLAYER = !!ROOM_ID;
+
+// === Symbols ===
+const SYMBOL_X = 'X';
+const SYMBOL_O = 'O';
+
+// === State ===
 let board = Array(9).fill(null);
 let gameOver = false;
-let scores = { player: 0, cpu: 0, draw: 0 };
+let currentPlayer = SYMBOL_X; // X always starts
+let mySymbol = SYMBOL_X;      // In multiplayer: assigned by server
+let isMyTurn = true;          // In single player: always true for human
+let roomData = null;          // Multiplayer room data
+let channel = null;           // Supabase realtime channel
+let myUserId = null;          // Current user ID
+let player1Name = 'Jogador 1';
+let player2Name = 'Jogador 2';
 
 // === DOM ===
 const cells = document.querySelectorAll('.cell');
@@ -27,77 +46,167 @@ const modalIcon = document.getElementById('modal-icon');
 const modalTitle = document.getElementById('modal-title');
 const modalMsg = document.getElementById('modal-msg');
 const btnModalNew = document.getElementById('btn-modal-new');
+const modeIndicator = document.getElementById('mode-indicator');
 
-// === Init ===
-function init() {
-  board = Array(9).fill(null);
-  gameOver = false;
-  cells.forEach(cell => {
-    cell.textContent = '';
-    cell.className = 'cell';
-  });
-  setTurn('player');
-}
+// === Multiplayer Setup ===
+async function initMultiplayer() {
+  if (!IS_MULTIPLAYER) return;
 
-function setTurn(who) {
-  turnIndicator.classList.remove('player-turn', 'cpu-turn');
-  if (who === 'player') {
-    turnIndicator.textContent = 'Sua vez!';
-    turnIndicator.classList.add('player-turn');
-  } else {
-    turnIndicator.textContent = 'Vez do computador...';
-    turnIndicator.classList.add('cpu-turn');
+  // Get current user
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/auth.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
   }
+  myUserId = session.user.id;
+
+  // Update UI
+  if (modeIndicator) {
+    modeIndicator.textContent = '👥 Multiplayer';
+    modeIndicator.classList.add('multiplayer-mode');
+  }
+
+  // Join room and get initial state
+  await joinRoom();
 }
 
-// === Player Move ===
-cells.forEach(cell => {
-  cell.addEventListener('click', () => {
-    const idx = parseInt(cell.dataset.index);
-    if (gameOver || board[idx] !== null) return;
+async function joinRoom() {
+  try {
+    // Get room data
+    const { data, error } = await supabase
+      .from('game_rooms')
+      .select('*')
+      .eq('id', ROOM_ID)
+      .single();
 
-    makeMove(idx, PLAYER);
-
-    const result = checkResult();
-    if (result) {
-      endGame(result);
+    if (error || !data) {
+      alert('Sala não encontrada!');
+      window.location.href = '/multiplayer.html';
       return;
     }
 
-    setTurn('cpu');
-    // Small delay for CPU "thinking"
-    setTimeout(() => {
-      if (gameOver) return;
-      const cpuIdx = cpuMove();
-      makeMove(cpuIdx, CPU);
+    roomData = data;
 
-      const result2 = checkResult();
-      if (result2) {
-        endGame(result2);
-        return;
+    // Determine player role
+    const isPlayer1 = data.player1_id === myUserId;
+    mySymbol = isPlayer1 ? SYMBOL_X : SYMBOL_O;
+    isMyTurn = data.turn === (isPlayer1 ? 1 : 2);
+
+    // Get player names
+    player1Name = data.player1_name || 'Jogador 1';
+    player2Name = data.player2_name || 'Jogador 2';
+
+    // Restore board state if exists
+    if (data.state && data.state.board) {
+      board = data.state.board;
+      currentPlayer = data.state.currentPlayer || SYMBOL_X;
+      renderBoard();
+    }
+
+    // Update score labels
+    if (scorePlayer) scorePlayer.previousElementSibling.textContent = player1Name;
+    if (scoreCpu) scoreCpu.previousElementSibling.textContent = player2Name;
+
+    // Subscribe to realtime changes
+    subscribeToRoom();
+
+    // Update turn indicator
+    updateTurnIndicator();
+
+  } catch (e) {
+    console.error('Erro ao entrar na sala:', e);
+    alert('Erro ao conectar à sala.');
+  }
+}
+
+function subscribeToRoom() {
+  channel = supabase.channel(`room-${ROOM_ID}`);
+
+  channel
+    .on('broadcast', { event: 'move' }, ({ payload }) => {
+      handleRemoteMove(payload);
+    })
+    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
+      // Update opponent name if just joined
+      if (payload.playerNumber === 2) {
+        player2Name = payload.playerName || 'Jogador 2';
+        if (scoreCpu) scoreCpu.previousElementSibling.textContent = player2Name;
       }
-      setTurn('player');
-    }, 400);
-  });
-});
+    })
+    .on('broadcast', { event: 'game_reset' }, () => {
+      resetGame(false); // Don't broadcast reset
+    })
+    .subscribe((status) => {
+      console.log('Multiplayer status:', status);
 
-function makeMove(idx, symbol) {
-  board[idx] = symbol;
-  const cell = cells[idx];
-  cell.textContent = symbol;
-  cell.classList.add('taken', symbol.toLowerCase(), 'pop');
+      // Notify other player we're here
+      const myPlayerNumber = roomData.player1_id === myUserId ? 1 : 2;
+      channel.send({
+        type: 'broadcast',
+        event: 'player_joined',
+        payload: { playerNumber: myPlayerNumber, playerName: 'Jogador ' + myPlayerNumber }
+      });
+    });
+}
+
+async function handleRemoteMove(payload) {
+  // Ignore our own moves
+  if (payload.playerId === myUserId) return;
+
+  // Apply move
+  const { index, symbol } = payload;
+  board[index] = symbol;
+  renderCell(index, symbol);
+
+  // Switch turn
+  currentPlayer = currentPlayer === SYMBOL_X ? SYMBOL_O : SYMBOL_X;
+
+  // Check result
+  const result = checkResult();
+  if (result) {
+    endGame(result);
+    return;
+  }
+
+  // Update turn
+  const isPlayer1 = roomData.player1_id === myUserId;
+  isMyTurn = currentPlayer === (isPlayer1 ? SYMBOL_X : SYMBOL_O);
+  updateTurnIndicator();
+
   playSound('move');
   haptic(15);
 }
 
-// === CPU AI ===
+async function sendMove(index, symbol) {
+  if (!channel) return;
+
+  // Broadcast to other player
+  channel.send({
+    type: 'broadcast',
+    event: 'move',
+    payload: { index, symbol, playerId: myUserId }
+  });
+
+  // Update room state in database
+  try {
+    const nextTurn = currentPlayer === SYMBOL_X ? 2 : 1;
+    await supabase.from('game_rooms').update({
+      state: { board, currentPlayer },
+      turn: nextTurn
+    }).eq('id', ROOM_ID);
+  } catch (e) {
+    console.warn('Erro ao salvar estado:', e);
+  }
+}
+
+// === Single Player (CPU AI) ===
 function cpuMove() {
   // 1. Try to win
-  const winMove = findBestMove(CPU);
+  const winMove = findBestMove(SYMBOL_O);
   if (winMove !== -1) return winMove;
 
   // 2. Block player
-  const blockMove = findBestMove(PLAYER);
+  const blockMove = findBestMove(SYMBOL_X);
   if (blockMove !== -1) return blockMove;
 
   // 3. Center
@@ -126,12 +235,121 @@ function findBestMove(symbol) {
   return -1;
 }
 
+// === Core Game Functions ===
+function init() {
+  board = Array(9).fill(null);
+  gameOver = false;
+  currentPlayer = SYMBOL_X;
+  isMyTurn = IS_MULTIPLAYER ? (mySymbol === SYMBOL_X) : true;
+
+  cells.forEach(cell => {
+    cell.textContent = '';
+    cell.className = 'cell';
+  });
+
+  updateTurnIndicator();
+}
+
+function renderBoard() {
+  board.forEach((symbol, index) => {
+    if (symbol) renderCell(index, symbol);
+  });
+}
+
+function renderCell(index, symbol) {
+  const cell = cells[index];
+  cell.textContent = symbol;
+  cell.classList.add('taken', symbol.toLowerCase(), 'pop');
+}
+
+function updateTurnIndicator() {
+  if (gameOver) return;
+
+  turnIndicator.classList.remove('player-turn', 'cpu-turn', 'waiting');
+
+  if (IS_MULTIPLAYER) {
+    if (isMyTurn) {
+      turnIndicator.textContent = 'Sua vez!';
+      turnIndicator.classList.add('player-turn');
+    } else {
+      turnIndicator.textContent = 'Vez do oponente...';
+      turnIndicator.classList.add('cpu-turn');
+    }
+  } else {
+    // Single player
+    turnIndicator.textContent = 'Sua vez!';
+    turnIndicator.classList.add('player-turn');
+  }
+}
+
+function makeMove(idx, symbol) {
+  board[idx] = symbol;
+  renderCell(idx, symbol);
+  playSound('move');
+  haptic(15);
+}
+
+// === Player Move Handler ===
+cells.forEach(cell => {
+  cell.addEventListener('click', async () => {
+    const idx = parseInt(cell.dataset.index);
+
+    // Validation
+    if (gameOver || board[idx] !== null) return;
+    if (IS_MULTIPLAYER && !isMyTurn) return;
+
+    // Make move
+    const myMoveSymbol = IS_MULTIPLAYER ? mySymbol : SYMBOL_X;
+    makeMove(idx, myMoveSymbol);
+
+    // Send to opponent if multiplayer
+    if (IS_MULTIPLAYER) {
+      await sendMove(idx, myMoveSymbol);
+      isMyTurn = false;
+    }
+
+    // Check result
+    const result = checkResult();
+    if (result) {
+      endGame(result);
+      return;
+    }
+
+    // Switch turn
+    currentPlayer = currentPlayer === SYMBOL_X ? SYMBOL_O : SYMBOL_X;
+
+    // Single player: CPU turn
+    if (!IS_MULTIPLAYER) {
+      updateTurnIndicator();
+      setTimeout(() => {
+        if (gameOver) return;
+        const cpuIdx = cpuMove();
+        if (cpuIdx !== -1) {
+          makeMove(cpuIdx, SYMBOL_O);
+
+          const result2 = checkResult();
+          if (result2) {
+            endGame(result2);
+            return;
+          }
+
+          currentPlayer = SYMBOL_X;
+          updateTurnIndicator();
+        }
+      }, 400);
+    } else {
+      // Multiplayer: just update indicator
+      updateTurnIndicator();
+    }
+  });
+});
+
 // === Win / Draw Detection ===
 function checkResult() {
   for (const combo of WIN_COMBOS) {
     const [a, b, c] = combo;
     if (board[a] && board[a] === board[b] && board[b] === board[c]) {
-      return { type: board[a] === PLAYER ? 'win' : 'loss', combo };
+      return { type: 'win', winner: board[a], combo };
     }
   }
   if (board.every(cell => cell !== null)) {
@@ -148,27 +366,67 @@ function endGame(result) {
     result.combo.forEach(i => cells[i].classList.add('winner'));
   }
 
-  if (result.type === 'win') {
+  if (IS_MULTIPLAYER) {
+    handleMultiplayerEndGame(result);
+  } else {
+    handleSinglePlayerEndGame(result);
+  }
+}
+
+function handleSinglePlayerEndGame(result) {
+  if (result.type === 'win' && result.winner === SYMBOL_X) {
     scores.player++;
-    scorePlayer.textContent = scores.player;
+    if (scorePlayer) scorePlayer.textContent = scores.player;
     showModal('🎉', 'Vitoria!', 'Parabens, voce venceu!');
     launchConfetti();
     playSound('win');
-  } else if (result.type === 'loss') {
+  } else if (result.type === 'win' && result.winner === SYMBOL_O) {
     scores.cpu++;
-    scoreCpu.textContent = scores.cpu;
+    if (scoreCpu) scoreCpu.textContent = scores.cpu;
     showModal('😞', 'Derrota!', 'O computador venceu desta vez.');
   } else {
     scores.draw++;
-    scoreDraw.textContent = scores.draw;
+    if (scoreDraw) scoreDraw.textContent = scores.draw;
     showModal('🤝', 'Empate!', 'Ninguem venceu desta vez.');
   }
 
-  turnIndicator.textContent = result.type === 'win' ? 'Voce venceu!' :
-    result.type === 'loss' ? 'Computador venceu!' : 'Empate!';
+  turnIndicator.textContent = result.type === 'win'
+    ? (result.winner === SYMBOL_X ? 'Voce venceu!' : 'Computador venceu!')
+    : 'Empate!';
   turnIndicator.classList.remove('player-turn', 'cpu-turn');
 
-  saveGameStat(result.type);
+  saveGameStat(result.type === 'win' && result.winner === SYMBOL_X ? 'win'
+    : result.type === 'win' ? 'loss' : 'draw');
+}
+
+function handleMultiplayerEndGame(result) {
+  const iWon = result.type === 'win' && result.winner === mySymbol;
+  const isDraw = result.type === 'draw';
+
+  if (iWon) {
+    showModal('🎉', 'Vitoria!', 'Voce venceu!');
+    launchConfetti();
+    playSound('win');
+  } else if (isDraw) {
+    showModal('🤝', 'Empate!', 'Ninguem venceu desta vez.');
+  } else {
+    showModal('😞', 'Derrota!', 'O oponente venceu.');
+  }
+
+  turnIndicator.textContent = iWon ? 'Voce venceu!'
+    : isDraw ? 'Empate!'
+    : 'Voce perdeu!';
+  turnIndicator.classList.remove('player-turn', 'cpu-turn');
+
+  // Update room status
+  if (ROOM_ID) {
+    supabase.from('game_rooms').update({
+      status: 'finished',
+      winner: iWon ? myUserId : (result.winner ? 'opponent' : null)
+    }).eq('id', ROOM_ID).then(() => {
+      saveGameStat(iWon ? 'win' : isDraw ? 'draw' : 'loss');
+    });
+  }
 }
 
 // === Modal ===
@@ -184,21 +442,40 @@ function hideModal() {
 }
 
 // === New Game ===
+async function resetGame(shouldBroadcast = true) {
+  init();
+
+  if (IS_MULTIPLAYER && shouldBroadcast && channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'game_reset',
+      payload: {}
+    });
+
+    // Reset room state
+    await supabase.from('game_rooms').update({
+      state: { board: Array(9).fill(null), currentPlayer: SYMBOL_X },
+      turn: 1,
+      status: 'playing',
+      winner: null
+    }).eq('id', ROOM_ID);
+  }
+}
+
 btnNewGame.addEventListener('click', () => {
   hideModal();
-  init();
+  resetGame(true);
 });
 
 btnModalNew.addEventListener('click', () => {
   hideModal();
-  init();
+  resetGame(true);
 });
 
-// Close modal on backdrop click
 modalOverlay.addEventListener('click', (e) => {
   if (e.target === modalOverlay) {
     hideModal();
-    init();
+    resetGame(true);
   }
 });
 
@@ -213,6 +490,8 @@ async function saveGameStat(result) {
       result: result, // 'win', 'loss', 'draw'
       moves: 0,
       time_seconds: 0,
+      room_id: ROOM_ID,
+      is_multiplayer: IS_MULTIPLAYER
     });
   } catch (e) {
     console.warn('Erro ao salvar stats:', e);
@@ -220,4 +499,6 @@ async function saveGameStat(result) {
 }
 
 // === Start ===
-init();
+initMultiplayer().then(() => {
+  init();
+});

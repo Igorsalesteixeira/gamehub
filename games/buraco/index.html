@@ -4,29 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Buraco Online Gratis - Jogo de Cartas Brasileiro - Games Hub</title>
-  <meta name="description" content="Jogue Buraco online e de graca! O classico jogo de cartas brasileiro com canastas, combinacoes e estrategia. Buraco contra o computador." />
-  <meta name="keywords" content="buraco online gratis, jogo buraco, buraco de cartas, buraco brasil, canasta online" />
+  <meta name="description" content="Jogue Buraco online e de graca! O classico jogo de cartas brasileiro com canastas, combinacoes e estrategia. Buraco contra o computador ou multiplayer." />
+  <meta name="keywords" content="buraco online gratis, jogo buraco, buraco de cartas, buraco brasil, canasta online, buraco multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/buraco/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Buraco Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Buraco online e de graca contra o computador!" />
+  <meta property="og:description" content="Jogue Buraco online e de graca contra o computador ou com amigos!" />
   <meta property="og:url" content="https://gameshub.com.br/games/buraco/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Buraco",
-    "description": "Jogue Buraco online gratis, o classico jogo de cartas brasileiro com canastas e combinacoes.",
+    "description": "Jogue Buraco online gratis, o classico jogo de cartas brasileiro com canastas e combinacoes. Single player ou multiplayer.",
     "url": "https://gameshub.com.br/games/buraco/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -47,7 +47,37 @@
     </div>
   </header>
 
-  <div class="game-wrapper">
+  <!-- Multiplayer Lobby -->
+  <div id="multiplayer-lobby" class="multiplayer-lobby hidden">
+    <div class="lobby-content">
+      <h2>Jogo Multiplayer</h2>
+      <div class="lobby-options">
+        <div class="lobby-section">
+          <h3>Criar Sala</h3>
+          <p>Crie uma sala e convide um amigo para jogar</p>
+          <button id="btn-create-room" class="btn-orange">Criar Nova Sala</button>
+        </div>
+        <div class="lobby-divider">ou</div>
+        <div class="lobby-section">
+          <h3>Entrar em Sala</h3>
+          <p>Entre com o link ou ID da sala</p>
+          <input type="text" id="room-input" placeholder="ID da sala" maxlength="36">
+          <button id="btn-join-room" class="btn-action">Entrar</button>
+        </div>
+      </div>
+      <div class="lobby-share hidden" id="share-section">
+        <h3>Compartilhe o link</h3>
+        <p>Envie este link para seu amigo:</p>
+        <div class="share-link">
+          <input type="text" id="share-url" readonly>
+          <button id="btn-copy-link" class="btn-action">Copiar</button>
+        </div>
+        <p class="waiting-text">Aguardando oponente...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-wrapper" id="game-wrapper">
     <!-- Score -->
     <div class="score-bar">
       <div class="score-side">
@@ -56,14 +86,14 @@
       </div>
       <div id="turn-badge" class="turn-badge turn-mine">Sua vez</div>
       <div class="score-side">
-        <div class="score-name">CPU</div>
+        <div class="score-name" id="opponent-name">CPU</div>
         <div class="score-val" id="score-cpu">0</div>
       </div>
     </div>
 
-    <!-- CPU -->
+    <!-- Opponent -->
     <div class="cpu-area">
-      <div class="area-label">CPU · <span id="cpu-hand-count"></span></div>
+      <div class="area-label"><span id="opponent-label">CPU</span> · <span id="cpu-hand-count"></span></div>
       <div class="cpu-hand" id="cpu-hand-display"></div>
       <div class="cpu-melds" id="cpu-melds-display"></div>
     </div>
@@ -121,11 +151,18 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'buraco' });
   </script>
-  <script type="module" src="game.js?v=3"></script>
+  <script type="module" src="game.js?v=4"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como Jogar Buraco Online</h2>
     <p>O Buraco é um dos jogos de cartas mais populares do Brasil, jogado com 2 baralhos completos mais 4 coringas (108 cartas no total). O objetivo é formar combinações de cartas e canastas para acumular pontos.</p>
+
+    <h3>Modos de Jogo</h3>
+    <ul>
+      <li><strong>Single Player:</strong> Jogue contra o computador</li>
+      <li><strong>Multiplayer:</strong> Jogue online com amigos via link</li>
+    </ul>
+
     <h3>Como jogar</h3>
     <ul>
       <li>Cada jogador começa com 11 cartas. Há dois "mortos" de 11 cartas na mesa.</li>
@@ -133,6 +170,16 @@
       <li>Quando esvaziar a mão, você pega o "morto" e continua jogando.</li>
       <li>Para "baixar" e encerrar: esvazie a mão após pegar o morto e tenha pelo menos uma canasta.</li>
     </ul>
+
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Para jogar com um amigo, acesse com <code>?room=UUID</code> na URL</li>
+      <li>O anfitrião cria a sala e o convidado entra pelo mesmo link</li>
+      <li>Cada jogador vê apenas suas próprias cartas</li>
+      <li>As mesas/canastas são visíveis para ambos os jogadores</li>
+      <li>Os mortos são revelados apenas no final da rodada</li>
+    </ul>
+
     <h3>Combinações válidas</h3>
     <ul>
       <li><strong>Grupo:</strong> 3 ou mais cartas do mesmo valor (ex: 3 Reis)</li>

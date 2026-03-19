@@ -13,14 +13,31 @@ const DOTS = {
   6: [0, 2, 3, 5, 6, 8]
 };
 
-// ===== STATE =====
+// ===== MULTIPLAYER STATE =====
+const urlParams = new URLSearchParams(window.location.search);
+const roomId = urlParams.get('room');
+const isMultiplayer = !!roomId;
+
+let mpState = {
+  roomId: roomId,
+  playerId: null,
+  playerNumber: null, // 1 or 2
+  opponentId: null,
+  isHost: false,
+  gameStarted: false,
+  subscription: null,
+  syncInProgress: false
+};
+
+// ===== GAME STATE =====
 let chain = [];        // [{a, b, flipped}] – flipped: b is the exposed left end (or right end depending on position)
 let leftEnd = null;   // value at left open end of chain
 let rightEnd = null;  // value at right open end of chain
 let playerHand = [];
-let aiHand = [];
+let opponentHand = []; // In MP: opponent's hand (count only)
+let aiHand = [];      // In SP: AI hand
 let boneyard = [];
-let currentTurn = 'player'; // 'player' | 'ai'
+let currentTurn = 'player'; // 'player' | 'opponent' | 'ai'
 let gameOver = false;
 let selectedTile = null;    // index into playerHand
 let consecutivePasses = 0;
@@ -30,11 +47,13 @@ let timerInterval = null;
 let wins = 0;
 let totalScore = 0;
 let isProcessing = false; // Flag para prevenir cliques duplos
+let gameData = null; // For MP: full game state from DB
 
 // ===== DOM REFS =====
 const chainArea      = document.getElementById('chain-area');
 const chainEmpty     = document.getElementById('chain-empty');
 const handArea       = document.getElementById('hand-area');
+const opponentArea   = document.getElementById('opponent-area');
 const leftEndBadge   = document.getElementById('left-end-badge');
 const rightEndBadge  = document.getElementById('right-end-badge');
 const turnIndicator  = document.getElementById('turn-indicator');
@@ -51,10 +70,13 @@ const modalMsg       = document.getElementById('modal-msg');
 const modalScore     = document.getElementById('modal-score');
 const playerCountEl  = document.getElementById('player-count');
 const boneyardTopEl  = document.getElementById('boneyard-count-top');
+const opponentCountTopEl = document.getElementById('opponent-count-top');
 const aiCountTopEl   = document.getElementById('ai-count-top');
 const timerDisplay   = document.getElementById('timer-display');
 const scoreVal       = document.getElementById('score-val');
 const winsVal        = document.getElementById('wins-val');
+const mpStatusEl     = document.getElementById('mp-status');
+const opponentLabelEl = document.getElementById('opponent-label');
 
 // ===== TILE BUILDING =====
 function buildFullSet() {
@@ -79,8 +101,312 @@ function pipTotal(hand) {
   return hand.reduce((s, t) => s + t.a + t.b, 0);
 }
 
+// ===== MULTIPLAYER FUNCTIONS =====
+async function initMultiplayer() {
+  if (!isMultiplayer) return;
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      showMpStatus('Erro: Faça login para jogar multiplayer', 'error');
+      return;
+    }
+
+    mpState.playerId = user.id;
+
+    // Check if room exists
+    const { data: room, error } = await supabase
+      .from('domino_rooms')
+      .select('*')
+      .eq('id', roomId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching room:', error);
+      showMpStatus('Erro ao carregar sala', 'error');
+      return;
+    }
+
+    if (!room) {
+      // Create room as host (player 1)
+      mpState.isHost = true;
+      mpState.playerNumber = 1;
+      await createRoom();
+    } else if (room.player2_id === null && room.player1_id !== user.id) {
+      // Join as player 2
+      mpState.playerNumber = 2;
+      mpState.isHost = false;
+      await joinRoom(room);
+    } else if (room.player1_id === user.id || room.player2_id === user.id) {
+      // Reconnecting
+      mpState.playerNumber = room.player1_id === user.id ? 1 : 2;
+      mpState.isHost = room.player1_id === user.id;
+      await reconnectToRoom(room);
+    } else {
+      showMpStatus('Sala cheia', 'error');
+      return;
+    }
+
+    // Subscribe to room changes
+    subscribeToRoom();
+
+  } catch (err) {
+    console.error('MP init error:', err);
+    showMpStatus('Erro ao iniciar multiplayer', 'error');
+  }
+}
+
+async function createRoom() {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { error } = await supabase
+    .from('domino_rooms')
+    .insert({
+      id: roomId,
+      player1_id: user.id,
+      player1_hand: [],
+      player2_hand: [],
+      chain: [],
+      boneyard: [],
+      current_turn: null,
+      game_status: 'waiting',
+      left_end: null,
+      right_end: null,
+      consecutive_passes: 0,
+      created_at: new Date().toISOString()
+    });
+
+  if (error) {
+    console.error('Error creating room:', error);
+    showMpStatus('Erro ao criar sala', 'error');
+    return;
+  }
+
+  showMpStatus('Sala criada. Aguardando oponente...', 'waiting');
+}
+
+async function joinRoom(room) {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { error } = await supabase
+    .from('domino_rooms')
+    .update({
+      player2_id: user.id,
+      game_status: 'playing',
+      current_turn: 'player1'
+    })
+    .eq('id', roomId);
+
+  if (error) {
+    console.error('Error joining room:', error);
+    showMpStatus('Erro ao entrar na sala', 'error');
+    return;
+  }
+
+  mpState.opponentId = room.player1_id;
+
+  // Initialize game - host deals
+  if (!mpState.isHost) {
+    await initMultiplayerGame();
+  }
+}
+
+async function reconnectToRoom(room) {
+  mpState.opponentId = mpState.playerNumber === 1 ? room.player2_id : room.player1_id;
+  gameData = room;
+
+  if (room.game_status === 'playing' || room.game_status === 'finished') {
+    await loadGameState(room);
+  } else {
+    showMpStatus('Aguardando oponente...', 'waiting');
+  }
+}
+
+async function initMultiplayerGame() {
+  // Generate and shuffle tiles
+  const allTiles = shuffle(buildFullSet());
+
+  // Deal 7 tiles to each player
+  const player1Hand = allTiles.slice(0, 7);
+  const player2Hand = allTiles.slice(7, 14);
+  const remainingBoneyard = allTiles.slice(14);
+
+  // Determine who goes first (highest double)
+  let firstPlayer = 'player1';
+  let foundDouble = false;
+
+  for (let d = 6; d >= 0 && !foundDouble; d--) {
+    const p1Has = player1Hand.findIndex(t => t.a === d && t.b === d);
+    const p2Has = player2Hand.findIndex(t => t.a === d && t.b === d);
+
+    if (p1Has !== -1 || p2Has !== -1) {
+      foundDouble = true;
+      if (p2Has !== -1) firstPlayer = 'player2';
+    }
+  }
+
+  // If no doubles, check highest total
+  if (!foundDouble) {
+    const p1Max = Math.max(...player1Hand.map(t => t.a + t.b));
+    const p2Max = Math.max(...player2Hand.map(t => t.a + t.b));
+    if (p2Max > p1Max) firstPlayer = 'player2';
+  }
+
+  // Update room with initial state
+  const { error } = await supabase
+    .from('domino_rooms')
+    .update({
+      player1_hand: player1Hand,
+      player2_hand: player2Hand,
+      boneyard: remainingBoneyard,
+      chain: [],
+      current_turn: firstPlayer,
+      game_status: 'playing',
+      left_end: null,
+      right_end: null,
+      consecutive_passes: 0,
+      started_at: new Date().toISOString()
+    })
+    .eq('id', roomId);
+
+  if (error) {
+    console.error('Error initializing game:', error);
+  }
+}
+
+function subscribeToRoom() {
+  mpState.subscription = supabase
+    .channel(`domino_room:${roomId}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'domino_rooms',
+      filter: `id=eq.${roomId}`
+    }, handleRoomUpdate)
+    .subscribe();
+}
+
+async function handleRoomUpdate(payload) {
+  if (mpState.syncInProgress) return;
+
+  const newData = payload.new;
+  gameData = newData;
+
+  // Handle game start
+  if (newData.game_status === 'playing' && !mpState.gameStarted) {
+    mpState.gameStarted = true;
+    showMpStatus('Jogo iniciado!', 'playing');
+    await loadGameState(newData);
+    startTimer();
+  }
+
+  // Handle game updates
+  if (newData.game_status === 'playing') {
+    await syncGameState(newData);
+  }
+
+  // Handle game end
+  if (newData.game_status === 'finished') {
+    handleGameEnd(newData);
+  }
+
+  // Handle opponent disconnect
+  if (newData.game_status === 'abandoned') {
+    showMpStatus('Oponente desconectou', 'error');
+    gameOver = true;
+  }
+}
+
+async function loadGameState(roomData) {
+  mpState.gameStarted = true;
+
+  // Load chain
+  chain = roomData.chain || [];
+  leftEnd = roomData.left_end;
+  rightEnd = roomData.right_end;
+  consecutivePasses = roomData.consecutive_passes || 0;
+  boneyard = roomData.boneyard || [];
+
+  // Load player's hand
+  if (mpState.playerNumber === 1) {
+    playerHand = roomData.player1_hand || [];
+    opponentHand = roomData.player2_hand || [];
+  } else {
+    playerHand = roomData.player2_hand || [];
+    opponentHand = roomData.player1_hand || [];
+  }
+
+  // Determine current turn
+  const isMyTurn = roomData.current_turn === (mpState.playerNumber === 1 ? 'player1' : 'player2');
+  currentTurn = isMyTurn ? 'player' : 'opponent';
+
+  renderAll();
+  updateEndBadges();
+  updateTopBar();
+  setTurnIndicator(isMyTurn ? 'player' : 'opponent');
+}
+
+async function syncGameState(roomData) {
+  mpState.syncInProgress = true;
+
+  // Update chain
+  chain = roomData.chain || [];
+  leftEnd = roomData.left_end;
+  rightEnd = roomData.right_end;
+  consecutivePasses = roomData.consecutive_passes || 0;
+  boneyard = roomData.boneyard || [];
+
+  // Update opponent hand count
+  if (mpState.playerNumber === 1) {
+    opponentHand = roomData.player2_hand || [];
+  } else {
+    opponentHand = roomData.player1_hand || [];
+  }
+
+  // Update turn
+  const isMyTurn = roomData.current_turn === (mpState.playerNumber === 1 ? 'player1' : 'player2');
+  currentTurn = isMyTurn ? 'player' : 'opponent';
+
+  renderAll();
+  updateEndBadges();
+  updateTopBar();
+  setTurnIndicator(isMyTurn ? 'player' : 'opponent');
+
+  // Check win conditions
+  if (roomData.winner) {
+    handleGameEnd(roomData);
+  }
+
+  mpState.syncInProgress = false;
+}
+
+async function updateGameState(updates) {
+  if (!isMultiplayer || mpState.syncInProgress) return;
+
+  const { error } = await supabase
+    .from('domino_rooms')
+    .update(updates)
+    .eq('id', roomId);
+
+  if (error) {
+    console.error('Error updating game:', error);
+  }
+}
+
+function showMpStatus(message, type) {
+  if (!mpStatusEl) return;
+  mpStatusEl.textContent = message;
+  mpStatusEl.className = `mp-status ${type}`;
+}
+
 // ===== INIT GAME =====
 function initGame() {
+  if (isMultiplayer) {
+    initMultiplayer();
+    return;
+  }
+
+  // Single player initialization
   gameOver = false;
   selectedTile = null;
   consecutivePasses = 0;
@@ -157,6 +483,7 @@ function elapsedSeconds() {
 function renderAll() {
   renderChain();
   renderHand();
+  renderOpponentHand();
   renderButtons();
 }
 
@@ -202,6 +529,21 @@ function renderHand() {
   playerCountEl.textContent = playerHand.length;
 }
 
+function renderOpponentHand() {
+  if (!isMultiplayer) return;
+
+  const opponentAreaEl = document.getElementById('opponent-hand-area');
+  if (!opponentAreaEl) return;
+
+  opponentAreaEl.innerHTML = '';
+  const opponentCount = isMultiplayer ? opponentHand.length : aiHand.length;
+
+  for (let i = 0; i < opponentCount; i++) {
+    const el = createBackTileEl();
+    opponentAreaEl.appendChild(el);
+  }
+}
+
 function renderButtons() {
   if (gameOver || currentTurn !== 'player') {
     btnDraw.classList.add('hidden');
@@ -228,7 +570,7 @@ function renderButtons() {
   if (selectedTile !== null) {
     const tile = playerHand[selectedTile];
     const fitsLeft  = leftEnd === null || canFitEnd(tile, leftEnd);
-    const fitsRight = rightEnd === null || canFitEnd(tile, rightEnd);
+    const fitsRight = leftEnd === null || canFitEnd(tile, rightEnd);
 
     if (chain.length === 0) {
       // First tile: only one button needed, use right to place
@@ -271,6 +613,18 @@ function createTileEl(a, b, cls) {
   return el;
 }
 
+function createBackTileEl() {
+  const el = document.createElement('div');
+  el.className = 'domino hand-tile back-tile';
+
+  // Create pattern for back of tile
+  const pattern = document.createElement('div');
+  pattern.className = 'back-pattern';
+  el.appendChild(pattern);
+
+  return el;
+}
+
 function createHalf(pips) {
   const half = document.createElement('div');
   half.className = 'half';
@@ -295,25 +649,46 @@ function updateEndBadges() {
 
 function updateTopBar() {
   boneyardTopEl.textContent = `🁣 ${boneyard.length}`;
-  aiCountTopEl.textContent  = `🤖 ${aiHand.length}`;
-  scoreVal.textContent      = totalScore;
-  winsVal.textContent       = wins;
+
+  if (isMultiplayer) {
+    opponentCountTopEl.textContent = `👤 ${opponentHand.length}`;
+    if (opponentLabelEl) opponentLabelEl.textContent = 'Oponente';
+  } else {
+    aiCountTopEl.textContent = `🤖 ${aiHand.length}`;
+    if (opponentLabelEl) opponentLabelEl.textContent = 'IA';
+  }
+
+  scoreVal.textContent = totalScore;
+  winsVal.textContent = wins;
 }
 
 function setTurnIndicator(who, thinking = false) {
   const gameLayout = document.querySelector('.game-layout') || document.body;
-  if (thinking) {
-    turnIndicator.textContent = 'Computador pensando…';
-    turnIndicator.className = 'turn-indicator thinking';
-    gameLayout.classList.add('thinking');
-  } else if (who === 'player') {
-    turnIndicator.textContent = 'Sua vez';
-    turnIndicator.className = 'turn-indicator';
-    gameLayout.classList.remove('thinking');
+
+  if (isMultiplayer) {
+    if (who === 'player') {
+      turnIndicator.textContent = 'Sua vez';
+      turnIndicator.className = 'turn-indicator';
+      gameLayout.classList.remove('thinking');
+    } else {
+      turnIndicator.textContent = 'Vez do oponente';
+      turnIndicator.className = 'turn-indicator ai-turn';
+      gameLayout.classList.add('thinking');
+    }
   } else {
-    turnIndicator.textContent = 'Vez da IA';
-    turnIndicator.className = 'turn-indicator ai-turn';
-    gameLayout.classList.add('thinking');
+    if (thinking) {
+      turnIndicator.textContent = 'Computador pensando…';
+      turnIndicator.className = 'turn-indicator thinking';
+      gameLayout.classList.add('thinking');
+    } else if (who === 'player') {
+      turnIndicator.textContent = 'Sua vez';
+      turnIndicator.className = 'turn-indicator';
+      gameLayout.classList.remove('thinking');
+    } else {
+      turnIndicator.textContent = 'Vez da IA';
+      turnIndicator.className = 'turn-indicator ai-turn';
+      gameLayout.classList.add('thinking');
+    }
   }
 }
 
@@ -330,6 +705,11 @@ function playerHasValidMove() {
 function aiHasValidMove() {
   if (chain.length === 0) return aiHand.length > 0;
   return aiHand.some(t => canFitEnd(t, leftEnd) || canFitEnd(t, rightEnd));
+}
+
+function opponentHasValidMove() {
+  if (chain.length === 0) return opponentHand.length > 0;
+  return opponentHand.some(t => canFitEnd(t, leftEnd) || canFitEnd(t, rightEnd));
 }
 
 /**
@@ -392,9 +772,10 @@ function onTileClick(idx) {
   doPlayerPlace(fitsLeft ? 'left' : 'right');
 }
 
-function doPlayerPlace(side) {
+async function doPlayerPlace(side) {
   if (selectedTile === null || isProcessing) return;
   isProcessing = true;
+
   const tile = playerHand[selectedTile];
   const ok = placeTile(tile, selectedTile, playerHand, side);
   if (!ok) {
@@ -412,30 +793,72 @@ function doPlayerPlace(side) {
   updateTopBar();
   renderAll();
 
-  if (checkWin('player')) return;
-  endPlayerTurn();
+  // Multiplayer: sync to server
+  if (isMultiplayer) {
+    const nextTurn = mpState.playerNumber === 1 ? 'player2' : 'player1';
+    await updateGameState({
+      chain: chain,
+      left_end: leftEnd,
+      right_end: rightEnd,
+      consecutive_passes: consecutivePasses,
+      current_turn: nextTurn,
+      [`player${mpState.playerNumber}_hand`]: playerHand
+    });
+
+    currentTurn = 'opponent';
+    setTurnIndicator('opponent');
+    renderButtons();
+
+    // Check win
+    if (playerHand.length === 0) {
+      await endMultiplayerGame('player');
+    }
+  } else {
+    if (checkWin('player')) return;
+    endPlayerTurn();
+  }
+
+  isProcessing = false;
 }
 
 function endPlayerTurn() {
-  currentTurn = 'ai';
-  setTurnIndicator('ai', true);
+  currentTurn = isMultiplayer ? 'opponent' : 'ai';
+  setTurnIndicator(isMultiplayer ? 'opponent' : 'ai', !isMultiplayer);
   renderButtons();
-  // Delay mínimo de 800ms para jogadas da IA
-  setTimeout(() => {
-    aiTurn();
-  }, 800);
+
+  if (!isMultiplayer) {
+    // Delay mínimo de 800ms para jogadas da IA
+    setTimeout(() => {
+      aiTurn();
+    }, 800);
+  }
 }
 
 btnPlaceLeft.addEventListener('click', () => doPlayerPlace('left'));
 btnPlaceRight.addEventListener('click', () => doPlayerPlace('right'));
 
-btnDraw.addEventListener('click', () => {
+btnDraw.addEventListener('click', async () => {
   if (gameOver || currentTurn !== 'player') return;
   if (boneyard.length === 0) return;
-  drawFromBoneyard(playerHand);
+
+  const tile = drawFromBoneyard(playerHand);
+  if (tile) {
+    playSound('draw');
+    haptic(10);
+  }
+
+  // Multiplayer: sync
+  if (isMultiplayer) {
+    await updateGameState({
+      boneyard: boneyard,
+      [`player${mpState.playerNumber}_hand`]: playerHand
+    });
+  }
+
   updateTopBar();
   renderHand();
   renderButtons();
+
   // If player now has a valid move, let them play; else check again
   if (!playerHasValidMove() && boneyard.length === 0) {
     // Must pass
@@ -444,22 +867,50 @@ btnDraw.addEventListener('click', () => {
   }
 });
 
-btnPass.addEventListener('click', () => {
+btnPass.addEventListener('click', async () => {
   if (gameOver || currentTurn !== 'player') return;
+
   consecutivePasses++;
+
   if (consecutivePasses >= 2) {
-    resolveBlocked();
+    if (isMultiplayer) {
+      await resolveMultiplayerBlocked();
+    } else {
+      resolveBlocked();
+    }
     return;
   }
+
   selectedTile = null;
-  endPlayerTurn();
+
+  // Multiplayer: sync pass
+  if (isMultiplayer) {
+    const nextTurn = mpState.playerNumber === 1 ? 'player2' : 'player1';
+    await updateGameState({
+      consecutive_passes: consecutivePasses,
+      current_turn: nextTurn
+    });
+    currentTurn = 'opponent';
+    setTurnIndicator('opponent');
+    renderButtons();
+  } else {
+    endPlayerTurn();
+  }
 });
 
 btnNewGame.addEventListener('click', () => {
   initAudio();
   playSound('click');
   stopTimer();
-  initGame();
+
+  if (isMultiplayer) {
+    // Reset multiplayer game
+    if (mpState.isHost) {
+      initMultiplayerGame();
+    }
+  } else {
+    initGame();
+  }
 });
 
 btnPlayAgain.addEventListener('click', () => {
@@ -467,7 +918,14 @@ btnPlayAgain.addEventListener('click', () => {
   playSound('click');
   modalOverlay.classList.add('hidden');
   stopTimer();
-  initGame();
+
+  if (isMultiplayer) {
+    if (mpState.isHost) {
+      initMultiplayerGame();
+    }
+  } else {
+    initGame();
+  }
 });
 
 // ===== DRAW FROM BONEYARD =====
@@ -480,7 +938,7 @@ function drawFromBoneyard(hand) {
 
 // ===== AI TURN =====
 function aiTurn() {
-  if (gameOver) return;
+  if (gameOver || isMultiplayer) return;
 
   setTurnIndicator('ai', true);
 
@@ -573,6 +1031,104 @@ function findBestAiMove() {
   return bestMove;
 }
 
+// ===== MULTIPLAYER GAME END =====
+async function endMultiplayerGame(winner) {
+  gameOver = true;
+  stopTimer();
+
+  const playerPips = pipTotal(playerHand);
+  const opponentPips = pipTotal(opponentHand);
+  let score = 0;
+
+  if (winner === 'player') {
+    score = opponentPips;
+    wins++;
+    totalScore += score;
+
+    modalIcon.textContent = '🏆';
+    modalTitle.textContent = 'Você venceu!';
+    modalMsg.textContent = `Pontuação: ${score} pinos do adversário.`;
+    modalScore.textContent = `Total acumulado: ${totalScore} pts`;
+    launchConfetti();
+    playSound('win');
+  } else {
+    modalIcon.textContent = '😞';
+    modalTitle.textContent = 'Você perdeu!';
+    modalMsg.textContent = `Você ainda tinha ${playerPips} pinos.`;
+    modalScore.textContent = `Continue treinando!`;
+  }
+
+  modalOverlay.classList.remove('hidden');
+
+  // Update server
+  await updateGameState({
+    game_status: 'finished',
+    winner: winner === 'player' ? mpState.playerId : mpState.opponentId,
+    final_score: score
+  });
+
+  // Save stats
+  if (winner === 'player') {
+    saveStats(score, playerMoves, elapsedSeconds());
+  }
+}
+
+async function resolveMultiplayerBlocked() {
+  const playerPips = pipTotal(playerHand);
+  const opponentPips = pipTotal(opponentHand);
+
+  let winner;
+  if (playerPips < opponentPips) {
+    winner = 'player';
+  } else if (opponentPips < playerPips) {
+    winner = 'opponent';
+  } else {
+    winner = 'draw';
+  }
+
+  await endMultiplayerGame(winner);
+}
+
+function handleGameEnd(roomData) {
+  if (gameOver) return;
+  gameOver = true;
+  stopTimer();
+
+  const winnerId = roomData.winner;
+  const isPlayerWinner = winnerId === mpState.playerId;
+  const playerPips = pipTotal(playerHand);
+  const opponentPips = pipTotal(opponentHand);
+
+  if (isPlayerWinner) {
+    const score = opponentPips;
+    wins++;
+    totalScore += score;
+    winsVal.textContent = wins;
+    scoreVal.textContent = totalScore;
+
+    modalIcon.textContent = '🏆';
+    modalTitle.textContent = 'Você venceu!';
+    modalMsg.textContent = `Pontuação: ${score} pinos do adversário.`;
+    modalScore.textContent = `Total acumulado: ${totalScore} pts`;
+    launchConfetti();
+    playSound('win');
+
+    saveStats(score, playerMoves, elapsedSeconds());
+  } else if (winnerId === 'draw') {
+    modalIcon.textContent = '🤝';
+    modalTitle.textContent = 'Empate!';
+    modalMsg.textContent = 'Jogo bloqueado — mesma contagem de pinos.';
+    modalScore.textContent = '';
+  } else {
+    modalIcon.textContent = '😞';
+    modalTitle.textContent = 'Você perdeu!';
+    modalMsg.textContent = `Você ainda tinha ${playerPips} pinos.`;
+    modalScore.textContent = 'Continue treinando!';
+  }
+
+  modalOverlay.classList.remove('hidden');
+}
+
 // ===== WIN / END =====
 function checkWin(who) {
   const hand = who === 'player' ? playerHand : aiHand;
@@ -651,6 +1207,21 @@ async function saveStats(score, moves, timeSeconds) {
     // silently ignore stats errors
   }
 }
+
+// ===== CLEANUP =====
+window.addEventListener('beforeunload', async () => {
+  if (isMultiplayer && mpState.subscription) {
+    await supabase.removeChannel(mpState.subscription);
+
+    // Mark room as abandoned if leaving
+    if (gameData && !gameOver) {
+      await supabase
+        .from('domino_rooms')
+        .update({ game_status: 'abandoned' })
+        .eq('id', roomId);
+    }
+  }
+});
 
 // ===== KICK OFF =====
 initGame();

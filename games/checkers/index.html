@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -56,6 +56,10 @@
       <span class="stat-player">&#9899; <span id="player-count">12</span></span>
       <span class="stat-cpu">&#128992; <span id="cpu-count">12</span></span>
       <span>⏱ <span id="timer-display">00:00</span></span>
+    </div>
+    <div class="mode-section">
+      <span id="mode-indicator" class="mode-badge">🤖 vs CPU</span>
+      <span id="connection-status" class="connection-badge hidden">Conectando...</span>
     </div>
     <select id="difficulty-select">
       <option value="easy">Fácil</option>
@@ -94,7 +98,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'dama' });
   </script>
-  <script type="module" src="game.js?v=9"></script>
+  <script type="module" src="game.js?v=10"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

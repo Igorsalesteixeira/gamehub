@@ -4,19 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Xadrez Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Xadrez online e de graca contra o computador. Todas as regras incluindo roque, en passant e promocao!" />
-  <meta name="keywords" content="xadrez online, chess online, xadrez gratis, jogar xadrez" />
+  <meta name="description" content="Jogue Xadrez online e de graca contra o computador ou amigos. Todas as regras incluindo roque, en passant e promocao!" />
+  <meta name="keywords" content="xadrez online, chess online, xadrez gratis, jogar xadrez, xadrez multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/chess/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Xadrez Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Xadrez online e de graca contra o computador!" />
+  <meta property="og:description" content="Jogue Xadrez online e de graca contra o computador ou amigos!" />
   <meta property="og:url" content="https://gameshub.com.br/games/chess/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=12" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -24,11 +24,11 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Xadrez",
-    "description": "Jogue Xadrez online grátis contra o computador. Todas as regras incluindo roque, en passant e promoção de peões.",
+    "description": "Jogue Xadrez online grátis contra o computador ou amigos. Todas as regras oficiais incluindo roque, en passant e promoção de peões.",
     "url": "https://gameshub.com.br/games/chess/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -55,6 +55,11 @@
   </header>
 
   <main class="game-container">
+    <!-- Multiplayer Status Panel -->
+    <div class="multiplayer-status" id="multiplayer-status">
+      <!-- Populated by JS -->
+    </div>
+
     <div class="turn-indicator" id="turn-indicator">Sua vez (Brancas)</div>
     <div class="board-wrapper">
       <div class="board" id="board"></div>
@@ -84,18 +89,24 @@
   </div>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'xadrez' });</script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=12"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Xadrez Online</h2>
-    <p>O Xadrez é o jogo de estratégia mais famoso da história. Enfrente o computador em uma partida completa com todas as regras oficiais: roque, en passant e promoção de peões. Desenvolva sua tática e dê xeque-mate ao rei adversário — jogue xadrez online grátis sem download.</p>
+    <p>O Xadrez é o jogo de estratégia mais famoso da história. Enfrente o computador em uma partida completa com todas as regras oficiais: roque, en passant e promoção de peões. Ou desafie um amigo no modo multiplayer — basta criar uma sala e compartilhar o link!</p>
     <h3>Regras</h3>
     <ul>
       <li>Cada peça tem um movimento único: Torre em linhas retas, Bispo em diagonais, Cavalo em "L".</li>
       <li>O objetivo é dar xeque-mate ao rei adversário (rei em ataque sem escape).</li>
       <li>O roque permite mover o rei 2 casas em direção à torre — útil para proteger o rei.</li>
       <li>Peões que chegam à última fileira podem ser promovidos a qualquer peça (menos rei).</li>
+    </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Clique em "Criar Sala Multiplayer" para gerar um link exclusivo.</li>
+      <li>Compartilhe o link com um amigo para jogar online em tempo real.</li>
+      <li>Quem cria a sala joga com as brancas, quem entra joga com as pretas.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>

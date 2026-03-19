@@ -217,6 +217,48 @@ btnStart.addEventListener('click', startGame);
 gameLoop();
 EOF
 
+# Adicionar código multiplayer se tipo for multiplayer
+if [ "$GAME_TYPE" = "multiplayer" ]; then
+  echo "" >> "$GAME_DIR/game.js"
+  echo "// === Multiplayer Support ===" >> "$GAME_DIR/game.js"
+  echo "const urlParams = new URLSearchParams(window.location.search);" >> "$GAME_DIR/game.js"
+  echo "const ROOM_ID = urlParams.get('room');" >> "$GAME_DIR/game.js"
+  echo "const IS_MULTIPLAYER = !!ROOM_ID;" >> "$GAME_DIR/game.js"
+  echo "" >> "$GAME_DIR/game.js"
+  echo "let channel = null;" >> "$GAME_DIR/game.js"
+  echo "let myUserId = null;" >> "$GAME_DIR/game.js"
+  echo "let isMyTurn = false;" >> "$GAME_DIR/game.js"
+  echo "" >> "$GAME_DIR/game.js"
+  echo "async function initMultiplayer() {" >> "$GAME_DIR/game.js"
+  echo "  if (!IS_MULTIPLAYER) return;" >> "$GAME_DIR/game.js"
+  echo "  const { data: { session } } = await supabase.auth.getSession();" >> "$GAME_DIR/game.js"
+  echo "  if (!session) { window.location.href = '/auth.html'; return; }" >> "$GAME_DIR/game.js"
+  echo "  myUserId = session.user.id;" >> "$GAME_DIR/game.js"
+  echo "  // TODO: Implementar conexão à sala" >> "$GAME_DIR/game.js"
+  echo "}" >> "$GAME_DIR/game.js"
+  echo "" >> "$GAME_DIR/game.js"
+  echo "// Inicializar multiplayer" >> "$GAME_DIR/game.js"
+  echo "initMultiplayer().then(() => init());" >> "$GAME_DIR/game.js"
+
+  # Adicionar CSS para multiplayer
+  cat >> "$GAME_DIR/style.css" << 'EOF'
+
+/* === Multiplayer Styles === */
+.mode-indicator {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+}
+
+.mode-indicator.multiplayer-mode {
+  background: #4ecdc4;
+  color: #1a1a2e;
+}
+EOF
+fi
+
 # style.css
 cat > "$GAME_DIR/style.css" << 'EOF'
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');

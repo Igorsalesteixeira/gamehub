@@ -44,6 +44,83 @@ body {
   font-weight: 600;
 }
 
+/* === MULTIPLAYER CONTROLS === */
+.multiplayer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.8rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.multiplayer-controls .or-divider {
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+.join-room {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.join-room input {
+  padding: 0.5rem 0.8rem;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  width: 150px;
+}
+
+.join-room input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.join-room input:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+/* Room code display */
+.room-code {
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: #ffd54f;
+}
+
+/* Waiting indicator */
+.waiting-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffd54f;
+  font-weight: 600;
+}
+
+.waiting-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #ffd54f;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
 /* === GAME AREA === */
 .game-area {
   flex: 1;
@@ -268,6 +345,13 @@ body {
   padding: 0.3rem;
 }
 
+.message code {
+  background: rgba(255,255,255,0.2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
 /* === MODAL === */
 .modal-overlay {
   display: none;
@@ -294,6 +378,34 @@ body {
 .modal h2 { margin-bottom: 0.5rem; }
 .modal p { color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
 
+/* === CONNECTION STATUS === */
+.connection-status {
+  position: fixed;
+  top: 70px;
+  right: 10px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 100;
+  transition: all 0.3s;
+}
+
+.connection-status.connected {
+  background: rgba(76, 175, 80, 0.9);
+  color: #fff;
+}
+
+.connection-status.disconnected {
+  background: rgba(229, 57, 53, 0.9);
+  color: #fff;
+}
+
+.connection-status.connecting {
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 480px) {
   .topbar { padding: 0.4rem 0.6rem; }
@@ -304,6 +416,25 @@ body {
   .card .card-suit { font-size: 0.9rem; }
   .played-cards { gap: 1.5rem; }
   .round-info { font-size: 0.8rem; gap: 0.8rem; }
+
+  .multiplayer-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .multiplayer-controls .or-divider {
+    display: none;
+  }
+
+  .join-room {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .join-room input {
+    flex: 1;
+    max-width: 150px;
+  }
 }
 
 /* ===== SEO GAME INFO SECTION ===== */
@@ -321,3 +452,10 @@ body {
 .game-info h3 { font-size: 0.95rem; font-weight: 700; margin: 0.8rem 0 0.3rem; }
 .game-info ul { padding-left: 1.2rem; }
 .game-info li { margin-bottom: 0.2rem; }
+.game-info code {
+  background: rgba(255,255,255,0.15);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85em;
+}

@@ -27,11 +27,11 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Jogo da Velha",
-    "description": "Jogue Jogo da Velha online grátis contra o computador. Forme uma linha de 3 marcas e vença.",
+    "description": "Jogue Jogo da Velha online grátis contra o computador ou desafie amigos no modo multiplayer. Forme uma linha de 3 marcas e vença.",
     "url": "https://gameshub.com.br/games/tictactoe/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -52,7 +52,7 @@
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
     <h1 class="game-title">&#10060; Jogo da Velha</h1>
-    <div class="placeholder"></div>
+    <div id="mode-indicator" class="mode-indicator"></div>
   </header>
 
   <main class="game-container">
@@ -101,7 +101,7 @@
   </main>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'velha' });</script>
-  <script type="module" src="game.js?v=5"></script>
+  <script type="module" src="game.js?v=6"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

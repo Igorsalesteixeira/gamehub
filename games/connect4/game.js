@@ -11,15 +11,201 @@ const statusEl = document.getElementById('status');
 const modal = document.getElementById('modal');
 const modalMsg = document.getElementById('modal-msg');
 
+// === Multiplayer Setup ===
+const urlParams = new URLSearchParams(window.location.search);
+const ROOM_ID = urlParams.get('room');
+const IS_MULTIPLAYER = !!ROOM_ID;
+
+let channel = null;
+let myUserId = null;
+let myPlayerNumber = 1; // 1 = red, 2 = yellow
+let isMyTurn = true;
+let roomData = null;
+let player1Name = 'Jogador 1';
+let player2Name = 'Jogador 2';
+
 function init() {
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   currentPlayer = 1;
   gameOver = false;
   lastDrop = null;
   isProcessing = false;
-  statusEl.textContent = 'Sua vez! Clique em uma coluna.';
   modal.style.display = 'none';
+
+  if (IS_MULTIPLAYER) {
+    isMyTurn = myPlayerNumber === currentPlayer;
+    updateStatus();
+  } else {
+    statusEl.textContent = 'Sua vez! Clique em uma coluna.';
+  }
+
   render();
+}
+
+// === Multiplayer Functions ===
+async function initMultiplayer() {
+  if (!IS_MULTIPLAYER) return;
+
+  // Get current user
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/auth.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
+  }
+  myUserId = session.user.id;
+
+  // Update UI
+  const modeIndicator = document.getElementById('mode-indicator');
+  if (modeIndicator) {
+    modeIndicator.textContent = '👥 Multiplayer';
+    modeIndicator.classList.add('multiplayer-mode');
+  }
+
+  // Join room
+  await joinRoom();
+}
+
+async function joinRoom() {
+  try {
+    // Get room data
+    const { data, error } = await supabase
+      .from('game_rooms')
+      .select('*')
+      .eq('id', ROOM_ID)
+      .single();
+
+    if (error || !data) {
+      alert('Sala não encontrada!');
+      window.location.href = '/multiplayer.html';
+      return;
+    }
+
+    roomData = data;
+
+    // Determine player role
+    myPlayerNumber = data.player1_id === myUserId ? 1 : 2;
+    isMyTurn = data.turn === myPlayerNumber;
+
+    // Get player names
+    player1Name = data.player1_name || 'Jogador 1';
+    player2Name = data.player2_name || 'Jogador 2';
+
+    // Restore board state if exists
+    if (data.state && data.state.board) {
+      board = data.state.board;
+      currentPlayer = data.state.currentPlayer || 1;
+      lastDrop = data.state.lastDrop || null;
+      isMyTurn = currentPlayer === myPlayerNumber;
+      render();
+    }
+
+    // Subscribe to realtime changes
+    subscribeToRoom();
+
+    // Update turn indicator
+    updateStatus();
+
+  } catch (e) {
+    console.error('Erro ao entrar na sala:', e);
+    alert('Erro ao conectar à sala.');
+  }
+}
+
+function subscribeToRoom() {
+  channel = supabase.channel(`room-${ROOM_ID}`);
+
+  channel
+    .on('broadcast', { event: 'move' }, ({ payload }) => {
+      handleRemoteMove(payload);
+    })
+    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
+      if (payload.playerNumber === 2) {
+        player2Name = payload.playerName || 'Jogador 2';
+      }
+    })
+    .on('broadcast', { event: 'game_reset' }, () => {
+      resetGame(false);
+    })
+    .subscribe((status) => {
+      console.log('Multiplayer status:', status);
+
+      // Notify other player we're here
+      channel.send({
+        type: 'broadcast',
+        event: 'player_joined',
+        payload: { playerNumber: myPlayerNumber, playerName: myPlayerNumber === 1 ? player1Name : player2Name }
+      });
+    });
+}
+
+async function handleRemoteMove(payload) {
+  // Ignore our own moves
+  if (payload.playerId === myUserId) return;
+
+  // Apply move
+  const { col, player } = payload;
+  const row = drop(col, player);
+  if (row === -1) return;
+
+  render();
+
+  // Check result
+  const win = checkWin(player);
+  if (win) {
+    endGame(player === myPlayerNumber ? 'win' : 'loss', win);
+    return;
+  }
+  if (isFull()) {
+    endGame('draw');
+    return;
+  }
+
+  // Switch turn
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
+  isMyTurn = currentPlayer === myPlayerNumber;
+  updateStatus();
+
+  playSound('place');
+  haptic(15);
+}
+
+async function sendMove(col, player) {
+  if (!channel) return;
+
+  // Broadcast to other player
+  channel.send({
+    type: 'broadcast',
+    event: 'move',
+    payload: { col, player, playerId: myUserId }
+  });
+
+  // Update room state in database
+  try {
+    const nextTurn = currentPlayer === 1 ? 2 : 1;
+    await supabase.from('game_rooms').update({
+      state: { board, currentPlayer, lastDrop },
+      turn: nextTurn
+    }).eq('id', ROOM_ID);
+  } catch (e) {
+    console.warn('Erro ao salvar estado:', e);
+  }
+}
+
+function updateStatus() {
+  if (gameOver) return;
+
+  if (IS_MULTIPLAYER) {
+    const currentPlayerName = currentPlayer === 1 ? player1Name : player2Name;
+    if (isMyTurn) {
+      statusEl.textContent = 'Sua vez! Clique em uma coluna.';
+      statusEl.classList.remove('waiting');
+    } else {
+      statusEl.textContent = `Aguardando ${currentPlayerName}...`;
+      statusEl.classList.add('waiting');
+    }
+  } else {
+    statusEl.textContent = currentPlayer === 1 ? 'Sua vez! Clique em uma coluna.' : 'Computador pensando...';
+  }
 }
 
 function render() {
@@ -48,7 +234,12 @@ function render() {
 }
 
 function highlightCol(col, on) {
-  if (gameOver || currentPlayer !== 1) return;
+  // In multiplayer, only highlight on my turn
+  // In single player, only highlight when it's player 1's turn
+  if (gameOver) return;
+  if (IS_MULTIPLAYER && !isMyTurn) return;
+  if (!IS_MULTIPLAYER && currentPlayer !== 1) return;
+
   boardEl.querySelectorAll('[data-col="' + col + '"]').forEach(el => {
     el.classList.toggle('col-hover', on && !el.classList.contains('red') && !el.classList.contains('yellow'));
   });
@@ -95,26 +286,48 @@ function isFull() {
 }
 
 function handleClick(col) {
-  if (gameOver || currentPlayer !== 1 || isProcessing) return;
+  if (gameOver || isProcessing) return;
+
+  // Multiplayer: check if it's my turn
+  if (IS_MULTIPLAYER && !isMyTurn) return;
+
+  // Single player: only player 1 can click
+  if (!IS_MULTIPLAYER && currentPlayer !== 1) return;
+
   isProcessing = true;
   initAudio();
-  const row = drop(col, 1);
+
+  const player = IS_MULTIPLAYER ? myPlayerNumber : 1;
+  const row = drop(col, player);
   if (row === -1) {
     isProcessing = false;
     return;
   }
+
+  // Send move in multiplayer
+  if (IS_MULTIPLAYER) {
+    sendMove(col, player);
+  }
+
   render();
 
-  const win = checkWin(1);
-  if (win) { endGame('win', win); return; }
+  const win = checkWin(player);
+  if (win) { endGame(player === myPlayerNumber ? 'win' : 'loss', win); return; }
   if (isFull()) { endGame('draw'); return; }
 
-  currentPlayer = 2;
-  statusEl.textContent = 'Computador pensando...';
-  const gameContainer = document.getElementById('game-container') || document.body;
-  gameContainer.classList.add('thinking');
-  // Delay mínimo de 800ms para jogadas da IA
-  setTimeout(cpuMove, 800);
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
+
+  if (IS_MULTIPLAYER) {
+    isMyTurn = false;
+    updateStatus();
+    isProcessing = false;
+  } else {
+    statusEl.textContent = 'Computador pensando...';
+    const gameContainer = document.getElementById('game-container') || document.body;
+    gameContainer.classList.add('thinking');
+    // Delay mínimo de 800ms para jogadas da IA
+    setTimeout(cpuMove, 800);
+  }
 }
 
 function cpuMove() {
@@ -172,8 +385,24 @@ async function endGame(result, winCells) {
     });
   }
 
-  const msgs = { win: '🏆 Você venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
-  modalMsg.textContent = msgs[result];
+  let msg;
+  if (IS_MULTIPLAYER) {
+    const iWon = result === 'win';
+    msg = iWon ? '🏆 Você venceu!' : result === 'draw' ? '🤝 Empate!' : '😔 Você perdeu!';
+
+    // Update room status
+    if (ROOM_ID && iWon) {
+      await supabase.from('game_rooms').update({
+        status: 'finished',
+        winner: myUserId
+      }).eq('id', ROOM_ID);
+    }
+  } else {
+    const msgs = { win: '🏆 Você venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
+    msg = msgs[result];
+  }
+
+  modalMsg.textContent = msg;
   setTimeout(() => { modal.style.display = 'flex'; }, 600);
 
   if (result === 'win') {
@@ -181,6 +410,7 @@ async function endGame(result, winCells) {
     playSound('win');
   }
 
+  // Save stats
   const { data: { session } } = await supabase.auth.getSession();
   if (session) {
     await supabase.from('game_stats').insert({
@@ -188,12 +418,37 @@ async function endGame(result, winCells) {
       game: 'connect4',
       result: result,
       moves: 0,
-      time_seconds: 0
+      time_seconds: 0,
+      room_id: ROOM_ID,
+      is_multiplayer: IS_MULTIPLAYER
     });
   }
 }
 
-document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
-document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); init(); });
+async function resetGame(shouldBroadcast = true) {
+  init();
 
-init();
+  if (IS_MULTIPLAYER && shouldBroadcast && channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'game_reset',
+      payload: {}
+    });
+
+    // Reset room state
+    await supabase.from('game_rooms').update({
+      state: { board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), currentPlayer: 1, lastDrop: null },
+      turn: 1,
+      status: 'playing',
+      winner: null
+    }).eq('id', ROOM_ID);
+  }
+}
+
+document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
+document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
+
+// Initialize multiplayer then start game
+initMultiplayer().then(() => {
+  init();
+});

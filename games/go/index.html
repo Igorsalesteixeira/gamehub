@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -19,7 +19,7 @@
     "url": "https://gameshub.com.br/games/go/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -35,13 +35,18 @@
   </script>
 </head>
 <body>
-  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>⚫ Go (9x9)</h1></div>
+  <div class="topbar">
+    <a href="../../index.html" class="back-btn">← Voltar</a>
+    <h1>⚫ Go (9x9)</h1>
+    <span id="mode-indicator" class="mode-indicator">🎮 Single Player</span>
+  </div>
   <div id="game-container">
     <div class="info">
       <span id="turn">Sua vez (Preto)</span> ·
       <span>Preto: <strong id="black-score">0</strong></span> ·
       <span>Branco: <strong id="white-score">0</strong></span>
     </div>
+    <div id="connection-status" class="connection-status">Conectando...</div>
     <div class="board" id="board"></div>
     <div class="actions">
       <button class="btn btn-secondary" id="pass-btn">Passar</button>
@@ -51,7 +56,7 @@
   <div class="modal-overlay" id="modal" style="display:none">
     <div class="modal"><p id="modal-msg"></p><button class="btn btn-primary" id="modal-btn">Jogar Novamente</button></div>
   </div>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=9"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'go' });</script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
@@ -63,6 +68,12 @@
       <li>Clique em uma interseção vazia para posicionar sua pedra.</li>
       <li>Grupos de pedras sem "respirações" livres adjacentes são capturados e removidos.</li>
       <li>Use "Passar" se não tiver boas jogadas; dois passes consecutivos encerram a partida.</li>
+    </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Convide um amigo compartilhando o link da sala.</li>
+      <li>Preto sempre começa. Jogadores alternam turnos.</li>
+      <li>A pontuação inclui território + pedras capturadas + komi (6.5 para branco).</li>
     </ul>
     <h3>Dicas</h3>
     <ul>

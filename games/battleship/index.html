@@ -4,22 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Batalha Naval Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Batalha Naval (Battleship) online e de graca contra o computador. Posicione seus navios e afunde a frota inimiga!" />
-  <meta name="keywords" content="batalha naval online, battleship online, batalha naval gratis, jogo de batalha naval" />
+  <meta name="description" content="Jogue Batalha Naval (Battleship) online e de graca contra o computador ou amigos. Posicione seus navios e afunde a frota inimiga!" />
+  <meta name="keywords" content="batalha naval online, battleship online, batalha naval gratis, jogo de batalha naval, multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/battleship/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Batalha Naval Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Batalha Naval online e de graca contra o computador!" />
+  <meta property="og:description" content="Jogue Batalha Naval online e de graca contra o computador ou amigos!" />
   <meta property="og:url" content="https://gameshub.com.br/games/battleship/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Batalha Naval Online Gratis - Games Hub" />
-  <meta name="twitter:description" content="Jogue Batalha Naval online e de graca contra o computador!" />
+  <meta name="twitter:description" content="Jogue Batalha Naval online e de graca contra o computador ou amigos!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -27,11 +27,11 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Batalha Naval",
-    "description": "Jogue Batalha Naval online grátis contra o computador. Posicione seus navios e afunde a frota inimiga.",
+    "description": "Jogue Batalha Naval online grátis contra o computador ou amigos. Posicione seus navios e afunde a frota inimiga.",
     "url": "https://gameshub.com.br/games/battleship/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -62,8 +62,31 @@
   <div class="game-wrapper">
     <div class="turn-indicator" id="turn-indicator">Posicione seus navios</div>
 
+    <!-- Multiplayer Controls -->
+    <div id="mp-controls" class="mp-controls hidden">
+      <div class="mp-info">
+        <span id="mp-status">Modo Multiplayer</span>
+        <button class="btn btn-small" id="btn-copy-link">Copiar Link</button>
+      </div>
+    </div>
+
+    <!-- Mode Selection (Single/Multi) -->
+    <div id="mode-selection" class="mode-selection">
+      <h2>Escolha o modo de jogo</h2>
+      <div class="mode-buttons">
+        <button class="btn btn-primary mode-btn" id="btn-single">
+          <span class="mode-icon">&#129302;</span>
+          <span class="mode-label">vs Computador</span>
+        </button>
+        <button class="btn btn-primary mode-btn" id="btn-multi">
+          <span class="mode-icon">&#128101;</span>
+          <span class="mode-label">vs Amigo</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Phase 1: Ship Placement -->
-    <div id="placement-panel" class="placement-panel">
+    <div id="placement-panel" class="placement-panel hidden">
       <div class="placement-info">
         <p id="placement-ship-name">Porta-avioes (5 casas)</p>
         <div class="placement-buttons">
@@ -72,7 +95,7 @@
         </div>
       </div>
       <div class="board-container single-board">
-        <div class="grid-label">Seu Mar</div>
+        <div class="grid-label" id="placement-grid-label">Seu Mar</div>
         <div class="grid-headers">
           <div class="corner"></div>
           <div class="col-headers" id="placement-col-headers"></div>
@@ -129,22 +152,24 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'batalha' });
   </script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=9"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Batalha Naval Online</h2>
-    <p>Batalha Naval (Battleship) é o clássico jogo de estratégia e dedução onde você posiciona seus navios no mar e tenta afundar a frota inimiga. Atire em coordenadas no mar adversário, marque acertos e erros, e seja o primeiro a afundar todos os 5 navios do computador. Jogue batalha naval online grátis.</p>
+    <p>Batalha Naval (Battleship) é o clássico jogo de estratégia e dedução onde você posiciona seus navios no mar e tenta afundar a frota inimiga. Atire em coordenadas no mar adversário, marque acertos e erros, e seja o primeiro a afundar todos os 5 navios do oponente. Jogue batalha naval online grátis contra o computador ou desafie um amigo no modo multiplayer!</p>
     <h3>Regras</h3>
     <ul>
       <li>Posicione seus 5 navios (Porta-aviões, Encouraçado, Cruzador, Submarino, Destroyer) no seu mar.</li>
       <li>Alterne turnos atirando em coordenadas do mar inimigo; acertos são marcados em vermelho.</li>
       <li>Um navio é afundado quando todas as suas casas são atingidas.</li>
+      <li>No modo multiplayer, envie o link para um amigo e jogue em tempo real!</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
       <li>Após um acerto, explore as células adjacentes (cima, baixo, esquerda, direita) para afundar o navio.</li>
       <li>Distribua seus navios de forma não linear — evite posicionamentos previsíveis nas bordas.</li>
+      <li>No multiplayer, observe os padrões de tiro do oponente para deduzir onde seus navios estão.</li>
     </ul>
   </section>
 </body>

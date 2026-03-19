@@ -4,22 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Dominó Online Grátis - Games Hub</title>
-  <meta name="description" content="Jogue Dominó online e de graça contra o computador. Dominó double-6 com regras brasileiras, IA inteligente e design moderno!" />
-  <meta name="keywords" content="dominó online, domino gratis, jogar domino, domino online, dominó brasileiro" />
+  <meta name="description" content="Jogue Dominó online e de graça contra o computador ou amigos. Dominó double-6 com regras brasileiras, multiplayer online e design moderno!" />
+  <meta name="keywords" content="dominó online, domino gratis, jogar domino, domino online, dominó brasileiro, dominó multiplayer" />
   <link rel="canonical" href="https://gameshub.com.br/games/domino/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Dominó Online Grátis - Games Hub" />
-  <meta property="og:description" content="Jogue Dominó online e de graça contra o computador. Double-6 com regras brasileiras!" />
+  <meta property="og:description" content="Jogue Dominó online e de graça contra o computador ou amigos. Double-6 com regras brasileiras!" />
   <meta property="og:url" content="https://gameshub.com.br/games/domino/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dominó Online Grátis - Games Hub" />
-  <meta name="twitter:description" content="Jogue Dominó online e de graça contra o computador!" />
+  <meta name="twitter:description" content="Jogue Dominó online e de graça contra o computador ou amigos!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -27,11 +27,11 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Dominó",
-    "description": "Jogue Dominó online grátis contra o computador. Double-6 com regras brasileiras.",
+    "description": "Jogue Dominó online grátis contra o computador ou amigos. Double-6 com regras brasileiras.",
     "url": "https://gameshub.com.br/games/domino/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -51,27 +51,39 @@
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
     <h1 class="game-title">&#127025; Dominó</h1>
     <div class="topbar-info">
-      <span class="info-badge" id="boneyard-count-top">🁣 14</span>
-      <span class="info-badge" id="ai-count-top">🤖 7</span>
-      <span class="info-badge" id="timer-display">⏱ 00:00</span>
+      <span class="info-badge" id="boneyard-count-top">&#127043; 14</span>
+      <span class="info-badge" id="opponent-count-top">&#129302; 7</span>
+      <span class="info-badge hidden" id="ai-count-top">&#129302; 7</span>
+      <span class="info-badge" id="timer-display">&#9201; 00:00</span>
     </div>
   </header>
 
   <div class="game-layout">
 
+    <!-- Opponent hand (visible in multiplayer) -->
+    <div class="opponent-section" id="opponent-area">
+      <div class="hand-label" id="opponent-label">IA</div>
+      <div class="hand-scroll-wrap">
+        <div class="hand-area opponent-hand" id="opponent-hand-area"></div>
+      </div>
+    </div>
+
     <!-- Chain area -->
     <div class="chain-section">
       <div class="chain-header">
-        <span class="end-badge left-badge" id="left-end-badge">— ?</span>
+        <span class="end-badge left-badge" id="left-end-badge">&#8212; ?</span>
         <span class="chain-label">Cadeia</span>
-        <span class="end-badge right-badge" id="right-end-badge">? —</span>
+        <span class="end-badge right-badge" id="right-end-badge">? &#8212;</span>
       </div>
       <div class="chain-scroll-wrap">
         <div class="chain-area" id="chain-area">
-          <div class="chain-empty" id="chain-empty">Inicie colocando a primeira peça</div>
+          <div class="chain-empty" id="chain-empty">Inicie colocando a primeira pe&#231;a</div>
         </div>
       </div>
     </div>
+
+    <!-- Multiplayer status -->
+    <div class="mp-status hidden" id="mp-status"></div>
 
     <!-- Middle controls -->
     <div class="controls-section">
@@ -85,15 +97,15 @@
       <div class="action-buttons">
         <button class="btn btn-secondary hidden" id="btn-draw">Comprar</button>
         <button class="btn btn-secondary hidden" id="btn-pass">Passar</button>
-        <button class="btn btn-secondary hidden" id="btn-place-left">⬅ Esquerda</button>
-        <button class="btn btn-secondary hidden" id="btn-place-right">Direita ➡</button>
+        <button class="btn btn-secondary hidden" id="btn-place-left">&#11013; Esquerda</button>
+        <button class="btn btn-secondary hidden" id="btn-place-right">Direita &#10132;</button>
         <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
       </div>
     </div>
 
     <!-- Player hand -->
     <div class="hand-section">
-      <div class="hand-label">Suas peças (<span id="player-count">7</span>)</div>
+      <div class="hand-label">Suas pe&#231;as (<span id="player-count">7</span>)</div>
       <div class="hand-scroll-wrap">
         <div class="hand-area" id="hand-area"></div>
       </div>
@@ -104,7 +116,7 @@
   <!-- Game over modal -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-      <div class="modal-icon" id="modal-icon">🏆</div>
+      <div class="modal-icon" id="modal-icon">&#127942;</div>
       <h2 id="modal-title">Fim de jogo</h2>
       <p id="modal-msg">Resultado</p>
       <p id="modal-score"></p>
@@ -116,12 +128,12 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'domino' });
   </script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=9"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Dominó Online</h2>
-    <p>O Dominó é um dos jogos de mesa mais tradicionais do Brasil. Nesta versão digital você joga com as regras do Dominó Double-6 (duplo-seis) contra o computador. Cada jogador começa com 7 peças e o objetivo é ser o primeiro a esvaziar a mão.</p>
+    <p>O Dominó é um dos jogos de mesa mais tradicionais do Brasil. Nesta versão digital você joga com as regras do Dominó Double-6 (duplo-seis) contra o computador ou contra amigos online. Cada jogador começa com 7 peças e o objetivo é ser o primeiro a esvaziar a mão.</p>
     <h3>Regras</h3>
     <ul>
       <li>Quem possui o <strong>[6|6]</strong> começa o jogo (ou o maior duplo disponível).</li>
@@ -134,7 +146,14 @@
     <ul>
       <li>Clique em uma peça para selecioná-la (fica destacada).</li>
       <li>Se a peça caber apenas em um lado, ela é colocada automaticamente.</li>
-      <li>Se couber nos dois lados, use os botões <strong>⬅ Esquerda</strong> ou <strong>Direita ➡</strong>.</li>
+      <li>Se couber nos dois lados, use os botões <strong>&#11013; Esquerda</strong> ou <strong>Direita &#10132;</strong>.</li>
+    </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Para jogar com um amigo, adicione <code>?room=UUID</code> à URL.</li>
+      <li>Compartilhe o link com seu amigo para convidá-lo.</li>
+      <li>Cada jogador vê apenas suas próprias peças.</li>
+      <li>As peças do oponente aparecem viradas para baixo.</li>
     </ul>
     <h3>Pontuação</h3>
     <ul>

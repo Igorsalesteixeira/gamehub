@@ -4,22 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Ludo Online Gratis - Jogo de Ludo Tabuleiro - Games Hub</title>
-  <meta name="description" content="Jogue Ludo online gratis contra o computador. Jogo de tabuleiro classico com regras brasileiras. Mova suas pecas, capture adversarios e seja o primeiro a chegar ao centro!" />
-  <meta name="keywords" content="ludo online, jogo de ludo, ludo gratis, ludo tabuleiro, jogo de tabuleiro online" />
+  <meta name="description" content="Jogue Ludo online gratis contra o computador ou com amigos no multiplayer. Jogo de tabuleiro classico com regras brasileiras. Mova suas pecas, capture adversarios e seja o primeiro a chegar ao centro!" />
+  <meta name="keywords" content="ludo online, jogo de ludo, ludo gratis, ludo tabuleiro, ludo multiplayer, jogo de tabuleiro online" />
   <link rel="canonical" href="https://gameshub.com.br/games/ludo/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Ludo Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Ludo online gratis contra o computador. Jogo de tabuleiro classico!" />
+  <meta property="og:description" content="Jogue Ludo online gratis contra o computador ou com amigos no multiplayer. Jogo de tabuleiro classico!" />
   <meta property="og:url" content="https://gameshub.com.br/games/ludo/" />
   <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Ludo Online Gratis - Games Hub" />
-  <meta name="twitter:description" content="Jogue Ludo online gratis contra o computador!" />
+  <meta name="twitter:description" content="Jogue Ludo online gratis contra o computador ou com amigos no multiplayer!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -27,11 +27,11 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Ludo",
-    "description": "Jogue Ludo online grátis contra o computador. Jogo de tabuleiro clássico com regras brasileiras.",
+    "description": "Jogue Ludo online grátis contra o computador ou com amigos no multiplayer. Jogo de tabuleiro clássico com regras brasileiras.",
     "url": "https://gameshub.com.br/games/ludo/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
+    "playMode": ["SinglePlayer", "MultiPlayer"],
     "applicationCategory": "Game",
     "operatingSystem": "Web Browser"
   }
@@ -57,11 +57,86 @@
     </div>
   </header>
 
-  <div class="game-wrapper">
+  <!-- Multiplayer Menu (shown when no room param) -->
+  <div class="multiplayer-menu" id="multiplayer-menu">
+    <div class="menu-section">
+      <h2>Modo de Jogo</h2>
+      <div class="mode-buttons">
+        <button class="btn btn-primary mode-btn active" data-mode="single">
+          <span class="mode-icon">&#128100;</span>
+          <span class="mode-label">vs Computador</span>
+        </button>
+        <button class="btn btn-primary mode-btn" data-mode="multi">
+          <span class="mode-icon">&#128101;</span>
+          <span class="mode-label">Multiplayer</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu-section" id="single-player-section">
+      <button class="btn btn-primary btn-large" id="btn-start-single">Iniciar Jogo</button>
+    </div>
+
+    <div class="menu-section hidden" id="multiplayer-section">
+      <div class="multiplayer-options">
+        <div class="option-group">
+          <label>Número de Jogadores:</label>
+          <div class="player-count-selector">
+            <button class="btn btn-small" data-count="2">2</button>
+            <button class="btn btn-small active" data-count="3">3</button>
+            <button class="btn btn-small" data-count="4">4</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-large" id="btn-create-room">Criar Sala</button>
+        <div class="or-divider">ou</div>
+        <div class="join-room-group">
+          <input type="text" id="room-code-input" placeholder="Código da sala (opcional)" maxlength="20" />
+          <button class="btn btn-primary" id="btn-join-room">Entrar na Sala</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Waiting Room (shown when in multiplayer waiting) -->
+  <div class="waiting-room hidden" id="waiting-room">
+    <div class="waiting-content">
+      <h2>Sala de Espera</h2>
+      <div class="room-code-display">
+        <span class="code-label">Código da sala:</span>
+        <span class="code-value" id="room-code-display">---</span>
+        <button class="btn btn-small btn-copy" id="btn-copy-code">Copiar</button>
+      </div>
+      <div class="players-list" id="players-list">
+        <div class="player-slot waiting" data-slot="0">
+          <span class="slot-color" style="background:#e53935"></span>
+          <span class="slot-status">Aguardando...</span>
+        </div>
+        <div class="player-slot waiting" data-slot="1">
+          <span class="slot-color" style="background:#1e88e5"></span>
+          <span class="slot-status">Aguardando...</span>
+        </div>
+        <div class="player-slot waiting" data-slot="2">
+          <span class="slot-color" style="background:#43a047"></span>
+          <span class="slot-status">Aguardando...</span>
+        </div>
+        <div class="player-slot waiting" data-slot="3">
+          <span class="slot-color" style="background:#fdd835"></span>
+          <span class="slot-status">Aguardando...</span>
+        </div>
+      </div>
+      <div class="waiting-actions">
+        <button class="btn btn-primary btn-large hidden" id="btn-start-game-multi">Iniciar Jogo</button>
+        <p class="waiting-hint" id="waiting-hint">Aguardando jogadores entrarem...</p>
+      </div>
+      <button class="btn btn-secondary" id="btn-leave-room">Sair da Sala</button>
+    </div>
+  </div>
+
+  <div class="game-wrapper hidden" id="game-container">
     <div class="players-bar" id="players-bar">
       <div class="player-chip player-chip-red active" id="chip-0">
         <span class="chip-color-dot" style="background:#e53935"></span>
-        <span class="chip-name">Você</span>
+        <span class="chip-name">Vermelho</span>
         <span class="chip-score" id="score-0">0/4</span>
       </div>
       <div class="player-chip player-chip-blue" id="chip-1">
@@ -96,7 +171,7 @@
   </div>
 
   <!-- Modal fim de jogo -->
-  <div class="modal-overlay" id="modal-overlay">
+  <div class="modal-overlay hidden" id="modal-overlay">
     <div class="modal">
       <div class="modal-icon" id="modal-icon">&#127942;</div>
       <h2 id="modal-title">Fim de jogo</h2>
@@ -110,12 +185,13 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'ludo' });
   </script>
-  <script type="module" src="game.js?v=10"></script>
+  <script type="module" src="game.js?v=12"></script>
+  <script type="module" src="menu.js?v=1"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Ludo Online</h2>
-    <p>O Ludo é um dos jogos de tabuleiro mais populares do Brasil. Você joga com as peças vermelhas contra três adversários controlados pelo computador (azul, verde e amarelo). O objetivo é ser o primeiro a levar todas as suas 4 peças da base até o centro do tabuleiro.</p>
+    <p>O Ludo é um dos jogos de tabuleiro mais populares do Brasil. Você pode jogar sozinho contra o computador ou convidar amigos para uma partida multiplayer online. O objetivo é ser o primeiro a levar todas as suas 4 peças da base até o centro do tabuleiro.</p>
     <h3>Regras do Ludo</h3>
     <ul>
       <li>Role o dado clicando em <strong>Rolar Dado</strong>. Você precisa tirar um <strong>6</strong> para tirar uma peça da base.</li>
@@ -126,11 +202,19 @@
       <li>Ao entrar na coluna final (colorida), vá em direção ao centro.</li>
       <li>Chegue ao centro com a jogada exata. Excesso de pontos não é permitido.</li>
     </ul>
+    <h3>Multiplayer</h3>
+    <ul>
+      <li>Crie uma sala e compartilhe o código com seus amigos.</li>
+      <li>Suporta 2 a 4 jogadores online.</li>
+      <li>Todos os movimentos são sincronizados em tempo real.</li>
+      <li>Quando um jogador captura outro, a peça volta automaticamente para a base.</li>
+    </ul>
     <h3>Dicas</h3>
     <ul>
       <li>Tente manter peças juntas para protegê-las de capturas.</li>
       <li>Priorize avançar peças que já estão no tabuleiro antes de tirar novas da base.</li>
       <li>Capturas enviam o adversário de volta, ganhando vantagem estratégica.</li>
+      <li>No multiplayer, observe as jogadas dos adversários e planeje sua estratégia.</li>
     </ul>
   </section>
 

@@ -1,7 +1,8 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 // =============================================
 //  Batalha Naval — Games Hub
+//  Single Player + Multiplayer Online
 // =============================================
 import { supabase } from '../../supabase.js';
 
@@ -17,6 +18,11 @@ const SHIPS = [
   { name: 'Submarino',    size: 3 },
   { name: 'Destroyer',    size: 2 },
 ];
+
+// ===== MULTIPLAYER CONFIG =====
+const urlParams = new URLSearchParams(window.location.search);
+const ROOM_ID = urlParams.get('room');
+const IS_MULTIPLAYER = !!ROOM_ID;
 
 // ===== DOM =====
 const turnIndicator   = document.getElementById('turn-indicator');
@@ -38,29 +44,41 @@ const shipStatusEl    = document.getElementById('ship-status');
 const playerShipsEl   = document.getElementById('player-ships');
 const cpuShipsEl      = document.getElementById('cpu-ships');
 const timerDisplay    = document.getElementById('timer-display');
+const modeSelection   = document.getElementById('mode-selection');
+const mpControls      = document.getElementById('mp-controls');
+const mpStatus        = document.getElementById('mp-status');
+const btnCopyLink     = document.getElementById('btn-copy-link');
 
 // ===== STATE =====
 let playerBoard, cpuBoard;
 let playerShips, cpuShips;
-let orientation = 'H'; // H or V
+let orientation = 'H';
 let currentShipIdx = 0;
-let phase = 'placement'; // placement | battle | ended
+let phase = 'menu'; // menu | placement | battle | ended
 let playerTurn = true;
 let timerInterval = null;
 let seconds = 0;
-let isProcessing = false; // Flag para prevenir cliques duplos
+let isProcessing = false;
 
-// CPU AI state
-let cpuMode = 'random'; // random | hunt
-let cpuHits = [];        // hits not yet sunk
-let cpuTargets = [];     // queue of cells to try next
+// CPU AI state (single player)
+let cpuMode = 'random';
+let cpuHits = [];
+let cpuTargets = [];
+
+// Multiplayer state
+let mpPlayerId = null;
+let mpPlayerNumber = null;
+let mpOpponentReady = false;
+let mpPlayerReady = false;
+let mpSubscription = null;
+let mpGameState = null;
 
 // ===== INIT =====
 function init() {
   stopTimer();
   seconds = 0;
   updateTimer();
-  phase = 'placement';
+  phase = IS_MULTIPLAYER ? 'placement' : 'menu';
   orientation = 'H';
   currentShipIdx = 0;
   playerTurn = true;
@@ -74,25 +92,488 @@ function init() {
   playerShips = SHIPS.map(s => ({ ...s, cells: [], sunk: false }));
   cpuShips = SHIPS.map(s => ({ ...s, cells: [], sunk: false }));
 
-  placementPanel.classList.remove('hidden');
+  placementPanel.classList.add('hidden');
   battlePanel.classList.add('hidden');
   modalOverlay.classList.add('hidden');
   btnStart.classList.add('hidden');
   btnRotate.textContent = 'Girar (H)';
-  turnIndicator.textContent = 'Posicione seus navios';
-  turnIndicator.classList.remove('enemy-turn');
 
   playerShipsEl.textContent = '5';
   cpuShipsEl.textContent = '5';
 
-  buildGrid(placementGrid, 'placement');
-  buildHeaders('placement');
-  updatePlacementInfo();
+  if (IS_MULTIPLAYER) {
+    modeSelection.classList.add('hidden');
+    mpControls.classList.remove('hidden');
+    initMultiplayer();
+  } else {
+    modeSelection.classList.remove('hidden');
+    mpControls.classList.add('hidden');
+    turnIndicator.textContent = 'Escolha o modo de jogo';
+  }
 }
 
 function createBoard() {
-  // 0=empty, 1=ship, 2=miss, 3=hit
   return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+}
+
+// ===== MODE SELECTION =====
+document.getElementById('btn-single').addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  startSinglePlayer();
+});
+
+document.getElementById('btn-multi').addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  startMultiplayerSetup();
+});
+
+function startSinglePlayer() {
+  modeSelection.classList.add('hidden');
+  placementPanel.classList.remove('hidden');
+  turnIndicator.textContent = 'Posicione seus navios';
+  turnIndicator.classList.remove('enemy-turn');
+
+  buildGrid(placementGrid, 'placement');
+  buildHeaders('placement');
+  updatePlacementInfo();
+  phase = 'placement';
+}
+
+function startMultiplayerSetup() {
+  const newRoomId = crypto.randomUUID();
+  window.location.href = `index.html?room=${newRoomId}`;
+}
+
+// ===== MULTIPLAYER FUNCTIONS =====
+async function initMultiplayer() {
+  turnIndicator.textContent = 'Conectando a sala...';
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    alert('Voce precisa estar logado para jogar multiplayer');
+    window.location.href = '../../login.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
+  }
+
+  mpPlayerId = user.id;
+
+  // Check if room exists
+  const { data: room, error } = await supabase
+    .from('battleship_rooms')
+    .select('*')
+    .eq('id', ROOM_ID)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching room:', error);
+    turnIndicator.textContent = 'Erro ao conectar';
+    return;
+  }
+
+  if (!room) {
+    // Create new room as player 1 (host)
+    mpPlayerNumber = 1;
+    const { error: createError } = await supabase
+      .from('battleship_rooms')
+      .insert({
+        id: ROOM_ID,
+        player1_id: mpPlayerId,
+        status: 'waiting',
+        current_turn: 1,
+        player1_board: null,
+        player2_board: null,
+        player1_shots: [],
+        player2_shots: [],
+        player1_ready: false,
+        player2_ready: false,
+        created_at: new Date().toISOString()
+      });
+
+    if (createError) {
+      console.error('Error creating room:', createError);
+      turnIndicator.textContent = 'Erro ao criar sala';
+      return;
+    }
+
+    mpStatus.textContent = 'Aguardando oponente...';
+    mpStatus.classList.add('waiting');
+    turnIndicator.textContent = 'Aguardando oponente...';
+    placementPanel.classList.remove('hidden');
+    buildGrid(placementGrid, 'placement');
+    buildHeaders('placement');
+    updatePlacementInfo();
+  } else if (!room.player2_id && room.player1_id !== mpPlayerId) {
+    // Join as player 2
+    mpPlayerNumber = 2;
+    const { error: updateError } = await supabase
+      .from('battleship_rooms')
+      .update({
+        player2_id: mpPlayerId,
+        status: 'placement'
+      })
+      .eq('id', ROOM_ID);
+
+    if (updateError) {
+      console.error('Error joining room:', updateError);
+      turnIndicator.textContent = 'Erro ao entrar na sala';
+      return;
+    }
+
+    mpStatus.textContent = 'Modo Multiplayer';
+    mpStatus.classList.remove('waiting');
+    turnIndicator.textContent = 'Posicione seus navios';
+    placementPanel.classList.remove('hidden');
+    buildGrid(placementGrid, 'placement');
+    buildHeaders('placement');
+    updatePlacementInfo();
+  } else if (room.player1_id === mpPlayerId) {
+    // Reconnect as player 1
+    mpPlayerNumber = 1;
+    mpGameState = room;
+    restoreGameState(room);
+  } else if (room.player2_id === mpPlayerId) {
+    // Reconnect as player 2
+    mpPlayerNumber = 2;
+    mpGameState = room;
+    restoreGameState(room);
+  } else {
+    alert('Sala cheia');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  subscribeToRoom();
+}
+
+function restoreGameState(room) {
+  if (room.status === 'waiting') {
+    mpStatus.textContent = 'Aguardando oponente...';
+    mpStatus.classList.add('waiting');
+    turnIndicator.textContent = 'Aguardando oponente...';
+    placementPanel.classList.remove('hidden');
+    buildGrid(placementGrid, 'placement');
+    buildHeaders('placement');
+    updatePlacementInfo();
+  } else if (room.status === 'placement') {
+    mpStatus.textContent = 'Modo Multiplayer';
+    mpStatus.classList.remove('waiting');
+    turnIndicator.textContent = 'Posicione seus navios';
+    placementPanel.classList.remove('hidden');
+    buildGrid(placementGrid, 'placement');
+    buildHeaders('placement');
+    updatePlacementInfo();
+  } else if (room.status === 'battle') {
+    // Restore boards
+    const myBoardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
+    const opponentBoardKey = mpPlayerNumber === 1 ? 'player2_board' : 'player1_board';
+
+    if (room[myBoardKey]) {
+      playerBoard = room[myBoardKey];
+      restoreShipsFromBoard(playerBoard, playerShips);
+    }
+
+    if (room[opponentBoardKey]) {
+      cpuBoard = room[opponentBoardKey];
+      restoreShipsFromBoard(cpuBoard, cpuShips);
+    }
+
+    // Restore shots
+    const myShotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
+    const opponentShotsKey = mpPlayerNumber === 1 ? 'player2_shots' : 'player1_shots';
+
+    // Build battle grids first
+    placementPanel.classList.add('hidden');
+    battlePanel.classList.remove('hidden');
+    buildGrid(playerGrid, 'player');
+    buildGrid(enemyGrid, 'enemy');
+    buildHeaders('player');
+    buildHeaders('enemy');
+
+    if (room[myShotsKey]) {
+      applyShotsToBoard(room[myShotsKey], cpuBoard, enemyGrid, false);
+    }
+    if (room[opponentShotsKey]) {
+      applyShotsToBoard(room[opponentShotsKey], playerBoard, playerGrid, true);
+    }
+
+    renderPlayerShips();
+    phase = 'battle';
+    startTimer();
+    updateMultiplayerTurn(room.current_turn);
+    renderShipStatus();
+    updateCounters();
+  } else if (room.status === 'ended') {
+    showEndGameModal(room.winner === mpPlayerNumber);
+  }
+}
+
+function restoreShipsFromBoard(board, ships) {
+  ships.forEach(s => s.cells = []);
+  const visited = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c] === 1 && !visited[r][c]) {
+        const shipCells = [];
+        const queue = [[r, c]];
+        visited[r][c] = true;
+
+        while (queue.length > 0) {
+          const [cr, cc] = queue.shift();
+          shipCells.push([cr, cc]);
+          const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+          for (const [dr, dc] of dirs) {
+            const nr = cr + dr;
+            const nc = cc + dc;
+            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS &&
+                board[nr][nc] === 1 && !visited[nr][nc]) {
+              visited[nr][nc] = true;
+              queue.push([nr, nc]);
+            }
+          }
+        }
+
+        const size = shipCells.length;
+        const ship = ships.find(s => s.size === size && s.cells.length === 0);
+        if (ship) ship.cells = shipCells;
+      }
+    }
+  }
+}
+
+function applyShotsToBoard(shots, board, grid, isPlayerBoard) {
+  if (!shots) return;
+  shots.forEach(shot => {
+    const { r, c, result } = shot;
+    if (result === 'hit') {
+      board[r][c] = 3;
+      if (grid) {
+        const cell = getCell(grid, r, c);
+        cell.classList.add('hit');
+        cell.textContent = '●';
+      }
+    } else if (result === 'miss') {
+      board[r][c] = 2;
+      if (grid) {
+        const cell = getCell(grid, r, c);
+        cell.classList.add('miss');
+        cell.textContent = '•';
+      }
+    } else if (result === 'sunk') {
+      board[r][c] = 3;
+      if (grid) {
+        const cell = getCell(grid, r, c);
+        cell.classList.remove('hit', 'ship');
+        cell.classList.add('sunk');
+        cell.textContent = '✕';
+      }
+    }
+  });
+}
+
+function subscribeToRoom() {
+  mpSubscription = supabase
+    .channel(`battleship:${ROOM_ID}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'battleship_rooms',
+      filter: `id=eq.${ROOM_ID}`
+    }, (payload) => {
+      handleRoomUpdate(payload.new);
+    })
+    .subscribe();
+}
+
+async function handleRoomUpdate(room) {
+  mpGameState = room;
+  if (!room) return;
+
+  // Opponent joined
+  if (room.status === 'waiting' && mpPlayerNumber === 1 && room.player2_id) {
+    mpStatus.textContent = 'Oponente conectado!';
+    mpStatus.classList.remove('waiting');
+    turnIndicator.textContent = 'Posicione seus navios';
+    playSound('click');
+  }
+
+  // Both players in placement phase
+  if (room.status === 'placement') {
+    const opponentReady = mpPlayerNumber === 1 ? room.player2_ready : room.player1_ready;
+    if (opponentReady && !mpOpponentReady) {
+      mpOpponentReady = true;
+      if (mpPlayerReady) {
+        startMultiplayerBattle();
+      } else {
+        turnIndicator.textContent = 'Oponente pronto! Posicione seus navios';
+      }
+    }
+  }
+
+  // Battle phase updates
+  if (room.status === 'battle') {
+    const opponentShotsKey = mpPlayerNumber === 1 ? 'player2_shots' : 'player1_shots';
+    const myShotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
+
+    if (room[opponentShotsKey]) {
+      applyShotsToBoard(room[opponentShotsKey], playerBoard, playerGrid, true);
+    }
+    if (room[myShotsKey]) {
+      applyShotsToBoard(room[myShotsKey], cpuBoard, enemyGrid, false);
+    }
+
+    updateMultiplayerTurn(room.current_turn);
+
+    if (room.status === 'ended' && room.winner) {
+      showEndGameModal(room.winner === mpPlayerNumber);
+    }
+
+    renderShipStatus();
+    updateCounters();
+  }
+
+  if (room.status === 'ended' && room.winner) {
+    showEndGameModal(room.winner === mpPlayerNumber);
+  }
+}
+
+function updateMultiplayerTurn(currentTurn) {
+  playerTurn = currentTurn === mpPlayerNumber;
+  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+
+  if (playerTurn) {
+    turnIndicator.textContent = 'Seu turno — ataque!';
+    turnIndicator.classList.remove('enemy-turn');
+    gameWrapper.classList.remove('thinking');
+    isProcessing = false;
+  } else {
+    turnIndicator.textContent = 'Turno do oponente...';
+    turnIndicator.classList.add('enemy-turn');
+    gameWrapper.classList.add('thinking');
+    isProcessing = true;
+  }
+}
+
+async function setPlayerReady() {
+  if (!IS_MULTIPLAYER) return;
+
+  mpPlayerReady = true;
+  const readyKey = mpPlayerNumber === 1 ? 'player1_ready' : 'player2_ready';
+  const boardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
+
+  const { error } = await supabase
+    .from('battleship_rooms')
+    .update({
+      [readyKey]: true,
+      [boardKey]: playerBoard,
+      status: mpOpponentReady ? 'battle' : 'placement'
+    })
+    .eq('id', ROOM_ID);
+
+  if (error) {
+    console.error('Error setting ready:', error);
+    return;
+  }
+
+  if (mpOpponentReady) {
+    startMultiplayerBattle();
+  } else {
+    turnIndicator.textContent = 'Aguardando oponente...';
+    btnStart.classList.add('hidden');
+  }
+}
+
+async function startMultiplayerBattle() {
+  const { data: room } = await supabase
+    .from('battleship_rooms')
+    .select('*')
+    .eq('id', ROOM_ID)
+    .single();
+
+  if (!room) return;
+
+  const opponentBoardKey = mpPlayerNumber === 1 ? 'player2_board' : 'player1_board';
+  if (room[opponentBoardKey]) {
+    cpuBoard = room[opponentBoardKey];
+    restoreShipsFromBoard(cpuBoard, cpuShips);
+  }
+
+  buildGrid(playerGrid, 'player');
+  buildGrid(enemyGrid, 'enemy');
+  buildHeaders('player');
+  buildHeaders('enemy');
+  renderPlayerShips();
+
+  placementPanel.classList.add('hidden');
+  battlePanel.classList.remove('hidden');
+
+  phase = 'battle';
+  updateMultiplayerTurn(room.current_turn);
+  renderShipStatus();
+  startTimer();
+}
+
+function renderPlayerShips() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (playerBoard[r][c] === 1) {
+        getCell(playerGrid, r, c).classList.add('ship');
+      }
+    }
+  }
+}
+
+async function sendShot(r, c, result, sunkShip) {
+  if (!IS_MULTIPLAYER) return;
+
+  const shotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
+  const { data: room } = await supabase
+    .from('battleship_rooms')
+    .select(shotsKey)
+    .eq('id', ROOM_ID)
+    .single();
+
+  const shots = room[shotsKey] || [];
+  shots.push({ r, c, result, timestamp: Date.now() });
+
+  const nextTurn = mpPlayerNumber === 1 ? 2 : 1;
+  const updateData = {
+    [shotsKey]: shots,
+    current_turn: result === 'miss' ? nextTurn : mpPlayerNumber
+  };
+
+  const opponentShipsSunk = checkAllShipsSunk(cpuShips, cpuBoard);
+  if (opponentShipsSunk) {
+    updateData.status = 'ended';
+    updateData.winner = mpPlayerNumber;
+  }
+
+  await supabase
+    .from('battleship_rooms')
+    .update(updateData)
+    .eq('id', ROOM_ID);
+}
+
+function checkAllShipsSunk(ships, board) {
+  return ships.every(ship => {
+    return ship.cells.every(([r, c]) => board[r][c] === 3);
+  });
+}
+
+// ===== COPY LINK =====
+if (btnCopyLink) {
+  btnCopyLink.addEventListener('click', async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      btnCopyLink.textContent = 'Copiado!';
+      setTimeout(() => btnCopyLink.textContent = 'Copiar Link', 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  });
 }
 
 // ===== GRID BUILDERS =====
@@ -145,7 +626,9 @@ function updatePlacementInfo() {
     const s = SHIPS[currentShipIdx];
     shipNameEl.textContent = `${s.name} (${s.size} casas)`;
   } else {
-    shipNameEl.textContent = 'Todos os navios posicionados!';
+    shipNameEl.textContent = IS_MULTIPLAYER
+      ? 'Pronto! Clique em "Pronto para Batalha"'
+      : 'Todos os navios posicionados!';
   }
 }
 
@@ -201,12 +684,14 @@ function placeShip(r, c) {
   updatePlacementInfo();
 
   if (currentShipIdx >= SHIPS.length) {
+    if (IS_MULTIPLAYER) {
+      btnStart.textContent = 'Pronto para Batalha';
+    }
     btnStart.classList.remove('hidden');
   }
 }
 
 function randomPlacement(board, ships) {
-  // Reset board
   for (let r = 0; r < ROWS; r++)
     for (let c = 0; c < COLS; c++)
       board[r][c] = 0;
@@ -242,6 +727,9 @@ btnRandom.addEventListener('click', () => {
   renderPlacementBoard();
   updatePlacementInfo();
   btnStart.classList.remove('hidden');
+  if (IS_MULTIPLAYER) {
+    btnStart.textContent = 'Pronto para Batalha';
+  }
 });
 
 function renderPlacementBoard() {
@@ -255,19 +743,24 @@ function renderPlacementBoard() {
 }
 
 // ===== START BATTLE =====
-btnStart.addEventListener('click', () => { initAudio(); playSound('click'); startBattle(); });
+btnStart.addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  if (IS_MULTIPLAYER) {
+    setPlayerReady();
+  } else {
+    startBattle();
+  }
+});
 
 function startBattle() {
-  // Place CPU ships
   randomPlacement(cpuBoard, cpuShips);
 
-  // Build battle grids
   buildGrid(playerGrid, 'player');
   buildGrid(enemyGrid, 'enemy');
   buildHeaders('player');
   buildHeaders('enemy');
 
-  // Show player ships on player grid
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       if (playerBoard[r][c] === 1) {
@@ -331,27 +824,34 @@ function createShipCard(ship, cls) {
 }
 
 // ===== FIRING =====
-function fireAt(r, c) {
+async function fireAt(r, c) {
   if (phase !== 'battle' || !playerTurn || isProcessing) return;
-  isProcessing = true;
+
   const cell = getCell(enemyGrid, r, c);
   if (cell.classList.contains('hit') || cell.classList.contains('miss') || cell.classList.contains('sunk')) {
-    isProcessing = false;
     return;
   }
 
-  playerTurn = false;
+  isProcessing = true;
   initAudio();
 
   const wasHit = cpuBoard[r][c] === 1;
+  let result = 'miss';
+  let sunkShip = null;
+
   if (wasHit) {
-    cpuBoard[r][c] = 3; // hit
+    cpuBoard[r][c] = 3;
     cell.classList.add('hit');
     cell.textContent = '●';
     playSound('hit');
-    checkSunk(cpuShips, cpuBoard, enemyGrid);
+    result = 'hit';
+    sunkShip = checkSunkAndGetShip(cpuShips, cpuBoard, enemyGrid);
+    if (sunkShip) {
+      result = 'sunk';
+      playSound('explosion');
+    }
   } else {
-    cpuBoard[r][c] = 2; // miss
+    cpuBoard[r][c] = 2;
     cell.classList.add('miss');
     cell.textContent = '•';
     playSound('move');
@@ -362,13 +862,36 @@ function fireAt(r, c) {
 
   if (checkWin()) return;
 
-  turnIndicator.textContent = 'Computador pensando...';
-  turnIndicator.classList.add('enemy-turn');
-  const gameWrapper = document.querySelector('.game-wrapper') || document.body;
-  gameWrapper.classList.add('thinking');
+  if (IS_MULTIPLAYER) {
+    await sendShot(r, c, result, sunkShip);
+  } else {
+    playerTurn = false;
+    turnIndicator.textContent = 'Computador pensando...';
+    turnIndicator.classList.add('enemy-turn');
+    const gameWrapper = document.querySelector('.game-wrapper') || document.body;
+    gameWrapper.classList.add('thinking');
 
-  // Delay mínimo de 800ms para jogadas da IA
-  setTimeout(cpuTurn, 800);
+    setTimeout(cpuTurn, 800);
+  }
+}
+
+function checkSunkAndGetShip(ships, board, grid) {
+  let sunkShip = null;
+  ships.forEach(ship => {
+    if (ship.sunk) return;
+    if (ship.cells.every(([r, c]) => board[r][c] === 3)) {
+      ship.sunk = true;
+      sunkShip = ship;
+      ship.cells.forEach(([r, c]) => {
+        const cell = getCell(grid, r, c);
+        cell.classList.remove('hit');
+        cell.classList.add('sunk');
+        cell.textContent = '✕';
+      });
+    }
+  });
+  if (sunkShip) renderShipStatus();
+  return sunkShip;
 }
 
 function cpuTurn() {
@@ -376,7 +899,6 @@ function cpuTurn() {
 
   let r, c;
 
-  // Try targets from hunt mode first
   while (cpuTargets.length > 0) {
     const t = cpuTargets.shift();
     if (playerBoard[t[0]][t[1]] === 0 || playerBoard[t[0]][t[1]] === 1) {
@@ -386,7 +908,6 @@ function cpuTurn() {
     }
   }
 
-  // Random if no valid target
   if (r === undefined) {
     cpuMode = 'random';
     let attempts = 0;
@@ -398,6 +919,7 @@ function cpuTurn() {
   }
 
   const cell = getCell(playerGrid, r, c);
+  const wasHit = playerBoard[r][c] === 1;
 
   if (wasHit) {
     playerBoard[r][c] = 3;
@@ -409,15 +931,12 @@ function cpuTurn() {
     cpuMode = 'hunt';
     addAdjacentTargets(r, c);
 
-    // Check if a ship was sunk => remove those hits and clear targets for that ship
     const sunkShip = checkSunkCpu(playerShips, playerBoard, playerGrid);
     if (sunkShip) {
       playSound('explosion');
-      // Remove sunk ship cells from cpuHits
       cpuHits = cpuHits.filter(([hr, hc]) =>
         !sunkShip.cells.some(([sr, sc]) => sr === hr && sc === hc)
       );
-      // If no more hits pending, go back to random
       if (cpuHits.length === 0) {
         cpuMode = 'random';
         cpuTargets = [];
@@ -448,7 +967,6 @@ function addAdjacentTargets(r, c) {
     const nc = c + dc;
     if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
       if (playerBoard[nr][nc] === 0 || playerBoard[nr][nc] === 1) {
-        // Avoid duplicates
         if (!cpuTargets.some(([tr, tc]) => tr === nr && tc === nc)) {
           cpuTargets.push([nr, nc]);
         }
@@ -511,23 +1029,30 @@ function checkWin() {
     stopTimer();
 
     const won = cpuLost;
-    modalIcon.textContent = won ? '🏆' : '💥';
-    modalTitle.textContent = won ? 'Vitoria!' : 'Derrota!';
-    modalMsg.textContent = won
-      ? `Voce afundou toda a frota inimiga em ${timerDisplay.textContent}!`
-      : 'A frota inimiga destruiu todos os seus navios.';
-    modalOverlay.classList.remove('hidden');
+    showEndGameModal(won);
 
-    turnIndicator.textContent = won ? 'Voce venceu!' : 'Voce perdeu!';
-
-    if (won) {
-      launchConfetti();
-      playSound('win');
+    if (!IS_MULTIPLAYER) {
+      saveStats(won ? 'win' : 'loss');
     }
-    saveStats(won ? 'win' : 'loss');
     return true;
   }
   return false;
+}
+
+function showEndGameModal(won) {
+  modalIcon.textContent = won ? '🏆' : '💥';
+  modalTitle.textContent = won ? 'Vitoria!' : 'Derrota!';
+  modalMsg.textContent = won
+    ? `Voce afundou toda a frota inimiga em ${timerDisplay.textContent}!`
+    : 'A frota inimiga destruiu todos os seus navios.';
+  modalOverlay.classList.remove('hidden');
+
+  turnIndicator.textContent = won ? 'Voce venceu!' : 'Voce perdeu!';
+
+  if (won) {
+    launchConfetti();
+    playSound('win');
+  }
 }
 
 // ===== STATS =====
@@ -550,7 +1075,22 @@ async function saveStats(result) {
 btnPlayAgain.addEventListener('click', () => {
   initAudio();
   playSound('click');
-  init();
+  if (IS_MULTIPLAYER) {
+    if (mpSubscription) {
+      mpSubscription.unsubscribe();
+    }
+    const newRoomId = crypto.randomUUID();
+    window.location.href = `index.html?room=${newRoomId}`;
+  } else {
+    init();
+  }
+});
+
+// ===== CLEANUP =====
+window.addEventListener('beforeunload', () => {
+  if (mpSubscription) {
+    mpSubscription.unsubscribe();
+  }
 });
 
 // ===== START =====
