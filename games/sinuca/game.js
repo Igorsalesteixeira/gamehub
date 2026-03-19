@@ -863,34 +863,38 @@ function update() {
 }
 
 function endTurn(foulCommitted = false) {
+  console.log('[DEBUG] endTurn CHAMADA - gameState:', gameState, 'turnInProgress:', turnInProgress);
+
   // Guarda para evitar chamadas múltiplas enquanto processa o fim do turno
   if (gameState !== 'moving') {
-    console.log('[DEBUG] endTurn ignorada - gameState não é moving:', gameState);
+    console.log('[DEBUG] endTurn IGNORADA - gameState não é moving:', gameState);
     return;
   }
 
   // Prevenir execução concorrente
   if (turnInProgress) {
-    console.log('[DEBUG] endTurn ignorada - turno já em andamento');
+    console.log('[DEBUG] endTurn IGNORADA - turno já em andamento');
     return;
   }
   turnInProgress = true;
 
-  console.log('[DEBUG] endTurn iniciada - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
+  console.log('[DEBUG] endTurn EXECUTANDO - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
 
   const pottedCount = ballsPottedThisTurn.filter(b => b.type !== 'white').length;
-  console.log('[DEBUG] Bolas encaçapadas neste turno (exceto branca):', pottedCount);
+  console.log('[DEBUG] Bolas encaçapadas neste turno (exceto branca):', pottedCount, 'conteúdo:', ballsPottedThisTurn.map(b => b.type));
 
   // Se cometeu falta (bola branca encaçapada), sempre alterna
   // Se não encaçapou nada, alterna
   // Se encaçapou bolas válidas, continua
   if (foulCommitted) {
+    const oldPlayer = currentPlayer;
     currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
-    console.log('[DEBUG] Falta! Jogador alternado para:', currentPlayer);
+    console.log('[DEBUG] Falta! Jogador alternado de', oldPlayer, 'para:', currentPlayer);
   } else if (pottedCount === 0) {
     // Não encaçapou nada - troca de jogador
+    const oldPlayer = currentPlayer;
     currentPlayer = currentPlayer === 'player' ? 'cpu' : 'player';
-    console.log('[DEBUG] Não encaçapou - Jogador alternado para:', currentPlayer);
+    console.log('[DEBUG] Não encaçapou - Jogador alternado de', oldPlayer, 'para:', currentPlayer);
   } else {
     console.log('[DEBUG] Jogador continua (encaçapou', pottedCount, 'bola(s)):', currentPlayer);
   }
