@@ -251,7 +251,6 @@ function spawnFood() {
 }
 
 function tick() {
-  console.log('[Snake] tick() chamado, direção:', directionalInput.getDirection());
   directionalInput.applyDirection();
   const direction = directionalInput.getDirection();
 
@@ -289,7 +288,6 @@ function tick() {
 }
 
 function startGame() {
-  console.log('[Snake] startGame() chamado');
   initAudio();
   initGame();
   overlay.classList.add('hidden');
@@ -301,8 +299,6 @@ function startGame() {
   tickAccumulator = 0;
 
   gameLoop.start();
-  console.log('[Snake] Jogo iniciado! isRunning:', gameLoop.isRunning());
-  console.log('[Snake] Direção inicial:', directionalInput.getDirection());
 }
 
 function togglePause() {
