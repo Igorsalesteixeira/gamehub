@@ -61,6 +61,10 @@ const MULTIPLAYER_GAMES = [
   { name: 'poker', path: '/games/poker/', title: /Poker/i },
   { name: 'buraco', path: '/games/buraco/', title: /Buraco/i },
   { name: 'domino', path: '/games/domino/', title: /Dominó/i },
+  { name: 'sueca', path: '/games/sueca/', title: /Sueca/i },
+  { name: 'pife', path: '/games/pife/', title: /Pife/i },
+  { name: 'cacheta', path: '/games/cacheta/', title: /Cacheta/i },
+  { name: 'sinuca', path: '/games/sinuca/', title: /Sinuca/i },
 ];
 
 const DEVICES = [
