@@ -95,6 +95,8 @@ localStorage.setItem(`${game}_best`, score);
 ```
 
 ### 5. Testes E2E
+
+#### Testes Críticos (todos os jogos)
 Criar arquivo: `tests/[game]-critical.e2e.spec.js`
 
 Template mínimo:
@@ -109,6 +111,18 @@ test.describe(`🎮 ${game} - Testes Críticos`, () => {
   }
 });
 ```
+
+#### Testes Multiplayer (OBRIGATÓRIO se o jogo tem multiplayer)
+Adicionar jogo à lista em: `tests/multiplayer-games.e2e.spec.js`
+
+```javascript
+const MULTIPLAYER_GAMES = [
+  // ... jogos existentes ...
+  { name: 'meu-jogo', path: '/games/meu-jogo/', title: /Meu Jogo/i },
+];
+```
+
+**Por que:** Todos os jogos com multiplayer DEVEM ter testes de sincronização entre dois jogadores.
 
 ### 6. Mobile
 - [ ] Controles touch implementados
@@ -125,7 +139,7 @@ test.describe(`🎮 ${game} - Testes Críticos`, () => {
 - [ ] Sincronizar estado inicial ao entrar
 - [ ] Indicador de "Vez do oponente"
 - [ ] Handler de desconexão/reconexão
-- [ ] Testes E2E com dois browsers
+- [ ] **OBRIGATÓRIO:** Adicionar a `tests/multiplayer-games.e2e.spec.js`
 
 #### Template de Código Multiplayer
 
