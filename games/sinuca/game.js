@@ -851,7 +851,7 @@ function update() {
 
   // Verificar fim do turno
   if (gameState === 'moving' && !anyMoving) {
-    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length, 'foul:', foulCommitted);
+    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length, 'foul:', foulCommitted, 'turnInProgress:', turnInProgress);
     endTurn(foulCommitted);
   }
 
@@ -1378,6 +1378,8 @@ function handleMove(evt) {
 function handleEnd(evt) {
   if (!aimStart || gameState !== 'aiming') return;
   if (evt) evt.preventDefault();
+
+  console.log('[DEBUG] Jogador iniciando tacada - ballsPottedThisTurn antes:', ballsPottedThisTurn.length);
 
   // Recalcular power baseado na distância atual do arrasto
   const dx = aimStart.x - aimCurrent.x;
