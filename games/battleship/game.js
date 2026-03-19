@@ -191,6 +191,7 @@ async function initMultiplayer() {
         id: ROOM_ID,
         player1_id: mpPlayerId,
         code: roomCode,
+        game: 'battleship',
         status: 'waiting',
         turn: 1,
         state: {
