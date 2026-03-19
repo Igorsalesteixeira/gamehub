@@ -1,5 +1,7 @@
 # Game Hub — Guia de Desenvolvimento
 
+> **Context Mode**: Este projeto usa Context Mode para gerenciar o contexto. Ferramentas de busca (Grep, Glob, Read) devem ser processadas via `context-mode sandbox` quando possível.
+
 ## Checklist de Testes (verificar ANTES de cada push)
 
 ### Arraste de cartas (CRITICO)

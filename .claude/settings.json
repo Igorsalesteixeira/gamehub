@@ -14,6 +14,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "context-mode sandbox --tool $CLYDE_TOOL_NAME --input '$CLYDE_TOOL_INPUT' 2>/dev/null || true",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }
