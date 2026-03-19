@@ -846,7 +846,7 @@ function update() {
 
   // Verificar fim do turno
   if (gameState === 'moving' && !anyMoving) {
-    console.log('[DEBUG] Bolas pararam - chamando endTurn()');
+    console.log('[DEBUG] Bolas pararam - chamando endTurn(). currentPlayer:', currentPlayer, 'ballsPottedThisTurn:', ballsPottedThisTurn.length);
     endTurn();
   }
 
@@ -890,11 +890,11 @@ function endTurn() {
   if (currentPlayer === 'cpu') {
     // Mudar estado imediatamente para evitar chamadas repetidas de endTurn
     gameState = 'cpu_turn';
-    console.log('[DEBUG] Agendando jogada do CPU em 800ms');
+    console.log('[DEBUG] Agendando jogada do CPU em 800ms. currentPlayer:', currentPlayer, 'gameState:', gameState);
     setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
-    console.log('[DEBUG] Turno do jogador - gameState: aiming');
+    console.log('[DEBUG] Turno do jogador - gameState: aiming. currentPlayer:', currentPlayer);
   }
 }
 
