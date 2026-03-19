@@ -102,7 +102,7 @@ function init() {
 
   placementPanel.classList.add('hidden');
   battlePanel.classList.add('hidden');
-  modalOverlay.classList.add('hidden');
+  modalOverlay.classList.remove('show');
   btnStart.classList.add('hidden');
   btnRotate.textContent = 'Girar (H)';
 
@@ -1040,7 +1040,7 @@ function showEndGameModal(won) {
   modalMsg.textContent = won
     ? `Voce afundou toda a frota inimiga em ${timerDisplay.textContent}!`
     : 'A frota inimiga destruiu todos os seus navios.';
-  modalOverlay.classList.remove('hidden');
+  modalOverlay.classList.add('show');
 
   turnIndicator.textContent = won ? 'Voce venceu!' : 'Voce perdeu!';
 
