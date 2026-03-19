@@ -405,8 +405,11 @@ function subscribeToRoom() {
 }
 
 async function handleRoomUpdate(room) {
+  if (!room || !room.id) {
+    console.warn('handleRoomUpdate: room inválido');
+    return;
+  }
   mpGameState = room;
-  if (!room) return;
 
   const state = room.state || {};
 
@@ -478,42 +481,52 @@ function updateMultiplayerTurn(currentTurn) {
 async function setPlayerReady() {
   if (!IS_MULTIPLAYER) return;
 
-  mpPlayerReady = true;
-  const readyKey = mpPlayerNumber === 1 ? 'player1_ready' : 'player2_ready';
-  const boardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
+  const wasReady = mpPlayerReady;
 
-  // Get current state first
-  const { data: room } = await supabase
-    .from('game_rooms')
-    .select('state')
-    .eq('id', ROOM_ID)
-    .single();
+  try {
+    mpPlayerReady = true;
+    const readyKey = mpPlayerNumber === 1 ? 'player1_ready' : 'player2_ready';
+    const boardKey = mpPlayerNumber === 1 ? 'player1_board' : 'player2_board';
 
-  const currentState = room?.state || {};
-  const newState = {
-    ...currentState,
-    [readyKey]: true,
-    [boardKey]: playerBoard
-  };
+    // Get current state first
+    const { data: room, error: fetchError } = await supabase
+      .from('game_rooms')
+      .select('state')
+      .eq('id', ROOM_ID)
+      .single();
 
-  const { error } = await supabase
-    .from('game_rooms')
-    .update({
-      state: newState,
-      status: mpOpponentReady ? 'battle' : 'placement'
-    })
-    .eq('id', ROOM_ID);
+    if (fetchError) throw fetchError;
+    if (!room) throw new Error('Sala não encontrada');
 
-  if (error) {
+    const currentState = room.state || {};
+    const newState = {
+      ...currentState,
+      [readyKey]: true,
+      [boardKey]: playerBoard
+    };
+
+    const { error } = await supabase
+      .from('game_rooms')
+      .update({
+        state: newState,
+        status: mpOpponentReady ? 'battle' : 'placement'
+      })
+      .eq('id', ROOM_ID);
+
+    if (error) throw error;
+
+    if (mpOpponentReady) {
+      startMultiplayerBattle();
+    } else {
+      turnIndicator.textContent = 'Aguardando oponente...';
+      btnStart.classList.add('hidden');
+    }
+  } catch (error) {
     console.error('Error setting ready:', error);
-    return;
-  }
-
-  if (mpOpponentReady) {
-    startMultiplayerBattle();
-  } else {
-    turnIndicator.textContent = 'Aguardando oponente...';
-    btnStart.classList.add('hidden');
+    // Rollback
+    mpPlayerReady = wasReady;
+    alert('Erro ao confirmar prontidão. Tente novamente.');
+    throw error;
   }
 }
 
@@ -563,38 +576,57 @@ async function sendShot(r, c, result, sunkShip) {
 
   const shotsKey = mpPlayerNumber === 1 ? 'player1_shots' : 'player2_shots';
 
-  // Get current state first
-  const { data: room } = await supabase
-    .from('game_rooms')
-    .select('state, turn')
-    .eq('id', ROOM_ID)
-    .single();
+  // Guardar estado anterior para rollback
+  const previousBoardState = cpuBoard.map(row => [...row]);
+  const previousCpuShips = cpuShips.map(s => ({...s, cells: [...s.cells]}));
 
-  const currentState = room?.state || {};
-  const shots = currentState[shotsKey] || [];
-  shots.push({ r, c, result, timestamp: Date.now() });
+  try {
+    // Get current state first
+    const { data: room, error: fetchError } = await supabase
+      .from('game_rooms')
+      .select('state, turn')
+      .eq('id', ROOM_ID)
+      .single();
 
-  const nextTurn = mpPlayerNumber === 1 ? 2 : 1;
-  const newState = {
-    ...currentState,
-    [shotsKey]: shots
-  };
+    if (fetchError) throw fetchError;
+    if (!room) throw new Error('Sala não encontrada');
 
-  const updateData = {
-    state: newState,
-    turn: result === 'miss' ? nextTurn : mpPlayerNumber
-  };
+    const currentState = room.state || {};
+    const shots = currentState[shotsKey] || [];
+    shots.push({ r, c, result, timestamp: Date.now() });
 
-  const opponentShipsSunk = checkAllShipsSunk(cpuShips, cpuBoard);
-  if (opponentShipsSunk) {
-    updateData.status = 'ended';
-    updateData.winner = mpPlayerNumber;
+    const nextTurn = mpPlayerNumber === 1 ? 2 : 1;
+    const newState = {
+      ...currentState,
+      [shotsKey]: shots
+    };
+
+    const updateData = {
+      state: newState,
+      turn: result === 'miss' ? nextTurn : mpPlayerNumber
+    };
+
+    const opponentShipsSunk = checkAllShipsSunk(cpuShips, cpuBoard);
+    if (opponentShipsSunk) {
+      updateData.status = 'ended';
+      updateData.winner = mpPlayerNumber;
+    }
+
+    const { error: updateError } = await supabase
+      .from('game_rooms')
+      .update(updateData)
+      .eq('id', ROOM_ID);
+
+    if (updateError) throw updateError;
+  } catch (error) {
+    console.error('Erro ao enviar tiro:', error);
+    // Rollback: restaurar estado anterior
+    cpuBoard = previousBoardState;
+    cpuShips = previousCpuShips;
+    turnIndicator.textContent = 'Erro de conexão. Tente novamente.';
+    isProcessing = false;
+    throw error;
   }
-
-  await supabase
-    .from('game_rooms')
-    .update(updateData)
-    .eq('id', ROOM_ID);
 }
 
 function checkAllShipsSunk(ships, board) {
@@ -1099,12 +1131,23 @@ btnPlayAgain.addEventListener('click', () => {
 });
 
 // ===== CLEANUP =====
+let isCleaningUp = false;
+
 window.addEventListener('beforeunload', () => {
+  if (isCleaningUp) return;
+  isCleaningUp = true;
   if (mpSubscription) {
-    mpSubscription.unsubscribe();
+    try { mpSubscription.unsubscribe(); } catch (e) {}
   }
   gameStats.destroy();
   gameTimer.destroy();
+});
+
+window.addEventListener('pagehide', () => {
+  if (mpSubscription) {
+    try { mpSubscription.unsubscribe(); mpSubscription = null; } catch (e) {}
+  }
+});
 });
 
 // ===== START =====

@@ -237,7 +237,24 @@ function initializePieces() {
   );
 }
 
+function cleanupRealtimeSubscription() {
+  if (realtimeChannel) {
+    realtimeChannel.unsubscribe();
+    realtimeChannel = null;
+  }
+}
+
+function isValidRoomData(room) {
+  if (!room || typeof room !== 'object') return false;
+  if (!room.id || room.id !== roomId) return false;
+  if (room.status && !['waiting', 'playing', 'finished'].includes(room.status)) return false;
+  return true;
+}
+
 function setupRealtimeSubscription() {
+  // Cleanup any existing subscription before creating new one
+  cleanupRealtimeSubscription();
+
   realtimeChannel = supabase
     .channel(`ludo_room_${roomId}`)
     .on('postgres_changes', {
@@ -252,7 +269,10 @@ function setupRealtimeSubscription() {
 }
 
 function handleRoomUpdate(room) {
-  if (!room) return;
+  if (!isValidRoomData(room)) {
+    console.warn('Received invalid room data:', room);
+    return;
+  }
 
   playersInRoom = room.players || playersInRoom;
   playerCount = room.player_count || playerCount;
@@ -292,6 +312,16 @@ function handleRoomUpdate(room) {
 async function updateRoomState(updates) {
   if (!multiplayerMode || !roomId) return;
 
+  // Salvar estado anterior para rollback
+  const previousState = {
+    pieces: pieces ? JSON.parse(JSON.stringify(pieces)) : null,
+    currentPlayer: currentPlayer,
+    diceValue: diceValue,
+    rolled: rolled,
+    finishOrder: finishOrder ? [...finishOrder] : [],
+    gameOver: gameOver
+  };
+
   try {
     await supabase
       .from('ludo_rooms')
@@ -303,6 +333,18 @@ async function updateRoomState(updates) {
       .eq('id', roomId);
   } catch (err) {
     console.error('Error updating room:', err);
+    // Rollback: restaurar estado local
+    pieces = previousState.pieces;
+    currentPlayer = previousState.currentPlayer;
+    diceValue = previousState.diceValue;
+    rolled = previousState.rolled;
+    finishOrder = previousState.finishOrder;
+    gameOver = previousState.gameOver;
+    // Re-renderizar para refletir o estado restaurado
+    updateScores();
+    setActiveChip(currentPlayer);
+    updateTurnMsg();
+    drawBoard();
   }
 }
 
@@ -1370,9 +1412,7 @@ btnNew.addEventListener('click', () => {
   playSound('click');
   if (multiplayerMode && roomId) {
     // Leave room and go to new game
-    if (realtimeChannel) {
-      realtimeChannel.unsubscribe();
-    }
+    cleanupRealtimeSubscription();
     window.location.href = 'index.html';
   } else {
     initGame();
@@ -1405,9 +1445,7 @@ btnPlayAgain.addEventListener('click', () => {
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
-  if (realtimeChannel) {
-    realtimeChannel.unsubscribe();
-  }
+  cleanupRealtimeSubscription();
   gameStats.destroy();
   gameTimer.destroy();
 });
