@@ -1,11 +1,10 @@
-import '../../auth-check.js';
+﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
 
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
-let lastDrop = null; // { row, col } da ultima jogada para animacao
+let lastDrop = null; // { row, col } da última jogada para animação
 let isProcessing = false; // Flag para prevenir cliques duplos
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
@@ -17,11 +16,11 @@ const urlParams = new URLSearchParams(window.location.search);
 const ROOM_ID = urlParams.get('room');
 const IS_MULTIPLAYER = !!ROOM_ID;
 
-// === Multiplayer Manager ===
-let mp = null;
-const gameStats = new GameStats('connect4');
+let channel = null;
+let myUserId = null;
 let myPlayerNumber = 1; // 1 = red, 2 = yellow
 let isMyTurn = true;
+let roomData = null;
 let player1Name = 'Jogador 1';
 let player2Name = 'Jogador 2';
 
@@ -47,22 +46,13 @@ function init() {
 async function initMultiplayer() {
   if (!IS_MULTIPLAYER) return;
 
-  // Initialize MultiplayerManager
-  mp = new MultiplayerManager('connect4', ROOM_ID, {
-    tableName: 'game_rooms'
-  });
-
-  mp.onConnectionChange = (connected) => {
-    console.log('Multiplayer connection:', connected ? 'connected' : 'disconnected');
-  };
-
-  mp.onError = (error) => {
-    alert(error.message);
-    window.location.href = '/multiplayer.html';
-  };
-
-  const success = await mp.init();
-  if (!success) return;
+  // Get current user
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/auth.html?redirect=' + encodeURIComponent(window.location.href);
+    return;
+  }
+  myUserId = session.user.id;
 
   // Update UI
   const modeIndicator = document.getElementById('mode-indicator');
@@ -71,38 +61,86 @@ async function initMultiplayer() {
     modeIndicator.classList.add('multiplayer-mode');
   }
 
-  // Get player info
-  myPlayerNumber = mp.myPlayerNumber;
-  player1Name = mp.roomData?.player1_name || 'Jogador 1';
-  player2Name = mp.roomData?.player2_name || 'Jogador 2';
+  // Join room
+  await joinRoom();
+}
 
-  // Restore board state if exists
-  if (mp.roomData?.state?.board) {
-    board = mp.roomData.state.board;
-    currentPlayer = mp.roomData.state.currentPlayer || 1;
-    lastDrop = mp.roomData.state.lastDrop || null;
-    isMyTurn = currentPlayer === myPlayerNumber;
-    render();
-  }
+async function joinRoom() {
+  try {
+    // Get room data
+    const { data, error } = await supabase
+      .from('game_rooms')
+      .select('*')
+      .eq('id', ROOM_ID)
+      .single();
 
-  // Subscribe to events
-  mp.on('move', handleRemoteMove);
-  mp.on('player_joined', ({ playerNumber, playerName }) => {
-    if (playerNumber === 2) {
-      player2Name = playerName || 'Jogador 2';
+    if (error || !data) {
+      alert('Sala não encontrada!');
+      window.location.href = '/multiplayer.html';
+      return;
     }
-  });
-  mp.on('game_reset', () => {
-    resetGame(false);
-  });
 
-  // Update turn indicator
-  updateStatus();
+    roomData = data;
+
+    // Determine player role
+    myPlayerNumber = data.player1_id === myUserId ? 1 : 2;
+    isMyTurn = data.turn === myPlayerNumber;
+
+    // Get player names
+    player1Name = data.player1_name || 'Jogador 1';
+    player2Name = data.player2_name || 'Jogador 2';
+
+    // Restore board state if exists
+    if (data.state && data.state.board) {
+      board = data.state.board;
+      currentPlayer = data.state.currentPlayer || 1;
+      lastDrop = data.state.lastDrop || null;
+      isMyTurn = currentPlayer === myPlayerNumber;
+      render();
+    }
+
+    // Subscribe to realtime changes
+    subscribeToRoom();
+
+    // Update turn indicator
+    updateStatus();
+
+  } catch (e) {
+    console.error('Erro ao entrar na sala:', e);
+    alert('Erro ao conectar à sala.');
+  }
+}
+
+function subscribeToRoom() {
+  channel = supabase.channel(`room-${ROOM_ID}`);
+
+  channel
+    .on('broadcast', { event: 'move' }, ({ payload }) => {
+      handleRemoteMove(payload);
+    })
+    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
+      if (payload.playerNumber === 2) {
+        player2Name = payload.playerName || 'Jogador 2';
+      }
+    })
+    .on('broadcast', { event: 'game_reset' }, () => {
+      resetGame(false);
+    })
+    .subscribe((status) => {
+      console.log('Multiplayer status:', status);
+
+      // Notify other player we're here
+      channel.send({
+        type: 'broadcast',
+        event: 'player_joined',
+        payload: { playerNumber: myPlayerNumber, playerName: myPlayerNumber === 1 ? player1Name : player2Name }
+      });
+    });
 }
 
 async function handleRemoteMove(payload) {
   // Ignore our own moves
-  if (payload.playerId === mp?.myUserId) return;
+  if (payload.playerId === myUserId) return;
 
   // Apply move
   const { col, player } = payload;
@@ -132,14 +170,25 @@ async function handleRemoteMove(payload) {
 }
 
 async function sendMove(col, player) {
-  if (!mp) return;
+  if (!channel) return;
 
   // Broadcast to other player
-  await mp.send('move', { col, player });
+  channel.send({
+    type: 'broadcast',
+    event: 'move',
+    payload: { col, player, playerId: myUserId }
+  });
 
   // Update room state in database
-  const nextTurn = currentPlayer === 1 ? 2 : 1;
-  await mp.updateState({ board, currentPlayer, lastDrop }, { turn: nextTurn });
+  try {
+    const nextTurn = currentPlayer === 1 ? 2 : 1;
+    await supabase.from('game_rooms').update({
+      state: { board, currentPlayer, lastDrop },
+      turn: nextTurn
+    }).eq('id', ROOM_ID);
+  } catch (e) {
+    console.warn('Erro ao salvar estado:', e);
+  }
 }
 
 function updateStatus() {
@@ -168,7 +217,7 @@ function render() {
       if (board[r][c] === 1) cell.classList.add('red');
       if (board[r][c] === 2) cell.classList.add('yellow');
 
-      // Animacao de queda para a peca recem colocada
+      // Animação de queda para a peça recém colocada
       if (lastDrop && lastDrop.row === r && lastDrop.col === c) {
         cell.style.setProperty('--rows', r + 1);
         cell.classList.add('dropping');
@@ -276,7 +325,7 @@ function handleClick(col) {
     statusEl.textContent = 'Computador pensando...';
     const gameContainer = document.getElementById('game-container') || document.body;
     gameContainer.classList.add('thinking');
-    // Delay minimo de 800ms para jogadas da IA
+    // Delay mínimo de 800ms para jogadas da IA
     setTimeout(cpuMove, 800);
   }
 }
@@ -339,14 +388,17 @@ async function endGame(result, winCells) {
   let msg;
   if (IS_MULTIPLAYER) {
     const iWon = result === 'win';
-    msg = iWon ? '🏆 Voce venceu!' : result === 'draw' ? '🤝 Empate!' : '😔 Voce perdeu!';
+    msg = iWon ? '🏆 Você venceu!' : result === 'draw' ? '🤝 Empate!' : '😔 Você perdeu!';
 
     // Update room status
-    if (mp && iWon) {
-      await mp.finishGame(mp.myUserId);
+    if (ROOM_ID && iWon) {
+      await supabase.from('game_rooms').update({
+        status: 'finished',
+        winner: myUserId
+      }).eq('id', ROOM_ID);
     }
   } else {
-    const msgs = { win: '🏆 Voce venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
+    const msgs = { win: '🏆 Você venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
     msg = msgs[result];
   }
 
@@ -359,33 +411,42 @@ async function endGame(result, winCells) {
   }
 
   // Save stats
-  await gameStats.save({
-    result,
-    moves: 0,
-    timeSeconds: 0,
-    roomId: ROOM_ID,
-    isMultiplayer: IS_MULTIPLAYER
-  });
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'connect4',
+      result: result,
+      moves: 0,
+      time_seconds: 0,
+      room_id: ROOM_ID,
+      is_multiplayer: IS_MULTIPLAYER
+    });
+  }
 }
 
 async function resetGame(shouldBroadcast = true) {
   init();
 
-  if (IS_MULTIPLAYER && shouldBroadcast && mp) {
-    await mp.send('game_reset', {});
+  if (IS_MULTIPLAYER && shouldBroadcast && channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'game_reset',
+      payload: {}
+    });
 
     // Reset room state
-    await mp.resetRoom({ board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), currentPlayer: 1, lastDrop: null });
+    await supabase.from('game_rooms').update({
+      state: { board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), currentPlayer: 1, lastDrop: null },
+      turn: 1,
+      status: 'playing',
+      winner: null
+    }).eq('id', ROOM_ID);
   }
 }
 
 document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
 document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
-
-// Cleanup
-window.addEventListener('beforeunload', () => {
-  if (mp) mp.cleanup();
-});
 
 // Initialize multiplayer then start game
 initMultiplayer().then(() => {

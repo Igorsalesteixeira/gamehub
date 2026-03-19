@@ -1,8 +1,6 @@
-import '../../auth-check.js';
+﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { GameStats } from '../shared/game-core.js';
-import { GameTimer } from '../shared/timer.js';
-// ===== Jogo da Memoria (Refatorado com módulos compartilhados) =====
+// ===== Jogo da Memoria =====
 import { supabase } from '../../supabase.js';
 
 const EMOJIS = [
@@ -28,22 +26,14 @@ const finalMoves     = document.getElementById('final-moves');
 const finalTime      = document.getElementById('final-time');
 const btnPlayAgain   = document.getElementById('btn-play-again');
 
-// ---- Stats ----
-const stats = new GameStats('memory');
-
-// ---- Timer ----
-const gameTimer = new GameTimer({
-  onTick: (seconds) => {
-    timerDisplay.textContent = formatTime(seconds);
-  }
-});
-
 // Game state
 let cards = [];
 let flippedCards = [];
 let matchedPairs = 0;
 let totalPairs = 0;
 let moves = 0;
+let timerSeconds = 0;
+let timerInterval = null;
 let isLocked = false; // prevent clicks during flip-back animation
 let gameStarted = false;
 
@@ -58,11 +48,17 @@ function shuffle(arr) {
 
 // ===== Timer =====
 function startTimer() {
-  gameTimer.start();
+  if (timerInterval) return;
+  timerSeconds = 0;
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    timerDisplay.textContent = formatTime(timerSeconds);
+  }, 1000);
 }
 
 function stopTimer() {
-  gameTimer.stop();
+  clearInterval(timerInterval);
+  timerInterval = null;
 }
 
 function formatTime(secs) {
@@ -99,12 +95,10 @@ function initGame() {
   flippedCards = [];
   matchedPairs = 0;
   moves = 0;
+  timerSeconds = 0;
   movesDisplay.textContent = '0';
   timerDisplay.textContent = '0:00';
   victoryModal.classList.add('hidden');
-
-  // Reseta stats
-  stats.reset();
 
   // Pick emojis and create pairs
   const picked = shuffle([...EMOJIS]).slice(0, pairs);
@@ -210,19 +204,32 @@ function checkMatch() {
 }
 
 // ===== Victory =====
-async function showVictory() {
-  const timeSeconds = gameTimer.getTime();
+function showVictory() {
   finalMoves.textContent = moves;
-  finalTime.textContent = formatTime(timeSeconds);
+  finalTime.textContent = formatTime(timerSeconds);
   victoryModal.classList.remove('hidden');
   // Mobile: feedback tátil na vitória (celebração)
   if (navigator.vibrate) navigator.vibrate([30, 20, 40, 20, 50]);
   launchConfetti();
   playSound('win');
+  saveGameStat();
+}
 
-  // Salva stats
-  stats.recordGame(true, { score: moves, time: timeSeconds });
-  await stats.syncToCloud();
+// ===== Stats — Supabase =====
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'memory',
+      result: 'win',
+      moves: moves,
+      time_seconds: timerSeconds,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
 
 // ===== Events =====

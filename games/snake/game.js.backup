@@ -1,12 +1,9 @@
-import '../../auth-check.js';
+﻿import '../../auth-check.js';
 // =============================================
-//  COBRINHA (Snake) — game.js (Refatorado com módulos compartilhados)
+//  COBRINHA (Snake) — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
-import { GameStats, BestScoreManager } from '../shared/game-core.js';
-import { TimedGameLoop } from '../shared/game-loop.js';
-import { DirectionalInput, MobileButtonHandler } from '../shared/input-manager.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20; // cells
@@ -25,35 +22,21 @@ const btnStart    = document.getElementById('btn-start');
 const scoreDisplay= document.getElementById('score-display');
 const bestDisplay = document.getElementById('best-display');
 
-// ---- Stats e Best Score ----
-const stats = new GameStats('snake');
-const bestScoreManager = new BestScoreManager('snake');
-
 // ---- State ----
 let snake     = [];
 let food      = null;
+let direction = { x: 1, y: 0 };
+let nextDir   = { x: 1, y: 0 };
 let score     = 0;
+let bestScore = parseInt(localStorage.getItem('snake_best') || '0');
+let gameLoop  = null;
+let running   = false;
+let paused    = false;
 let cellSize  = 0;
 let eatRipple = null;   // animação de ondulação ao comer
 let headTrail = [];     // rastro de posições recentes da cabeça
 
-bestDisplay.textContent = bestScoreManager.get();
-
-// ---- Directional Input ----
-const directionalInput = new DirectionalInput({
-  onDirectionChange: (dir) => {
-    // Mobile: feedback tátil ao mudar direção
-    if (navigator.vibrate) navigator.vibrate(8);
-  }
-});
-
-// ---- Game Loop ----
-const gameLoop = new TimedGameLoop({
-  getSpeed: () => Math.max(MIN_SPEED, BASE_SPEED - score * 3),
-  onTick: () => {
-    tick();
-  }
-});
+bestDisplay.textContent = bestScore;
 
 // =============================================
 //  CANVAS SIZING
@@ -105,7 +88,8 @@ function initGame() {
     { x: mid - 1, y: mid },
     { x: mid - 2, y: mid },
   ];
-  directionalInput.setDirection({ x: 1, y: 0 });
+  direction = { x: 1, y: 0 };
+  nextDir   = { x: 1, y: 0 };
   score     = 0;
   scoreDisplay.textContent = 0;
   eatRipple = null;
@@ -126,8 +110,7 @@ function spawnFood() {
 }
 
 function tick() {
-  directionalInput.applyDirection();
-  const direction = directionalInput.getDirection();
+  direction = { ...nextDir };
   const head = {
     x: snake[0].x + direction.x,
     y: snake[0].y + direction.y,
@@ -168,6 +151,10 @@ function tick() {
   draw();
 }
 
+function getSpeed() {
+  return Math.max(MIN_SPEED, BASE_SPEED - score * 3);
+}
+
 function startGame() {
   initAudio();
   initGame();
@@ -175,40 +162,44 @@ function startGame() {
   // Game Design: esconder botão compartilhar ao iniciar
   const btnShare = document.getElementById('btn-share');
   if (btnShare) btnShare.style.display = 'none';
+  running = true;
+  paused = false;
+  scheduleNext();
+}
 
-  // Inicia stats e timer
-  stats.reset();
-  stats.startTimer();
-  gameLoop.start();
+function scheduleNext() {
+  if (!running) return;
+  gameLoop = setTimeout(() => {
+    if (!paused) tick();
+    scheduleNext();
+  }, getSpeed());
 }
 
 function togglePause() {
-  const paused = gameLoop.togglePause();
+  if (!running) return;
+  paused = !paused;
   draw();
-  return paused;
 }
 
-async function gameOver() {
-  gameLoop.stop();
-
-  // Atualiza stats
-  stats.score = score;
-  stats.stopTimer();
-  await stats.save('end');
+function gameOver() {
+  running = false;
+  clearTimeout(gameLoop);
 
   // Mobile: feedback tátil no game over (padrão de derrota)
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
-  const isNewRecord = bestScoreManager.checkAndUpdate(score);
-  bestDisplay.textContent = bestScoreManager.get();
-
-  if (isNewRecord) {
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('snake_best', String(bestScore));
+    bestDisplay.textContent = bestScore;
     // Game Design: confetes ao bater recorde
     launchConfetti();
     playSound('win');
   } else {
     playSound('gameover');
   }
+
+  saveGameStat();
 
   overlayIcon.textContent  = '💀';
   overlayTitle.textContent = 'Game Over!';
@@ -221,7 +212,7 @@ async function gameOver() {
   if (btnShare) {
     btnShare.style.display = 'inline-block';
     btnShare.onclick = () => {
-      shareOnWhatsApp(`🐍 Joguei Cobrinha no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScoreManager.get()}\n\n🎮 Jogue você também: https://gameshub.com.br/games/snake/`);
+      shareOnWhatsApp(`🐍 Joguei Cobrinha no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScore}\n\n🎮 Jogue você também: https://gameshub.com.br/games/snake/`);
     };
   }
 
@@ -284,7 +275,6 @@ function draw() {
   }
 
   // Snake
-  const direction = directionalInput.getDirection();
   snake.forEach((seg, i) => {
     const isHead = i === 0;
     const radius = cs * 0.42;
@@ -340,7 +330,7 @@ function draw() {
   });
 
   // Pausa overlay
-  if (gameLoop.isPaused()) {
+  if (paused) {
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#fff';
@@ -358,64 +348,98 @@ function draw() {
 //  CONTROLS — Keyboard
 // =============================================
 document.addEventListener('keydown', e => {
-  if (!gameLoop.isRunning()) {
+  if (!running) {
     if (e.key === 'Enter' || e.key === ' ') { startGame(); e.preventDefault(); }
     return;
   }
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { e.preventDefault(); togglePause(); return; }
-  if (gameLoop.isPaused()) return;
-
-  directionalInput.handleKey(e.key);
+  if (paused) return;
+  switch (e.key) {
+    case 'ArrowUp':    case 'w': case 'W': if (direction.y !== 1)  nextDir = { x: 0, y:-1 }; break;
+    case 'ArrowDown':  case 's': case 'S': if (direction.y !== -1) nextDir = { x: 0, y: 1 }; break;
+    case 'ArrowLeft':  case 'a': case 'A': if (direction.x !== 1)  nextDir = { x:-1, y: 0 }; break;
+    case 'ArrowRight': case 'd': case 'D': if (direction.x !== -1) nextDir = { x: 1, y: 0 }; break;
+  }
   e.preventDefault();
 });
 
 // =============================================
 //  CONTROLS — Touch swipe (Mobile optimized)
 // =============================================
+let touchStart = null;
 const SWIPE_THRESHOLD = 30; // Mobile: aumentado de 15px para 30px
 
 canvas.addEventListener('touchstart', e => {
-  // Guarda posição inicial para swipe
-  canvas.dataset.touchStartX = e.touches[0].clientX;
-  canvas.dataset.touchStartY = e.touches[0].clientY;
+  touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 }, { passive: true });
 
 canvas.addEventListener('touchmove', e => {
   // Mobile: só previne scroll se o jogo estiver rodando
-  if (gameLoop.isRunning()) e.preventDefault();
+  if (running) e.preventDefault();
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
-  if (!gameLoop.isRunning()) return;
-
-  const startX = parseFloat(canvas.dataset.touchStartX);
-  const startY = parseFloat(canvas.dataset.touchStartY);
-  if (isNaN(startX) || isNaN(startY)) return;
-
-  const dx = e.changedTouches[0].clientX - startX;
-  const dy = e.changedTouches[0].clientY - startY;
-
+  if (!touchStart || !running) return;
+  const dx = e.changedTouches[0].clientX - touchStart.x;
+  const dy = e.changedTouches[0].clientY - touchStart.y;
+  touchStart = null;
   if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
 
   if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0) directionalInput.handleSwipe('right');
-    else directionalInput.handleSwipe('left');
+    if (dx > 0 && direction.x !== -1) nextDir = { x: 1, y: 0 };
+    else if (dx < 0 && direction.x !== 1) nextDir = { x: -1, y: 0 };
   } else {
-    if (dy > 0) directionalInput.handleSwipe('down');
-    else directionalInput.handleSwipe('up');
+    if (dy > 0 && direction.y !== -1) nextDir = { x: 0, y: 1 };
+    else if (dy < 0 && direction.y !== 1) nextDir = { x: 0, y: -1 };
   }
+
+  // Mobile: feedback tátil ao mudar direção
+  if (navigator.vibrate) navigator.vibrate(8);
 }, { passive: true });
 
 // =============================================
 //  CONTROLS — Mobile buttons (with haptic feedback)
 // =============================================
-new MobileButtonHandler('.ctrl-btn', {
-  hapticDuration: 10,
-  onPress: (dir) => {
-    if (!gameLoop.isRunning()) return;
-    directionalInput.handleSwipe(dir);
-  }
+document.querySelectorAll('.ctrl-btn').forEach(btn => {
+  const handler = () => {
+    if (!running) return;
+    const dir = btn.dataset.dir;
+    switch (dir) {
+      case 'up':    if (direction.y !== 1)  nextDir = { x: 0, y:-1 }; break;
+      case 'down':  if (direction.y !== -1) nextDir = { x: 0, y: 1 }; break;
+      case 'left':  if (direction.x !== 1)  nextDir = { x:-1, y: 0 }; break;
+      case 'right': if (direction.x !== -1) nextDir = { x: 1, y: 0 }; break;
+    }
+    // Mobile: feedback tátil nos botões
+    if (navigator.vibrate) navigator.vibrate(10);
+  };
+  btn.addEventListener('click', handler);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive: false });
 });
+
+// =============================================
+//  START BUTTON (registrado na função init)
+// =============================================
+
+// =============================================
+//  STATS — Supabase
+// =============================================
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'snake',
+      result: 'end',
+      moves: 0,
+      time_seconds: 0,
+      score: score,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
+}
 
 // =============================================
 //  INIT

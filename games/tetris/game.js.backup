@@ -1,9 +1,6 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { GameStats } from '../shared/game-core.js';
-import { GameLoop } from '../shared/game-loop.js';
-import { InputManager, MobileButtonHandler } from '../shared/input-manager.js';
-// ===== Tetris (Refatorado com módulos compartilhados) =====
+// ===== Tetris =====
 import { supabase } from '../../supabase.js';
 
 const canvas = document.getElementById('game-canvas');
@@ -36,45 +33,7 @@ const SHAPES = [
   [[1,1,0],[0,1,1]],             // Z
 ];
 
-// ---- Stats ----
-const stats = new GameStats('tetris');
-
-// ---- State ----
-let board, current, next, score, level, lines, dropInterval, dropTimer, gameOver, paused;
-
-// ---- Game Loop ----
-const gameLoop = new GameLoop({
-  onUpdate: (dt) => {
-    if (gameOver || paused) return;
-    dropTimer += dt;
-    if (dropTimer >= dropInterval) {
-      dropTimer = 0;
-      moveDown();
-    }
-  },
-  onRender: () => {
-    draw();
-  }
-});
-
-// ---- Input Manager ----
-const inputManager = new InputManager({
-  keyboardTarget: document,
-  onKeyDown: (e) => {
-    if (gameOver) return;
-    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-      if (!gameOver) { togglePause(); e.preventDefault(); return; }
-    }
-    if (paused) return;
-    switch (e.key) {
-      case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); moveLeft(); break;
-      case 'ArrowRight': case 'd': case 'D': e.preventDefault(); moveRight(); break;
-      case 'ArrowDown': case 's': case 'S': e.preventDefault(); moveDown(); break;
-      case 'ArrowUp': case 'w': case 'W': e.preventDefault(); rotate(); break;
-      case ' ': e.preventDefault(); hardDrop(); break;
-    }
-  }
-});
+let board, current, next, score, level, lines, dropInterval, dropTimer, gameOver, paused, animId;
 
 function createPiece(shapeIdx) {
   const shape = SHAPES[shapeIdx];
@@ -102,12 +61,24 @@ function init() {
   current = randomPiece();
   next = randomPiece();
   updateUI();
-
-  // Reseta e inicia stats
-  stats.reset();
-  stats.startTimer();
-
-  gameLoop.start();
+  if (animId) cancelAnimationFrame(animId);
+  let lastTime = 0;
+  function loop(time) {
+    const dt = time - lastTime;
+    lastTime = time;
+    if (!gameOver) {
+      if (!paused) {
+        dropTimer += dt;
+        if (dropTimer >= dropInterval) {
+          dropTimer = 0;
+          moveDown();
+        }
+      }
+      draw();
+      animId = requestAnimationFrame(loop);
+    }
+  }
+  animId = requestAnimationFrame(loop);
 }
 
 function draw() {
@@ -285,26 +256,15 @@ function hardDrop() {
   lock();
 }
 
-async function endGame() {
+function endGame() {
   gameOver = true;
-  gameLoop.stop();
   draw();
   modalMessage.textContent = `Pontuacao: ${score}`;
   modalOverlay.classList.add('show');
-
-  // Salva stats
-  stats.score = score;
-  stats.stopTimer();
-  await stats.save('end');
-
+  saveGameStat();
   // Mobile: feedback tátil no game over
   if (navigator.vibrate) navigator.vibrate([60, 30, 100]);
   playSound('gameover');
-}
-
-function togglePause() {
-  paused = !paused;
-  return paused;
 }
 
 function updateUI() {
@@ -313,21 +273,54 @@ function updateUI() {
   linesDisplay.textContent = lines;
 }
 
-// Mobile controls (with haptic feedback)
-new MobileButtonHandler('#btn-left, #btn-right, #btn-down, #btn-rotate', {
-  hapticDuration: 12,
-  onPress: (action) => {
-    if (gameOver || paused) return;
-    switch (action) {
-      case 'left': moveLeft(); break;
-      case 'right': moveRight(); break;
-      case 'down': hardDrop(); break;
-      case 'rotate': rotate(); break;
-    }
+// Keyboard
+document.addEventListener('keydown', (e) => {
+  if (gameOver) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (!gameOver) { paused = !paused; e.preventDefault(); return; }
+  }
+  if (paused) return;
+  switch (e.key) {
+    case 'ArrowLeft': case 'a': case 'A': e.preventDefault(); moveLeft(); break;
+    case 'ArrowRight': case 'd': case 'D': e.preventDefault(); moveRight(); break;
+    case 'ArrowDown': case 's': case 'S': e.preventDefault(); moveDown(); break;
+    case 'ArrowUp': case 'w': case 'W': e.preventDefault(); rotate(); break;
+    case ' ': e.preventDefault(); hardDrop(); break;
   }
 });
 
+// Mobile controls (with haptic feedback)
+function setupMobileButton(btnId, action) {
+  const btn = document.getElementById(btnId);
+  const handler = () => {
+    if (!gameOver && !paused) {
+      action();
+      // Mobile: feedback tátil nos botões
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+  };
+  btn.addEventListener('click', handler);
+  btn.addEventListener('touchstart', e => { e.preventDefault(); handler(); }, { passive: false });
+}
+
+setupMobileButton('btn-left', moveLeft);
+setupMobileButton('btn-right', moveRight);
+setupMobileButton('btn-down', hardDrop);
+setupMobileButton('btn-rotate', rotate);
+
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
+
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id, game: 'tetris',
+      result: 'end', moves: 0, time_seconds: 0,
+      score: score,
+    });
+  } catch (e) { console.warn('Erro ao salvar stats:', e); }
+}
 
 init();

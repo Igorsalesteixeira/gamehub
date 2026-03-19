@@ -1,7 +1,6 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
-import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
 
 // ========== CONSTANTS ==========
 const EMPTY = 0;
@@ -22,9 +21,10 @@ function pieceColor(p) { return p === 0 ? null : isWhite(p) ? 'w' : 'b'; }
 function enemyColor(c) { return c === 'w' ? 'b' : 'w'; }
 
 // ========== MULTIPLAYER STATE ==========
-let mp = null;
-const gameStats = new GameStats('chess');
+let isMultiplayer = false;
+let roomId = null;
 let playerColor = null; // 'w' or 'b', null until assigned
+let channel = null;
 let isHost = false;
 let opponentConnected = false;
 let playerName = '';
@@ -61,80 +61,25 @@ const multiplayerStatus = document.getElementById('multiplayer-status');
 const btnCopyLink = document.getElementById('btn-copy-link');
 const btnLeaveRoom = document.getElementById('btn-leave-room');
 
-// ========== MULTIPLAYER SETUP ==========
-async function initMultiplayer() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const roomId = urlParams.get('room');
-
-  if (!roomId) {
-    // Single player mode - show create room option
-    showSinglePlayerUI();
-    return;
-  }
-
-  // Initialize MultiplayerManager
-  mp = new MultiplayerManager('chess', roomId, {
-    tableName: 'chess_rooms',
-    useGameSpecificChannel: true
-  });
-
-  mp.onConnectionChange = (connected) => {
-    console.log('Multiplayer connection:', connected ? 'connected' : 'disconnected');
+// ========== MULTIPLAYER UTILS ==========
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    room: params.get('room')
   };
+}
 
-  mp.onError = (error) => {
-    showError(error.message);
-  };
+function generateRoomId() {
+  return crypto.randomUUID();
+}
 
-  const success = await mp.init();
-  if (!success) return;
+function getPlayerName() {
+  // Try to get from localStorage or generate anonymous
+  return localStorage.getItem('chess_player_name') || 'Jogador';
+}
 
-  // Setup player color
-  playerColor = mp.myPlayerNumber === 1 ? 'w' : 'b';
-  isHost = mp.isHost;
-  playerName = mp.myName;
-  opponentName = mp.opponentName;
-
-  // Setup event listeners
-  mp.on('move', handleOpponentMove);
-  mp.on('player_joined', ({ name }) => {
-    opponentConnected = true;
-    opponentName = name || 'Oponente';
-    updateMultiplayerStatus();
-
-    // Host sends current state to new player
-    if (isHost) {
-      mp.send('game_state', {
-        state: serializeGameState(),
-        playerColor: 'b'
-      });
-    }
-  });
-  mp.on('game_state', ({ state, playerColor: pc }) => {
-    if (!isHost) {
-      deserializeGameState(state);
-      playerColor = pc;
-      renderBoard();
-      setTurnIndicator();
-    }
-  });
-  mp.on('resign', () => {
-    endGame(playerColor === 'w' ? 'win' : 'loss', 'Oponente desistiu!');
-  });
-  mp.on('draw_offer', () => {
-    showDrawOffer();
-  });
-  mp.on('draw_accept', () => {
-    endGame('draw', 'Empate por acordo!');
-  });
-  mp.on('game_reset', ({ state }) => {
-    if (state) deserializeGameState(state);
-    init();
-  });
-
-  // Update UI
-  showMultiplayerUI();
-  updateMultiplayerStatus();
+function savePlayerName(name) {
+  localStorage.setItem('chess_player_name', name);
 }
 
 // Serialize board to compact string
@@ -181,18 +126,211 @@ function deserializeGameState(state) {
   lastMove = state.lastMove;
 }
 
+// ========== MULTIPLAYER SETUP ==========
+async function initMultiplayer() {
+  const params = getUrlParams();
+
+  if (!params.room) {
+    // Single player mode - show create room option
+    showSinglePlayerUI();
+    return;
+  }
+
+  // Multiplayer mode
+  isMultiplayer = true;
+  roomId = params.room;
+  playerName = getPlayerName();
+
+  // Try to join existing room or create new
+  await joinOrCreateRoom();
+}
+
+async function joinOrCreateRoom() {
+  try {
+    // Check if room exists
+    const { data: existingRoom, error: fetchError } = await supabase
+      .from('chess_rooms')
+      .select('*')
+      .eq('room_id', roomId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error fetching room:', fetchError);
+      showError('Erro ao conectar à sala');
+      return;
+    }
+
+    if (existingRoom) {
+      // Join existing room
+      if (existingRoom.player2_id) {
+        showError('Sala cheia. Crie uma nova sala.');
+        return;
+      }
+
+      // Assign black to second player
+      playerColor = 'b';
+      isHost = false;
+      opponentName = existingRoom.player1_name || 'Oponente';
+
+      // Update room with player 2
+      const { data: { session } } = await supabase.auth.getSession();
+      await supabase
+        .from('chess_rooms')
+        .update({
+          player2_id: session?.user?.id || null,
+          player2_name: playerName,
+          status: 'playing'
+        })
+        .eq('room_id', roomId);
+
+    } else {
+      // Create new room as host
+      playerColor = 'w';
+      isHost = true;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      await supabase
+        .from('chess_rooms')
+        .insert({
+          room_id: roomId,
+          player1_id: session?.user?.id || null,
+          player1_name: playerName,
+          status: 'waiting',
+          game_state: serializeGameState()
+        });
+    }
+
+    // Setup realtime channel
+    setupRealtimeChannel();
+
+    // Update UI
+    showMultiplayerUI();
+    updateMultiplayerStatus();
+
+  } catch (e) {
+    console.error('Multiplayer init error:', e);
+    showError('Erro ao inicializar multiplayer');
+  }
+}
+
+function setupRealtimeChannel() {
+  channel = supabase.channel(`chess:${roomId}`, {
+    config: {
+      broadcast: { self: false }
+    }
+  });
+
+  // Listen for broadcast messages
+  channel
+    .on('broadcast', { event: 'move' }, ({ payload }) => {
+      handleOpponentMove(payload);
+    })
+    .on('broadcast', { event: 'player_joined' }, ({ payload }) => {
+      opponentConnected = true;
+      opponentName = payload.name || 'Oponente';
+      updateMultiplayerStatus();
+
+      // Host sends current state to new player
+      if (isHost) {
+        channel.send({
+          type: 'broadcast',
+          event: 'game_state',
+          payload: {
+            state: serializeGameState(),
+            playerColor: 'b'
+          }
+        });
+      }
+    })
+    .on('broadcast', { event: 'game_state' }, ({ payload }) => {
+      if (!isHost) {
+        deserializeGameState(payload.state);
+        playerColor = payload.playerColor;
+        renderBoard();
+        setTurnIndicator();
+      }
+    })
+    .on('broadcast', { event: 'resign' }, () => {
+      endGame(playerColor === 'w' ? 'win' : 'loss', 'Oponente desistiu!');
+    })
+    .on('broadcast', { event: 'draw_offer' }, () => {
+      showDrawOffer();
+    })
+    .on('broadcast', { event: 'draw_accept' }, () => {
+      endGame('draw', 'Empate por acordo!');
+    })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        // Notify others that we joined
+        channel.send({
+          type: 'broadcast',
+          event: 'player_joined',
+          payload: { name: playerName }
+        });
+
+        // Also update database
+        await updatePlayerConnection(true);
+      }
+    });
+
+  // Listen for database changes
+  supabase
+    .channel(`chess_room_db:${roomId}`)
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'chess_rooms',
+      filter: `room_id=eq.${roomId}`
+    }, (payload) => {
+      if (payload.new.status === 'playing' && !opponentConnected) {
+        opponentConnected = true;
+        if (isHost) {
+          opponentName = payload.new.player2_name || 'Oponente';
+        }
+        updateMultiplayerStatus();
+      }
+    })
+    .subscribe();
+}
+
+async function updatePlayerConnection(connected) {
+  try {
+    const field = isHost ? 'player1_connected' : 'player2_connected';
+    await supabase
+      .from('chess_rooms')
+      .update({ [field]: connected })
+      .eq('room_id', roomId);
+  } catch (e) {
+    console.warn('Error updating connection status:', e);
+  }
+}
+
 async function broadcastMove(move, promoPiece = null) {
-  if (!mp) return;
+  if (!channel) return;
 
   const moveData = serializeMove(move, promoPiece);
 
-  await mp.send('move', {
-    move: moveData,
-    gameState: serializeGameState()
+  channel.send({
+    type: 'broadcast',
+    event: 'move',
+    payload: {
+      move: moveData,
+      gameState: serializeGameState()
+    }
   });
 
   // Also persist to database
-  await mp.updateState(serializeGameState(), { last_move_at: new Date().toISOString() });
+  try {
+    await supabase
+      .from('chess_rooms')
+      .update({
+        game_state: serializeGameState(),
+        last_move_at: new Date().toISOString()
+      })
+      .eq('room_id', roomId);
+  } catch (e) {
+    console.warn('Error saving game state:', e);
+  }
 }
 
 function handleOpponentMove({ move, gameState }) {
@@ -261,7 +399,7 @@ function showSinglePlayerUI() {
 function showMultiplayerUI() {
   if (!multiplayerStatus) return;
 
-  const roomUrl = `${window.location.origin}${window.location.pathname}?room=${mp.roomId}`;
+  const roomUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
   const colorText = playerColor === 'w' ? 'Brancas' : 'Pretas';
   const colorClass = playerColor === 'w' ? 'white' : 'black';
 
@@ -301,7 +439,6 @@ function updateMultiplayerStatus() {
 }
 
 async function createNewRoom() {
-  const { generateRoomId } = await import('../shared/multiplayer-manager.js');
   const newRoomId = generateRoomId();
   const newUrl = `${window.location.pathname}?room=${newRoomId}`;
   window.history.pushState({}, '', newUrl);
@@ -318,15 +455,24 @@ function copyRoomLink() {
 }
 
 function offerDraw() {
-  if (!mp || !opponentConnected) return;
+  if (!channel || !opponentConnected) return;
 
-  mp.send('draw_offer', {});
+  channel.send({
+    type: 'broadcast',
+    event: 'draw_offer',
+    payload: {}
+  });
+
   showToast('Proposta de empate enviada');
 }
 
 function showDrawOffer() {
   if (confirm('Oponente propôs empate. Aceitar?')) {
-    mp.send('draw_accept', {});
+    channel.send({
+      type: 'broadcast',
+      event: 'draw_accept',
+      payload: {}
+    });
     endGame('draw', 'Empate por acordo!');
   }
 }
@@ -334,16 +480,26 @@ function showDrawOffer() {
 function resignGame() {
   if (!confirm('Tem certeza que deseja desistir?')) return;
 
-  if (mp) {
-    mp.send('resign', {});
+  if (channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'resign',
+      payload: {}
+    });
   }
 
   endGame(playerColor === 'w' ? 'loss' : 'win', 'Você desistiu');
 }
 
-async function leaveRoom() {
-  if (mp) {
-    await mp.leave();
+function leaveRoom() {
+  if (channel) {
+    channel.unsubscribe();
+    channel = null;
+  }
+
+  // Clean up room if host leaves
+  if (isHost && roomId) {
+    supabase.from('chess_rooms').delete().eq('room_id', roomId);
   }
 
   // Redirect to single player
@@ -356,6 +512,7 @@ function showError(msg) {
 }
 
 function showToast(msg) {
+  // Simple toast implementation
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = msg;
@@ -613,7 +770,7 @@ function setTurnIndicator() {
     return;
   }
 
-  if (mp?.isMultiplayer) {
+  if (isMultiplayer) {
     // Multiplayer mode
     const isMyTurn = turn === playerColor;
     const myColorText = playerColor === 'w' ? 'Brancas' : 'Pretas';
@@ -647,7 +804,7 @@ async function onCellClick(i) {
   if (gameOver || isProcessing) return;
 
   // In multiplayer, only allow moves on your turn with your color
-  if (mp?.isMultiplayer) {
+  if (isMultiplayer) {
     if (turn !== playerColor) return; // Not your turn
     const piece = board[i];
     if (selected === null && piece !== EMPTY) {
@@ -669,7 +826,7 @@ async function onCellClick(i) {
   }
 
   // Select own piece
-  const myColor = mp?.isMultiplayer ? playerColor : 'w';
+  const myColor = isMultiplayer ? playerColor : 'w';
   if ((myColor === 'w' && isWhite(board[i])) || (myColor === 'b' && isBlack(board[i]))) {
     selected = i;
     validMoves = getLegalMoves(board, myColor, castleRights, enPassantTarget).filter(m => m.from === i);
@@ -687,7 +844,7 @@ async function executePlayerMove(move) {
   initAudio();
 
   // Handle promotion
-  const myColor = mp?.isMultiplayer ? playerColor : 'w';
+  const myColor = isMultiplayer ? playerColor : 'w';
   let promoPiece = null;
   if (move.promo) {
     promoPiece = await showPromoModal(myColor);
@@ -697,7 +854,7 @@ async function executePlayerMove(move) {
   moveCount++;
 
   // Broadcast move in multiplayer
-  if (mp?.isMultiplayer) {
+  if (isMultiplayer) {
     await broadcastMove(move, promoPiece);
   }
 
@@ -717,7 +874,7 @@ async function executePlayerMove(move) {
   renderBoard();
 
   // CPU turn only in single player
-  if (!mp?.isMultiplayer) {
+  if (!isMultiplayer) {
     setTimeout(() => cpuTurn(), 800);
   } else {
     isProcessing = false;
@@ -932,13 +1089,13 @@ function endGame(result, customMessage = null) {
       playSound('win');
     }
   } else if (result === 'win') {
-    turnIndicator.textContent = mp?.isMultiplayer ? 'Vitória!' : 'Xeque-mate! Você venceu!';
-    showResult('\uD83C\uDF89', 'Vitória!', mp?.isMultiplayer ? 'Você venceu!' : 'Parabéns, xeque-mate!');
+    turnIndicator.textContent = isMultiplayer ? 'Vitória!' : 'Xeque-mate! Você venceu!';
+    showResult('\uD83C\uDF89', 'Vitória!', isMultiplayer ? 'Você venceu!' : 'Parabéns, xeque-mate!');
     launchConfetti();
     playSound('win');
   } else if (result === 'loss') {
-    turnIndicator.textContent = mp?.isMultiplayer ? 'Derrota!' : 'Xeque-mate! Você perdeu.';
-    showResult('\uD83D\uDE1E', 'Derrota!', mp?.isMultiplayer ? 'Você perdeu!' : 'O computador deu xeque-mate.');
+    turnIndicator.textContent = isMultiplayer ? 'Derrota!' : 'Xeque-mate! Você perdeu.';
+    showResult('\uD83D\uDE1E', 'Derrota!', isMultiplayer ? 'Você perdeu!' : 'O computador deu xeque-mate.');
   } else {
     turnIndicator.textContent = 'Empate!';
     showResult('\uD83E\uDD1D', 'Empate!', 'O jogo terminou empatado.');
@@ -990,11 +1147,17 @@ function init() {
 btnNewGame.addEventListener('click', () => {
   initAudio();
   playSound('click');
-  if (mp?.isMultiplayer) {
+  if (isMultiplayer) {
     // In multiplayer, new game resets the room
     if (confirm('Iniciar novo jogo? Isso reiniciará a partida atual.')) {
       init();
-      mp.send('game_reset', { state: serializeGameState() });
+      if (channel) {
+        channel.send({
+          type: 'broadcast',
+          event: 'game_reset',
+          payload: { state: serializeGameState() }
+        });
+      }
     }
   } else {
     init();
@@ -1016,20 +1179,23 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// ========== STATS ==========
+// ========== SUPABASE ==========
 async function saveGameStat(result) {
-  if (mp?.isMultiplayer) return; // Don't save stats for multiplayer games
+  if (isMultiplayer) return; // Don't save stats for multiplayer games
 
-  await gameStats.save({
-    result,
-    moves: moveCount,
-    timeSeconds: seconds
-  });
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'chess',
+      result,
+      moves: moveCount,
+      time_seconds: seconds,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
-
-// ========== CLEANUP ==========
-window.addEventListener('beforeunload', () => {
-  if (mp) mp.cleanup();
-});
 
 init();

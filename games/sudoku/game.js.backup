@@ -1,8 +1,6 @@
-import '../../auth-check.js';
+﻿import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
-import { GameStats } from '../shared/game-core.js';
-import { GameTimer } from '../shared/timer.js';
-// ===== Sudoku (Refatorado com módulos compartilhados) =====
+// ===== Sudoku =====
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -17,20 +15,12 @@ const modalMessage = document.getElementById('modal-message');
 
 const REMOVE_COUNT = { easy: 35, medium: 45, hard: 55 };
 
-// ---- Stats ----
-const stats = new GameStats('sudoku');
-
-// ---- Timer ----
-const gameTimer = new GameTimer({
-  onTick: (seconds) => {
-    timerDisplay.textContent = formatTime(seconds);
-  }
-});
-
 let solution = [];
 let puzzle = [];
 let userGrid = [];
 let selectedCell = null;
+let timerSeconds = 0;
+let timerInterval = null;
 let gameOver = false;
 
 // ===== Generator =====
@@ -104,11 +94,17 @@ function createPuzzle(sol, removeCount) {
 
 // ===== Timer =====
 function startTimer() {
-  gameTimer.start();
+  if (timerInterval) return;
+  timerSeconds = 0;
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    timerDisplay.textContent = formatTime(timerSeconds);
+  }, 1000);
 }
 
 function stopTimer() {
-  gameTimer.stop();
+  clearInterval(timerInterval);
+  timerInterval = null;
 }
 
 function formatTime(s) {
@@ -120,13 +116,10 @@ function formatTime(s) {
 function init() {
   stopTimer();
   gameOver = false;
-  gameTimer.reset();
+  timerSeconds = 0;
   timerDisplay.textContent = '0:00';
   selectedCell = null;
   modalOverlay.classList.remove('show');
-
-  // Reseta stats
-  stats.reset();
 
   solution = generateSolution();
   const removeCount = REMOVE_COUNT[diffSelect.value];
@@ -178,14 +171,12 @@ function selectCell(r, c) {
   if (gameOver) return;
   if (puzzle[r][c] !== 0) return; // can't select given cells
   selectedCell = [r, c];
-  if (!gameTimer.isRunning()) {
-    startTimer();
-  }
+  if (!timerInterval) startTimer();
   initAudio();
   render();
 }
 
-async function placeNumber(num) {
+function placeNumber(num) {
   if (!selectedCell || gameOver) return;
   const [r, c] = selectedCell;
   if (puzzle[r][c] !== 0) return;
@@ -198,16 +189,12 @@ async function placeNumber(num) {
   if (checkComplete()) {
     gameOver = true;
     stopTimer();
-    const timeSeconds = gameTimer.getTime();
     launchConfetti();
     playSound('win');
     setTimeout(() => {
-      modalMessage.textContent = `Tempo: ${formatTime(timeSeconds)}`;
+      modalMessage.textContent = `Tempo: ${formatTime(timerSeconds)}`;
       modalOverlay.classList.add('show');
-
-      // Salva stats
-      stats.recordGame(true, { time: timeSeconds });
-      stats.syncToCloud();
+      saveGameStat('win');
     }, 300);
   }
 }
@@ -243,5 +230,21 @@ diffSelect.addEventListener('change', init);
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🎉 Completei o Sudoku no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/sudoku/`);
 });
+
+async function saveGameStat(result) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'sudoku',
+      result: result,
+      moves: 0,
+      time_seconds: timerSeconds,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
+}
 
 init();

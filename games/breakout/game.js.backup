@@ -1,10 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '../shared/game-design-utils.js';
-import { GameStats, BestScoreManager } from '../shared/game-core.js';
-import { GameLoop } from '../shared/game-loop.js';
-import { InputManager, MobileButtonHandler } from '../shared/input-manager.js';
 // =============================================
-//  BREAKOUT — game.js (Refatorado com módulos compartilhados)
+//  BREAKOUT — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
 
@@ -30,10 +27,6 @@ const PADDLE_HEIGHT = 14;
 const BALL_RADIUS   = 6;
 const BRICK_COLORS  = ['#e94560','#ff6b6b','#ffa502','#ffd32a','#0be881','#18dcff'];
 
-// ---- Stats e Best Score ----
-const stats = new GameStats('breakout');
-const bestScoreManager = new BestScoreManager('breakout');
-
 // ---- State ----
 let W, H;
 let paddleW, paddleX, paddleSpeed;
@@ -43,40 +36,17 @@ let score = 0;
 let lives = 3;
 let level = 1;
 let running = false;
-let wideTimer = 0;
+let animFrame = null;
+let bestScore = parseInt(localStorage.getItem('breakout_best') || '0');
+let keysDown = {};
+let startTime = 0;
 
 // ---- Power-ups ----
 let powerUps = [];
 const POWERUP_TYPES = ['wide', 'multi', 'life'];
 const POWERUP_COLORS = { wide: '#0be881', multi: '#18dcff', life: '#ff6b6b' };
 let extraBalls = [];
-
-// ---- Game Loop ----
-const gameLoop = new GameLoop({
-  onUpdate: () => {
-    if (!running) return;
-    update();
-  },
-  onRender: () => {
-    draw();
-  }
-});
-
-// ---- Input Manager ----
-const inputManager = new InputManager({
-  keyboardTarget: document,
-  mouseTarget: canvas,
-  onKeyDown: (e) => {
-    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
-  },
-  onMouseMove: (e) => {
-    if (!running) return;
-    const rect = canvas.getBoundingClientRect();
-    const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
-    paddleX = (e.clientX - rect.left) * (W / rect.width) - pw / 2;
-    paddleX = Math.max(0, Math.min(W - pw, paddleX));
-  }
-});
+let wideTimer = 0;
 
 // =============================================
 //  CANVAS SIZING
@@ -167,8 +137,8 @@ function update() {
   if (!running) return;
 
   // Paddle movement via keyboard
-  if (inputManager.isKeyDown('ArrowLeft') || inputManager.isKeyDown('a')) paddleX -= paddleSpeed;
-  if (inputManager.isKeyDown('ArrowRight') || inputManager.isKeyDown('d')) paddleX += paddleSpeed;
+  if (keysDown['ArrowLeft'] || keysDown['a']) paddleX -= paddleSpeed;
+  if (keysDown['ArrowRight'] || keysDown['d']) paddleX += paddleSpeed;
   const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
   paddleX = Math.max(0, Math.min(W - pw, paddleX));
 
@@ -255,6 +225,9 @@ function update() {
 
   // Update extra balls
   extraBalls = allBalls.slice(1).filter(b => !b.lost);
+  for (let b of extraBalls) {
+    // already updated in the loop above
+  }
 
   // Power-ups fall
   for (let p of powerUps) {
@@ -271,6 +244,9 @@ function update() {
   if (bricks.every(b => !b.alive)) {
     nextLevel();
   }
+
+  draw();
+  animFrame = requestAnimationFrame(update);
 }
 
 function applyPowerUp(type) {
@@ -359,6 +335,21 @@ function draw() {
 // =============================================
 //  CONTROLS
 // =============================================
+document.addEventListener('keydown', e => {
+  keysDown[e.key] = true;
+  if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+});
+document.addEventListener('keyup', e => { keysDown[e.key] = false; });
+
+// Mouse
+canvas.addEventListener('mousemove', e => {
+  if (!running) return;
+  const rect = canvas.getBoundingClientRect();
+  const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
+  paddleX = (e.clientX - rect.left) * (W / rect.width) - pw / 2;
+  paddleX = Math.max(0, Math.min(W - pw, paddleX));
+});
+
 // Touch on canvas
 canvas.addEventListener('touchmove', e => {
   if (!running) return;
@@ -370,15 +361,20 @@ canvas.addEventListener('touchmove', e => {
 }, { passive: false });
 
 // Mobile buttons
-new MobileButtonHandler('.ctrl-btn', {
-  hapticDuration: 10,
-  repeatInterval: 30,
-  onPress: (dir) => {
+document.querySelectorAll('.ctrl-btn').forEach(btn => {
+  let interval;
+  const dir = btn.dataset.dir;
+  const move = () => {
     const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
     if (dir === 'left') paddleX -= paddleSpeed * 2;
     if (dir === 'right') paddleX += paddleSpeed * 2;
     paddleX = Math.max(0, Math.min(W - pw, paddleX));
-  }
+  };
+  btn.addEventListener('touchstart', e => { e.preventDefault(); move(); interval = setInterval(move, 30); });
+  btn.addEventListener('touchend', () => clearInterval(interval));
+  btn.addEventListener('mousedown', () => { move(); interval = setInterval(move, 30); });
+  btn.addEventListener('mouseup', () => clearInterval(interval));
+  btn.addEventListener('mouseleave', () => clearInterval(interval));
 });
 
 // =============================================
@@ -389,25 +385,20 @@ function startGame() {
   initGame();
   overlay.classList.add('hidden');
   running = true;
-
-  // Reseta e inicia stats
-  stats.reset();
-  stats.startTimer();
-
-  gameLoop.start();
+  startTime = Date.now();
+  animFrame = requestAnimationFrame(update);
 }
 
-async function gameOver() {
+function gameOver() {
   running = false;
-  gameLoop.stop();
+  cancelAnimationFrame(animFrame);
 
-  // Atualiza best score
-  bestScoreManager.checkAndUpdate(score);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('breakout_best', String(bestScore));
+  }
 
-  // Salva stats
-  stats.score = score;
-  stats.stopTimer();
-  await stats.save('end');
+  saveGameStat();
 
   overlayIcon.textContent  = '💥';
   overlayTitle.textContent = 'Game Over!';
@@ -419,6 +410,24 @@ async function gameOver() {
 }
 
 btnStart.addEventListener('click', startGame);
+
+async function saveGameStat() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    await supabase.from('game_stats').insert({
+      user_id: session.user.id,
+      game: 'breakout',
+      result: 'end',
+      moves: score,
+      time_seconds: elapsed,
+      score: score,
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
+}
 
 // =============================================
 //  INIT
