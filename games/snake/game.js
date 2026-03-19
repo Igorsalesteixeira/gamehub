@@ -6,7 +6,7 @@ import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
 import { GameStats, GameStorage } from '../shared/game-core.js';
 import { TimedGameLoop } from '../shared/game-loop.js';
-import { DirectionalInput, MobileButtonHandler } from '../shared/input-manager.js';
+import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20;
@@ -53,7 +53,7 @@ let isDying = false;
 let deathAnimationFrame = 0;
 
 // ---- Directional Input ----
-const directionalInput = new DirectionalInput({
+const directionalInput = createDirectionalInput({
   onDirectionChange: (dir) => {
     if (navigator.vibrate) navigator.vibrate(8);
   }
@@ -524,6 +524,13 @@ function draw() {
 // =============================================
 //  CONTROLS
 // =============================================
+const keyDirectionMap = {
+  'ArrowUp': { x: 0, y: -1 }, 'w': { x: 0, y: -1 }, 'W': { x: 0, y: -1 },
+  'ArrowDown': { x: 0, y: 1 }, 's': { x: 0, y: 1 }, 'S': { x: 0, y: 1 },
+  'ArrowLeft': { x: -1, y: 0 }, 'a': { x: -1, y: 0 }, 'A': { x: -1, y: 0 },
+  'ArrowRight': { x: 1, y: 0 }, 'd': { x: 1, y: 0 }, 'D': { x: 1, y: 0 }
+};
+
 document.addEventListener('keydown', e => {
   if (!gameLoop.isRunning()) {
     if (e.key === 'Enter' || e.key === ' ') { startGame(); e.preventDefault(); }
@@ -531,8 +538,16 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { e.preventDefault(); togglePause(); return; }
   if (gameLoop.isPaused()) return;
-  directionalInput.handleKey(e.key);
-  e.preventDefault();
+
+  const newDir = keyDirectionMap[e.key];
+  if (newDir) {
+    const currentDir = directionalInput.getDirection();
+    // Previne movimento na direção oposta
+    if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+    if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+    directionalInput.setDirection(newDir);
+    e.preventDefault();
+  }
 });
 
 // Touch swipe
@@ -554,22 +569,51 @@ canvas.addEventListener('touchend', e => {
   const dx = e.changedTouches[0].clientX - startX;
   const dy = e.changedTouches[0].clientY - startY;
   if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
+
+  const swipeMap = {
+    'up': { x: 0, y: -1 },
+    'down': { x: 0, y: 1 },
+    'left': { x: -1, y: 0 },
+    'right': { x: 1, y: 0 }
+  };
+
+  let dir;
   if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 0) directionalInput.handleSwipe('right');
-    else directionalInput.handleSwipe('left');
+    dir = dx > 0 ? 'right' : 'left';
   } else {
-    if (dy > 0) directionalInput.handleSwipe('down');
-    else directionalInput.handleSwipe('up');
+    dir = dy > 0 ? 'down' : 'up';
   }
+
+  const newDir = swipeMap[dir];
+  const currentDir = directionalInput.getDirection();
+  // Previne movimento na direção oposta
+  if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+  if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+  directionalInput.setDirection(newDir);
 }, { passive: true });
 
-// Mobile buttons
-new MobileButtonHandler('.ctrl-btn', {
-  hapticDuration: 10,
-  onPress: (dir) => {
+// Mobile buttons - mapeamento de direções
+const directionMap = {
+  'up': { x: 0, y: -1 },
+  'down': { x: 0, y: 1 },
+  'left': { x: -1, y: 0 },
+  'right': { x: 1, y: 0 }
+};
+
+document.querySelectorAll('.ctrl-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
     if (!gameLoop.isRunning()) return;
-    directionalInput.handleSwipe(dir);
-  }
+    const dir = btn.dataset.dir;
+    const newDir = directionMap[dir];
+    if (newDir) {
+      const currentDir = directionalInput.getDirection();
+      // Previne movimento na direção oposta
+      if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+      if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+      directionalInput.setDirection(newDir);
+    }
+  });
 });
 
 // =============================================
