@@ -455,6 +455,12 @@ body::before {
   transform: translateY(-2px);
 }
 
+/* Button children - allow click to pass through */
+.btn-text,
+.btn-shine {
+  pointer-events: none;
+}
+
 /* ===== MOBILE CONTROLS - NEON STYLE ===== */
 .mobile-controls {
   display: none;
