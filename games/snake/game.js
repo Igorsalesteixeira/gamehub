@@ -4,7 +4,7 @@ import '../../auth-check.js';
 // =============================================
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
-import { GameStats, BestScoreManager } from '../shared/game-core.js';
+import { GameStats, GameStorage } from '../shared/game-core.js';
 import { TimedGameLoop } from '../shared/game-loop.js';
 import { DirectionalInput, MobileButtonHandler } from '../shared/input-manager.js';
 
@@ -18,7 +18,24 @@ let canvas, ctx, overlay, overlayIcon, overlayTitle, overlayMsg, overlayScore, b
 
 // ---- Stats e Best Score ----
 const stats = new GameStats('snake');
-const bestScoreManager = new BestScoreManager('snake');
+const storage = new GameStorage('snake');
+
+function getBestScore() {
+  return storage.get('bestScore', 0);
+}
+
+function setBestScore(score) {
+  storage.set('bestScore', score);
+}
+
+function checkAndUpdateBestScore(currentScore) {
+  const best = getBestScore();
+  if (currentScore > best) {
+    setBestScore(currentScore);
+    return true;
+  }
+  return false;
+}
 
 // ---- State ----
 let snake     = [];
@@ -304,8 +321,8 @@ async function gameOver() {
 
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
-  const isNewRecord = bestScoreManager.checkAndUpdate(score);
-  bestDisplay.textContent = bestScoreManager.get();
+  const isNewRecord = checkAndUpdateBestScore(score);
+  bestDisplay.textContent = getBestScore();
 
   if (isNewRecord) {
     launchConfetti();
@@ -324,7 +341,7 @@ async function gameOver() {
   if (btnShare) {
     btnShare.style.display = 'inline-block';
     btnShare.onclick = () => {
-      shareOnWhatsApp(`🐍 Joguei Cobrinha no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${bestScoreManager.get()}\n\n🎮 Jogue você também: https://gameshub.com.br/games/snake/`);
+      shareOnWhatsApp(`🐍 Joguei Cobrinha no Games Hub e fiz ${score} pontos!\n\n🏆 Meu recorde: ${getBestScore()}\n\n🎮 Jogue você também: https://gameshub.com.br/games/snake/`);
     };
   }
 
@@ -576,7 +593,7 @@ function init() {
   initDOM();
   console.log('[Snake] btnStart:', btnStart);
 
-  if (bestDisplay) bestDisplay.textContent = bestScoreManager.get();
+  if (bestDisplay) bestDisplay.textContent = getBestScore();
 
   initGame();
   draw();
