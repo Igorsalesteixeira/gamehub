@@ -49,11 +49,14 @@ body {
   color: var(--text-primary);
   min-height: 100dvh;
   min-height: -webkit-fill-available;
-  width: 100%;
+  width: 100vw;
+  max-width: 100vw;
   overflow-x: hidden;
   position: relative;
   margin: 0;
   padding: 0;
+  touch-action: manipulation; /* Previne zoom em double-tap */
+  -webkit-text-size-adjust: 100%; /* Previne ajuste de fonte */
 }
 
 /* Grid de fundo futurista */
@@ -152,9 +155,13 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0.5rem;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Layout do jogo */
@@ -164,6 +171,9 @@ body::after {
   align-items: flex-start;
   justify-content: center;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Canvas do jogo com efeito holográfico */
@@ -171,12 +181,14 @@ body::after {
   border: 2px solid var(--glass-border);
   border-radius: 8px;
   background: var(--bg-darker);
-  width: min(300px, 45vw);
-  height: auto;
+  width: 300px;
+  height: 600px;
+  max-width: 100%;
   box-shadow:
     0 0 20px rgba(0, 212, 255, 0.2),
     inset 0 0 30px rgba(0, 0, 0, 0.8);
   image-rendering: pixelated;
+  display: block;
 }
 
 /* Painel lateral glassmorphism */
@@ -711,6 +723,7 @@ body::after {
 @media (max-width: 768px) {
   body {
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   .game-container {
@@ -718,6 +731,7 @@ body::after {
     max-width: 100vw;
     padding: 0.5rem;
     align-items: center;
+    justify-content: flex-start;
   }
 
   .game-layout {
@@ -732,25 +746,29 @@ body::after {
     justify-content: center;
     width: 100%;
     gap: 0.5rem;
+    order: -1;
   }
 
   .info-box {
-    flex: 1;
-    min-width: 90px;
-    max-width: 120px;
-    padding: 0.6rem;
+    flex: 0 0 auto;
+    min-width: 80px;
+    max-width: 100px;
+    padding: 0.5rem;
   }
 
   #game-canvas {
-    width: min(300px, 90vw);
-    max-width: 100%;
+    width: 280px;
+    height: 560px;
+    max-width: 95vw;
+    max-height: 60vh;
   }
 
-  /* Fix para iOS Safari */
+  /* Fix para iOS Safari e Chrome iOS */
   .game-board {
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
   }
 }
 
