@@ -298,13 +298,14 @@ let balls = [];
 let playerScore = 0;
 let cpuScore = 0;
 let currentPlayer = 'player'; // 'player' ou 'cpu'
-let gameState = 'aiming'; // 'aiming', 'shooting', 'moving', 'gameover'
+let gameState = 'aiming'; // 'aiming', 'shooting', 'moving', 'cpu_turn', 'gameover'
 let cueBall = null;
 let aimStart = null;
 let aimCurrent = null;
 let power = 0;
 let ballsPottedThisTurn = [];
 let gameOver = false;
+let turnInProgress = false; // Flag para evitar condições de corrida
 
 // ===== Classe Bola =====
 class Ball {
@@ -861,6 +862,13 @@ function endTurn() {
     return;
   }
 
+  // Prevenir execução concorrente
+  if (turnInProgress) {
+    console.log('[DEBUG] endTurn ignorada - turno já em andamento');
+    return;
+  }
+  turnInProgress = true;
+
   console.log('[DEBUG] endTurn iniciada - currentPlayer:', currentPlayer, 'ballsPotted:', ballsPottedThisTurn.length);
 
   const pottedCount = ballsPottedThisTurn.filter(b => b.type !== 'white').length;
@@ -890,10 +898,12 @@ function endTurn() {
   if (currentPlayer === 'cpu') {
     // Mudar estado imediatamente para evitar chamadas repetidas de endTurn
     gameState = 'cpu_turn';
+    turnInProgress = false; // Liberar antes de chamar o timeout
     console.log('[DEBUG] Agendando jogada do CPU em 800ms. currentPlayer:', currentPlayer, 'gameState:', gameState);
     setTimeout(makeCPUMove, 800);
   } else {
     gameState = 'aiming';
+    turnInProgress = false; // Liberar
     console.log('[DEBUG] Turno do jogador - gameState: aiming. currentPlayer:', currentPlayer);
   }
 }
@@ -1424,6 +1434,20 @@ canvas.addEventListener('mouseup', handleEnd);
 canvas.addEventListener('touchstart', handleStart, { passive: false });
 canvas.addEventListener('touchmove', handleMove, { passive: false });
 canvas.addEventListener('touchend', handleEnd, { passive: false });
+
+// Global mouseup listener - captura quando soltar o mouse fora do canvas
+window.addEventListener('mouseup', (e) => {
+  if (aimStart && gameState === 'aiming' && currentPlayer === 'player') {
+    handleEnd(e);
+  }
+});
+
+// Global touchend para dispositivos touch
+window.addEventListener('touchend', (e) => {
+  if (aimStart && gameState === 'aiming' && currentPlayer === 'player') {
+    handleEnd(e);
+  }
+});
 
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
