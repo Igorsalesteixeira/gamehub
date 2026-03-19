@@ -21,8 +21,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "context-mode sandbox --tool $CLYDE_TOOL_NAME --input '$CLYDE_TOOL_INPUT' 2>/dev/null || true",
+            "command": "context-mode sandbox --continue --tool $CLYDE_TOOL_NAME --input '$CLYDE_TOOL_INPUT' 2>/dev/null || true",
             "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "context-mode export --project \"Game Hub - 47 jogos, refatoração modular em andamento\" --session-dir ~/.claude/projects/C--Users-igor--Downloads-Site-de-jogos 2>/dev/null || true",
+            "async": false
           }
         ]
       }
