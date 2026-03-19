@@ -5,7 +5,7 @@ import '../../auth-check.js';
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
 import { GameStats, GameStorage } from '../shared/game-core.js';
-import { TimedGameLoop } from '../shared/game-loop.js';
+import { GameLoop } from '../shared/game-loop.js';
 import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
 
 // ---- Config ----
@@ -60,11 +60,43 @@ const directionalInput = createDirectionalInput({
 });
 
 // ---- Game Loop ----
-const gameLoop = new TimedGameLoop({
-  getSpeed: () => Math.max(MIN_SPEED, BASE_SPEED - score * 3),
-  onTick: () => {
-    tick();
-  }
+let tickAccumulator = 0;
+let currentSpeed = BASE_SPEED;
+
+const gameLoop = new GameLoop({
+  update: (deltaTime) => {
+    currentSpeed = Math.max(MIN_SPEED, BASE_SPEED - score * 3);
+    tickAccumulator += deltaTime;
+
+    // Update particles and popups every frame
+    particles.forEach(p => p.update());
+    scorePopups.forEach(sp => sp.update());
+    particles = particles.filter(p => p.life > 0);
+    scorePopups = scorePopups.filter(sp => sp.life > 0);
+
+    // Update food pulse animation
+    foodPulse += 0.1;
+
+    // Handle death animation
+    if (isDying) {
+      deathAnimationFrame++;
+      if (deathAnimationFrame > 30) {
+        isDying = false;
+      }
+      draw();
+      return;
+    }
+
+    // Game tick based on speed
+    while (tickAccumulator >= currentSpeed) {
+      tickAccumulator -= currentSpeed;
+      tick();
+    }
+
+    // Redraw
+    draw();
+  },
+  fps: 60
 });
 
 // =============================================
@@ -222,27 +254,6 @@ function tick() {
   directionalInput.applyDirection();
   const direction = directionalInput.getDirection();
 
-  foodPulse += 0.1;
-
-  particles = particles.filter(p => {
-    p.update();
-    return p.life > 0;
-  });
-
-  scorePopups = scorePopups.filter(sp => {
-    sp.update();
-    return sp.life > 0;
-  });
-
-  if (isDying) {
-    deathAnimationFrame++;
-    if (deathAnimationFrame > 30) {
-      isDying = false;
-    }
-    draw();
-    return;
-  }
-
   const head = {
     x: snake[0].x + direction.x,
     y: snake[0].y + direction.y,
@@ -274,8 +285,6 @@ function tick() {
   } else {
     snake.pop();
   }
-
-  draw();
 }
 
 function startGame() {
@@ -294,7 +303,7 @@ function startGame() {
 }
 
 function togglePause() {
-  const paused = gameLoop.togglePause();
+  const paused = gameLoop.toggle();
   draw();
   return paused;
 }
