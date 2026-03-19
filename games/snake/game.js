@@ -1,6 +1,6 @@
 import '../../auth-check.js';
 // =============================================
-//  COBRINHA (Snake) — game.js (Refatorado com módulos compartilhados)
+//  COBRINHA (Snake) — game.js
 // =============================================
 import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
@@ -9,25 +9,12 @@ import { TimedGameLoop } from '../shared/game-loop.js';
 import { DirectionalInput, MobileButtonHandler } from '../shared/input-manager.js';
 
 // ---- Config ----
-const GRID_SIZE  = 20; // cells
-const BASE_SPEED = 150; // ms per tick (decreases as score grows)
+const GRID_SIZE  = 20;
+const BASE_SPEED = 150;
 const MIN_SPEED  = 60;
 
-// ---- DOM ----
+// ---- DOM Elements (initialized in init) ----
 let canvas, ctx, overlay, overlayIcon, overlayTitle, overlayMsg, overlayScore, btnStart, scoreDisplay, bestDisplay;
-
-function initDOM() {
-  canvas       = document.getElementById('game-canvas');
-  ctx          = canvas.getContext('2d');
-  overlay      = document.getElementById('overlay');
-  overlayIcon  = document.getElementById('overlay-icon');
-  overlayTitle = document.getElementById('overlay-title');
-  overlayMsg   = document.getElementById('overlay-msg');
-  overlayScore = document.getElementById('overlay-score');
-  btnStart     = document.getElementById('btn-start');
-  scoreDisplay = document.getElementById('score-display');
-  bestDisplay  = document.getElementById('best-display');
-}
 
 // ---- Stats e Best Score ----
 const stats = new GameStats('snake');
@@ -38,17 +25,30 @@ let snake     = [];
 let food      = null;
 let score     = 0;
 let cellSize  = 0;
-let eatRipple = null;   // animação de ondulação ao comer
-let headTrail = [];     // rastro de posições recentes da cabeça
+let eatRipple = null;
+let headTrail = [];
 
 // ---- Visual Effects State ----
-let particles = [];     // particle system for explosions
-let scorePopups = [];   // score popup animations
-let foodPulse = 0;      // food pulsing animation frame
-let isDying = false;    // death animation flag
+let particles = [];
+let scorePopups = [];
+let foodPulse = 0;
+let isDying = false;
 let deathAnimationFrame = 0;
 
-bestDisplay.textContent = bestScoreManager.get();
+// ---- Directional Input ----
+const directionalInput = new DirectionalInput({
+  onDirectionChange: (dir) => {
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+});
+
+// ---- Game Loop ----
+const gameLoop = new TimedGameLoop({
+  getSpeed: () => Math.max(MIN_SPEED, BASE_SPEED - score * 3),
+  onTick: () => {
+    tick();
+  }
+});
 
 // =============================================
 //  PARTICLE SYSTEM
@@ -132,22 +132,6 @@ function createDeathExplosion(snakeSegments) {
   });
 }
 
-// ---- Directional Input ----
-const directionalInput = new DirectionalInput({
-  onDirectionChange: (dir) => {
-    // Mobile: feedback tátil ao mudar direção
-    if (navigator.vibrate) navigator.vibrate(8);
-  }
-});
-
-// ---- Game Loop ----
-const gameLoop = new TimedGameLoop({
-  getSpeed: () => Math.max(MIN_SPEED, BASE_SPEED - score * 3),
-  onTick: () => {
-    tick();
-  }
-});
-
 // =============================================
 //  CANVAS SIZING
 // =============================================
@@ -163,7 +147,6 @@ function resizeCanvas() {
   cellSize = Math.max(maxCell, 10);
   const size = cellSize * GRID_SIZE;
 
-  // Only update if size changed and is valid
   if (size > 0) {
     canvas.width  = size;
     canvas.height = size;
@@ -173,7 +156,6 @@ function resizeCanvas() {
   }
 }
 
-// Ensure canvas has minimum size on init
 function ensureCanvasSize() {
   if (canvas.width === 0 || canvas.height === 0) {
     const minSize = 200;
@@ -183,10 +165,6 @@ function ensureCanvasSize() {
     canvas.style.height = minSize + 'px';
   }
 }
-
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-ensureCanvasSize();
 
 // =============================================
 //  GAME LOGIC
@@ -227,27 +205,22 @@ function tick() {
   directionalInput.applyDirection();
   const direction = directionalInput.getDirection();
 
-  // Update food pulse animation
   foodPulse += 0.1;
 
-  // Update particles
   particles = particles.filter(p => {
     p.update();
     return p.life > 0;
   });
 
-  // Update score popups
   scorePopups = scorePopups.filter(sp => {
     sp.update();
     return sp.life > 0;
   });
 
-  // Handle death animation
   if (isDying) {
     deathAnimationFrame++;
     if (deathAnimationFrame > 30) {
       isDying = false;
-      // Game over will be called after animation
     }
     draw();
     return;
@@ -258,39 +231,27 @@ function tick() {
     y: snake[0].y + direction.y,
   };
 
-  // Wall collision
   if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
     triggerDeath();
     return;
   }
 
-  // Self collision
   if (snake.some(s => s.x === head.x && s.y === head.y)) {
     triggerDeath();
     return;
   }
 
   snake.unshift(head);
-
-  // Trail de movimento: guarda as últimas 5 posições da cabeça
   headTrail.push({ x: head.x, y: head.y });
   if (headTrail.length > 5) headTrail.shift();
 
-  // Eat food
   if (head.x === food.x && head.y === food.y) {
     score++;
     scoreDisplay.textContent = score;
-    eatRipple = { x: food.x, y: food.y, frame: 0 }; // dispara animação
-
-    // Create particle explosion at food position
+    eatRipple = { x: food.x, y: food.y, frame: 0 };
     createExplosion(food.x + 0.5, food.y + 0.5, '#e94560', 15, 1.2);
-
-    // Add score popup
     scorePopups.push(new ScorePopup(food.x, food.y, 1));
-
-    // Game Design: som ao comer
     playSound('eat');
-    // Mobile: feedback tátil ao comer (vibration)
     if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
     spawnFood();
   } else {
@@ -301,17 +262,18 @@ function tick() {
 }
 
 function startGame() {
+  console.log('[Snake] startGame() chamado');
   initAudio();
   initGame();
   overlay.classList.add('hidden');
-  // Game Design: esconder botão compartilhar ao iniciar
+
   const btnShare = document.getElementById('btn-share');
   if (btnShare) btnShare.style.display = 'none';
 
-  // Inicia stats e timer
   stats.reset();
   stats.startTimer();
   gameLoop.start();
+  console.log('[Snake] Jogo iniciado!');
 }
 
 function togglePause() {
@@ -324,14 +286,9 @@ function triggerDeath() {
   if (isDying) return;
   isDying = true;
   deathAnimationFrame = 0;
-
-  // Create death explosion
   createDeathExplosion(snake);
-
-  // Mobile: feedback tátil no game over (padrão de derrota)
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
-  // Schedule actual game over after animation
   setTimeout(() => {
     gameOver();
   }, 600);
@@ -341,19 +298,16 @@ async function gameOver() {
   isDying = false;
   gameLoop.stop();
 
-  // Atualiza stats
   stats.score = score;
   stats.stopTimer();
   await stats.save('end');
 
-  // Mobile: feedback tátil no game over (padrão de derrota)
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
   const isNewRecord = bestScoreManager.checkAndUpdate(score);
   bestDisplay.textContent = bestScoreManager.get();
 
   if (isNewRecord) {
-    // Game Design: confetes ao bater recorde
     launchConfetti();
     playSound('win');
   } else {
@@ -366,7 +320,6 @@ async function gameOver() {
   overlayScore.textContent = `Pontuação: ${score} 🍎`;
   btnStart.textContent     = 'Jogar Novamente';
 
-  // Game Design: mostrar botão compartilhar
   const btnShare = document.getElementById('btn-share');
   if (btnShare) {
     btnShare.style.display = 'inline-block';
@@ -385,7 +338,7 @@ function draw() {
   const cs = cellSize;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Grid lines with subtle neon glow
+  // Grid lines
   ctx.save();
   ctx.strokeStyle = 'rgba(100, 200, 255, 0.08)';
   ctx.lineWidth = 1;
@@ -401,7 +354,7 @@ function draw() {
   }
   ctx.restore();
 
-  // Ripple ao comer
+  // Ripple
   if (eatRipple) {
     const p = eatRipple.frame / 14;
     ctx.save();
@@ -417,7 +370,7 @@ function draw() {
     if (eatRipple.frame > 14) eatRipple = null;
   }
 
-  // Trail de movimento (rastro da cabeça)
+  // Trail
   headTrail.forEach((pos, i) => {
     const alpha = ((i + 1) / headTrail.length) * 0.18;
     ctx.save();
@@ -430,7 +383,7 @@ function draw() {
     ctx.restore();
   });
 
-  // Food with pulsing animation (scale + glow)
+  // Food
   if (food) {
     const pulseScale = 1 + Math.sin(foodPulse) * 0.15;
     const glowIntensity = 15 + Math.sin(foodPulse * 1.5) * 10;
@@ -438,26 +391,18 @@ function draw() {
     ctx.save();
     ctx.translate(food.x * cs + cs / 2, food.y * cs + cs / 2);
     ctx.scale(pulseScale, pulseScale);
-
-    // Food glow
     ctx.shadowBlur = glowIntensity;
     ctx.shadowColor = '#e94560';
-
-    // Food body
     ctx.fillStyle = '#e94560';
     ctx.beginPath();
     ctx.arc(0, 0, cs * 0.35, 0, Math.PI * 2);
     ctx.fill();
-
-    // Inner highlight
     ctx.fillStyle = '#ff6b7a';
     ctx.beginPath();
     ctx.arc(-cs * 0.1, -cs * 0.1, cs * 0.2, 0, Math.PI * 2);
     ctx.fill();
-
     ctx.restore();
 
-    // Apple shine (not affected by pulse)
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.shadowBlur = 4;
@@ -468,13 +413,11 @@ function draw() {
     ctx.restore();
   }
 
-  // Particles (draw before snake so they appear behind)
+  // Particles
   particles.forEach(p => p.draw(ctx, cs));
-
-  // Score popups
   scorePopups.forEach(sp => sp.draw(ctx, cs));
 
-  // Snake (skip drawing during death animation)
+  // Snake
   if (!isDying) {
     const direction = directionalInput.getDirection();
     snake.forEach((seg, i) => {
@@ -482,14 +425,11 @@ function draw() {
       const radius = cs * 0.42;
 
       ctx.save();
-
-      // Glow effect for all segments
       const fade = 1 - (i / snake.length) * 0.4;
       ctx.shadowBlur = isHead ? 15 : 8 * fade;
       ctx.shadowColor = isHead ? '#53d769' : `rgba(83, 215, 105, ${fade})`;
 
       if (isHead) {
-        // Head gradient
         const grd = ctx.createRadialGradient(
           seg.x * cs + cs / 2, seg.y * cs + cs / 2, 0,
           seg.x * cs + cs / 2, seg.y * cs + cs / 2, radius
@@ -499,7 +439,6 @@ function draw() {
         grd.addColorStop(1, '#3ba851');
         ctx.fillStyle = grd;
       } else {
-        // Body segments with gradient
         const grd = ctx.createRadialGradient(
           seg.x * cs + cs / 2, seg.y * cs + cs / 2, 0,
           seg.x * cs + cs / 2, seg.y * cs + cs / 2, radius
@@ -510,7 +449,6 @@ function draw() {
         ctx.fillStyle = grd;
       }
 
-      // Rounded rectangle for each segment
       const x = seg.x * cs + (cs - radius * 2) / 2;
       const y = seg.y * cs + (cs - radius * 2) / 2;
       const w = radius * 2;
@@ -526,10 +464,9 @@ function draw() {
       ctx.lineTo(x, y + r);
       ctx.quadraticCurveTo(x, y, x + r, y);
       ctx.fill();
-
       ctx.restore();
 
-      // Eyes on head
+      // Eyes
       if (isHead) {
         ctx.save();
         ctx.fillStyle = '#fff';
@@ -552,7 +489,7 @@ function draw() {
     });
   }
 
-  // Pausa overlay
+  // Pause overlay
   if (gameLoop.isPaused()) {
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -568,7 +505,7 @@ function draw() {
 }
 
 // =============================================
-//  CONTROLS — Keyboard
+//  CONTROLS
 // =============================================
 document.addEventListener('keydown', e => {
   if (!gameLoop.isRunning()) {
@@ -577,39 +514,29 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') { e.preventDefault(); togglePause(); return; }
   if (gameLoop.isPaused()) return;
-
   directionalInput.handleKey(e.key);
   e.preventDefault();
 });
 
-// =============================================
-//  CONTROLS — Touch swipe (Mobile optimized)
-// =============================================
-const SWIPE_THRESHOLD = 30; // Mobile: aumentado de 15px para 30px
-
+// Touch swipe
+const SWIPE_THRESHOLD = 30;
 canvas.addEventListener('touchstart', e => {
-  // Guarda posição inicial para swipe
   canvas.dataset.touchStartX = e.touches[0].clientX;
   canvas.dataset.touchStartY = e.touches[0].clientY;
 }, { passive: true });
 
 canvas.addEventListener('touchmove', e => {
-  // Mobile: só previne scroll se o jogo estiver rodando
   if (gameLoop.isRunning()) e.preventDefault();
 }, { passive: false });
 
 canvas.addEventListener('touchend', e => {
   if (!gameLoop.isRunning()) return;
-
   const startX = parseFloat(canvas.dataset.touchStartX);
   const startY = parseFloat(canvas.dataset.touchStartY);
   if (isNaN(startX) || isNaN(startY)) return;
-
   const dx = e.changedTouches[0].clientX - startX;
   const dy = e.changedTouches[0].clientY - startY;
-
   if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
-
   if (Math.abs(dx) > Math.abs(dy)) {
     if (dx > 0) directionalInput.handleSwipe('right');
     else directionalInput.handleSwipe('left');
@@ -619,9 +546,7 @@ canvas.addEventListener('touchend', e => {
   }
 }, { passive: true });
 
-// =============================================
-//  CONTROLS — Mobile buttons (with haptic feedback)
-// =============================================
+// Mobile buttons
 new MobileButtonHandler('.ctrl-btn', {
   hapticDuration: 10,
   onPress: (dir) => {
@@ -633,38 +558,60 @@ new MobileButtonHandler('.ctrl-btn', {
 // =============================================
 //  INIT
 // =============================================
-function init() {
-  console.log('[Snake] Inicializando jogo...');
+function initDOM() {
+  canvas       = document.getElementById('game-canvas');
+  ctx          = canvas.getContext('2d');
+  overlay      = document.getElementById('overlay');
+  overlayIcon  = document.getElementById('overlay-icon');
+  overlayTitle = document.getElementById('overlay-title');
+  overlayMsg   = document.getElementById('overlay-msg');
+  overlayScore = document.getElementById('overlay-score');
+  btnStart     = document.getElementById('btn-start');
+  scoreDisplay = document.getElementById('score-display');
+  bestDisplay  = document.getElementById('best-display');
+}
 
-  // Inicializa elementos DOM primeiro
+function init() {
+  console.log('[Snake] Inicializando...');
   initDOM();
-  console.log('[Snake] Botão encontrado:', btnStart);
+  console.log('[Snake] btnStart:', btnStart);
+
+  if (bestDisplay) bestDisplay.textContent = bestScoreManager.get();
 
   initGame();
   draw();
 
-  // Registra event listener do botão com debug
   if (btnStart) {
-    btnStart.addEventListener('click', (e) => {
-      console.log('[Snake] Botão Jogar clicado!');
+    // Remove listeners antigos se existirem
+    const newBtn = btnStart.cloneNode(true);
+    btnStart.parentNode.replaceChild(newBtn, btnStart);
+    btnStart = newBtn;
+
+    btnStart.addEventListener('click', function(e) {
+      console.log('[Snake] CLICK no botão!');
       e.preventDefault();
       e.stopPropagation();
       startGame();
     });
-    // Touch para iOS
-    btnStart.addEventListener('touchstart', (e) => {
-      console.log('[Snake] Botão Jogar tocado!');
+
+    btnStart.addEventListener('touchstart', function(e) {
+      console.log('[Snake] TOUCH no botão!');
       e.preventDefault();
       e.stopPropagation();
       startGame();
     }, { passive: false });
-    console.log('[Snake] Event listeners registrados no botão');
+
+    console.log('[Snake] Listeners registrados');
   } else {
-    console.error('[Snake] ERRO: Botão #btn-start não encontrado no DOM!');
+    console.error('[Snake] ERRO: btnStart não encontrado!');
   }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  ensureCanvasSize();
 }
 
-// Aguarda DOM estar pronto
+// Inicializa quando DOM estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

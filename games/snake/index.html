@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=13" />
+  <link rel="stylesheet" href="style.css?v=20" />
   <meta name="theme-color" content="#00ff41" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -77,13 +77,8 @@
         <h2 id="overlay-title" class="modal-title">Cobrinha</h2>
         <p id="overlay-msg" class="modal-subtitle">Use as setas ou deslize para jogar</p>
         <div id="overlay-score" class="overlay-score neon-score"></div>
-        <button class="btn btn-glow btn-primary" id="btn-start">
-          <span class="btn-text">Jogar</span>
-          <span class="btn-shine"></span>
-        </button>
-        <button class="btn btn-glow btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">
-          <span class="btn-text">📱 Compartilhar</span>
-        </button>
+        <button type="button" class="btn btn-primary" id="btn-start">Jogar</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">📱 Compartilhar</button>
       </div>
     </div>
   </div>
@@ -120,7 +115,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'cobrinha' });
   </script>
-  <script type="module" src="game.js?v=15"></script>
+  <script type="module" src="game.js?v=20"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>

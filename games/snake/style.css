@@ -384,8 +384,11 @@ body::before {
   letter-spacing: 1px;
   position: relative;
   overflow: hidden;
-  z-index: 102;
-  pointer-events: auto;
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .btn::before {
