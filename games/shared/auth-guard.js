@@ -31,21 +31,30 @@ export async function waitForAuth(options = {}) {
     let attempts = 0;
 
     const check = async () => {
-      attempts++;
+      try {
+        attempts++;
 
-      const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
 
-      if (session) {
-        resolve(session);
-        return;
+        if (session) {
+          resolve(session);
+          return;
+        }
+
+        if (attempts >= maxAttempts) {
+          resolve(null);
+          return;
+        }
+
+        setTimeout(check, interval);
+      } catch (e) {
+        console.error('[auth-guard] Erro ao verificar sessão:', e);
+        if (attempts >= maxAttempts) {
+          resolve(null);
+        } else {
+          setTimeout(check, interval);
+        }
       }
-
-      if (attempts >= maxAttempts) {
-        resolve(null);
-        return;
-      }
-
-      setTimeout(check, interval);
     };
 
     check();

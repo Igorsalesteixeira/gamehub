@@ -307,6 +307,29 @@ let ballsPottedThisTurn = [];
 let gameOver = false;
 let turnInProgress = false; // Flag para evitar condições de corrida
 
+// Controle do game loop e event listeners
+let gameLoopId = null;
+const trackedListeners = [];
+
+function addTrackedListener(element, event, handler, options) {
+  element.addEventListener(event, handler, options);
+  trackedListeners.push({ element, event, handler, options });
+}
+
+function cleanupEventListeners() {
+  trackedListeners.forEach(({ element, event, handler, options }) => {
+    element.removeEventListener(event, handler, options);
+  });
+  trackedListeners.length = 0;
+}
+
+function stopGameLoop() {
+  if (gameLoopId) {
+    cancelAnimationFrame(gameLoopId);
+    gameLoopId = null;
+  }
+}
+
 // ===== Classe Bola =====
 class Ball {
   constructor(x, y, color, type, points = 1) {
@@ -468,6 +491,10 @@ class Ball {
 
 // ===== Inicialização =====
 function init() {
+  // Limpar estado anterior
+  stopGameLoop();
+  cleanupEventListeners();
+
   initAudio();
   balls = [];
   playerScore = 0;
@@ -1447,31 +1474,33 @@ function handleEnd(evt) {
   powerFill.style.width = '0%';
 }
 
-// Event Listeners
-canvas.addEventListener('mousedown', handleStart);
-canvas.addEventListener('mousemove', handleMove);
-canvas.addEventListener('mouseup', handleEnd);
+// Event Listeners - usando tracked listeners para permitir cleanup
+addTrackedListener(canvas, 'mousedown', handleStart);
+addTrackedListener(canvas, 'mousemove', handleMove);
+addTrackedListener(canvas, 'mouseup', handleEnd);
 
-canvas.addEventListener('touchstart', handleStart, { passive: false });
-canvas.addEventListener('touchmove', handleMove, { passive: false });
-canvas.addEventListener('touchend', handleEnd, { passive: false });
+addTrackedListener(canvas, 'touchstart', handleStart, { passive: false });
+addTrackedListener(canvas, 'touchmove', handleMove, { passive: false });
+addTrackedListener(canvas, 'touchend', handleEnd, { passive: false });
 
 // Global mouseup listener - captura quando soltar o mouse fora do canvas
-window.addEventListener('mouseup', (e) => {
+const globalMouseUpHandler = (e) => {
   if (aimStart && gameState === 'aiming' && currentPlayer === 'player') {
     handleEnd(e);
   }
-});
+};
+addTrackedListener(window, 'mouseup', globalMouseUpHandler);
 
 // Global touchend para dispositivos touch
-window.addEventListener('touchend', (e) => {
+const globalTouchEndHandler = (e) => {
   if (aimStart && gameState === 'aiming' && currentPlayer === 'player') {
     handleEnd(e);
   }
-});
+};
+addTrackedListener(window, 'touchend', globalTouchEndHandler);
 
-btnNewGame.addEventListener('click', init);
-btnPlayAgain.addEventListener('click', init);
+addTrackedListener(btnNewGame, 'click', init);
+addTrackedListener(btnPlayAgain, 'click', init);
 
 // Salvar estatísticas
 async function saveGameStat(result) {
@@ -1501,9 +1530,11 @@ function gameLoop() {
   drawParticles(ctx);
   drawPocketingAnimations(ctx);
   drawLastPottedBall(ctx);
-  requestAnimationFrame(gameLoop);
+  gameLoopId = requestAnimationFrame(gameLoop);
 }
 
-// Iniciar
-init();
-gameLoop();
+// Iniciar apenas se não estiver rodando
+if (!gameLoopId) {
+  init();
+  gameLoop();
+}

@@ -484,11 +484,11 @@ export class EventEmitter {
         listener(...args);
       };
       listeners.add(wrapped);
+      return () => this.off(event, wrapped);
     } else {
       listeners.add(listener);
+      return () => this.off(event, listener);
     }
-
-    return () => this.off(event, listener);
   }
 
   /**

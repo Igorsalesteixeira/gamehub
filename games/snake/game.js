@@ -52,6 +52,27 @@ let foodPulse = 0;
 let isDying = false;
 let deathAnimationFrame = 0;
 
+// ---- Event Listener Management ----
+let mobileControlsInitialized = false;
+const trackedListeners = [];
+
+function trackListener(element, event, handler, options) {
+  element.addEventListener(event, handler, options);
+  trackedListeners.push({ element, event, handler, options });
+}
+
+function removeTrackedListeners() {
+  trackedListeners.forEach(({ element, event, handler, options }) => {
+    element.removeEventListener(event, handler, options);
+  });
+  trackedListeners.length = 0;
+}
+
+function cleanup() {
+  removeTrackedListeners();
+  mobileControlsInitialized = false;
+}
+
 // ---- Directional Input ----
 const directionalInput = createDirectionalInput({
   onDirectionChange: (dir) => {
@@ -568,22 +589,6 @@ const directionMap = {
   'right': { x: 1, y: 0 }
 };
 
-document.querySelectorAll('.ctrl-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (!gameLoop.isRunning()) return;
-    const dir = btn.dataset.dir;
-    const newDir = directionMap[dir];
-    if (newDir) {
-      const currentDir = directionalInput.getDirection();
-      // Previne movimento na direção oposta
-      if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
-      if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
-      directionalInput.setDirection(newDir);
-    }
-  });
-});
-
 // =============================================
 //  INIT
 // =============================================
@@ -602,21 +607,25 @@ function initDOM() {
 
 function init() {
   console.log('[Snake] Inicializando...');
+
+  // Limpa listeners anteriores se houver
+  cleanup();
+
   initDOM();
   console.log('[Snake] btnStart:', btnStart);
 
-  // Inicializa touch events no canvas
+  // Inicializa touch events no canvas (usando tracked listeners)
   if (canvas) {
-    canvas.addEventListener('touchstart', e => {
+    trackListener(canvas, 'touchstart', e => {
       canvas.dataset.touchStartX = e.touches[0].clientX;
       canvas.dataset.touchStartY = e.touches[0].clientY;
     }, { passive: true });
 
-    canvas.addEventListener('touchmove', e => {
+    trackListener(canvas, 'touchmove', e => {
       if (gameLoop.isRunning()) e.preventDefault();
     }, { passive: false });
 
-    canvas.addEventListener('touchend', e => {
+    trackListener(canvas, 'touchend', e => {
       if (!gameLoop.isRunning()) return;
       const startX = parseFloat(canvas.dataset.touchStartX);
       const startY = parseFloat(canvas.dataset.touchStartY);
@@ -648,22 +657,26 @@ function init() {
     }, { passive: true });
   }
 
-  // Inicializa controles mobile
-  document.querySelectorAll('.ctrl-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (!gameLoop.isRunning()) return;
-      const dir = btn.dataset.dir;
-      const newDir = directionMap[dir];
-      if (newDir) {
-        const currentDir = directionalInput.getDirection();
-        // Previne movimento na direção oposta
-        if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
-        if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
-        directionalInput.setDirection(newDir);
-      }
+  // Inicializa controles mobile (apenas uma vez)
+  if (!mobileControlsInitialized) {
+    document.querySelectorAll('.ctrl-btn').forEach(btn => {
+      const clickHandler = (e) => {
+        e.preventDefault();
+        if (!gameLoop.isRunning()) return;
+        const dir = btn.dataset.dir;
+        const newDir = directionMap[dir];
+        if (newDir) {
+          const currentDir = directionalInput.getDirection();
+          // Previne movimento na direção oposta
+          if (currentDir.x !== 0 && newDir.x === -currentDir.x) return;
+          if (currentDir.y !== 0 && newDir.y === -currentDir.y) return;
+          directionalInput.setDirection(newDir);
+        }
+      };
+      trackListener(btn, 'click', clickHandler);
     });
-  });
+    mobileControlsInitialized = true;
+  }
 
   if (bestDisplay) bestDisplay.textContent = getBestScore();
 
@@ -695,7 +708,7 @@ function init() {
     console.error('[Snake] ERRO: btnStart não encontrado!');
   }
 
-  window.addEventListener('resize', resizeCanvas);
+  trackListener(window, 'resize', resizeCanvas);
   resizeCanvas();
   ensureCanvasSize();
 }

@@ -41,6 +41,7 @@ export class MultiplayerManager {
     };
 
     this.channel = null;
+    this._dbChannel = null;
     this.myUserId = null;
     this.myPlayerNumber = null;
     this.roomData = null;
@@ -164,14 +165,20 @@ export class MultiplayerManager {
       this.isHost = false;
 
       // Update room with player 2
-      await supabase
-        .from(this.options.tableName)
-        .update({
-          player2_id: this.myUserId,
-          player2_name: this._getPlayerName(),
-          status: 'playing'
-        })
-        .eq('id', this.roomId);
+      try {
+        await supabase
+          .from(this.options.tableName)
+          .update({
+            player2_id: this.myUserId,
+            player2_name: this._getPlayerName(),
+            status: 'playing'
+          })
+          .eq('id', this.roomId);
+      } catch (e) {
+        console.error('[MultiplayerManager] Error updating room with player 2:', e);
+        if (this.onError) this.onError(new Error('Erro ao atualizar sala'));
+        return false;
+      }
     } else {
       if (this.onError) this.onError(new Error('Sala cheia'));
       return false;
@@ -193,14 +200,20 @@ export class MultiplayerManager {
     this.isHost = false;
 
     // Update room with player 2
-    await supabase
-      .from(this.options.tableName)
-      .update({
-        player2_id: this.myUserId,
-        player2_name: this._getPlayerName(),
-        status: 'playing'
-      })
-      .eq('room_id', this.roomId);
+    try {
+      await supabase
+        .from(this.options.tableName)
+        .update({
+          player2_id: this.myUserId,
+          player2_name: this._getPlayerName(),
+          status: 'playing'
+        })
+        .eq('room_id', this.roomId);
+    } catch (e) {
+      console.error('[MultiplayerManager] Error updating chess room with player 2:', e);
+      if (this.onError) this.onError(new Error('Erro ao atualizar sala'));
+      return false;
+    }
 
     return true;
   }
@@ -209,14 +222,20 @@ export class MultiplayerManager {
     this.myPlayerNumber = 1;
     this.isHost = true;
 
-    await supabase.from(this.options.tableName).insert({
-      id: this.roomId,
-      player1_id: this.myUserId,
-      player1_name: this._getPlayerName(),
-      status: 'waiting',
-      turn: 1,
-      game_type: this.gameType
-    });
+    try {
+      await supabase.from(this.options.tableName).insert({
+        id: this.roomId,
+        player1_id: this.myUserId,
+        player1_name: this._getPlayerName(),
+        status: 'waiting',
+        turn: 1,
+        game_type: this.gameType
+      });
+    } catch (e) {
+      console.error('[MultiplayerManager] Error creating standard room:', e);
+      if (this.onError) this.onError(new Error('Erro ao criar sala'));
+      return false;
+    }
 
     return true;
   }
@@ -225,13 +244,19 @@ export class MultiplayerManager {
     this.myPlayerNumber = 1;
     this.isHost = true;
 
-    await supabase.from(this.options.tableName).insert({
-      room_id: this.roomId,
-      player1_id: this.myUserId,
-      player1_name: this._getPlayerName(),
-      status: 'waiting',
-      game_state: null
-    });
+    try {
+      await supabase.from(this.options.tableName).insert({
+        room_id: this.roomId,
+        player1_id: this.myUserId,
+        player1_name: this._getPlayerName(),
+        status: 'waiting',
+        game_state: null
+      });
+    } catch (e) {
+      console.error('[MultiplayerManager] Error creating chess room:', e);
+      if (this.onError) this.onError(new Error('Erro ao criar sala'));
+      return false;
+    }
 
     return true;
   }
@@ -268,7 +293,7 @@ export class MultiplayerManager {
 
     // Listen for database changes (opponent connection)
     if (this.options.tableName === 'chess_rooms') {
-      supabase
+      this._dbChannel = supabase
         .channel(`db:${this.options.tableName}:${this.roomId}`)
         .on('postgres_changes', {
           event: 'UPDATE',
@@ -364,6 +389,7 @@ export class MultiplayerManager {
         .eq(idField, this.roomId);
     } catch (e) {
       console.warn('[MultiplayerManager] Error updating state:', e);
+      throw e;
     }
   }
 
@@ -438,6 +464,11 @@ export class MultiplayerManager {
       this.channel = null;
     }
 
+    if (this._dbChannel) {
+      await this._dbChannel.unsubscribe();
+      this._dbChannel = null;
+    }
+
     // Se for host, remove a sala
     if (this.isHost && this.roomId) {
       const idField = this.options.tableName === 'chess_rooms' ? 'room_id' : 'id';
@@ -458,6 +489,10 @@ export class MultiplayerManager {
     if (this.channel) {
       this.channel.unsubscribe();
       this.channel = null;
+    }
+    if (this._dbChannel) {
+      this._dbChannel.unsubscribe();
+      this._dbChannel = null;
     }
     this.subscribed = false;
   }
