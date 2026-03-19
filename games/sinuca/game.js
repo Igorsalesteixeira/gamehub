@@ -132,78 +132,9 @@ function playGameSound(soundType) {
 }
 
 // ===== Sistema de Placar Elaborado =====
-let floatingTexts = [];
 let lastPottedBall = null;
 let scoreGlow = { player: 0, cpu: 0 };
 let displayedScore = { player: 0, cpu: 0 };
-
-class FloatingText {
-  constructor(x, y, text, color = '#fff') {
-    this.x = x;
-    this.y = y;
-    this.text = text;
-    this.color = color;
-    this.life = 1.0;
-    this.vy = -1.5;
-    this.scale = 1;
-  }
-
-  update() {
-    this.y += this.vy;
-    this.life -= 0.02;
-    this.vy *= 0.95;
-    if (this.life > 0.5) {
-      this.scale = 1 + (1 - this.life) * 2;
-    } else {
-      this.scale = 1.5 - (0.5 - this.life);
-    }
-  }
-
-  draw(ctx) {
-    if (this.life <= 0) return;
-    ctx.save();
-    ctx.globalAlpha = this.life;
-    ctx.fillStyle = this.color;
-    ctx.font = `bold ${16 * this.scale}px Nunito`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 4;
-    ctx.fillText(this.text, this.x, this.y);
-    ctx.restore();
-  }
-}
-
-function addFloatingScore(x, y, points, isPlayer) {
-  const color = isPlayer ? '#4ade80' : '#f87171';
-  const text = `+${points}`;
-  floatingTexts.push(new FloatingText(x, y, text, color));
-}
-
-function updateFloatingTexts() {
-  floatingTexts.forEach(t => t.update());
-  floatingTexts = floatingTexts.filter(t => t.life > 0);
-
-  // Atualizar brilho do placar
-  scoreGlow.player = Math.max(0, scoreGlow.player - 0.05);
-  scoreGlow.cpu = Math.max(0, scoreGlow.cpu - 0.05);
-
-  // Animar contagem de pontos subindo
-  if (displayedScore.player < playerScore) {
-    displayedScore.player += 0.5;
-  } else if (displayedScore.player > playerScore) {
-    displayedScore.player = playerScore;
-  }
-  if (displayedScore.cpu < cpuScore) {
-    displayedScore.cpu += 0.5;
-  } else if (displayedScore.cpu > cpuScore) {
-    displayedScore.cpu = cpuScore;
-  }
-}
-
-function drawFloatingTexts(ctx) {
-  floatingTexts.forEach(t => t.draw(ctx));
-}
 
 function drawLastPottedBall(ctx) {
   if (!lastPottedBall) return;
@@ -549,7 +480,6 @@ function init() {
   power = 0;
   particles = [];
   pocketingBalls = [];
-  floatingTexts = [];
   lastPottedBall = null;
   scoreGlow = { player: 0, cpu: 0 };
   displayedScore = { player: 0, cpu: 0 };
@@ -907,8 +837,6 @@ function update() {
           cpuScore += ball.points;
           scoreGlow.cpu = 1.0;
         }
-        // Adicionar texto flutuante de pontos
-        addFloatingScore(ball.x, ball.y, ball.points, isPlayer);
         // Registrar última bola encaçapada
         lastPottedBall = { color: ball.color, points: ball.points };
         updateScoreDisplay();
@@ -1524,11 +1452,9 @@ function gameLoop() {
   update();
   updateParticles();
   updatePocketingAnimations();
-  updateFloatingTexts();
   draw();
   drawParticles(ctx);
   drawPocketingAnimations(ctx);
-  drawFloatingTexts(ctx);
   drawLastPottedBall(ctx);
   requestAnimationFrame(gameLoop);
 }
