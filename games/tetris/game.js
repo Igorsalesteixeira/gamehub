@@ -621,6 +621,15 @@ const inputManager = new InputManager({
 });
 
 // ============================================
+// Previne scroll com teclas de seta e espaco
+// ============================================
+window.addEventListener('keydown', (e) => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// ============================================
 // Inicializacao
 // ============================================
 if (document.readyState === 'loading') {
