@@ -300,8 +300,6 @@ function startGame() {
   // Reseta o acumulador do game loop
   tickAccumulator = 0;
 
-  stats.reset();
-  stats.startTimer();
   gameLoop.start();
   console.log('[Snake] Jogo iniciado! isRunning:', gameLoop.isRunning());
   console.log('[Snake] Direção inicial:', directionalInput.getDirection());
@@ -329,9 +327,8 @@ async function gameOver() {
   isDying = false;
   gameLoop.stop();
 
-  stats.score = score;
-  stats.stopTimer();
-  await stats.save('end');
+  // Registra a partida nas estatísticas
+  stats.recordGame(false, { score: score });
 
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 
