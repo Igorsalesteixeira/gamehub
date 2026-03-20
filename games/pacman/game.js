@@ -4,9 +4,14 @@ import { GameStats } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
 // =============================================
-//  PAC-MAN — game.js (Refatorado)
+//  PAC-MAN — game.js (Refatorado com Novos Módulos)
 // =============================================
 import { supabase } from '../../supabase.js';
+
+// ---- Novos Módulos (Teste) ----
+import { GameHooks, GameEvents } from '../shared/hooks.js';
+import { ParticleSystem } from '../shared/skills/particle-system/index.js';
+import { AnimationSystem } from '../shared/skills/animation-system/index.js';
 
 // ---- Constants ----
 const TILE_SIZE = 20;
@@ -93,6 +98,51 @@ const SCATTER_CORNERS = [
 
 // ---- STATS ----
 const gameStats = new GameStats('pacman', { autoSync: true });
+
+// ---- Novos Sistemas (Teste) ----
+const hooks = new GameHooks({ gameId: 'pacman' });
+const particles = new ParticleSystem(canvas, { autoResize: true });
+const animations = new AnimationSystem();
+
+// ---- Configurar Hooks ----
+hooks.on(GameEvents.GAME_START, () => {
+  console.log('[Hooks] Game started!');
+  animations.fadeIn(overlay, { duration: 300 });
+});
+
+hooks.on(GameEvents.GAME_END, ({ score, level }) => {
+  console.log('[Hooks] Game ended! Score:', score, 'Level:', level);
+});
+
+hooks.on(GameEvents.GAME_WIN, ({ score }) => {
+  console.log('[Hooks] Level complete!');
+  particles.confetti({ colors: ['#ff6b35', '#4ecdc4', '#ffe66d'] });
+  launchConfetti();
+});
+
+hooks.on('ghost:eaten', ({ x, y, points }) => {
+  console.log('[Hooks] Ghost eaten! +', points);
+  // Efeito de partículas mágicas quando come fantasma
+  particles.emit({
+    x: x * cellSize + cellSize / 2,
+    y: y * cellSize + cellSize / 2,
+    count: 20,
+    type: 'magic',
+    color: '#8b5cf6'
+  });
+});
+
+hooks.on('dot:eaten', ({ type }) => {
+  // Pequeno sparkle quando come dot
+  const cs = cellSize;
+  particles.emit({
+    x: pacman.x * cs + cs / 2,
+    y: pacman.y * cs + cs / 2,
+    count: 5,
+    type: 'sparkle',
+    color: type === 'power' ? '#ffe66d' : '#ffffff'
+  });
+});
 
 // =============================================
 //  CANVAS SIZING
@@ -344,12 +394,26 @@ function tick() {
     score += 10;
     dotsEaten++;
     playSound('eat');
+
+    // Emitir evento de dot comido
+    hooks.emit('dot:eaten', { type: 'normal', points: 10 });
   } else if (tile === P) {
     maze[pacman.y][pacman.x] = E;
     score += 50;
     dotsEaten++;
     activateFrightened();
     playSound('eat');
+
+    // Emitir evento de power pellet comido
+    hooks.emit('dot:eaten', { type: 'power', points: 50 });
+
+    // Efeito de explosão quando come power pellet
+    const cs = cellSize;
+    particles.explode(
+      pacman.x * cs + cs / 2,
+      pacman.y * cs + cs / 2,
+      { count: 30, colors: ['#ffe66d', '#ff6b35', '#ffffff'] }
+    );
   }
 
   scoreDisplay.textContent = score;
@@ -427,6 +491,14 @@ function checkGhostCollisions() {
         score += 200;
         scoreDisplay.textContent = score;
         playSound('eat');
+
+        // Emitir evento de fantasma comido
+        hooks.emit('ghost:eaten', {
+          x: pacman.x,
+          y: pacman.y,
+          points: 200,
+          ghostName: GHOST_NAMES[g.idx]
+        });
       } else if (g.mode !== MODE_EATEN) {
         // Pac-man dies
         lives--;
@@ -446,7 +518,26 @@ function levelUp() {
   level++;
   buildMaze();
   resetPositions();
-  // Brief pause effect handled by continuing the loop
+
+  // Emitir evento de vitória do nível
+  hooks.emit(GameEvents.GAME_WIN, {
+    gameId: 'pacman',
+    score,
+    level,
+    timestamp: Date.now()
+  });
+
+  // Efeito de fogo de artifício
+  const cs = cellSize;
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      particles.explode(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height * 0.5,
+        { count: 25, colors: ['#ff6b35', '#4ecdc4', '#ffe66d', '#ec4899'] }
+      );
+    }, i * 150);
+  }
 }
 
 // =============================================
@@ -459,6 +550,9 @@ function startGame() {
   running = true;
   paused = false;
   gameLoop.start();
+
+  // Emitir evento de início
+  hooks.emit(GameEvents.GAME_START, { gameId: 'pacman', timestamp: Date.now() });
 }
 
 function gameOver() {
@@ -467,6 +561,15 @@ function gameOver() {
 
   // Save stats
   gameStats.recordGame(false, { score });
+
+  // Emitir evento de fim de jogo
+  hooks.emit(GameEvents.GAME_END, {
+    gameId: 'pacman',
+    score,
+    level,
+    timestamp: Date.now(),
+    won: false
+  });
 
   saveGameStat();
 
@@ -477,6 +580,18 @@ function gameOver() {
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
   playSound('gameover');
+
+  // Efeito de fumaça quando perde
+  const cs = cellSize;
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      particles.smoke(
+        pacman.x * cs + cs / 2 + (Math.random() - 0.5) * 50,
+        pacman.y * cs + cs / 2 + (Math.random() - 0.5) * 50,
+        { count: 10 }
+      );
+    }, i * 100);
+  }
 }
 
 // =============================================
@@ -695,6 +810,10 @@ const gameLoop = new GameLoop({
   render: () => {
     if (running) {
       draw();
+    }
+    // Atualizar partículas (sempre, mesmo se o jogo estiver pausado)
+    if (particles.isActive()) {
+      particles.update(false); // false = não limpa canvas (já limpamos no draw)
     }
   },
   fps: 60
