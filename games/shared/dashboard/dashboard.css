@@ -1,0 +1,557 @@
+/**
+ * Game Hub - Dashboard Styles
+ *
+ * Estilos para o dashboard de estatísticas visuais
+ * Combina glassmorphism, neumorphism e animações
+ */
+
+/* ============================================
+   DASHBOARD CONTAINER
+   ============================================ */
+
+.game-dashboard {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius-xl);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.game-dashboard:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.game-dashboard.hidden {
+  display: none;
+}
+
+/* Scrollbar customizada */
+.game-dashboard::-webkit-scrollbar {
+  width: 8px;
+}
+
+.game-dashboard::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.game-dashboard::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 53, 0.5);
+  border-radius: 4px;
+}
+
+.game-dashboard::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 53, 0.8);
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.dashboard-icon {
+  font-size: 1.5em;
+}
+
+.dashboard-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-close:hover {
+  background: rgba(255, 68, 68, 0.3);
+  transform: rotate(90deg);
+}
+
+/* ============================================
+   CONTENT
+   ============================================ */
+
+.dashboard-content {
+  padding: var(--space-6);
+}
+
+.dashboard-section {
+  margin-bottom: var(--space-8);
+}
+
+.section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ============================================
+   STREAK SECTION
+   ============================================ */
+
+.streak-section {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(78, 205, 196, 0.1));
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.streak-flame {
+  font-size: 4rem;
+  animation: flicker 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.8));
+  transition: transform 0.3s ease;
+}
+
+@keyframes flicker {
+  0%, 100% {
+    transform: scale(1) rotate(-5deg);
+    filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.8));
+  }
+  25% {
+    transform: scale(1.05) rotate(5deg);
+    filter: drop-shadow(0 0 15px rgba(255, 107, 53, 1));
+  }
+  50% {
+    transform: scale(1) rotate(-3deg);
+    filter: drop-shadow(0 0 12px rgba(255, 107, 53, 0.9));
+  }
+  75% {
+    transform: scale(1.03) rotate(3deg);
+    filter: drop-shadow(0 0 14px rgba(255, 107, 53, 0.85));
+  }
+}
+
+.streak-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.streak-count {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.streak-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   STATS GRID
+   ============================================ */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+.stat-change {
+  font-size: var(--font-size-xs);
+  margin-top: var(--space-2);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.stat-change.positive {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--color-success);
+}
+
+.stat-change.negative {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--color-error);
+}
+
+/* Progress Ring */
+.progress-ring {
+  width: 50px;
+  height: 50px;
+  margin: var(--space-2) auto 0;
+}
+
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 3;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+}
+
+/* ============================================
+   CHART
+   ============================================ */
+
+.chart-container {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  position: relative;
+}
+
+.chart-container canvas {
+  width: 100%;
+  height: 200px;
+}
+
+/* ============================================
+   HEATMAP
+   ============================================ */
+
+.heatmap-container {
+  overflow-x: auto;
+}
+
+.heatmap-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 600px;
+}
+
+.heatmap-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.heatmap-row.header {
+  margin-bottom: var(--space-2);
+}
+
+.heatmap-label {
+  width: 40px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  padding-right: var(--space-2);
+}
+
+.heatmap-day {
+  width: 40px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  padding-right: var(--space-2);
+}
+
+.heatmap-hour {
+  flex: 1;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.heatmap-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.2);
+  z-index: 1;
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+/* ============================================
+   ACHIEVEMENTS
+   ============================================ */
+
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.achievement-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.achievement-item.unlocked {
+  border-left: 3px solid var(--color-success);
+}
+
+.achievement-item.locked {
+  opacity: 0.5;
+  border-left: 3px solid var(--color-text-muted);
+}
+
+.achievement-item .achievement-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.achievement-item.unlocked .achievement-icon {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(78, 205, 196, 0.3));
+}
+
+.achievement-info {
+  flex: 1;
+}
+
+.achievement-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.achievement-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.achievement-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.achievement-lock {
+  font-size: 1rem;
+  opacity: 0.5;
+}
+
+/* ============================================
+   ACHIEVEMENT NOTIFICATION
+   ============================================ */
+
+.achievement-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(78, 205, 196, 0.9));
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  max-width: 350px;
+}
+
+.achievement-notification .achievement-icon {
+  font-size: 2rem;
+}
+
+.achievement-notification .achievement-title {
+  font-weight: 700;
+  color: white;
+}
+
+.achievement-notification .achievement-desc {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.dashboard-footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.sync-icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 640px) {
+  .game-dashboard {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .streak-flame {
+    font-size: 3rem;
+  }
+
+  .streak-count {
+    font-size: var(--font-size-2xl);
+  }
+
+  .chart-container canvas {
+    height: 150px;
+  }
+
+  .heatmap-container {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .achievement-notification {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+.dashboard-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.dashboard-backdrop:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+}

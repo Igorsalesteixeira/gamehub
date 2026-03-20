@@ -12,6 +12,7 @@ import { supabase } from '../../supabase.js';
 import { GameHooks, GameEvents } from '../shared/hooks.js';
 import { ParticleSystem } from '../shared/skills/particle-system/index.js';
 import { AnimationSystem } from '../shared/skills/animation-system/index.js';
+import { GameDashboard } from '../shared/dashboard/index.js';
 
 // ---- Constants ----
 const TILE_SIZE = 20;
@@ -103,6 +104,24 @@ const gameStats = new GameStats('pacman', { autoSync: true });
 const hooks = new GameHooks({ gameId: 'pacman' });
 const particles = new ParticleSystem(canvas, { autoResize: true });
 const animations = new AnimationSystem();
+const dashboard = new GameDashboard({
+  container: document.body,
+  gameId: 'pacman',
+  showParticles: true
+});
+
+// ---- Configurar Botão do Dashboard ----
+document.getElementById('btn-dashboard')?.addEventListener('click', () => {
+  dashboard.show();
+  // Efeito de partículas ao abrir
+  particles.emit({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    count: 30,
+    type: 'sparkle',
+    color: '#4ecdc4'
+  });
+});
 
 // ---- Configurar Hooks ----
 hooks.on(GameEvents.GAME_START, () => {
