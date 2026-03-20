@@ -11,7 +11,7 @@ import { supabase } from '../../supabase.js';
 // ---- Novos Módulos (Teste) ----
 import { GameHooks, GameEvents } from '../shared/hooks.js';
 import { ParticleSystem } from '../shared/skills/particle-system/index.js';
-import { AnimationSystem } from '../shared/skills/animation-system/index.js';
+import { fadeIn } from '../shared/skills/animation-system/index.js';
 import { GameDashboard } from '../shared/dashboard/index.js';
 
 // ---- Constants ----
@@ -107,7 +107,6 @@ let particles, animations, dashboard;
 // Inicializar após DOM estar pronto
 function initVisualSystems() {
   particles = new ParticleSystem(canvas, { autoResize: true });
-  animations = new AnimationSystem();
   dashboard = new GameDashboard({
     container: document.body,
     gameId: 'pacman',
@@ -136,7 +135,7 @@ function initVisualSystems() {
 // ---- Configurar Hooks ----
 hooks.on(GameEvents.GAME_START, () => {
   console.log('[Hooks] Game started!');
-  animations.fadeIn(overlay, { duration: 300 });
+  fadeIn(overlay, { duration: 300 });
 });
 
 hooks.on(GameEvents.GAME_END, ({ score, level }) => {
