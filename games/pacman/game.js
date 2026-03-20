@@ -416,6 +416,21 @@ function tick() {
 
     // Emitir evento de dot comido
     hooks.emit('dot:eaten', { type: 'normal', points: 10 });
+
+    // Animação sutil no score
+    scoreDisplay.classList.add('score-bump');
+    setTimeout(() => scoreDisplay.classList.remove('score-bump'), 300);
+
+    // Partículas mínimas ao comer dot
+    const cs = cellSize;
+    particles.emit({
+      x: pacman.x * cs + cs / 2,
+      y: pacman.y * cs + cs / 2,
+      count: 3,
+      type: 'sparkle',
+      color: '#ffffff',
+      options: { decay: 0.05, size: 2 }
+    });
   } else if (tile === P) {
     maze[pacman.y][pacman.x] = E;
     score += 50;
@@ -489,7 +504,64 @@ function movePacman() {
   }
 }
 
-function activateFrightened() {
+// ---- Adicionar efeitos visuais imediatos ----
+// Estes efeitos são visíveis durante todo o jogo
+
+// Efeito de shake quando perde vida
+function screenShake() {
+  canvas.style.transform = 'translate(5px, 5px)';
+  setTimeout(() => canvas.style.transform = 'translate(-5px, -5px)', 50);
+  setTimeout(() => canvas.style.transform = 'translate(5px, -5px)', 100);
+  setTimeout(() => canvas.style.transform = 'translate(-5px, 5px)', 150);
+  setTimeout(() => canvas.style.transform = 'translate(0, 0)', 200);
+}
+
+// Mostrar número flutuante de pontos
+function showFloatingText(text, x, y, color = '#ffe66d') {
+  const el = document.createElement('div');
+  el.textContent = text;
+  el.style.cssText = `
+    position: fixed;
+    left: ${x}px;
+    top: ${y}px;
+    color: ${color};
+    font-size: 20px;
+    font-weight: bold;
+    pointer-events: none;
+    text-shadow: 0 0 10px ${color};
+    z-index: 1000;
+    animation: floatUp 1s ease-out forwards;
+  `;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// Adicionar CSS para animação
+if (!document.getElementById('pacman-effects')) {
+  const style = document.createElement('style');
+  style.id = 'pacman-effects';
+  style.textContent = `
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { filter: drop-shadow(0 0 5px #ffe66d); }
+      50% { filter: drop-shadow(0 0 20px #ffe66d) drop-shadow(0 0 30px #ff6b35); }
+    }
+    .power-pellet-active canvas {
+      animation: pulse-glow 0.5s ease-in-out infinite;
+    }
+    .score-bump {
+      animation: scoreBump 0.3s ease;
+    }
+    @keyframes scoreBump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); color: #ff6b35; }
+    }
+  `;
+  document.head.appendChild(style);
+}
   frightenedTimer = Math.round(8000 / TICK_MS); // ~8 seconds
   for (const g of ghosts) {
     if (g.mode !== MODE_EATEN) {
@@ -518,10 +590,28 @@ function checkGhostCollisions() {
           points: 200,
           ghostName: GHOST_NAMES[g.idx]
         });
+
+        // Mostrar +200 flutuante
+        const cs = cellSize;
+        const rect = canvas.getBoundingClientRect();
+        showFloatingText('+200', rect.left + pacman.x * cs + cs/2, rect.top + pacman.y * cs, '#00ff00');
       } else if (g.mode !== MODE_EATEN) {
-        // Pac-man dies
+        // Pac-man dies - EFEITOS VISUAIS
         lives--;
         livesDisplay.textContent = lives;
+        playSound('gameover');
+
+        // Shake na tela quando morre
+        screenShake();
+
+        // Partículas de explosão
+        const cs = cellSize;
+        particles.explode(
+          pacman.x * cs + cs / 2,
+          pacman.y * cs + cs / 2,
+          { count: 40, colors: ['#ff0000', '#ffa500', '#ffff00'] }
+        );
+
         if (lives <= 0) {
           gameOver();
         } else {
@@ -620,6 +710,20 @@ function draw() {
   const cs = cellSize;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Efeito de glow no fundo quando power pellet está ativo
+  if (frightenedTimer > 0) {
+    const intensity = frightenedTimer / 50; // Fade conforme passa o tempo
+    const gradient = ctx.createRadialGradient(
+      pacman.x * cs + cs / 2, pacman.y * cs + cs / 2, 0,
+      pacman.x * cs + cs / 2, pacman.y * cs + cs / 2, cs * 8
+    );
+    gradient.addColorStop(0, `rgba(255, 230, 109, ${0.3 * intensity})`);
+    gradient.addColorStop(0.5, `rgba(255, 107, 53, ${0.1 * intensity})`);
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
   // Draw maze
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -707,12 +811,21 @@ function drawPacman() {
   else if (pacman.dir.y === -1) angle = -Math.PI / 2;
   else if (pacman.dir.y === 1)  angle = Math.PI / 2;
 
+  // Glow effect quando power pellet está ativo
+  if (frightenedTimer > 0) {
+    ctx.shadowColor = '#ffe66d';
+    ctx.shadowBlur = 20;
+  }
+
   ctx.fillStyle = '#ffff00';
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.arc(cx, cy, r, angle + mouth, angle + Math.PI * 2 - mouth);
   ctx.closePath();
   ctx.fill();
+
+  // Reset shadow
+  ctx.shadowBlur = 0;
 }
 
 function drawGhost(g) {
