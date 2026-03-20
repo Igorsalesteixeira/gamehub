@@ -358,12 +358,6 @@ export function initSidebar(options = {}) {
   if (window.location.pathname.includes('/games/')) {
     const gameName = window.location.pathname.split('/games/')[1].split('/')[0];
 
-    const friendBtn = document.createElement('a');
-    friendBtn.href = base + 'multiplayer.html?game=' + gameName;
-    friendBtn.className = 'friend-play-float';
-    friendBtn.innerHTML = '🎮 Jogar com Amigos';
-    document.body.appendChild(friendBtn);
-
     // Lista de jogos que suportam multiplayer
     const multiplayerGames = ['truco', 'uno', 'poker', 'buraco', 'chess', 'checkers', 'ludo', 'domino', 'go', 'connect4', 'reversi', 'battleship', 'tictactoe'];
 
@@ -371,6 +365,12 @@ export function initSidebar(options = {}) {
     if (!multiplayerGames.includes(gameName)) {
       return;
     }
+
+    const friendBtn = document.createElement('a');
+    friendBtn.href = base + 'multiplayer.html?game=' + gameName;
+    friendBtn.className = 'friend-play-float';
+    friendBtn.innerHTML = '🎮 Jogar com Amigos';
+    document.body.appendChild(friendBtn);
 
     const friendStyle = document.createElement('style');
     friendStyle.textContent = `
