@@ -176,6 +176,13 @@ body::after {
   box-sizing: border-box;
 }
 
+/* Área principal do jogo */
+.game-board {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 /* Canvas do jogo com efeito holográfico */
 #game-canvas {
   border: 2px solid var(--glass-border);
