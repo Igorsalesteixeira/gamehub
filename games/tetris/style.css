@@ -682,6 +682,110 @@ body::after {
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
+/* ===== SCREEN SHAKE ANIMATIONS ===== */
+@keyframes screenShakeHigh {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-8px, 0); }
+  20% { transform: translate(8px, 0); }
+  30% { transform: translate(-8px, 0); }
+  40% { transform: translate(8px, 0); }
+  50% { transform: translate(-5px, 0); }
+  60% { transform: translate(5px, 0); }
+  70% { transform: translate(-3px, 0); }
+  80% { transform: translate(3px, 0); }
+  90% { transform: translate(-1px, 0); }
+}
+
+@keyframes screenShakeLow {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 0); }
+  50% { transform: translate(3px, 0); }
+  75% { transform: translate(-2px, 0); }
+}
+
+body.shaking {
+  animation: screenShakeHigh 0.6s ease-in-out;
+}
+
+body.shaking-low {
+  animation: screenShakeLow 0.3s ease-in-out;
+}
+
+/* ===== FLASH EFFECTS ===== */
+@keyframes flashGold {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(255, 215, 0, 0.3); }
+}
+
+@keyframes flashCyan {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(0, 212, 255, 0.2); }
+}
+
+.flash-tetris {
+  animation: flashGold 0.5s ease-out;
+}
+
+.flash-combo {
+  animation: flashCyan 0.4s ease-out;
+}
+
+/* ===== BLOCK GLOW EFFECTS ===== */
+.block-glow {
+  box-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+  animation: blockPulse 0.3s ease-out;
+}
+
+@keyframes blockPulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.05);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* ===== GHOST PIECE ENHANCEMENT ===== */
+.ghost-piece-canvas {
+  opacity: 0.3;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+/* ===== PARTICLE CONTAINER ===== */
+.particles-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ===== LINE CLEAR EFFECT ===== */
+.line-clearing {
+  animation: lineClear 0.3s ease-out forwards;
+}
+
+@keyframes lineClear {
+  0% {
+    transform: scaleX(1);
+    opacity: 1;
+    filter: brightness(2) saturate(1.5);
+  }
+  100% {
+    transform: scaleX(1.1);
+    opacity: 0;
+    filter: brightness(3);
+  }
+}
+
 /* SEO Game Info Section */
 .game-info {
   max-width: 780px;

@@ -2,7 +2,9 @@ import '../../auth-check.js?v=4';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js?v=4';
 import { GameStats } from '../shared/game-core.js?v=4';
 import { GameLoop } from '../shared/game-loop.js?v=4';
-import { InputManager } from '../shared/input-manager.js?v=4';
+import { InputManager } from '../shared/game-loop.js?v=4';
+import { ParticleSystem } from '../shared/skills/particle-system/index.js?v=1';
+import { shake, pulse } from '../shared/skills/animation-system/index.js?v=1';
 // =============================================
 //  Space Invaders — Games Hub (Refatorado)
 // =============================================
@@ -32,6 +34,11 @@ function resize() {
   scale = Math.min(maxW / BASE_W, maxH / BASE_H, 1.5);
   canvas.width = Math.floor(BASE_W * scale);
   canvas.height = Math.floor(BASE_H * scale);
+
+  // Inicializa sistema de partículas se ainda não foi
+  if (!particleSystem && canvas) {
+    particleSystem = new ParticleSystem(canvas, { autoResize: false });
+  }
 }
 window.addEventListener('resize', resize);
 resize();
@@ -81,6 +88,9 @@ let alienShootInterval = 90; // frames
 
 // Explosions
 let explosions = [];
+
+// ===== SISTEMA DE PARTÍCULAS =====
+let particleSystem = null;
 
 // ===== STATS =====
 const gameStats = new GameStats('spaceinvaders', { autoSync: true });
@@ -230,10 +240,27 @@ function drawAlien(a) {
   }
 }
 
-function drawBullet(b, color) {
+function drawBullet(b, color, isPlayer = false) {
   const s = scale;
+
+  ctx.save();
+
+  // Laser brilhante (glow azul) para tiros do jogador
+  if (isPlayer) {
+    ctx.shadowBlur = 15 * s;
+    ctx.shadowColor = '#4fc3f7';
+  }
+
   ctx.fillStyle = color;
   ctx.fillRect(b.x * s - 2 * s, b.y * s - 4 * s, 4 * s, 8 * s);
+
+  // Núcleo brilhante do laser
+  if (isPlayer) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(b.x * s - 1 * s, b.y * s - 3 * s, 2 * s, 6 * s);
+  }
+
+  ctx.restore();
 }
 
 function drawExplosions() {
@@ -270,6 +297,21 @@ function update(dt) {
   const keys = inputManager._keys;
   if (keys.get('ArrowLeft') || keys.get('a') || keys.get('A') || mobileLeft) dx -= playerSpeed;
   if (keys.get('ArrowRight') || keys.get('d') || keys.get('D') || mobileRight) dx += playerSpeed;
+
+  // Partículas de fumaça ao mover
+  if (dx !== 0 && particleSystem && Math.random() < 0.3) {
+    particleSystem.emit({
+      x: playerX * scale,
+      y: (playerY + PLAYER_H / 2) * scale,
+      count: 2,
+      type: 'smoke',
+      color: ['rgba(79, 195, 247, 0.5)', 'rgba(100, 100, 100, 0.3)'],
+      speed: 1,
+      spread: 60,
+      life: 0.6
+    });
+  }
+
   playerX += dx;
   playerX = Math.max(PLAYER_W / 2 + 4, Math.min(BASE_W - PLAYER_W / 2 - 4, playerX));
 
@@ -356,6 +398,22 @@ function update(dt) {
         a.alive = false;
         playerBullets.splice(bi, 1);
         score += ALIEN_POINTS[a.type];
+
+        // Explosão de partículas ao matar alien
+        if (particleSystem) {
+          const alienColors = ['#ff6b6b', '#ffd93d', '#6bcb77'];
+          particleSystem.emit({
+            x: (a.x + ALIEN_W / 2) * scale,
+            y: (a.y + ALIEN_H / 2) * scale,
+            count: 15,
+            type: 'explosion',
+            color: [alienColors[a.type], '#ffffff', '#ff8c00'],
+            speed: 5,
+            spread: 360,
+            life: 0.8
+          });
+        }
+
         explosions.push({
           x: a.x + ALIEN_W / 2,
           y: a.y + ALIEN_H / 2,
@@ -387,6 +445,24 @@ function update(dt) {
       alienBullets.splice(i, 1);
       lives--;
       updateHUD();
+
+      // Screen shake quando nave é atingida
+      shake(document.body, { intensity: lives <= 1 ? 'high' : 'medium', duration: 400 });
+
+      // Explosão de partículas na nave
+      if (particleSystem) {
+        particleSystem.emit({
+          x: playerX * scale,
+          y: playerY * scale,
+          count: 20,
+          type: 'fire',
+          color: ['#4fc3f7', '#ffffff', '#ff6b6b', '#ffd93d'],
+          speed: 6,
+          spread: 360,
+          life: 1.0
+        });
+      }
+
       explosions.push({
         x: playerX,
         y: playerY,
@@ -477,7 +553,7 @@ function render() {
 
   // Player bullets
   for (const b of playerBullets) {
-    drawBullet(b, '#4fc3f7');
+    drawBullet(b, '#4fc3f7', true);
   }
 
   // Alien bullets
@@ -487,6 +563,11 @@ function render() {
 
   // Explosions
   drawExplosions();
+
+  // Atualiza sistema de partículas
+  if (particleSystem) {
+    particleSystem.update(false);
+  }
 
   // Pausa overlay
   if (paused) {

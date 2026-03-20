@@ -652,7 +652,74 @@ body::before {
   }
 }
 
-/* Fade in animation */
-.fadeIn {
-  animation: fadeIn 0.5s ease forwards;
+/* ===== SCREEN SHAKE ANIMATION ===== */
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5px, 0); }
+  20% { transform: translate(5px, 0); }
+  30% { transform: translate(-5px, 0); }
+  40% { transform: translate(5px, 0); }
+  50% { transform: translate(-3px, 0); }
+  60% { transform: translate(3px, 0); }
+  70% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 0); }
+  90% { transform: translate(-1px, 0); }
+}
+
+body.shaking {
+  animation: screenShake 0.4s ease-in-out;
+}
+
+/* Snake body enhanced glow effect */
+.snake-glow {
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8))
+          drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+}
+
+/* Floating score animation */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(1.2);
+  }
+}
+
+.floating-score {
+  position: absolute;
+  color: #53d769;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px #53d769, 0 0 20px #53d769;
+  animation: floatUp 1s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Eye glow enhancement */
+.eye-glow {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 200, 0.9))
+          drop-shadow(0 0 10px rgba(255, 255, 200, 0.7));
+}
+
+/* Enhanced food explosion effect */
+.food-explosion {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff6b35 0%, #ffd93d 50%, transparent 100%);
+  animation: explode 0.5s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }

@@ -7,6 +7,8 @@ import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared
 import { GameStats, GameStorage } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
+import { ParticleSystem } from '../shared/skills/particle-system/index.js';
+import { shake } from '../shared/skills/animation-system/index.js';
 
 // ---- Config ----
 const GRID_SIZE  = 20;
@@ -52,6 +54,11 @@ let foodPulse = 0;
 let isDying = false;
 let deathAnimationFrame = 0;
 
+// ---- Shared Particle System ----
+let particleSystem = null;
+let snakeGlowIntensity = 0;
+let eyeGlowPulse = 0;
+
 // ---- Event Listener Management ----
 let mobileControlsInitialized = false;
 const trackedListeners = [];
@@ -95,8 +102,22 @@ const gameLoop = new GameLoop({
     particles = particles.filter(p => p.life > 0);
     scorePopups = scorePopups.filter(sp => sp.life > 0);
 
+    // Update shared particle system
+    if (particleSystem) {
+      particleSystem.update(false);
+    }
+
     // Update food pulse animation
     foodPulse += 0.1;
+
+    // Update eye glow pulse
+    eyeGlowPulse += 0.15;
+
+    // Decay snake glow intensity
+    if (snakeGlowIntensity > 0) {
+      snakeGlowIntensity -= 0.02;
+      if (snakeGlowIntensity < 0) snakeGlowIntensity = 0;
+    }
 
     // Handle death animation
     if (isDying) {
@@ -281,6 +302,8 @@ function tick() {
   };
 
   if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+    // Screen shake ao bater na parede
+    shake(document.body, { intensity: 'medium', duration: 400 });
     triggerDeath();
     return;
   }
@@ -298,8 +321,29 @@ function tick() {
     score++;
     scoreDisplay.textContent = score;
     eatRipple = { x: food.x, y: food.y, frame: 0 };
+
+    // Explosão de partículas ao comer comida (usando novo sistema)
+    if (particleSystem) {
+      const cs = cellSize;
+      particleSystem.emit({
+        x: food.x * cs + cs / 2,
+        y: food.y * cs + cs / 2,
+        count: 20,
+        type: 'explosion',
+        color: ['#ff6b35', '#ffd93d', '#ffffff', '#53d769'],
+        speed: 6,
+        spread: 360,
+        life: 1.0
+      });
+    }
+
+    // Fallback para sistema antigo de partículas
     createExplosion(food.x + 0.5, food.y + 0.5, '#e94560', 15, 1.2);
     scorePopups.push(new ScorePopup(food.x, food.y, 1));
+
+    // Aumenta intensidade do glow temporariamente
+    snakeGlowIntensity = 1.0;
+
     playSound('eat');
     if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
     spawnFood();
@@ -471,8 +515,19 @@ function draw() {
 
       ctx.save();
       const fade = 1 - (i / snake.length) * 0.4;
-      ctx.shadowBlur = isHead ? 15 : 8 * fade;
-      ctx.shadowColor = isHead ? '#53d769' : `rgba(83, 215, 105, ${fade})`;
+
+      // Rastro brilhante na cobra (glow amarelo no corpo)
+      const glowBoost = snakeGlowIntensity * 20;
+      const baseGlow = isHead ? 15 : 8 * fade;
+      ctx.shadowBlur = baseGlow + glowBoost;
+
+      // Cor do glow: amarelo/dourado quando come, verde normal
+      const glowR = Math.floor(83 + snakeGlowIntensity * 172);
+      const glowG = Math.floor(215 + snakeGlowIntensity * 40);
+      const glowB = Math.floor(105 - snakeGlowIntensity * 55);
+      ctx.shadowColor = isHead
+        ? `rgba(${glowR}, ${glowG}, ${glowB}, ${0.8 + snakeGlowIntensity * 0.2})`
+        : `rgba(83, 215, 105, ${fade})`;
 
       if (isHead) {
         const grd = ctx.createRadialGradient(
@@ -511,12 +566,16 @@ function draw() {
       ctx.fill();
       ctx.restore();
 
-      // Eyes
+      // Eyes com glow pulsante
       if (isHead) {
         ctx.save();
         ctx.fillStyle = '#fff';
-        ctx.shadowBlur = 4;
-        ctx.shadowColor = 'rgba(255,255,255,0.5)';
+
+        // Glow no olho da cobra - intensidade pulsante
+        const eyeGlowIntensity = 4 + Math.sin(eyeGlowPulse) * 2 + (snakeGlowIntensity * 8);
+        ctx.shadowBlur = eyeGlowIntensity;
+        ctx.shadowColor = 'rgba(255, 255, 200, 0.9)';
+
         const eyeR = cs * 0.08;
         let ex1, ey1, ex2, ey2;
         if (direction.x === 1)       { ex1 = cs*0.65; ey1 = cs*0.3;  ex2 = cs*0.65; ey2 = cs*0.7; }
@@ -603,6 +662,11 @@ function initDOM() {
   btnStart     = document.getElementById('btn-start');
   scoreDisplay = document.getElementById('score-display');
   bestDisplay  = document.getElementById('best-display');
+
+  // Inicializa sistema de partículas
+  if (canvas && !particleSystem) {
+    particleSystem = new ParticleSystem(canvas, { autoResize: false });
+  }
 }
 
 function init() {
