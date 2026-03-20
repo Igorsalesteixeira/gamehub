@@ -189,6 +189,121 @@ body {
   .ctrl-btn.ctrl-wide { width: 90px; }
 }
 
+/* ===== SCREEN SHAKE ===== */
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-6px, 0); }
+  20% { transform: translate(6px, 0); }
+  30% { transform: translate(-6px, 0); }
+  40% { transform: translate(6px, 0); }
+  50% { transform: translate(-4px, 0); }
+  60% { transform: translate(4px, 0); }
+  70% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 0); }
+  90% { transform: translate(-1px, 0); }
+}
+
+@keyframes screenShakeHigh {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  10% { transform: translate(-10px, 0) rotate(-1deg); }
+  20% { transform: translate(10px, 0) rotate(1deg); }
+  30% { transform: translate(-10px, 0) rotate(-1deg); }
+  40% { transform: translate(10px, 0) rotate(1deg); }
+  50% { transform: translate(-6px, 0) rotate(-0.5deg); }
+  60% { transform: translate(6px, 0) rotate(0.5deg); }
+  70% { transform: translate(-4px, 0) rotate(-0.3deg); }
+  80% { transform: translate(4px, 0) rotate(0.3deg); }
+  90% { transform: translate(-2px, 0) rotate(0); }
+}
+
+body.shaking {
+  animation: screenShake 0.4s ease-in-out;
+}
+
+body.shaking-high {
+  animation: screenShakeHigh 0.6s ease-in-out;
+}
+
+/* ===== LASER GLOW EFFECTS ===== */
+@keyframes laserPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px #4fc3f7, 0 0 20px #4fc3f7, 0 0 30px #4fc3f7;
+  }
+  50% {
+    box-shadow: 0 0 20px #4fc3f7, 0 0 40px #4fc3f7, 0 0 60px #4fc3f7;
+  }
+}
+
+.laser-glow {
+  animation: laserPulse 0.3s ease-in-out infinite;
+}
+
+/* ===== EXPLOSION EFFECTS ===== */
+@keyframes explode {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.explosion-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: explode 0.5s ease-out forwards;
+}
+
+/* ===== SMOKE PARTICLES ===== */
+@keyframes smokeRise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-50px) scale(2);
+    opacity: 0;
+  }
+}
+
+.smoke-particle {
+  position: absolute;
+  background: radial-gradient(circle, rgba(100,100,100,0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: smokeRise 1s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ===== SHIELD GLOW ===== */
+@keyframes shieldGlow {
+  0%, 100% {
+    box-shadow: inset 0 0 10px rgba(79, 195, 247, 0.3);
+    border-color: rgba(79, 195, 247, 0.5);
+  }
+  50% {
+    box-shadow: inset 0 0 25px rgba(79, 195, 247, 0.6);
+    border-color: rgba(79, 195, 247, 0.9);
+  }
+}
+
+.shield-hit {
+  animation: shieldGlow 0.3s ease-out;
+}
+
+/* ===== PARTICLES LAYER ===== */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;

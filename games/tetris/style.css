@@ -170,10 +170,10 @@ body::after {
   gap: 1rem;
   align-items: flex-start;
   justify-content: center;
-  flex-wrap: wrap;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  margin: 0 auto;
 }
 
 /* Área principal do jogo */
@@ -181,6 +181,12 @@ body::after {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  flex-shrink: 0;
+}
+
+/* Painel lateral não deve encolher */
+.side-panel {
+  flex-shrink: 0;
 }
 
 /* Canvas do jogo com efeito holográfico */
