@@ -102,26 +102,36 @@ const gameStats = new GameStats('pacman', { autoSync: true });
 
 // ---- Novos Sistemas (Teste) ----
 const hooks = new GameHooks({ gameId: 'pacman' });
-const particles = new ParticleSystem(canvas, { autoResize: true });
-const animations = new AnimationSystem();
-const dashboard = new GameDashboard({
-  container: document.body,
-  gameId: 'pacman',
-  showParticles: true
-});
+let particles, animations, dashboard;
 
-// ---- Configurar Botão do Dashboard ----
-document.getElementById('btn-dashboard')?.addEventListener('click', () => {
-  dashboard.show();
-  // Efeito de partículas ao abrir
-  particles.emit({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-    count: 30,
-    type: 'sparkle',
-    color: '#4ecdc4'
+// Inicializar após DOM estar pronto
+function initVisualSystems() {
+  particles = new ParticleSystem(canvas, { autoResize: true });
+  animations = new AnimationSystem();
+  dashboard = new GameDashboard({
+    container: document.body,
+    gameId: 'pacman',
+    showParticles: true
   });
-});
+
+  // Configurar Botão do Dashboard
+  const btnDashboard = document.getElementById('btn-dashboard');
+  if (btnDashboard) {
+    btnDashboard.addEventListener('click', () => {
+      dashboard.show();
+      // Efeito de partículas ao abrir
+      if (particles) {
+        particles.emit({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          count: 30,
+          type: 'sparkle',
+          color: '#4ecdc4'
+        });
+      }
+    });
+  }
+}
 
 // ---- Configurar Hooks ----
 hooks.on(GameEvents.GAME_START, () => {
@@ -1026,3 +1036,10 @@ async function saveGameStat() {
 buildMaze();
 resizeCanvas();
 draw();
+
+// Inicializar sistemas visuais quando DOM estiver pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVisualSystems);
+} else {
+  initVisualSystems();
+}
