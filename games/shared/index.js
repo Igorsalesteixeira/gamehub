@@ -4,9 +4,13 @@
  * Ponto central de exportação para todos os módulos compartilhados.
  * Use este arquivo para importar qualquer utilitário do Game Hub.
  *
+ * Este arquivo mantém compatibilidade com exports existentes enquanto
+ * adiciona novos módulos da arquitetura modular.
+ *
  * @module shared
  * @example
  * import { GameTimer, GameLoop, InputManager } from '../shared/index.js';
+ * import { GameHooks, GameStateStore, SyncManager } from '../shared/index.js';
  */
 
 // ============================================
@@ -29,6 +33,58 @@ export {
   GameStorage,
   EventEmitter
 } from './game-core.js';
+
+// ============================================
+// State Store - IndexedDB
+// ============================================
+export {
+  GameStateStore,
+  stateStore,
+  initStateStore
+} from './state-store.js';
+
+// ============================================
+// Sync Manager - Offline First
+// ============================================
+export {
+  SyncManager,
+  syncManager,
+  initSyncManager,
+  queue,
+  forceSync,
+  getStatus,
+  SYNC_STATUS,
+  OPERATION_TYPES
+} from './sync-manager.js';
+
+// ============================================
+// Asset Loader
+// ============================================
+export {
+  AssetLoader,
+  assetLoader,
+  loadAsset,
+  preloadAssets
+} from './asset-loader.js';
+
+// ============================================
+// Hooks Event-Driven
+// ============================================
+export {
+  GameHooks,
+  GameEvents,
+  createGlobalHooks,
+  resetGlobalHooks
+} from './hooks.js';
+
+// ============================================
+// Verificação de Estado
+// ============================================
+export {
+  GameVerifier,
+  VerificationError,
+  createCommonVerifier
+} from './verification.js';
 
 // ============================================
 // Timer
@@ -138,6 +194,43 @@ export {
   assertTrue,
   assertFalse
 } from './game-test-utils.js';
+
+// ============================================
+// Skills Modulares
+// ============================================
+
+// Particle System - Efeitos visuais
+export {
+  ParticleSystem,
+  createParticleSystem
+} from './skills/particle-system/index.js';
+
+// Animation System - Animações reutilizáveis
+export {
+  shake,
+  bounce,
+  fadeIn,
+  fadeOut,
+  slideUp,
+  slideDown,
+  rotate,
+  pulse,
+  sequence,
+  flip
+} from './skills/animation-system/index.js';
+
+// Sound Manager - Gerenciamento de áudio
+export {
+  SoundManager,
+  createSoundManager
+} from './skills/sound-manager/index.js';
+
+// Save State - Persistência de estado
+export {
+  SaveState,
+  createSaveState,
+  clearAllSaves
+} from './skills/save-state/index.js';
 
 // ============================================
 // PWA (se existir)
