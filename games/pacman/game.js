@@ -572,6 +572,8 @@ if (!document.getElementById('pacman-effects')) {
   `;
   document.head.appendChild(style);
 }
+
+function activateFrightened() {
   frightenedTimer = Math.round(8000 / TICK_MS); // ~8 seconds
   for (const g of ghosts) {
     if (g.mode !== MODE_EATEN) {
