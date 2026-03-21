@@ -209,43 +209,53 @@ export async function getFriends() {
 
     const currentUserId = session.user.id;
 
-    // Busca amizades onde o usuário é o requester (join manual com profiles)
-    const { data: sentFriends, error: error1 } = await supabase
+    // Busca todas as amizades aceitas
+    const { data: friendships, error } = await supabase
       .from('friendships')
-      .select(`
-        id,
-        friend_id,
-        updated_at,
-        profiles!friendships_friend_id_fkey (id, username, display_name, avatar_url)
-      `)
-      .eq('user_id', currentUserId)
+      .select('id, user_id, friend_id, updated_at')
+      .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`)
       .eq('status', 'accepted');
 
-    if (error1) {
-      console.error(MODULE_NAME, 'Erro ao buscar amigos (sent):', error1);
+    if (error) {
+      console.error(MODULE_NAME, 'Erro ao buscar amigos:', error);
+      return { data: null, error };
     }
 
-    // Busca amizades onde o usuário é o recipient
-    const { data: receivedFriends, error: error2 } = await supabase
-      .from('friendships')
-      .select(`
-        id,
-        user_id,
-        updated_at,
-        profiles!friendships_user_id_fkey (id, username, display_name, avatar_url)
-      `)
-      .eq('friend_id', currentUserId)
-      .eq('status', 'accepted');
-
-    if (error2) {
-      console.error(MODULE_NAME, 'Erro ao buscar amigos (received):', error2);
+    if (!friendships || friendships.length === 0) {
+      return { data: [], error: null };
     }
 
-    // Combina as listas
-    const friends = [
-      ...(sentFriends || []).map(f => ({ ...f.profiles, friendship_id: f.id, since: f.updated_at })),
-      ...(receivedFriends || []).map(f => ({ ...f.profiles, friendship_id: f.id, since: f.updated_at }))
-    ];
+    // Extrai IDs dos amigos
+    const friendIds = friendships.map(f =>
+      f.user_id === currentUserId ? f.friend_id : f.user_id
+    );
+
+    // Busca perfis dos amigos
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .in('id', friendIds);
+
+    if (profilesError) {
+      console.error(MODULE_NAME, 'Erro ao buscar perfis:', profilesError);
+    }
+
+    // Cria mapa de perfis
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+
+    // Combina dados
+    const friends = friendships.map(f => {
+      const friendId = f.user_id === currentUserId ? f.friend_id : f.user_id;
+      const profile = profileMap.get(friendId) || {};
+      return {
+        id: friendId,
+        friendship_id: f.id,
+        username: profile.username,
+        display_name: profile.display_name,
+        avatar_url: profile.avatar_url,
+        since: f.updated_at
+      };
+    });
 
     console.log(MODULE_NAME, 'Amigos encontrados:', friends.length);
     return { data: friends, error: null };
@@ -268,14 +278,10 @@ export async function getPendingRequests() {
       return { data: null, error: new Error('Usuário não autenticado') };
     }
 
-    const { data, error } = await supabase
+    // Busca solicitações pendentes recebidas
+    const { data: requests, error } = await supabase
       .from('friendships')
-      .select(`
-        id,
-        user_id,
-        created_at,
-        profiles!friendships_user_id_fkey (id, username, display_name, avatar_url)
-      `)
+      .select('id, user_id, created_at')
       .eq('friend_id', session.user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
@@ -285,14 +291,37 @@ export async function getPendingRequests() {
       return { data: null, error };
     }
 
-    const requests = (data || []).map(r => ({
-      ...r.profiles,
-      friendship_id: r.id,
-      request_date: r.created_at
-    }));
+    if (!requests || requests.length === 0) {
+      return { data: [], error: null };
+    }
 
-    console.log(MODULE_NAME, 'Solicitações pendentes:', requests.length);
-    return { data: requests, error: null };
+    // Busca perfis dos remetentes
+    const senderIds = requests.map(r => r.user_id);
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .in('id', senderIds);
+
+    if (profilesError) {
+      console.error(MODULE_NAME, 'Erro ao buscar perfis:', profilesError);
+    }
+
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+
+    const result = requests.map(r => {
+      const profile = profileMap.get(r.user_id) || {};
+      return {
+        id: r.user_id,
+        friendship_id: r.id,
+        username: profile.username,
+        display_name: profile.display_name,
+        avatar_url: profile.avatar_url,
+        request_date: r.created_at
+      };
+    });
+
+    console.log(MODULE_NAME, 'Solicitações pendentes:', result.length);
+    return { data: result, error: null };
   } catch (e) {
     console.error(MODULE_NAME, 'Erro inesperado:', e);
     return { data: null, error: e };
@@ -312,14 +341,9 @@ export async function getSentRequests() {
       return { data: null, error: new Error('Usuário não autenticado') };
     }
 
-    const { data, error } = await supabase
+    const { data: requests, error } = await supabase
       .from('friendships')
-      .select(`
-        id,
-        friend_id,
-        created_at,
-        profiles!friendships_friend_id_fkey (id, username, display_name, avatar_url)
-      `)
+      .select('id, friend_id, created_at')
       .eq('user_id', session.user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
@@ -329,14 +353,37 @@ export async function getSentRequests() {
       return { data: null, error };
     }
 
-    const requests = (data || []).map(r => ({
-      ...r.profiles,
-      friendship_id: r.id,
-      request_date: r.created_at
-    }));
+    if (!requests || requests.length === 0) {
+      return { data: [], error: null };
+    }
 
-    console.log(MODULE_NAME, 'Solicitações enviadas:', requests.length);
-    return { data: requests, error: null };
+    // Busca perfis dos destinatários
+    const recipientIds = requests.map(r => r.friend_id);
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .in('id', recipientIds);
+
+    if (profilesError) {
+      console.error(MODULE_NAME, 'Erro ao buscar perfis:', profilesError);
+    }
+
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+
+    const result = requests.map(r => {
+      const profile = profileMap.get(r.friend_id) || {};
+      return {
+        id: r.friend_id,
+        friendship_id: r.id,
+        username: profile.username,
+        display_name: profile.display_name,
+        avatar_url: profile.avatar_url,
+        request_date: r.created_at
+      };
+    });
+
+    console.log(MODULE_NAME, 'Solicitações enviadas:', result.length);
+    return { data: result, error: null };
   } catch (e) {
     console.error(MODULE_NAME, 'Erro inesperado:', e);
     return { data: null, error: e };

@@ -67,10 +67,7 @@ export async function sendChallenge(friendId, gameType, options = {}) {
         status: 'pending',
         message: options.message || null
       })
-      .select(`
-        *,
-        profiles!challenges_challenger_id_fkey (id, username, display_name, avatar_url)
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -213,10 +210,7 @@ export async function getPendingChallenges() {
 
     const { data, error } = await supabase
       .from('challenges')
-      .select(`
-        *,
-        profiles!challenges_challenger_id_fkey (id, username, display_name, avatar_url)
-      `)
+      .select('*')
       .eq('challenged_id', session.user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
@@ -280,10 +274,7 @@ export async function getSentChallenges() {
 
     const { data, error } = await supabase
       .from('challenges')
-      .select(`
-        *,
-        profiles!challenges_challenged_id_fkey (id, username, display_name, avatar_url)
-      `)
+      .select('*')
       .eq('challenger_id', session.user.id)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
