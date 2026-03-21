@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TESTE - Pac-Man</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: monospace;
+      background: #000;
+      color: #0f0;
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #0f0;
+    }
+    .pass { background: rgba(0, 255, 0, 0.2); }
+    .fail { background: rgba(255, 0, 0, 0.2); color: #f00; border-color: #f00; }
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: 2px solid #0f0;
+      margin-top: 20px;
+    }
+    h1 { color: #ffff00; }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      background: #2121de;
+      color: #fff;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 TESTE - Pac-Man Simplificado</h1>
+
+  <div id="results"></div>
+
+  <button onclick="runTests()">Rodar Testes</button>
+  <button onclick="document.getElementById('game-frame').src='index.html'">Carregar Jogo</button>
+
+  <h2>Preview do Jogo:</h2>
+  <iframe id="game-frame" src=""></iframe>
+
+  <script>
+    function addResult(name, passed, message) {
+      const div = document.createElement('div');
+      div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      div.innerHTML = `${passed ? '✅' : '❌'} ${name}: ${message}`;
+      document.getElementById('results').appendChild(div);
+    }
+
+    async function runTests() {
+      document.getElementById('results').innerHTML = '';
+
+      // Test 1: Arquivos existem
+      try {
+        const html = await fetch('index.html');
+        const css = await fetch('style.css');
+        const js = await fetch('game.js');
+        addResult('Arquivos existem', html.ok && css.ok && js.ok, 'Todos os arquivos carregam');
+      } catch (e) {
+        addResult('Arquivos existem', false, e.message);
+      }
+
+      // Test 2: HTML nao tem dashboard
+      try {
+        const html = await fetch('index.html').then(r => r.text());
+        const hasDashboard = html.includes('dashboard') || html.includes('Dashboard');
+        addResult('Sem dashboard', !hasDashboard, hasDashboard ? 'Dashboard encontrado!' : 'OK - Sem dashboard');
+      } catch (e) {
+        addResult('Sem dashboard', false, e.message);
+      }
+
+      // Test 3: HTML nao tem particle-system
+      try {
+        const html = await fetch('index.html').then(r => r.text());
+        const hasParticles = html.includes('particle-system') || html.includes('particle');
+        addResult('Sem particulas', !hasParticles, hasParticles ? 'Particulas encontradas!' : 'OK - Sem particulas');
+      } catch (e) {
+        addResult('Sem particulas', false, e.message);
+      }
+
+      // Test 4: Canvas tem dimensoes
+      try {
+        const html = await fetch('index.html').then(r => r.text());
+        const hasCanvas = html.includes('width="420"') && html.includes('height="420"');
+        addResult('Canvas dimensoes', hasCanvas, hasCanvas ? '420x420 definido' : 'Dimensoes nao encontradas');
+      } catch (e) {
+        addResult('Canvas dimensoes', false, e.message);
+      }
+
+      // Test 5: Overlay com hidden class
+      try {
+        const html = await fetch('index.html').then(r => r.text());
+        const hasHidden = html.includes('modal-overlay hidden');
+        addResult('Overlay hidden', hasHidden, hasHidden ? 'Classe hidden presente' : 'Falta classe hidden');
+      } catch (e) {
+        addResult('Overlay hidden', false, e.message);
+      }
+
+      // Test 6: JS nao importa dashboard
+      try {
+        const js = await fetch('game.js').then(r => r.text());
+        const hasDashboard = js.includes('GameDashboard') || js.includes('dashboard');
+        addResult('JS sem dashboard', !hasDashboard, hasDashboard ? 'Dashboard no JS!' : 'OK - JS limpo');
+      } catch (e) {
+        addResult('JS sem dashboard', false, e.message);
+      }
+
+      // Test 7: JS nao importa particles
+      try {
+        const js = await fetch('game.js').then(r => r.text());
+        const hasParticles = js.includes('ParticleSystem') || js.includes('particles');
+        addResult('JS sem particulas', !hasParticles, hasParticles ? 'Particulas no JS!' : 'OK - JS limpo');
+      } catch (e) {
+        addResult('JS sem particulas', false, e.message);
+      }
+    }
+
+    // Auto-run
+    runTests();
+  </script>
+</body>
+</html>

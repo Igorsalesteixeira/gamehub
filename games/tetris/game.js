@@ -1,31 +1,23 @@
-import { GameStats, GameStorage } from '../shared/game-core.js';
-import { GameLoop } from '../shared/game-loop.js';
-import { InputManager } from '../shared/input-manager.js';
-import { launchConfetti, initAudio, playSound, haptic } from '../shared/game-design-utils.js';
-import { ParticleSystem } from '../shared/skills/particle-system/index.js';
-import { shake, bounce } from '../shared/skills/animation-system/index.js';
-
 // ============================================
-// TETRIS - Jogo de Blocos
+// TETRIS - SIMPLIFICADO
 // ============================================
 
-// ---- Constantes ----
 const COLS = 10;
 const ROWS = 20;
 const BLOCK_SIZE = 30;
 
-// Cores das pecas (I, J, L, O, S, T, Z)
+// Cores das pecas
 const COLORS = {
-  I: '#00f0f0', // Cyan
-  O: '#f0f000', // Yellow
-  T: '#a000f0', // Purple
-  S: '#00f000', // Green
-  Z: '#f00000', // Red
-  J: '#0000f0', // Blue
-  L: '#f0a000'  // Orange
+  I: '#00f0f0',
+  O: '#f0f000',
+  T: '#a000f0',
+  S: '#00f000',
+  Z: '#f00000',
+  J: '#0000f0',
+  L: '#f0a000'
 };
 
-// ---- Definicao das Pecas (Tetrominos) ----
+// Formas das pecas
 const PIECES = {
   I: [[1, 1, 1, 1]],
   O: [[1, 1], [1, 1]],
@@ -36,97 +28,63 @@ const PIECES = {
   L: [[0, 0, 1], [1, 1, 1]]
 };
 
-// Array para acesso aleatorio
 const PIECE_TYPES = ['I', 'O', 'T', 'S', 'Z', 'J', 'L'];
-const PIECE_COLORS = [COLORS.I, COLORS.O, COLORS.T, COLORS.S, COLORS.Z, COLORS.J, COLORS.L];
 
-// ============================================
-// Estado do Jogo
-// ============================================
+// Estado do jogo
 const state = {
-  board: [],           // Matriz 10x20
-  currentPiece: null,  // Peca atual
-  nextPiece: null,     // Proxima peca
+  board: [],
+  currentPiece: null,
+  nextPiece: null,
   score: 0,
   level: 1,
   lines: 0,
   gameOver: false,
   paused: false,
   dropTimer: 0,
-  dropInterval: 1000   // ms entre quedas automaticas
+  dropInterval: 1000
 };
 
-// ============================================
-// Elementos do DOM
-// ============================================
+// DOM
 let canvas, ctx, nextCanvas, nextCtx;
 let scoreEl, levelEl, linesEl;
-let overlay, overlayTitle, overlayMsg, overlayScore, btnStart, btnShare;
+let overlay, overlayTitle, overlayMsg, overlayScore, btnStart;
 
 // ============================================
-// Sistema de Partículas
-// ============================================
-let particleSystem = null;
-let glowEffects = []; // Linhas com glow ativo
-let flashEffect = null; // Flash de fundo em combos
-
-// ============================================
-// Inicializacao do Jogo
+// Inicializacao
 // ============================================
 function init() {
-  // Obtem elementos do DOM
   canvas = document.getElementById('game-canvas');
   ctx = canvas.getContext('2d');
   nextCanvas = document.getElementById('next-canvas');
   nextCtx = nextCanvas.getContext('2d');
-  scoreEl = document.getElementById('score-display');
-  levelEl = document.getElementById('level-display');
-  linesEl = document.getElementById('lines-display');
+  scoreEl = document.getElementById('score');
+  levelEl = document.getElementById('level');
+  linesEl = document.getElementById('lines');
   overlay = document.getElementById('overlay');
   overlayTitle = document.getElementById('overlay-title');
   overlayMsg = document.getElementById('overlay-msg');
   overlayScore = document.getElementById('overlay-score');
   btnStart = document.getElementById('btn-start');
-  btnShare = document.getElementById('btn-share');
 
-  // Inicializa canvas
+  // Canvas sizes
   canvas.width = COLS * BLOCK_SIZE;
   canvas.height = ROWS * BLOCK_SIZE;
   nextCanvas.width = 4 * BLOCK_SIZE;
   nextCanvas.height = 4 * BLOCK_SIZE;
 
-  // Inicializa sistema de partículas
-  particleSystem = new ParticleSystem(canvas, { autoResize: false });
-
-  // Inicializa audio
-  initAudio();
-
-  // Registra event listeners
-  setupEventListeners();
-
-  // Mostra tela inicial
-  showStartScreen();
-}
-
-function setupEventListeners() {
-  // Botao de iniciar
+  // Event listeners
   btnStart.addEventListener('click', startGame);
+  document.addEventListener('keydown', handleKeydown);
 
-  // Botao de compartilhar
-  btnShare.addEventListener('click', () => {
-    const text = `Fiz ${state.score} pontos no Tetris! Tente superar meu recorde!`;
-    const url = encodeURIComponent(window.location.href);
-    window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + decodeURIComponent(url))}`, '_blank');
-  });
-
-  // Controles mobile
+  // Mobile controls
   document.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
-      const action = btn.dataset.action;
-      handleMobileControl(action);
+      handleMobileControl(btn.dataset.action);
     });
   });
+
+  showStartScreen();
 }
 
 // ============================================
@@ -134,16 +92,12 @@ function setupEventListeners() {
 // ============================================
 function createPiece(type) {
   const shape = PIECES[type];
-  const color = COLORS[type];
-  const idx = PIECE_TYPES.indexOf(type);
-
   return {
-    shape: shape.map(row => [...row]), // Copia profunda
-    color: color,
+    shape: shape.map(row => [...row]),
+    color: COLORS[type],
     x: Math.floor((COLS - shape[0].length) / 2),
     y: 0,
-    type: type,
-    idx: idx
+    type: type
   };
 }
 
@@ -153,638 +107,392 @@ function randomPiece() {
 }
 
 // ============================================
+// Controles
+// ============================================
+function handleKeydown(e) {
+  if (state.gameOver || state.paused) return;
+
+  switch(e.key) {
+    case 'ArrowLeft':
+    case 'a':
+      e.preventDefault();
+      movePiece(-1, 0);
+      break;
+    case 'ArrowRight':
+    case 'd':
+      e.preventDefault();
+      movePiece(1, 0);
+      break;
+    case 'ArrowDown':
+    case 's':
+      e.preventDefault();
+      movePiece(0, 1);
+      break;
+    case 'ArrowUp':
+    case 'w':
+    case 'x':
+      e.preventDefault();
+      rotatePiece();
+      break;
+    case ' ':
+      e.preventDefault();
+      hardDrop();
+      break;
+    case 'p':
+      togglePause();
+      break;
+  }
+}
+
+function handleMobileControl(action) {
+  if (state.gameOver || state.paused) return;
+
+  switch(action) {
+    case 'left': movePiece(-1, 0); break;
+    case 'right': movePiece(1, 0); break;
+    case 'down': movePiece(0, 1); break;
+    case 'rotate': rotatePiece(); break;
+  }
+}
+
+// ============================================
 // Logica do Jogo
 // ============================================
 function startGame() {
-  // Reseta estado
-  state.board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  state.board = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
   state.score = 0;
   state.level = 1;
   state.lines = 0;
   state.gameOver = false;
   state.paused = false;
   state.dropInterval = 1000;
-  state.dropTimer = 0;
 
-  // Cria pecas
-  state.currentPiece = randomPiece();
   state.nextPiece = randomPiece();
+  spawnPiece();
 
-  // Atualiza UI
   updateUI();
-  hideOverlay();
+  overlay.classList.add('hidden');
 
-  // Inicia game loop
-  gameLoop.start();
+  lastTime = performance.now();
+  requestAnimationFrame(gameLoop);
 }
 
-function gameOver() {
-  state.gameOver = true;
-  gameLoop.stop();
+function spawnPiece() {
+  state.currentPiece = state.nextPiece;
+  state.nextPiece = randomPiece();
+  drawNextPiece();
 
-  // Mostra tela de fim de jogo
-  overlayTitle.textContent = 'Fim de Jogo!';
-  overlayMsg.textContent = 'Voce perdeu!';
-  overlayScore.textContent = `Pontuacao: ${state.score}`;
-  overlayScore.style.display = 'block';
-  btnStart.textContent = 'Jogar Novamente';
-  btnShare.style.display = 'block';
-  overlay.classList.add('show');
-
-  playSound('gameover');
-  haptic([60, 30, 100]);
-}
-
-// ============================================
-// Movimentacao
-// ============================================
-function move(dir) {
-  if (state.gameOver || state.paused) return;
-
-  let dx = 0, dy = 0;
-
-  switch (dir) {
-    case 'left':
-      dx = -1;
-      break;
-    case 'right':
-      dx = 1;
-      break;
-    case 'down':
-      dy = 1;
-      break;
+  // Game over se nao pode spawnar
+  if (!isValidPosition(state.currentPiece, state.currentPiece.x, state.currentPiece.y)) {
+    gameOver();
   }
+}
 
-  if (!collides(state.currentPiece, dx, dy)) {
-    state.currentPiece.x += dx;
-    state.currentPiece.y += dy;
+function movePiece(dx, dy) {
+  if (!state.currentPiece) return;
 
-    if (dx !== 0) {
-      playSound('move');
-      haptic(15);
-    }
+  const newX = state.currentPiece.x + dx;
+  const newY = state.currentPiece.y + dy;
 
+  if (isValidPosition(state.currentPiece, newX, newY)) {
+    state.currentPiece.x = newX;
+    state.currentPiece.y = newY;
     return true;
   }
 
+  // Se nao pode mover para baixo, locka a peca
+  if (dy > 0) {
+    lockPiece();
+  }
   return false;
 }
 
-function rotate() {
-  if (state.gameOver || state.paused) return;
+function rotatePiece() {
+  if (!state.currentPiece) return;
 
   const piece = state.currentPiece;
-  const shape = piece.shape;
+  const originalShape = piece.shape;
 
-  // Rotaciona 90 graus no sentido horario
-  const rotated = shape[0].map((_, c) =>
-    shape.map(row => row[c]).reverse()
-  );
+  // Rotaciona 90 graus
+  const rows = piece.shape.length;
+  const cols = piece.shape[0].length;
+  const rotated = Array(cols).fill(null).map(() => Array(rows).fill(0));
 
-  // Tenta posicoes: original, wall kick esquerda, wall kick direita
-  const kicks = [0, -1, 1, -2, 2];
-
-  for (const kick of kicks) {
-    if (!collides({ ...piece, shape: rotated }, kick, 0, rotated)) {
-      piece.shape = rotated;
-      piece.x += kick;
-      playSound('rotate');
-      haptic(15);
-      return true;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      rotated[x][rows - 1 - y] = piece.shape[y][x];
     }
   }
 
-  return false;
+  piece.shape = rotated;
+
+  // Se rotacao invalida, tenta ajustar
+  if (!isValidPosition(piece, piece.x, piece.y)) {
+    // Tenta mover para direita
+    if (isValidPosition(piece, piece.x + 1, piece.y)) {
+      piece.x++;
+    }
+    // Tenta mover para esquerda
+    else if (isValidPosition(piece, piece.x - 1, piece.y)) {
+      piece.x--;
+    }
+    // Volta a rotacao
+    else {
+      piece.shape = originalShape;
+    }
+  }
 }
 
-function drop() {
-  if (state.gameOver || state.paused) return;
+function hardDrop() {
+  if (!state.currentPiece) return;
 
-  // Hard drop (cai ate o fundo)
-  while (!collides(state.currentPiece, 0, 1)) {
-    state.currentPiece.y++;
+  while (movePiece(0, 1)) {
+    state.score += 2;
   }
-
-  playSound('move');
-  haptic(15);
-  lockPiece();
+  updateUI();
 }
 
-function softDrop() {
-  // Desce uma posicao
-  if (!move('down')) {
-    lockPiece();
+function isValidPosition(piece, x, y) {
+  for (let py = 0; py < piece.shape.length; py++) {
+    for (let px = 0; px < piece.shape[py].length; px++) {
+      if (piece.shape[py][px]) {
+        const newX = x + px;
+        const newY = y + py;
+
+        if (newX < 0 || newX >= COLS || newY >= ROWS) {
+          return false;
+        }
+        if (newY >= 0 && state.board[newY][newX]) {
+          return false;
+        }
+      }
+    }
   }
+  return true;
 }
 
 function lockPiece() {
   const piece = state.currentPiece;
 
-  // Fixa a peca no tabuleiro
-  for (let r = 0; r < piece.shape.length; r++) {
-    for (let c = 0; c < piece.shape[r].length; c++) {
-      if (piece.shape[r][c]) {
-        const y = piece.y + r;
-        const x = piece.x + c;
-
-        // Se nao cabe no tabuleiro, game over
-        if (y < 0) {
-          gameOver();
-          return;
-        }
-
-        state.board[y][x] = piece.color;
-      }
-    }
-  }
-
-  // Glow nas peças quando encaixam (efeito de impacto)
-  if (particleSystem) {
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
-        if (piece.shape[r][c]) {
-          const x = (piece.x + c) * BLOCK_SIZE + BLOCK_SIZE / 2;
-          const y = (piece.y + r) * BLOCK_SIZE + BLOCK_SIZE / 2;
-
-          particleSystem.emit({
-            x: x,
-            y: y,
-            count: 3,
-            type: 'sparkle',
-            color: piece.color,
-            speed: 2,
-            spread: 360,
-            life: 0.5
-          });
+  // Adiciona ao board
+  for (let y = 0; y < piece.shape.length; y++) {
+    for (let x = 0; x < piece.shape[y].length; x++) {
+      if (piece.shape[y][x]) {
+        const boardY = piece.y + y;
+        const boardX = piece.x + x;
+        if (boardY >= 0) {
+          state.board[boardY][boardX] = piece.color;
         }
       }
     }
   }
 
-  playSound('lock');
-
-  // Limpa linhas completas
+  // Verifica linhas completas
   clearLines();
 
-  // Nova peca
-  state.currentPiece = state.nextPiece;
-  state.nextPiece = randomPiece();
-
-  // Verifica colisao imediata (game over)
-  if (collides(state.currentPiece, 0, 0)) {
-    gameOver();
-  }
+  // Proxima peca
+  spawnPiece();
 }
 
-// ============================================
-// Deteccao de Colisao
-// ============================================
-function collides(piece, dx, dy, shape) {
-  shape = shape || piece.shape;
-
-  for (let r = 0; r < shape.length; r++) {
-    for (let c = 0; c < shape[r].length; c++) {
-      if (shape[r][c]) {
-        const nx = piece.x + c + dx;
-        const ny = piece.y + r + dy;
-
-        // Verifica limites do tabuleiro
-        if (nx < 0 || nx >= COLS || ny >= ROWS) {
-          return true;
-        }
-
-        // Verifica colisao com pecas fixas
-        if (ny >= 0 && state.board[ny][nx]) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-// ============================================
-// Limpeza de Linhas
-// ============================================
 function clearLines() {
   let linesCleared = 0;
-  const clearedRows = [];
 
-  for (let r = ROWS - 1; r >= 0; r--) {
-    if (state.board[r].every(cell => cell !== 0)) {
-      // Remove a linha e adiciona nova no topo
-      state.board.splice(r, 1);
+  for (let y = ROWS - 1; y >= 0; y--) {
+    if (state.board[y].every(cell => cell !== 0)) {
+      // Remove a linha
+      state.board.splice(y, 1);
       state.board.unshift(Array(COLS).fill(0));
-      clearedRows.push(r);
       linesCleared++;
-      r++; // Re-verifica a mesma posicao
+      y++; // Verifica a mesma posicao novamente
     }
   }
 
   if (linesCleared > 0) {
-    // Calcula pontos
-    const pointsTable = [0, 100, 300, 500, 800];
-    const points = (pointsTable[linesCleared] || 800) * state.level;
-    state.score += points;
+    // Pontuacao
+    const points = [0, 100, 300, 500, 800];
+    state.score += points[linesCleared] * state.level;
     state.lines += linesCleared;
 
-    // Aumenta nivel a cada 10 linhas
+    // Level up a cada 10 linhas
     state.level = Math.floor(state.lines / 10) + 1;
-
-    // Aumenta velocidade
-    state.dropInterval = Math.max(100, 1000 - (state.level - 1) * 80);
-
-    // === EFEITOS VISUAIS ===
-
-    // Screen shake ao limpar 4 linhas (tetris)
-    if (linesCleared === 4) {
-      shake(document.body, { intensity: 'high', duration: 600 });
-      flashEffect = { type: 'tetris', duration: 30 };
-    } else if (linesCleared >= 2) {
-      shake(document.body, { intensity: 'low', duration: 300 });
-      flashEffect = { type: 'combo', duration: 20 };
-    }
-
-    // Partículas ao limpar linhas
-    if (particleSystem) {
-      clearedRows.forEach(row => {
-        // Emite partículas ao longo da linha
-        for (let c = 0; c < COLS; c += 2) {
-          const x = c * BLOCK_SIZE + BLOCK_SIZE / 2;
-          const y = row * BLOCK_SIZE + BLOCK_SIZE / 2;
-          const colors = ['#00f0f0', '#f0f000', '#a000f0', '#00f000'];
-
-          particleSystem.emit({
-            x: x,
-            y: y,
-            count: 5,
-            type: 'sparkle',
-            color: colors,
-            speed: 4,
-            spread: 180,
-            life: 0.8
-          });
-        }
-      });
-    }
-
-    // Adiciona glow nas linhas limpas
-    clearedRows.forEach(row => {
-      glowEffects.push({ row, duration: 15 });
-    });
+    state.dropInterval = Math.max(100, 1000 - (state.level - 1) * 100);
 
     updateUI();
-    playSound('clear');
-
-    // Vibracao conforme numero de linhas
-    if (navigator.vibrate) {
-      const pattern = linesCleared === 4 ? [30, 20, 40, 20, 50] :
-                      linesCleared === 3 ? [25, 15, 35] :
-                      [20, 10, 25];
-      navigator.vibrate(pattern);
-    }
   }
 }
 
+function togglePause() {
+  state.paused = !state.paused;
+  if (state.paused) {
+    overlayTitle.textContent = 'Pausado';
+    overlayMsg.textContent = 'Clique para continuar';
+    overlayScore.textContent = '';
+    btnStart.textContent = 'Continuar';
+    overlay.classList.remove('hidden');
+  } else {
+    overlay.classList.add('hidden');
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
+  }
+}
+
+function gameOver() {
+  state.gameOver = true;
+  overlayTitle.textContent = 'Game Over';
+  overlayMsg.textContent = 'Fim de jogo!';
+  overlayScore.textContent = `Score: ${state.score}`;
+  btnStart.textContent = 'Jogar Novamente';
+  overlay.classList.remove('hidden');
+}
+
+function showStartScreen() {
+  overlayTitle.textContent = 'Tetris';
+  overlayMsg.textContent = 'Use as setas para jogar';
+  overlayScore.textContent = '';
+  btnStart.textContent = 'Jogar';
+  overlay.classList.remove('hidden');
+}
+
 // ============================================
-// Renderizacao
+// Game Loop
+// ============================================
+let lastTime = 0;
+
+function gameLoop(currentTime) {
+  if (state.gameOver || state.paused) return;
+
+  const deltaTime = currentTime - lastTime;
+  lastTime = currentTime;
+
+  // Drop automatico
+  state.dropTimer += deltaTime;
+  if (state.dropTimer >= state.dropInterval) {
+    movePiece(0, 1);
+    state.dropTimer = 0;
+  }
+
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// ============================================
+// Desenho
 // ============================================
 function draw() {
-  // Flash de luz no fundo em combos
-  if (flashEffect) {
-    if (flashEffect.type === 'tetris') {
-      ctx.fillStyle = `rgba(255, 215, 0, ${flashEffect.duration / 30 * 0.3})`;
-    } else {
-      ctx.fillStyle = `rgba(0, 212, 255, ${flashEffect.duration / 20 * 0.2})`;
-    }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    flashEffect.duration--;
-    if (flashEffect.duration <= 0) flashEffect = null;
-  }
-
-  // Limpa canvas principal
-  ctx.fillStyle = '#111';
+  // Limpa canvas
+  ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Desenha grade
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 0.5;
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      ctx.strokeRect(c * BLOCK_SIZE, r * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    }
-  }
-
-  // Desenha tabuleiro (pecas fixas) com suporte a glow
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      if (state.board[r][c]) {
-        // Verifica se esta linha tem glow ativo
-        const hasGlow = glowEffects.some(g => g.row === r);
-        drawBlock(ctx, c, r, state.board[r][c], BLOCK_SIZE, hasGlow);
+  // Desenha board
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (state.board[y][x]) {
+        drawBlock(ctx, x, y, state.board[y][x]);
       }
     }
-  }
-
-  // Atualiza efeitos de glow
-  glowEffects = glowEffects.filter(g => {
-    g.duration--;
-    return g.duration > 0;
-  });
-
-  // Desenha peca fantasma (ghost piece) com transparência melhorada
-  if (state.currentPiece) {
-    drawGhostPiece();
   }
 
   // Desenha peca atual
   if (state.currentPiece) {
     const piece = state.currentPiece;
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
-        if (piece.shape[r][c]) {
-          drawBlock(ctx, piece.x + c, piece.y + r, piece.color, BLOCK_SIZE, false, true);
+    for (let y = 0; y < piece.shape.length; y++) {
+      for (let x = 0; x < piece.shape[y].length; x++) {
+        if (piece.shape[y][x]) {
+          drawBlock(ctx, piece.x + x, piece.y + y, piece.color);
         }
       }
     }
+
+    // Ghost piece (onde vai cair)
+    drawGhostPiece();
   }
 
-  // Atualiza sistema de partículas
-  if (particleSystem) {
-    particleSystem.update(false);
+  // Grid sutil
+  ctx.strokeStyle = 'rgba(0, 212, 255, 0.1)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= COLS; x++) {
+    ctx.beginPath();
+    ctx.moveTo(x * BLOCK_SIZE, 0);
+    ctx.lineTo(x * BLOCK_SIZE, canvas.height);
+    ctx.stroke();
   }
-
-  // Desenha proxima peca
-  drawNextPiece();
-
-  // Desenha overlay de pausa
-  if (state.paused) {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 24px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('PAUSADO', canvas.width / 2, canvas.height / 2);
-    ctx.textAlign = 'left';
+  for (let y = 0; y <= ROWS; y++) {
+    ctx.beginPath();
+    ctx.moveTo(0, y * BLOCK_SIZE);
+    ctx.lineTo(canvas.width, y * BLOCK_SIZE);
+    ctx.stroke();
   }
 }
 
-function drawBlock(context, x, y, color, size, hasGlow = false, isActive = false) {
-  const px = x * size + 1;
-  const py = y * size + 1;
-  const pw = size - 2;
-  const ph = size - 2;
+function drawBlock(context, x, y, color) {
+  const px = x * BLOCK_SIZE;
+  const py = y * BLOCK_SIZE;
 
-  // Salva contexto
-  context.save();
-
-  // Adiciona glow se necessário
-  if (hasGlow) {
-    context.shadowBlur = 20;
-    context.shadowColor = color;
-  } else if (isActive) {
-    // Glow sutil para peça ativa
-    context.shadowBlur = 10;
-    context.shadowColor = color;
-  }
-
-  // Bloco principal
+  // Bloco base
   context.fillStyle = color;
-  context.fillRect(px, py, pw, ph);
+  context.fillRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
 
-  // Remove shadow para detalhes
-  context.shadowBlur = 0;
-
-  // Brilho superior
+  // Brilho
   context.fillStyle = 'rgba(255, 255, 255, 0.3)';
-  context.fillRect(px, py, pw, size / 4);
-
-  // Sombra inferior
-  context.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  context.fillRect(px, py + size * 0.75, pw, size / 4 - 1);
-
-  // Borda brilhante para peças ativas
-  if (isActive) {
-    context.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-    context.lineWidth = 1;
-    context.strokeRect(px, py, pw, ph);
-  }
-
-  context.restore();
+  context.fillRect(px + 1, py + 1, BLOCK_SIZE - 2, 4);
 }
 
 function drawGhostPiece() {
   const piece = state.currentPiece;
   let ghostY = piece.y;
 
-  // Encontra posicao mais baixa possivel
-  while (!collides({ ...piece, y: ghostY + 1 }, 0, 0)) {
+  // Encontra onde a peca vai cair
+  while (isValidPosition(piece, piece.x, ghostY + 1)) {
     ghostY++;
   }
 
-  // So desenha se for diferente da posicao atual
   if (ghostY !== piece.y) {
-    ctx.save();
+    ctx.strokeStyle = piece.color;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
 
-    // Transparência melhorada para peça fantasma
-    ctx.globalAlpha = 0.25;
-
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
-        if (piece.shape[r][c]) {
-          const x = (piece.x + c) * BLOCK_SIZE + 1;
-          const y = (ghostY + r) * BLOCK_SIZE + 1;
-          const w = BLOCK_SIZE - 2;
-          const h = BLOCK_SIZE - 2;
-
-          // Peça fantasma com borda tracejada
-          ctx.fillStyle = piece.color;
-          ctx.fillRect(x, y, w, h);
-
-          // Borda tracejada
-          ctx.globalAlpha = 0.5;
-          ctx.strokeStyle = piece.color;
-          ctx.setLineDash([4, 4]);
-          ctx.lineWidth = 2;
-          ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
-          ctx.setLineDash([]);
-          ctx.globalAlpha = 0.25;
+    for (let y = 0; y < piece.shape.length; y++) {
+      for (let x = 0; x < piece.shape[y].length; x++) {
+        if (piece.shape[y][x]) {
+          const px = (piece.x + x) * BLOCK_SIZE + 2;
+          const py = (ghostY + y) * BLOCK_SIZE + 2;
+          ctx.strokeRect(px, py, BLOCK_SIZE - 4, BLOCK_SIZE - 4);
         }
       }
     }
 
-    ctx.restore();
+    ctx.setLineDash([]);
   }
 }
 
 function drawNextPiece() {
-  // Limpa canvas
-  nextCtx.fillStyle = '#1a1a2e';
+  nextCtx.fillStyle = '#000';
   nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
 
   if (!state.nextPiece) return;
 
   const piece = state.nextPiece;
-  const blockSize = 25;
+  const blockSize = 20;
   const offsetX = (nextCanvas.width - piece.shape[0].length * blockSize) / 2;
   const offsetY = (nextCanvas.height - piece.shape.length * blockSize) / 2;
 
-  for (let r = 0; r < piece.shape.length; r++) {
-    for (let c = 0; c < piece.shape[r].length; c++) {
-      if (piece.shape[r][c]) {
-        const x = offsetX + c * blockSize;
-        const y = offsetY + r * blockSize;
-
+  for (let y = 0; y < piece.shape.length; y++) {
+    for (let x = 0; x < piece.shape[y].length; x++) {
+      if (piece.shape[y][x]) {
+        const px = offsetX + x * blockSize;
+        const py = offsetY + y * blockSize;
         nextCtx.fillStyle = piece.color;
-        nextCtx.fillRect(x, y, blockSize - 2, blockSize - 2);
-
-        // Brilho
-        nextCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        nextCtx.fillRect(x, y, blockSize - 2, blockSize / 4);
+        nextCtx.fillRect(px + 1, py + 1, blockSize - 2, blockSize - 2);
       }
     }
   }
 }
 
-// ============================================
-// UI e Telas
-// ============================================
 function updateUI() {
-  if (scoreEl) scoreEl.textContent = state.score;
-  if (levelEl) levelEl.textContent = state.level;
-  if (linesEl) linesEl.textContent = state.lines;
+  scoreEl.textContent = state.score;
+  levelEl.textContent = state.level;
+  linesEl.textContent = state.lines;
 }
 
-function showStartScreen() {
-  overlayTitle.textContent = 'Tetris';
-  overlayMsg.textContent = 'Use as setas para mover e girar';
-  overlayScore.style.display = 'none';
-  btnStart.textContent = 'Jogar';
-  btnShare.style.display = 'none';
-  overlay.classList.add('show');
-}
-
-function hideOverlay() {
-  overlay.classList.remove('show');
-}
-
-function togglePause() {
-  if (state.gameOver) return;
-  state.paused = !state.paused;
-}
-
-function handleMobileControl(action) {
-  if (state.gameOver) return;
-
-  switch (action) {
-    case 'left':
-      move('left');
-      break;
-    case 'right':
-      move('right');
-      break;
-    case 'down':
-      drop();
-      break;
-    case 'rotate':
-      rotate();
-      break;
-  }
-}
-
-// ============================================
-// Game Loop
-// ============================================
-const gameLoop = new GameLoop({
-  update: (dt) => {
-    if (state.gameOver || state.paused) return;
-
-    // Controle de queda automatica
-    state.dropTimer += dt;
-    if (state.dropTimer >= state.dropInterval) {
-      state.dropTimer = 0;
-      softDrop();
-    }
-  },
-  render: () => {
-    draw();
-  }
-});
-
-// ============================================
-// Input Manager (Controles)
-// ============================================
-const inputManager = new InputManager({
-  keyboardTarget: document
-});
-
-// Registra callbacks apos criar o InputManager
-inputManager.on('keyDown', (key, e) => {
-  if (state.gameOver) return;
-
-  // Pausa
-  if (key === 'p' || key === 'P' || key === 'Escape') {
-    togglePause();
-    e.preventDefault();
-    return;
-  }
-
-  if (state.paused) return;
-
-  // Controles de movimento
-  switch (key) {
-    case 'ArrowLeft':
-    case 'a':
-    case 'A':
-      e.preventDefault();
-      move('left');
-      break;
-
-    case 'ArrowRight':
-    case 'd':
-    case 'D':
-      e.preventDefault();
-      move('right');
-      break;
-
-    case 'ArrowDown':
-    case 's':
-    case 'S':
-      e.preventDefault();
-      softDrop();
-      break;
-
-    case 'ArrowUp':
-    case 'w':
-    case 'W':
-    case 'x':
-    case 'X':
-      e.preventDefault();
-      rotate();
-      break;
-
-    case ' ': // Espaco - hard drop
-      e.preventDefault();
-      drop();
-      break;
-  }
-});
-
-// ============================================
-// Previne scroll com teclas de seta e espaco
-// ============================================
-window.addEventListener('keydown', (e) => {
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
-    e.preventDefault();
-  }
-}, { passive: false });
-
-// ============================================
-// Inicializacao
-// ============================================
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+// Inicia
+init();

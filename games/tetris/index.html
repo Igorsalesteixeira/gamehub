@@ -2,156 +2,68 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tetris Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Tetris online e de graca. Encaixe as pecas, complete linhas e alcance a maior pontuacao! Sem download." />
-  <meta name="keywords" content="tetris online, jogo tetris gratis, tetris browser, puzzle game" />
-  <link rel="canonical" href="https://gameshub.com.br/games/tetris/" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Tetris Online Gratis - Games Hub" />
-  <meta property="og:description" content="Jogue Tetris online e de graca. Encaixe as pecas e faca o maximo de pontos!" />
-  <meta property="og:url" content="https://gameshub.com.br/games/tetris/" />
-  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Tetris Online Gratis - Games Hub" />
-  <meta name="twitter:description" content="Jogue Tetris online e de graca!" />
+  <meta name="description" content="Jogue Tetris online e de graca. Encaixe as pecas, complete linhas e alcance a maior pontuacao!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=10" />
   <meta name="theme-color" content="#00d4ff" />
-  <!-- Desabilitar cache durante desenvolvimento -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <link rel="manifest" href="/manifest.json" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "VideoGame",
-    "name": "Tetris",
-    "description": "Jogue Tetris online gratis. Encaixe as pecas, complete linhas e alcance a maior pontuacao possivel.",
-    "url": "https://gameshub.com.br/games/tetris/",
-    "inLanguage": "pt-BR",
-    "isAccessibleForFree": true,
-    "playMode": "SinglePlayer",
-    "applicationCategory": "Game",
-    "operatingSystem": "Web Browser"
-  }
-  </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-LNTD0KNJ6T');
-  </script>
 </head>
 <body>
-
   <header class="topbar">
     <a href="../../index.html" class="btn-back">← Voltar</a>
     <h1 class="game-title">Tetris</h1>
-    <div class="stats">
-      <div class="score-box">
-        <span class="score-icon">⭐</span>
-        <span id="score-display" class="score-value neon-text">0</span>
-      </div>
+    <div class="score-display">
+      <span>⭐</span>
+      <span id="score">0</span>
     </div>
   </header>
 
-  <main class="game-container">
-    <div class="game-layout">
-      <!-- Sidebar com informacoes -->
-      <aside class="side-panel">
-        <div class="info-box glass-panel">
-          <div class="info-label">Proxima</div>
-          <canvas id="next-canvas" width="100" height="100"></canvas>
-        </div>
-        <div class="info-box glass-panel">
-          <div class="info-label">Nivel</div>
-          <div class="info-value neon-text" id="level-display">1</div>
-        </div>
-        <div class="info-box glass-panel">
-          <div class="info-label">Linhas</div>
-          <div class="info-value neon-text" id="lines-display">0</div>
-        </div>
-      </aside>
-
-      <!-- Area principal do jogo -->
-      <div class="game-board">
-        <canvas id="game-canvas" width="300" height="600"></canvas>
+  <main class="game-wrapper">
+    <!-- Sidebar com info -->
+    <aside class="sidebar">
+      <div class="info-box">
+        <div class="info-label">Proxima</div>
+        <canvas id="next-canvas" width="100" height="100"></canvas>
       </div>
-    </div>
+      <div class="info-box">
+        <div class="info-label">Nivel</div>
+        <div class="info-value" id="level">1</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Linhas</div>
+        <div class="info-value" id="lines">0</div>
+      </div>
+    </aside>
 
-    <!-- Overlay para iniciar/pausar/fim de jogo -->
-    <div class="modal-overlay glass-overlay" id="overlay">
-      <div class="modal glass-modal">
-        <div class="modal-icon">🧱</div>
-        <h2 id="overlay-title" class="modal-title">Tetris</h2>
-        <p id="overlay-msg" class="modal-subtitle">Use as setas para mover e girar as pecas</p>
-        <div id="overlay-score" class="overlay-score"></div>
-        <button type="button" class="btn btn-primary" id="btn-start">Jogar</button>
-        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">📱 Compartilhar</button>
+    <!-- Area do jogo -->
+    <div class="game-area">
+      <canvas id="game-canvas" width="300" height="600"></canvas>
+
+      <!-- Overlay -->
+      <div class="overlay hidden" id="overlay">
+        <div class="modal">
+          <h2 id="overlay-title">Tetris</h2>
+          <p id="overlay-msg">Use as setas para jogar</p>
+          <div id="overlay-score"></div>
+          <button class="btn" id="btn-start">Jogar</button>
+        </div>
       </div>
     </div>
   </main>
 
-  <!-- Controles touch para mobile -->
-  <div class="mobile-controls" id="mobile-controls">
+  <!-- Controles mobile -->
+  <div class="mobile-controls">
+    <button class="ctrl-btn" data-action="rotate">↻</button>
     <div class="ctrl-row">
-      <button class="ctrl-btn" data-action="rotate" aria-label="Girar">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-          <path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8A5.87 5.87 0 0 1 6 12c0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/>
-        </svg>
-      </button>
-    </div>
-    <div class="ctrl-row">
-      <button class="ctrl-btn" data-action="left" aria-label="Esquerda">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-        </svg>
-      </button>
-      <button class="ctrl-btn" data-action="down" aria-label="Baixo">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
-        </svg>
-      </button>
-      <button class="ctrl-btn" data-action="right" aria-label="Direita">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-        </svg>
-      </button>
+      <button class="ctrl-btn" data-action="left">←</button>
+      <button class="ctrl-btn" data-action="down">↓</button>
+      <button class="ctrl-btn" data-action="right">→</button>
     </div>
   </div>
 
-  <script type="module">
-    import { initSidebar } from '../../sidebar.js?v=6';
-    initSidebar({ active: 'tetris' });
-  </script>
-  <script type="module" src="game.js?v=2"></script>
-  <script type="module" src="../shared/pwa-register.js?v=1"></script>
-
-  <section class="game-info" aria-label="Sobre o jogo">
-    <h2>Como jogar Tetris Online</h2>
-    <p>Tetris e o jogo de puzzle mais iconico da historia dos videogames. Encaixe os tetrominos (pecas de 4 blocos) para completar linhas horizontais sem deixar espacos. As linhas completas desaparecem e voce ganha pontos. O jogo acelera conforme voce avanca de nivel.</p>
-    <h3>Controles</h3>
-    <ul>
-      <li><strong>Setas ou A/D:</strong> Mover a peca horizontalmente</li>
-      <li><strong>Seta para Cima ou W/X:</strong> Girar a peca</li>
-      <li><strong>Seta para Baixo ou S:</strong> Acelerar a queda (soft drop)</li>
-      <li><strong>Barra de Espaco:</strong> Soltar imediatamente (hard drop)</li>
-      <li><strong>P:</strong> Pausar o jogo</li>
-    </ul>
-    <h3>Dicas</h3>
-    <ul>
-      <li>Deixe espaco para a peca I (barra) — completar 4 linhas de uma vez (Tetris!) rende muito mais pontos.</li>
-      <li>Mantenha a pilha baixa e plana para ter mais opcoes de posicionamento.</li>
-      <li>Use a visualizacao da proxima peca para planejar seus movimentos.</li>
-    </ul>
-  </section>
+  <script type="module" src="game.js?v=10"></script>
 </body>
 </html>

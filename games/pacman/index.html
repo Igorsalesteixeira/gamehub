@@ -18,11 +18,8 @@
   <meta name="twitter:description" content="Jogue Pac-Man online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="../shared/dashboard/dashboard.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=20" />
   <meta name="theme-color" content="#000000" />
-  <!-- Desabilitar cache durante desenvolvimento -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -41,9 +38,7 @@
     "operatingSystem": "Web Browser"
   }
   </script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
-     crossorigin="anonymous"></script>
-  <!-- Google tag (gtag.js) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -62,21 +57,20 @@
       <span>LIVES:<span id="lives-display">3</span></span>
       <span>HIGH:<span id="best-display">0</span></span>
     </div>
-    <button class="btn-dashboard" id="btn-dashboard" title="Estatísticas">📊</button>
   </header>
 
   <main class="game-container">
-    <canvas id="game-canvas"></canvas>
+    <canvas id="game-canvas" width="420" height="420"></canvas>
 
     <!-- Overlay de inicio / game over -->
-    <div class="modal-overlay" id="overlay">
+    <div class="modal-overlay hidden" id="overlay">
       <div class="modal">
         <div class="modal-icon" id="overlay-icon">C</div>
         <h2 id="overlay-title">PAC-MAN</h2>
         <p id="overlay-msg">USE AS SETAS, WASD OU BOTOES</p>
         <p id="overlay-score" class="overlay-score"></p>
         <button class="btn btn-primary" id="btn-start">INSERT COIN</button>
-        <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pac-Man no Games Hub! Venha tentar me bater!')">COMPARTILHAR</button>
+        <button class="btn btn-whatsapp" id="btn-share">COMPARTILHAR</button>
       </div>
     </div>
   </main>
@@ -97,7 +91,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=13"></script>
+  <script type="module" src="game.js?v=20"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
