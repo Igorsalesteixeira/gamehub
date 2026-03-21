@@ -106,29 +106,38 @@ let particles, animations, dashboard;
 
 // Inicializar após DOM estar pronto
 function initVisualSystems() {
-  particles = new ParticleSystem(canvas, { autoResize: true });
-  dashboard = new GameDashboard({
-    container: document.body,
-    gameId: 'pacman',
-    showParticles: true
-  });
-
-  // Configurar Botão do Dashboard
-  const btnDashboard = document.getElementById('btn-dashboard');
-  if (btnDashboard) {
-    btnDashboard.addEventListener('click', () => {
-      dashboard.show();
-      // Efeito de partículas ao abrir
-      if (particles) {
-        particles.emit({
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2,
-          count: 30,
-          type: 'sparkle',
-          color: '#4ecdc4'
-        });
-      }
+  console.log('[Pac-Man] Inicializando sistemas visuais...');
+  try {
+    particles = new ParticleSystem(canvas, { autoResize: true });
+    dashboard = new GameDashboard({
+      container: document.body,
+      gameId: 'pacman',
+      showParticles: true
     });
+
+    // Configurar Botão do Dashboard
+    const btnDashboard = document.getElementById('btn-dashboard');
+    if (btnDashboard) {
+      btnDashboard.addEventListener('click', () => {
+        dashboard.show();
+        // Efeito de partículas ao abrir
+        if (particles) {
+          particles.emit({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+            count: 30,
+            type: 'sparkle',
+            color: '#4ecdc4'
+          });
+        }
+      });
+    }
+    console.log('[Pac-Man] Sistemas visuais inicializados com sucesso');
+  } catch (e) {
+    console.error('[Pac-Man] Erro ao inicializar sistemas visuais:', e);
+    // Inicializa com valores padrão para não quebrar o jogo
+    particles = { emit: () => {}, explode: () => {}, smoke: () => {}, confetti: () => {}, isActive: () => false };
+    dashboard = { show: () => {} };
   }
 }
 
@@ -221,6 +230,7 @@ function createGhosts() {
 //  INIT GAME
 // =============================================
 function initGame() {
+  console.log('[Pac-Man] initGame chamado');
   buildMaze();
   createGhosts();
   pacman = { x: 10, y: 16, dir: { x: 0, y: 0 }, nextDir: { x: 0, y: 0 }, mouthAngle: 0, mouthOpen: true };
@@ -233,8 +243,10 @@ function initGame() {
   scoreDisplay.textContent = 0;
   livesDisplay.textContent = 3;
 
-  // Reset directional input
-  directionalInput.reset();
+  // Reset directional input (se existir)
+  if (directionalInput) {
+    directionalInput.reset();
+  }
 }
 
 function resetPositions() {
@@ -664,15 +676,25 @@ function levelUp() {
 //  START / GAME OVER
 // =============================================
 function startGame() {
-  initAudio();
-  initGame();
-  overlay.classList.add('hidden');
-  running = true;
-  paused = false;
-  gameLoop.start();
+  console.log('[Pac-Man] Iniciando jogo...');
+  try {
+    initAudio();
+    console.log('[Pac-Man] Audio inicializado');
+    initGame();
+    console.log('[Pac-Man] Jogo inicializado');
+    overlay.classList.add('hidden');
+    console.log('[Pac-Man] Overlay escondido');
+    running = true;
+    paused = false;
+    console.log('[Pac-Man] Starting game loop...');
+    gameLoop.start();
+    console.log('[Pac-Man] Game loop iniciado!');
 
-  // Emitir evento de início
-  hooks.emit(GameEvents.GAME_START, { gameId: 'pacman', timestamp: Date.now() });
+    // Emitir evento de início
+    hooks.emit(GameEvents.GAME_START, { gameId: 'pacman', timestamp: Date.now() });
+  } catch (e) {
+    console.error('[Pac-Man] Erro ao iniciar:', e);
+  }
 }
 
 function gameOver() {
@@ -939,6 +961,7 @@ function drawGhostEyes(cx, cy, cs, g) {
 // =============================================
 //  GAME LOOP
 // =============================================
+console.log('[Pac-Man] Criando game loop...');
 const gameLoop = new GameLoop({
   update: (dt) => {
     if (running && !paused) {
@@ -955,12 +978,13 @@ const gameLoop = new GameLoop({
       draw();
     }
     // Atualizar partículas (sempre, mesmo se o jogo estiver pausado)
-    if (particles.isActive()) {
+    if (particles && particles.isActive()) {
       particles.update(false); // false = não limpa canvas (já limpamos no draw)
     }
   },
   fps: 60
 });
+console.log('[Pac-Man] Game loop criado:', gameLoop);
 
 // =============================================
 //  INPUT MANAGER
