@@ -209,21 +209,20 @@ export async function getFriends() {
 
     const currentUserId = session.user.id;
 
-    // Busca amizades onde o usuário é o requester
+    // Busca amizades onde o usuário é o requester (join manual com profiles)
     const { data: sentFriends, error: error1 } = await supabase
       .from('friendships')
       .select(`
         id,
         friend_id,
-        accepted_at,
-        friend:friend_id (id, username, display_name, avatar_url)
+        updated_at,
+        profiles!friendships_friend_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('user_id', currentUserId)
       .eq('status', 'accepted');
 
     if (error1) {
-      console.error(MODULE_NAME, 'Erro ao buscar amigos:', error1);
-      return { data: null, error: error1 };
+      console.error(MODULE_NAME, 'Erro ao buscar amigos (sent):', error1);
     }
 
     // Busca amizades onde o usuário é o recipient
@@ -232,21 +231,20 @@ export async function getFriends() {
       .select(`
         id,
         user_id,
-        accepted_at,
-        friend:user_id (id, username, display_name, avatar_url)
+        updated_at,
+        profiles!friendships_user_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('friend_id', currentUserId)
       .eq('status', 'accepted');
 
     if (error2) {
-      console.error(MODULE_NAME, 'Erro ao buscar amigos:', error2);
-      return { data: null, error: error2 };
+      console.error(MODULE_NAME, 'Erro ao buscar amigos (received):', error2);
     }
 
     // Combina as listas
     const friends = [
-      ...(sentFriends || []).map(f => ({ ...f.friend, friendship_id: f.id, since: f.accepted_at })),
-      ...(receivedFriends || []).map(f => ({ ...f.friend, friendship_id: f.id, since: f.accepted_at }))
+      ...(sentFriends || []).map(f => ({ ...f.profiles, friendship_id: f.id, since: f.updated_at })),
+      ...(receivedFriends || []).map(f => ({ ...f.profiles, friendship_id: f.id, since: f.updated_at }))
     ];
 
     console.log(MODULE_NAME, 'Amigos encontrados:', friends.length);
@@ -276,7 +274,7 @@ export async function getPendingRequests() {
         id,
         user_id,
         created_at,
-        sender:user_id (id, username, display_name, avatar_url)
+        profiles!friendships_user_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('friend_id', session.user.id)
       .eq('status', 'pending')
@@ -288,7 +286,7 @@ export async function getPendingRequests() {
     }
 
     const requests = (data || []).map(r => ({
-      ...r.sender,
+      ...r.profiles,
       friendship_id: r.id,
       request_date: r.created_at
     }));
@@ -320,7 +318,7 @@ export async function getSentRequests() {
         id,
         friend_id,
         created_at,
-        recipient:friend_id (id, username, display_name, avatar_url)
+        profiles!friendships_friend_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('user_id', session.user.id)
       .eq('status', 'pending')
@@ -332,7 +330,7 @@ export async function getSentRequests() {
     }
 
     const requests = (data || []).map(r => ({
-      ...r.recipient,
+      ...r.profiles,
       friendship_id: r.id,
       request_date: r.created_at
     }));

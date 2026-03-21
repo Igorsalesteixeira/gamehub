@@ -69,7 +69,7 @@ export async function sendChallenge(friendId, gameType, options = {}) {
       })
       .select(`
         *,
-        challenger:challenger_id (id, username, display_name, avatar_url)
+        profiles!challenges_challenger_id_fkey (id, username, display_name, avatar_url)
       `)
       .single();
 
@@ -215,7 +215,7 @@ export async function getPendingChallenges() {
       .from('challenges')
       .select(`
         *,
-        challenger:challenger_id (id, username, display_name, avatar_url)
+        profiles!challenges_challenger_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('challenged_id', session.user.id)
       .eq('status', 'pending')
@@ -282,7 +282,7 @@ export async function getSentChallenges() {
       .from('challenges')
       .select(`
         *,
-        challenged:challenged_id (id, username, display_name, avatar_url)
+        profiles!challenges_challenged_id_fkey (id, username, display_name, avatar_url)
       `)
       .eq('challenger_id', session.user.id)
       .eq('status', 'pending')
