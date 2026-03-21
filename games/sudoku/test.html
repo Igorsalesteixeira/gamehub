@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sudoku - Testes Zen v8</title>
+  <link rel="stylesheet" href="style.css?v=8">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Noto Sans JP', sans-serif;
+      background: linear-gradient(180deg, #f5f5f0 0%, #e8e8e0 100%);
+      color: #2c3e50;
+    }
+    .test-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.7);
+      border-radius: 16px;
+      border: 1px solid rgba(123, 163, 168, 0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .test-section h2 {
+      margin-bottom: 1rem;
+      color: #5d8c6f;
+    }
+    .pass { color: #5d8c6f; }
+    .fail { color: #e74c3c; }
+
+    /* Test cells */
+    .cell-test {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border: 1px solid #c5d5d8;
+      margin: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .cell-test.light {
+      background: linear-gradient(145deg, #e8d5b5 0%, #dcc9a8 100%);
+    }
+    .cell-test.dark {
+      background: linear-gradient(145deg, #8b5a2b 0%, #6b4423 100%);
+      color: #fff;
+    }
+    .cell-test.selected {
+      background: linear-gradient(145deg, #ffd700 0%, #daa520 100%);
+      box-shadow: inset 0 0 20px rgba(255,215,0,0.5);
+    }
+    .cell-test.given {
+      color: #2c3e50;
+      font-weight: 700;
+    }
+    .cell-test.user {
+      color: #4a90a4;
+    }
+
+    /* Test num pad */
+    .num-btn-test {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e8e8e0, #d0d0c8);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #2c3e50;
+      cursor: pointer;
+      margin: 5px;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.15), -2px -2px 6px rgba(255,255,255,0.8);
+      transition: all 0.25s ease;
+    }
+    .num-btn-test:hover {
+      transform: translateY(-3px) scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>🧘 Sudoku Zen - Testes v8</h1>
+
+  <div class="test-section">
+    <h2>✅ Teste 1: Células do Tabuleiro</h2>
+    <div>
+      <div class="cell-test light given">5</div>
+      <div class="cell-test dark"></div>
+      <div class="cell-test light user">3</div>
+      <div class="cell-test dark selected">7</div>
+    </div>
+    <p>Status: <span class="pass">Estilos zen aplicados (madeira/seleção dourada)</span></p>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 2: Teclado Numérico (Pedras Zen)</h2>
+    <div>
+      <button class="num-btn-test">1</button>
+      <button class="num-btn-test">2</button>
+      <button class="num-btn-test">3</button>
+      <button class="num-btn-test">4</button>
+      <button class="num-btn-test">5</button>
+    </div>
+    <p>Status: <span class="pass">Efeito de pedra 3D aplicado</span></p>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 3: Modal de Vitória</h2>
+    <button onclick="document.getElementById('modal-test').classList.add('show')">Abrir Modal</button>
+    <p>Status: <span class="pass">Clique para testar modal</span></p>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 4: Console Debug</h2>
+    <button onclick="console.log('[Sudoku Test] Debug message')">Gerar Log</button>
+    <p>Abra o console (F12) para ver os logs</p>
+  </div>
+
+  <!-- Modal Test -->
+  <div class="modal-overlay" id="modal-test">
+    <div class="modal">
+      <div class="modal-icon">🎉</div>
+      <h2>Parabéns!</h2>
+      <p>Você completou o Sudoku!</p>
+      <button class="btn btn-primary" onclick="document.getElementById('modal-test').classList.remove('show')">Fechar</button>
+    </div>
+  </div>
+
+  <script>
+    console.log('[Sudoku Test] Página de testes carregada');
+  </script>
+</body>
+</html>

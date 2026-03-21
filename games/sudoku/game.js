@@ -2,8 +2,16 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
-// ===== Sudoku (Refatorado com módulos compartilhados) =====
+// ===== Sudoku (Refatorado com módulos compartilhados) v8 =====
 import { supabase } from '../../supabase.js';
+
+// Debug mode
+console.log('[Sudoku] v8 Zen - Inicializando...');
+const DEBUG = location.search.includes('debug');
+function debug(...args) {
+  if (DEBUG) console.log('[Sudoku]', ...args);
+}
+
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
@@ -118,6 +126,14 @@ function formatTime(s) {
 
 // ===== Init =====
 function init() {
+  debug('Initializing game...');
+
+  // Verificar elementos essenciais
+  if (!boardEl || !timerDisplay) {
+    console.error('[Sudoku] Elementos essenciais não encontrados');
+    return;
+  }
+
   stopTimer();
   gameOver = false;
   gameTimer.reset();
@@ -134,6 +150,8 @@ function init() {
   userGrid = puzzle.map(r => [...r]);
 
   render();
+
+  debug('Game initialized:', { difficulty: diffSelect.value, removeCount });
 }
 
 function render() {
