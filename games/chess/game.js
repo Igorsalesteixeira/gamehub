@@ -3,6 +3,13 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
 
+// ========== DEBUG & VERSION ==========
+console.log('[Xadrez] v13 Premium 3D - Inicializando...');
+const DEBUG = location.search.includes('debug');
+function debug(...args) {
+  if (DEBUG) console.log('[Xadrez]', ...args);
+}
+
 // ========== CONSTANTS ==========
 const EMPTY = 0;
 const WP = 1, WN = 2, WB = 3, WR = 4, WQ = 5, WK = 6;
@@ -60,6 +67,8 @@ const promoChoices = document.getElementById('promo-choices');
 const multiplayerStatus = document.getElementById('multiplayer-status');
 const btnCopyLink = document.getElementById('btn-copy-link');
 const btnLeaveRoom = document.getElementById('btn-leave-room');
+const startOverlay = document.getElementById('start-overlay');
+const btnStart = document.getElementById('btn-start');
 
 // ========== MULTIPLAYER SETUP ==========
 async function initMultiplayer() {
@@ -970,6 +979,14 @@ function startTimer() {
 
 // ========== INIT ==========
 function init() {
+  debug('Initializing game...');
+
+  // Verificar elementos essenciais
+  if (!boardEl) {
+    console.error('[Xadrez] Elemento do tabuleiro não encontrado');
+    return;
+  }
+
   board = initialBoard();
   turn = 'w';
   selected = null;
@@ -985,6 +1002,8 @@ function init() {
   renderBoard();
   setTurnIndicator();
   startTimer();
+
+  debug('Game initialized successfully');
 }
 
 btnNewGame.addEventListener('click', () => {
@@ -1006,6 +1025,20 @@ btnPlayAgain.addEventListener('click', () => {
   playSound('click');
   init();
 });
+
+// Start overlay handler
+if (btnStart) {
+  btnStart.addEventListener('click', () => {
+    debug('Start button clicked');
+    initAudio();
+    playSound('click');
+    if (startOverlay) {
+      startOverlay.classList.remove('show');
+      startOverlay.style.display = 'none';
+    }
+    init();
+  });
+}
 
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) init(); });
 

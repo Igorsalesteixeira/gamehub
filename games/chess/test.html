@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xadrez - Testes Premium 3D</title>
+  <link rel="stylesheet" href="style.css?v=14">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+      color: #e8d5b5;
+    }
+    .test-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(232,213,181,0.1);
+    }
+    .test-section h2 {
+      margin-bottom: 1rem;
+      color: #ffd700;
+    }
+    .pass { color: #7fc97f; }
+    .fail { color: #ff6b6b; }
+    .board-test {
+      width: 300px;
+      height: 300px;
+      margin: 1rem auto;
+    }
+    .cell-test {
+      width: 37.5px;
+      height: 37.5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 1px solid rgba(0,0,0,0.2);
+    }
+    .cell-test.light {
+      background: linear-gradient(145deg, #e8d5b5 0%, #dcc9a8 100%);
+    }
+    .cell-test.dark {
+      background: linear-gradient(145deg, #8b5a2b 0%, #6b4423 100%);
+    }
+    .cell-test.selected {
+      background: linear-gradient(145deg, #ffd700 0%, #daa520 100%) !important;
+      box-shadow: inset 0 0 20px rgba(255,215,0,0.5);
+    }
+  </style>
+</head>
+<body>
+  <h1>♔ Xadrez Premium 3D - Testes v14</h1>
+
+  <div class="test-section">
+    <h2>✅ Teste 1: Overlay de Início</h2>
+    <p>Status: <span class="pass">Deve aparecer ao carregar</span></p>
+    <button onclick="document.getElementById('start-overlay').classList.toggle('show')">Toggle Overlay</button>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 2: Tabuleiro 3D</h2>
+    <div class="board-wrapper" style="perspective: 1500px; padding: 2rem;">
+      <div class="board" style="transform: perspective(1000px) rotateX(25deg); width: 300px; height: 300px; display: grid; grid-template-columns: repeat(8, 1fr); box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
+        <!-- 8x8 cells -->
+        <div class="cell-test light">♖</div>
+        <div class="cell-test dark">♘</div>
+        <div class="cell-test light">♗</div>
+        <div class="cell-test dark">♕</div>
+        <div class="cell-test light">♔</div>
+        <div class="cell-test dark">♗</div>
+        <div class="cell-test light">♘</div>
+        <div class="cell-test dark">♖</div>
+        <div class="cell-test dark">♙</div>
+        <div class="cell-test light">♙</div>
+        <div class="cell-test dark">♙</div>
+        <div class="cell-test light">♙</div>
+        <div class="cell-test dark">♙</div>
+        <div class="cell-test light">♙</div>
+        <div class="cell-test dark">♙</div>
+        <div class="cell-test light">♙</div>
+        <!-- Empty rows -->
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+        <div class="cell-test dark"></div>
+        <div class="cell-test light"></div>
+      </div>
+    </div>
+    <p>Status: <span class="pass">Tabuleiro com perspectiva 3D aplicada</span></p>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 3: Seleção Dourada</h2>
+    <p>Clique nas células abaixo para testar o efeito de seleção:</p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <div class="cell-test light selected" style="cursor: pointer;">♔</div>
+      <div class="cell-test dark" style="cursor: pointer;">♕</div>
+      <div class="cell-test light" style="cursor: pointer;">♖</div>
+    </div>
+    <p>Status: <span class="pass">Efeito dourado aplicado</span></p>
+  </div>
+
+  <div class="test-section">
+    <h2>✅ Teste 4: Console Debug</h2>
+    <p>Abra o console (F12) para ver os logs de debug.</p>
+    <button onclick="console.log('[Test] Debug button clicked')">Gerar Log de Teste</button>
+  </div>
+
+  <!-- Start Overlay Test -->
+  <div class="modal-overlay" id="start-overlay" style="display: none;">
+    <div class="modal">
+      <div class="modal-icon">♔</div>
+      <h2 class="modal-title">Xadrez Premium</h2>
+      <p class="modal-msg">Experiência 3D imersiva</p>
+      <button class="btn btn-primary" id="btn-start">Iniciar Jogo</button>
+    </div>
+  </div>
+
+  <script>
+    console.log('[Xadrez Test] Página de testes carregada');
+
+    // Toggle selection effect
+    document.querySelectorAll('.cell-test').forEach(cell => {
+      cell.addEventListener('click', function() {
+        document.querySelectorAll('.cell-test').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+    });
+
+    // Show start overlay on load
+    window.addEventListener('load', () => {
+      const overlay = document.getElementById('start-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>
