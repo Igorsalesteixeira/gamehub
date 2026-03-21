@@ -376,3 +376,117 @@ export class ParticleSystem {
 export function createParticleSystem(canvas, options = {}) {
   return new ParticleSystem(canvas, options);
 }
+
+// Instância global para efeitos rápidos
+let globalParticleSystem = null;
+
+/**
+ * Obtém ou cria o sistema de partículas global.
+ * @private
+ */
+function getGlobalParticles() {
+  if (!globalParticleSystem) {
+    // Cria canvas invisível para partículas globais
+    let canvas = document.getElementById('global-particles');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'global-particles';
+      canvas.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+      `;
+      document.body.appendChild(canvas);
+    }
+    globalParticleSystem = new ParticleSystem(canvas, { autoResize: true });
+  }
+  return globalParticleSystem;
+}
+
+/**
+ * Emite confetti em uma posição específica.
+ *
+ * @param {number} x - Posição X
+ * @param {number} y - Posição Y
+ * @param {Object} options - Opções adicionais
+ */
+export function emitConfetti(x, y, options = {}) {
+  const particles = getGlobalParticles();
+  const count = options.count || 50;
+  const colors = options.colors || ['#ff6b35', '#4ecdc4', '#ffe66d', '#ec4899', '#8b5cf6'];
+
+  particles.emit({
+    x,
+    y,
+    count,
+    type: 'sparkle',
+    color: colors,
+    speed: 8,
+    spread: 360,
+    life: 1.5
+  });
+}
+
+/**
+ * Emite explosão de partículas.
+ *
+ * @param {number} x - Posição X
+ * @param {number} y - Posição Y
+ * @param {Object} options - Opções adicionais
+ */
+export function emitExplosion(x, y, options = {}) {
+  const particles = getGlobalParticles();
+  particles.emit({
+    x,
+    y,
+    count: options.count || 30,
+    type: 'explosion',
+    color: options.color || '#ff6b35',
+    speed: options.speed || 6,
+    spread: 360
+  });
+}
+
+/**
+ * Emite partículas de fumaça.
+ *
+ * @param {number} x - Posição X
+ * @param {number} y - Posição Y
+ * @param {Object} options - Opções adicionais
+ */
+export function emitSmoke(x, y, options = {}) {
+  const particles = getGlobalParticles();
+  particles.emit({
+    x,
+    y,
+    count: options.count || 15,
+    type: 'smoke',
+    color: options.color || '#888888',
+    speed: 2,
+    spread: 180
+  });
+}
+
+/**
+ * Emite partículas mágicas.
+ *
+ * @param {number} x - Posição X
+ * @param {number} y - Posição Y
+ * @param {Object} options - Opções adicionais
+ */
+export function emitMagic(x, y, options = {}) {
+  const particles = getGlobalParticles();
+  particles.emit({
+    x,
+    y,
+    count: options.count || 25,
+    type: 'magic',
+    color: options.color || '#8b5cf6',
+    speed: 4,
+    spread: 360
+  });
+}
