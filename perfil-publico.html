@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil - Games Hub</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+  <style>
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ===== HERO SECTION ===== */
+    .profile-hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 24px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255,107,53,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+    }
+
+    .profile-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b35 0%, #e85d2a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      border: 4px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 32px rgba(255,107,53,0.3);
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-level {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+    }
+
+    .level-badge {
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .xp-text {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 600;
+    }
+
+    .xp-bar {
+      height: 10px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+      max-width: 300px;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b35, #ff9f5e);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .btn-action {
+      padding: 0.6rem 1.1rem;
+      border-radius: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: none;
+    }
+
+    .btn-add-friend {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+    }
+
+    .btn-add-friend:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-remove-friend {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1.5px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .btn-remove-friend:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .btn-challenge {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: #fff;
+    }
+
+    .btn-challenge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-block {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+    }
+
+    .btn-block:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .btn-back {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+    }
+
+    .btn-back:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin-left: 0.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.2rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .stat-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== COMMON GAMES ===== */
+    .common-games-section {
+      margin-bottom: 2rem;
+    }
+
+    .games-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .game-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+
+    .game-item:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .game-icon-small {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .game-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .game-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.15rem;
+    }
+
+    .game-stats {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-play:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+    }
+
+    /* ===== ACTIVITY FEED ===== */
+    .activity-section {
+      margin-bottom: 2rem;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .activity-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-text {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+      margin-bottom: 0.3rem;
+    }
+
+    .activity-text strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .activity-time {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+    }
+
+    .activity-score {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      padding: 0.3rem 0.7rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .activity-score.lose {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    /* ===== FRIENDS LINK ===== */
+    .view-friends-link {
+      display: block;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px dashed rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 1.2rem;
+      text-align: center;
+      text-decoration: none;
+      color: rgba(255,255,255,0.6);
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .view-friends-link:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,107,53,0.3);
+      color: #ff8f5e;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .empty-state-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* ===== LOADING STATE ===== */
+    .loading-state {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #ff6b35;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== NOT FOUND ===== */
+    .not-found {
+      text-align: center;
+      padding: 4rem 1.5rem;
+    }
+
+    .not-found-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .not-found h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.5rem;
+    }
+
+    .not-found p {
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .profile-hero {
+        padding: 1.5rem;
+      }
+
+      .profile-avatar-large {
+        width: 64px;
+        height: 64px;
+        font-size: 1.8rem;
+      }
+
+      .profile-name {
+        font-size: 1.4rem;
+      }
+
+      .hero-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .profile-info {
+        width: 100%;
+      }
+
+      .profile-actions {
+        justify-content: center;
+      }
+
+      .xp-bar {
+        margin: 0.4rem auto 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        gap: 0.7rem;
+      }
+
+      .stat-card {
+        padding: 1rem 0.8rem;
+      }
+
+      .stat-icon {
+        font-size: 1.4rem;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+      }
+
+      .stat-label {
+        font-size: 0.65rem;
+      }
+
+      .profile-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn-action {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip Link -->
+  <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+
+  <div class="profile-container">
+    <!-- Profile Hero -->
+    <div id="profile-hero" class="profile-hero">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando perfil...</p>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section" id="stats-section" style="display: none;">
+      <div class="section-title">Estatísticas</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">&#127918;</div>
+          <div class="stat-value" id="stat-favorite">-</div>
+          <div class="stat-label">Jogo Favorito</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">&#128200;</div>
+          <div class="stat-value" id="stat-games">-</div>
+          <div class="stat-label">Partidas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">&#127942;</div>
+          <div class="stat-value" id="stat-winrate">-</div>
+          <div class="stat-label">Taxa de Vitória</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">&#9201;</div>
+          <div class="stat-value" id="stat-time">-</div>
+          <div class="stat-label">Tempo Jogado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Common Games Section -->
+    <div class="common-games-section" id="common-games-section" style="display: none;">
+      <div class="section-title">Jogos em Comum</div>
+      <div id="common-games-list" class="games-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Activity Section -->
+    <div class="activity-section" id="activity-section" style="display: none;">
+      <div class="section-title">Atividades Recentes</div>
+      <div id="activity-list" class="activity-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- View Friends Link -->
+    <a href="social.html" class="view-friends-link" id="view-friends" style="display: none;">
+      &#128101; Ver todos os amigos
+    </a>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { initSidebar } from './sidebar.js?v=7';
+    import {
+      getUserProfile,
+      checkFriendshipStatus,
+      sendFriendRequest,
+      removeFriend,
+      blockUser,
+      getCommonGames,
+      getUserStats,
+      getUserActivity
+    } from './social.js';
+    import { subscribeToNotifications } from './notifications.js';
+    import { sendChallenge } from './challenge-system.js';
+
+    // Inicializa sidebar
+    initSidebar({ active: 'profile' });
+
+    // Inscreve em notificações
+    subscribeToNotifications();
+
+    // Pega ID da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+
+    // Estado
+    let profileData = null;
+    let isFriend = false;
+    let isSelf = false;
+    let friendshipId = null;
+
+    // Elementos
+    const profileHero = document.getElementById('profile-hero');
+    const statsSection = document.getElementById('stats-section');
+    const commonGamesSection = document.getElementById('common-games-section');
+    const activitySection = document.getElementById('activity-section');
+    const viewFriendsLink = document.getElementById('view-friends');
+
+    // Carrega perfil
+    async function loadProfile() {
+      if (!userId) {
+        showNotFound('Usuário não especificado');
+        return;
+      }
+
+      const { data: profile, error } = await getUserProfile(userId);
+
+      if (error || !profile) {
+        showNotFound('Usuário não encontrado');
+        return;
+      }
+
+      profileData = profile;
+
+      // Verifica se é o próprio usuário
+      const { data: { session } } = await import('./supabase.js').then(m => m.supabase.auth.getSession());
+      if (session?.user?.id === userId) {
+        isSelf = true;
+        window.location.href = 'profile.html';
+        return;
+      }
+
+      // Verifica status de amizade
+      const { data: friendshipData } = await checkFriendshipStatus(userId);
+      isFriend = friendshipData?.is_friend || false;
+      friendshipId = friendshipData?.id;
+
+      renderProfile(profile);
+      loadStats(userId);
+      loadCommonGames(userId);
+      loadActivity(userId);
+
+      // Mostra seções
+      statsSection.style.display = 'block';
+      commonGamesSection.style.display = 'block';
+      activitySection.style.display = 'block';
+      viewFriendsLink.style.display = 'block';
+    }
+
+    function showNotFound(message) {
+      profileHero.innerHTML = `
+        <div class="not-found">
+          <div class="not-found-icon">&#128100;</div>
+          <h2>${message}</h2>
+          <p>O usuário pode não existir ou ter sido removido.</p>
+          <a href="social.html" class="btn-action btn-back" style="display: inline-flex;">
+            &#8592; Voltar para Amigos
+          </a>
+        </div>
+      `;
+    }
+
+    function renderProfile(profile) {
+      const avatarLetter = (profile.display_name || profile.username || '?')[0].toUpperCase();
+      const level = profile.level || 1;
+      const xp = profile.xp || 0;
+      const xpForNext = profile.xp_for_next_level || 100;
+      const xpProgress = Math.min((xp / xpForNext) * 100, 100);
+
+      profileHero.innerHTML = `
+        <div class="hero-content">
+          <div class="profile-avatar-large">${avatarLetter}</div>
+          <div class="profile-info">
+            <div class="profile-name">${profile.display_name || profile.username}</div>
+            <div class="profile-level">
+              <span class="level-badge">Nível ${level}</span>
+              <span class="xp-text">${xp}/${xpForNext} XP</span>
+            </div>
+            <div class="xp-bar">
+              <div class="xp-bar-fill" style="width: ${xpProgress}%"></div>
+            </div>
+            <div class="profile-actions">
+              ${isFriend ? `
+                <button class="btn-action btn-challenge" onclick="challengeUser('${profile.id}', '${profile.username}')">
+                  &#9876; Desafiar
+                </button>
+                <button class="btn-action btn-remove-friend" onclick="removeFriendConfirm()">
+                  &#128465; Remover Amigo
+                </button>
+              ` : `
+                <button class="btn-action btn-add-friend" onclick="addFriend()">
+                  &#128101; Adicionar Amigo
+                </button>
+              `}
+              <button class="btn-action btn-block" onclick="blockUserConfirm()">
+                &#128683; Bloquear
+              </button>
+              <a href="social.html" class="btn-action btn-back">
+                &#8592; Voltar
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadStats(userId) {
+      const { data: stats } = await getUserStats(userId);
+
+      if (stats) {
+        document.getElementById('stat-favorite').textContent = stats.favorite_game || '-';
+        document.getElementById('stat-games').textContent = stats.total_games?.toLocaleString() || '0';
+        document.getElementById('stat-winrate').textContent = stats.win_rate ? `${stats.win_rate}%` : '-';
+        document.getElementById('stat-time').textContent = stats.total_time || '0h';
+      }
+    }
+
+    async function loadCommonGames(userId) {
+      const { data: games } = await getCommonGames(userId);
+      const list = document.getElementById('common-games-list');
+
+      if (!games || games.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#127918;</div>
+            <h3>Sem jogos em comum</h3>
+            <p>Vocês ainda não jogaram os mesmos jogos</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = games.map(game => `
+        <div class="game-item">
+          <div class="game-icon-small">${game.icon || '&#127918;'}</div>
+          <div class="game-info">
+            <div class="game-name">${game.name}</div>
+            <div class="game-stats">${game.your_high_score?.toLocaleString() || 0} pts (você) · ${game.their_high_score?.toLocaleString() || 0} pts (ele)</div>
+          </div>
+          <a href="games/${game.id}/index.html" class="btn-play">Jogar &#9654;</a>
+        </div>
+      `).join('');
+    }
+
+    async function loadActivity(userId) {
+      const { data: activities } = await getUserActivity(userId);
+      const list = document.getElementById('activity-list');
+
+      if (!activities || activities.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128197;</div>
+            <h3>Sem atividades recentes</h3>
+            <p>Este usuário ainda não tem atividades públicas</p>
+          </div>
+        `;
+        return;
+      }
+
+      const activityIcons = {
+        'game_completed': '&#127942;',
+        'high_score': '&#127937;',
+        'level_up': '&#11088;',
+        'friend_added': '&#128101;',
+        'challenge_sent': '&#9876;',
+        'achievement': '&#127942;'
+      };
+
+      list.innerHTML = activities.slice(0, 5).map(activity => `
+        <div class="activity-item">
+          <div class="activity-icon">${activityIcons[activity.type] || '&#128161;'}</div>
+          <div class="activity-content">
+            <div class="activity-text">${activity.description}</div>
+            <div class="activity-time">${formatTimeAgo(activity.created_at)}</div>
+          </div>
+          ${activity.score ? `<div class="activity-score ${activity.won ? '' : 'lose'}">${activity.score > 0 ? '+' : ''}${activity.score}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function formatTimeAgo(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+
+      if (diff < 60) return 'Agora mesmo';
+      if (diff < 3600) return `Há ${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `Há ${Math.floor(diff / 3600)} h`;
+      if (diff < 604800) return `Há ${Math.floor(diff / 86400)} d`;
+      return date.toLocaleDateString('pt-BR');
+    }
+
+    // Ações globais
+    window.challengeUser = async function(userId, username) {
+      const gameType = prompt(`Desafiar ${username} em qual jogo?\n\nOpções: tictactoe, chess, checkers, connect4, reversi, battleship, truco, uno`);
+      if (!gameType) return;
+
+      const { error } = await sendChallenge(userId, gameType.trim().toLowerCase());
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        alert('Desafio enviado com sucesso!');
+      }
+    };
+
+    window.addFriend = async function() {
+      if (!profileData) return;
+
+      const { error } = await sendFriendRequest(profileData.id);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        alert('Solicitação de amizade enviada!');
+        // Atualiza o botão
+        const btn = document.querySelector('.btn-add-friend');
+        if (btn) {
+          btn.textContent = '&#10003; Solicitado';
+          btn.disabled = true;
+        }
+      }
+    };
+
+    window.removeFriendConfirm = async function() {
+      if (!friendshipId) return;
+      if (!confirm('Tem certeza que deseja remover este amigo?')) return;
+
+      const { error } = await removeFriend(friendshipId);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        isFriend = false;
+        friendshipId = null;
+        loadProfile(); // Recarrega o perfil
+      }
+    };
+
+    window.blockUserConfirm = async function() {
+      if (!profileData) return;
+      if (!confirm('Tem certeza que deseja bloquear este usuário?\n\nVocê não verá mais as atividades dele nem receberá solicitações.')) return;
+
+      const { error } = await blockUser(profileData.id);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        alert('Usuário bloqueado com sucesso.');
+        window.location.href = 'social.html';
+      }
+    };
+
+    // Carrega o perfil
+    loadProfile();
+  </script>
+</body>
+</html>

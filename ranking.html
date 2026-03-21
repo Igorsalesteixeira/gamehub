@@ -242,6 +242,24 @@
       .ranking-row { padding: 0.6rem 0.9rem; }
       .rank-avatar { width: 32px; height: 32px; font-size: 0.85rem; }
     }
+
+    /* Botão adicionar amigo no ranking */
+    .btn-add-friend {
+      background: rgba(255,107,53,0.2) !important;
+      border: 1px solid rgba(255,107,53,0.3) !important;
+      color: #ff6b35 !important;
+      transition: all 0.2s !important;
+    }
+    .btn-add-friend:hover {
+      background: rgba(255,107,53,0.35) !important;
+      transform: scale(1.1);
+    }
+    .btn-add-friend.added {
+      background: rgba(34,197,94,0.2) !important;
+      border-color: rgba(34,197,94,0.4) !important;
+      color: #22c55e !important;
+      cursor: default !important;
+    }
   </style>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
@@ -549,14 +567,17 @@
         return `
           <div class="ranking-row ${rowClass}">
             <div class="rank-pos ${posClass}">${medal}</div>
-            <div class="rank-avatar" style="background:${color}">${initial}</div>
+            <a href="perfil-publico.html?id=${row.user_id}" class="rank-avatar" style="background:${color};text-decoration:none;">${initial}</a>
             <div class="rank-info">
-              <div class="rank-name ${isMe ? 'is-me' : ''}">${escapeHtml(row.name)}${isMe ? ' · você' : ''}</div>
+              <a href="perfil-publico.html?id=${row.user_id}" class="rank-name ${isMe ? 'is-me' : ''}" style="text-decoration:none;color:inherit;">${escapeHtml(row.name)}${isMe ? ' · você' : ''}</a>
               ${row.levelChip ? row.levelChip : ''}
             </div>
-            <div class="rank-value">
-              <div class="rank-main-val">${mainVal}</div>
-              ${subVal ? `<div class="rank-sub-val">${subVal}</div>` : ''}
+            <div class="rank-value" style="display:flex;align-items:center;gap:0.5rem;">
+              <div>
+                <div class="rank-main-val">${mainVal}</div>
+                ${subVal ? `<div class="rank-sub-val">${subVal}</div>` : ''}
+              </div>
+              ${!isMe ? `<button class="btn-add-friend" data-user-id="${row.user_id}" title="Adicionar amigo" style="background:rgba(255,107,53,0.2);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1rem;transition:all 0.2s;">+</button>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -705,14 +726,17 @@
         return `
           <div class="ranking-row ${pos<=3?`top-${pos}`:''}">
             <div class="rank-pos ${posClass}">${medal}</div>
-            <div class="rank-avatar" style="background:${color}">${initial}</div>
+            <a href="perfil-publico.html?id=${row.user_id}" class="rank-avatar" style="background:${color};text-decoration:none;">${initial}</a>
             <div class="rank-info">
-              <div class="rank-name ${isMe?'is-me':''}">${escapeHtml(row.name)}${isMe?' · você':''}</div>
+              <a href="perfil-publico.html?id=${row.user_id}" class="rank-name ${isMe?'is-me':''}" style="text-decoration:none;color:inherit;">${escapeHtml(row.name)}${isMe?' · você':''}</a>
               <div class="rank-sublabel">${row.total} partidas · ${row.wins} vitórias</div>
             </div>
-            <div class="rank-value">
-              <div class="rank-main-val">${row.level.icon} Nv ${row.level.num}</div>
-              <div class="rank-sub-val">${row.level.name} · ${fmtNum(row.xp)} XP</div>
+            <div class="rank-value" style="display:flex;align-items:center;gap:0.5rem;">
+              <div>
+                <div class="rank-main-val">${row.level.icon} Nv ${row.level.num}</div>
+                <div class="rank-sub-val">${row.level.name} · ${fmtNum(row.xp)} XP</div>
+              </div>
+              ${!isMe ? `<button class="btn-add-friend" data-user-id="${row.user_id}" title="Adicionar amigo" style="background:rgba(255,107,53,0.2);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1rem;transition:all 0.2s;">+</button>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -848,6 +872,42 @@
         btnRefresh.textContent = '🔄 Atualizar';
         btnRefresh.disabled = false;
       });
+    });
+
+    // ===== FRIEND BUTTONS =====
+    tableEl.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('btn-add-friend')) {
+        const userId = e.target.dataset.userId;
+        if (!userId) return;
+
+        // Import dinâmico do social.js
+        try {
+          const { sendFriendRequest } = await import('./social.js?v=1');
+          const { data, error } = await sendFriendRequest(userId);
+
+          if (error) {
+            if (error.message.includes('Já existe')) {
+              e.target.textContent = '✓';
+              e.target.classList.add('added');
+              e.target.title = 'Solicitação já enviada';
+            } else {
+              alert('Erro: ' + error.message);
+            }
+          } else {
+            e.target.textContent = '✓';
+            e.target.classList.add('added');
+            e.target.title = 'Solicitação enviada!';
+
+            // Mostrar toast se disponível
+            if (window.Toast) {
+              Toast.success('Solicitação de amizade enviada!', 3000);
+            }
+          }
+        } catch (err) {
+          console.error('Erro ao adicionar amigo:', err);
+          alert('Erro ao enviar solicitação. Tente novamente.');
+        }
+      }
     });
 
     // ===== INIT =====

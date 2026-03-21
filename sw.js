@@ -226,9 +226,43 @@ async function syncScores() {
   console.log('[SW] Sincronizando scores...');
 }
 
-// Push notifications (para desafio diário)
+// Push notifications (para desafio diário e social)
 self.addEventListener('push', (event) => {
   const data = event.data?.json() || {};
+
+  // Configurações baseadas no tipo de notificação
+  let actions = [];
+  let url = '/';
+
+  switch (data.type) {
+    case 'friend_request':
+      actions = [
+        { action: 'accept', title: 'Aceitar' },
+        { action: 'decline', title: 'Recusar' }
+      ];
+      url = '/social.html?tab=requests';
+      break;
+    case 'challenge':
+      actions = [
+        { action: 'accept', title: 'Aceitar Desafio' },
+        { action: 'decline', title: 'Recusar' }
+      ];
+      url = `/multiplayer.html?room=${data.roomId || ''}`;
+      break;
+    case 'friend_online':
+      actions = [
+        { action: 'challenge', title: 'Desafiar' },
+        { action: 'close', title: 'Fechar' }
+      ];
+      url = `/perfil-publico.html?id=${data.userId || ''}`;
+      break;
+    default:
+      actions = [
+        { action: 'play', title: 'Jogar' },
+        { action: 'close', title: 'Fechar' }
+      ];
+      url = '/games/termo/';
+  }
 
   event.waitUntil(
     self.registration.showNotification(data.title || 'Games Hub', {
@@ -236,11 +270,9 @@ self.addEventListener('push', (event) => {
       icon: '/icon-192x192.png',
       badge: '/icon-72x72.png',
       tag: data.tag || 'default',
-      requireInteraction: false,
-      actions: [
-        { action: 'play', title: 'Jogar' },
-        { action: 'close', title: 'Fechar' }
-      ]
+      requireInteraction: data.type === 'friend_request' || data.type === 'challenge',
+      data: { url, type: data.type },
+      actions
     })
   );
 });
@@ -248,10 +280,11 @@ self.addEventListener('push', (event) => {
 // Clique na notificação
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const data = event.notification.data || {};
 
-  if (event.action === 'play') {
+  if (event.action === 'accept' || event.action === 'challenge' || !event.action) {
     event.waitUntil(
-      clients.openWindow('/games/termo/')
+      clients.openWindow(data.url || '/')
     );
   }
 });

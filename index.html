@@ -583,6 +583,145 @@
       <div class="no-results-text">Nenhum jogo encontrado</div>
     </div>
 
+    <!-- Feed de Atividades dos Amigos -->
+    <section class="activity-feed-section" aria-label="Feed de atividades">
+      <div class="activity-feed-header">
+        <div class="activity-feed-title">
+          <span class="activity-feed-icon">🎮</span>
+          <h3>O que seus amigos estão jogando</h3>
+        </div>
+        <a href="social.html" class="activity-feed-link">Ver todos →</a>
+      </div>
+      <div class="activity-feed-list" id="activity-feed-list" role="list">
+        <!-- Atividades serão carregadas dinamicamente -->
+        <div class="activity-feed-loading">Carregando atividades...</div>
+      </div>
+    </section>
+
+    <style>
+      .activity-feed-section {
+        margin-top: 2.5rem;
+        padding: 1.5rem;
+        background: rgba(255,255,255,0.03);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.06);
+      }
+      .activity-feed-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .activity-feed-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .activity-feed-icon {
+        font-size: 1.5rem;
+      }
+      .activity-feed-title h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+      }
+      .activity-feed-link {
+        color: #ff6b35;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: opacity 0.2s;
+      }
+      .activity-feed-link:hover {
+        opacity: 0.8;
+      }
+      .activity-feed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        transition: background 0.2s;
+      }
+      .activity-item:hover {
+        background: rgba(255,255,255,0.08);
+      }
+      .activity-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #e85d2a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #fff;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .activity-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .activity-text {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      .activity-text strong {
+        color: #fff;
+        font-weight: 700;
+      }
+      .activity-text a {
+        color: #ff6b35;
+        text-decoration: none;
+      }
+      .activity-text a:hover {
+        text-decoration: underline;
+      }
+      .activity-time {
+        color: rgba(255,255,255,0.4);
+        font-size: 0.75rem;
+        margin-top: 0.15rem;
+      }
+      .activity-game-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+      }
+      .activity-feed-loading {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.9rem;
+      }
+      .activity-feed-empty {
+        text-align: center;
+        padding: 2rem;
+        color: rgba(255,255,255,0.5);
+      }
+      .activity-feed-empty-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      @media (max-width: 480px) {
+        .activity-feed-section {
+          padding: 1rem;
+        }
+        .activity-feed-title h3 {
+          font-size: 1rem;
+        }
+      }
+    </style>
+
     <!-- Compartilhar -->
     <section class="share-section" aria-label="Compartilhar">
       <h3 class="share-title">Gostou? Compartilhe com amigos!</h3>
@@ -923,6 +1062,121 @@
     }
 
     loadLiveRooms();
+
+    // ===== ACTIVITY FEED =====
+    async function loadActivityFeed() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        document.getElementById('activity-feed-list').innerHTML = `
+          <div class="activity-feed-empty">
+            <div class="activity-feed-empty-icon">🔒</div>
+            <p>Faça login para ver as atividades dos seus amigos</p>
+            <a href="auth.html" class="btn btn-primary" style="margin-top:1rem">Entrar</a>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        // Busca atividades dos amigos nas últimas 24h
+        const { data: friends } = await supabase
+          .from('friendships')
+          .select('friend_id')
+          .eq('user_id', session.user.id)
+          .eq('status', 'accepted');
+
+        if (!friends || friends.length === 0) {
+          document.getElementById('activity-feed-list').innerHTML = `
+            <div class="activity-feed-empty">
+              <div class="activity-feed-empty-icon">👥</div>
+              <p>Você ainda não tem amigos</p>
+              <a href="social.html" class="btn btn-primary" style="margin-top:1rem">Encontrar Amigos</a>
+            </div>
+          `;
+          return;
+        }
+
+        const friendIds = friends.map(f => f.friend_id);
+        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+        const { data: activities } = await supabase
+          .from('game_stats')
+          .select('user_id, game, result, time_seconds, created_at')
+          .in('user_id', friendIds)
+          .gte('created_at', cutoff)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', friendIds);
+
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p.display_name]) || []);
+
+        const gameIcons = {
+          solitaire: '🃏', freecell: '🂡', blackjack: '🃏', truco: '🂠', uno: '🟥', pyramid: '🔺',
+          memory: '🧠', minesweeper: '💣', game2048: '🔢', sudoku: '🔢', puzzle15: '🧩',
+          nonogram: '🖼️', mahjong: '🀄', lightsout: '💡', sokoban: '📦',
+          snake: '🐍', tetris: '🧱', flappybird: '🐦', pong: '🏓', breakout: '🧱',
+          dinorunner: '🦕', spaceinvaders: '👾', pacman: '🟡',
+          checkers: '⚫', tictactoe: '❌', reversi: '⚪', chess: '♟️', battleship: '🚢',
+          connect4: '🔴', go: '⚫', ludo: '🎲', domino: '🁣',
+          termo: '📝', hangman: '🔤', wordsearch: '🔍', anagram: '🔀', stopgame: '✋',
+          cookieclicker: '🍪', sinuca: '🎱'
+        };
+
+        function getTimeAgo(date) {
+          const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
+          if (seconds < 60) return 'agora';
+          if (seconds < 3600) return `${Math.floor(seconds / 60)} min atrás`;
+          if (seconds < 86400) return `${Math.floor(seconds / 3600)} h atrás`;
+          return `${Math.floor(seconds / 86400)} d atrás`;
+        }
+
+        if (!activities || activities.length === 0) {
+          document.getElementById('activity-feed-list').innerHTML = `
+            <div class="activity-feed-empty">
+              <div class="activity-feed-empty-icon">🎮</div>
+              <p>Seus amigos ainda não jogaram hoje</p>
+            </div>
+          `;
+          return;
+        }
+
+        const activityHtml = activities.slice(0, 5).map(activity => {
+          const name = profileMap.get(activity.user_id) || 'Amigo';
+          const gameName = activity.game.charAt(0).toUpperCase() + activity.game.slice(1);
+          const icon = gameIcons[activity.game] || '🎮';
+          const timeAgo = getTimeAgo(activity.created_at);
+          const action = activity.result === 'win' ? 'venceu' : 'jogou';
+
+          return `
+            <div class="activity-item" role="listitem">
+              <a href="perfil-publico.html?id=${activity.user_id}" class="activity-avatar" title="${name}">
+                ${name[0].toUpperCase()}
+              </a>
+              <div class="activity-content">
+                <div class="activity-text">
+                  <strong>${name}</strong> ${action} no <a href="games/${activity.game}/index.html">${gameName}</a>
+                </div>
+                <div class="activity-time">${timeAgo}</div>
+              </div>
+              <span class="activity-game-icon">${icon}</span>
+            </div>
+          `;
+        }).join('');
+
+        document.getElementById('activity-feed-list').innerHTML = activityHtml;
+      } catch (error) {
+        console.error('Erro ao carregar feed:', error);
+        document.getElementById('activity-feed-list').innerHTML = `
+          <div class="activity-feed-empty">Não foi possível carregar as atividades</div>
+        `;
+      }
+    }
+
+    loadActivityFeed();
   </script>
   <script src="toast-notification.js"></script>
 </body>

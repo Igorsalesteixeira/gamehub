@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amigos - Games Hub</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=11" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+  <style>
+    .social-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 4rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ===== HEADER SOCIAL ===== */
+    .social-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-header::before {
+      content: '';
+      position: absolute;
+      top: -50px; right: -50px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,107,53,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      flex-shrink: 0;
+    }
+
+    .header-title h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.15rem;
+    }
+
+    .header-title p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.5);
+      font-weight: 600;
+    }
+
+    .btn-back {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.5rem 1.1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-back:hover {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    /* ===== TABS ===== */
+    .tabs-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(255,255,255,0.08);
+      padding-bottom: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+      padding: 0.8rem 1.4rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      position: relative;
+      margin-bottom: -2px;
+    }
+
+    .tab-btn:hover {
+      color: rgba(255,255,255,0.8);
+    }
+
+    .tab-btn.active {
+      color: #ff6b35;
+      border-bottom-color: #ff6b35;
+    }
+
+    .tab-btn .badge {
+      background: #ff6b35;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 0.4rem;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ===== TAB CONTENT ===== */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin-left: 0.5rem;
+    }
+
+    /* ===== FRIENDS LIST ===== */
+    .friends-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .friend-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+    }
+
+    .friend-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .friend-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .friend-avatar.online::after,
+    .friend-avatar.playing::after,
+    .friend-avatar.offline::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #1a1a2e;
+    }
+
+    .friend-avatar.online::after {
+      background: #22c55e;
+    }
+
+    .friend-avatar.playing::after {
+      background: #f97316;
+    }
+
+    .friend-avatar.offline::after {
+      background: #6b7280;
+    }
+
+    .friend-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .friend-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.2rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .friend-status {
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .friend-status.online { color: #22c55e; }
+    .friend-status.playing { color: #f97316; }
+    .friend-status.offline { color: rgba(255,255,255,0.4); }
+
+    .friend-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn-challenge {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-challenge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-remove {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-remove:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* ===== REQUESTS ===== */
+    .requests-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .request-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn-accept {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-accept:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-decline {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #ef4444;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-decline:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* ===== SEARCH ===== */
+    .search-box-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input-social {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .search-input-social:focus {
+      outline: none;
+      border-color: #ff6b35;
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 0 0 3px rgba(255,107,53,0.15);
+    }
+
+    .search-input-social::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .search-icon-social {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.4);
+      pointer-events: none;
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-add {
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .btn-add:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+    }
+
+    .btn-add:disabled {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.4);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ===== SUGGESTIONS ===== */
+    .suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .suggestion-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .suggestion-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .suggestion-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0 auto 0.8rem;
+    }
+
+    .suggestion-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .suggestion-games {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn-add-small {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-add-small:hover {
+      background: rgba(255,107,53,0.15);
+      border-color: rgba(255,107,53,0.4);
+      color: #ff8f5e;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ===== LOADING STATE ===== */
+    .loading-state {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #ff6b35;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== MOBILE ===== */
+    @media (max-width: 600px) {
+      .social-header {
+        padding: 1.2rem;
+      }
+
+      .header-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+        border-radius: 12px;
+      }
+
+      .header-title h1 {
+        font-size: 1.3rem;
+      }
+
+      .header-title p {
+        font-size: 0.8rem;
+      }
+
+      .tab-btn {
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .friend-card,
+      .request-card,
+      .result-card {
+        padding: 0.9rem 1rem;
+      }
+
+      .friend-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+      }
+
+      .friend-name {
+        font-size: 0.95rem;
+      }
+
+      .btn-challenge,
+      .btn-remove,
+      .btn-accept,
+      .btn-decline,
+      .btn-add {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.75rem;
+      }
+
+      .suggestions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 400px) {
+      .suggestions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .friend-actions {
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .btn-challenge,
+      .btn-remove {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip Link -->
+  <a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+
+  <div class="social-container">
+    <!-- Header -->
+    <div class="social-header">
+      <div class="header-content">
+        <div class="header-left">
+          <div class="header-icon">&#128101;</div>
+          <div class="header-title">
+            <h1>Amigos</h1>
+            <p>Gerencie seus amigos e desafios</p>
+          </div>
+        </div>
+        <a href="index.html" class="btn-back">&#8592; Voltar</a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container" role="tablist">
+      <button class="tab-btn active" data-tab="friends" role="tab" aria-selected="true">
+        Amigos
+      </button>
+      <button class="tab-btn" data-tab="requests" role="tab" aria-selected="false">
+        Solicitações <span class="badge" id="requests-badge" style="display: none;">0</span>
+      </button>
+      <button class="tab-btn" data-tab="search" role="tab" aria-selected="false">
+        Buscar
+      </button>
+    </div>
+
+    <!-- Tab: Friends -->
+    <div id="tab-friends" class="tab-content active" role="tabpanel">
+      <div class="section-title">Amigos Online</div>
+      <div id="friends-list" class="friends-list">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando amigos...</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top: 2rem;">Sugestões de Amigos</div>
+      <div id="suggestions-list" class="suggestions-grid">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando sugestões...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Requests -->
+    <div id="tab-requests" class="tab-content" role="tabpanel">
+      <div class="section-title">Solicitações Pendentes</div>
+      <div id="requests-list" class="requests-list">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando solicitações...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Search -->
+    <div id="tab-search" class="tab-content" role="tabpanel">
+      <div class="search-box-container">
+        <span class="search-icon-social">&#128269;</span>
+        <input type="text" id="search-input" class="search-input-social" placeholder="Buscar jogadores por nome..." maxlength="50" />
+      </div>
+
+      <div id="search-results" class="search-results">
+        <div class="empty-state">
+          <div class="empty-state-icon">&#128269;</div>
+          <h3>Busque por jogadores</h3>
+          <p>Digite o nome de um jogador para encontrar e adicionar amigos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { initSidebar } from './sidebar.js?v=7';
+    import {
+      getFriends,
+      getPendingRequests,
+      acceptFriendRequest,
+      declineFriendRequest,
+      removeFriend,
+      searchUsers,
+      sendFriendRequest,
+      getFriendSuggestions,
+      subscribeToFriendUpdates
+    } from './social.js';
+    import { subscribeToNotifications } from './notifications.js';
+    import { sendChallenge } from './challenge-system.js';
+
+    // Inicializa sidebar
+    initSidebar({ active: 'social' });
+
+    // Inscreve em notificações
+    subscribeToNotifications();
+
+    // Estado
+    let currentTab = 'friends';
+    let friendsData = [];
+    let requestsData = [];
+
+    // Elementos
+    const tabs = document.querySelectorAll('.tab-btn');
+    const contents = document.querySelectorAll('.tab-content');
+    const friendsList = document.getElementById('friends-list');
+    const requestsList = document.getElementById('requests-list');
+    const suggestionsList = document.getElementById('suggestions-list');
+    const searchResults = document.getElementById('search-results');
+    const searchInput = document.getElementById('search-input');
+    const requestsBadge = document.getElementById('requests-badge');
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        switchTab(tabName);
+      });
+    });
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+
+      // Atualiza tabs
+      tabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tabName);
+        t.setAttribute('aria-selected', t.dataset.tab === tabName);
+      });
+
+      // Atualiza conteúdo
+      contents.forEach(c => {
+        c.classList.toggle('active', c.id === `tab-${tabName}`);
+      });
+
+      // Carrega dados específicos
+      if (tabName === 'friends') {
+        loadFriends();
+        loadSuggestions();
+      } else if (tabName === 'requests') {
+        loadRequests();
+      }
+    }
+
+    // Carrega amigos
+    async function loadFriends() {
+      friendsList.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando amigos...</p>
+        </div>
+      `;
+
+      const { data, error } = await getFriends();
+
+      if (error) {
+        friendsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9888;</div>
+            <h3>Erro ao carregar amigos</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        return;
+      }
+
+      friendsData = data || [];
+
+      if (friendsData.length === 0) {
+        friendsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128100;</div>
+            <h3>Nenhum amigo ainda</h3>
+            <p>Adicione amigos para jogar juntos e competir nos rankings!</p>
+          </div>
+        `;
+        return;
+      }
+
+      renderFriends(friendsData);
+    }
+
+    function renderFriends(friends) {
+      friendsList.innerHTML = friends.map(friend => {
+        const status = friend.status || 'offline';
+        const statusText = {
+          online: 'Online',
+          offline: 'Offline',
+          playing: `Jogando ${friend.current_game || ''}`
+        }[status] || 'Offline';
+
+        return `
+          <div class="friend-card" data-friend-id="${friend.id}">
+            <a href="perfil-publico.html?id=${friend.friend_id}" class="friend-avatar ${status}" style="text-decoration: none;">
+              ${friend.display_name?.[0]?.toUpperCase() || friend.username?.[0]?.toUpperCase() || '?'}
+            </a>
+            <div class="friend-info">
+              <div class="friend-name">${friend.display_name || friend.username}</div>
+              <div class="friend-status ${status}">
+                ${status === 'playing' ? '&#127918;' : status === 'online' ? '&#128308;' : '&#9899;'}
+                ${statusText}
+              </div>
+            </div>
+            <div class="friend-actions">
+              <button class="btn-challenge" onclick="challengeFriend('${friend.friend_id}', '${friend.username}')" ${status === 'offline' ? 'disabled' : ''}>
+                &#9876; Desafiar
+              </button>
+              <button class="btn-remove" onclick="removeFriendConfirm('${friend.id}')">
+                Remover
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Carrega sugestões
+    async function loadSuggestions() {
+      const { data, error } = await getFriendSuggestions();
+
+      if (error || !data || data.length === 0) {
+        suggestionsList.innerHTML = '';
+        return;
+      }
+
+      renderSuggestions(data);
+    }
+
+    function renderSuggestions(suggestions) {
+      suggestionsList.innerHTML = suggestions.map(user => `
+        <div class="suggestion-card">
+          <div class="suggestion-avatar">
+            ${user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || '?'}
+          </div>
+          <div class="suggestion-name">${user.display_name || user.username}</div>
+          <div class="suggestion-games">${user.common_games || 0} jogos em comum</div>
+          <button class="btn-add-small" onclick="addFriend('${user.id}', this)">
+            + Adicionar
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Carrega solicitações
+    async function loadRequests() {
+      requestsList.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Carregando solicitações...</p>
+        </div>
+      `;
+
+      const { data, error } = await getPendingRequests();
+
+      if (error) {
+        requestsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9888;</div>
+            <h3>Erro ao carregar solicitações</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        return;
+      }
+
+      requestsData = data || [];
+
+      // Atualiza badge
+      if (requestsData.length > 0) {
+        requestsBadge.textContent = requestsData.length;
+        requestsBadge.style.display = 'inline-block';
+      } else {
+        requestsBadge.style.display = 'none';
+      }
+
+      if (requestsData.length === 0) {
+        requestsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128140;</div>
+            <h3>Nenhuma solicitação pendente</h3>
+            <p>Você não tem novas solicitações de amizade</p>
+          </div>
+        `;
+        return;
+      }
+
+      renderRequests(requestsData);
+    }
+
+    function renderRequests(requests) {
+      requestsList.innerHTML = requests.map(req => `
+        <div class="request-card" data-request-id="${req.id}">
+          <div class="friend-avatar offline" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            ${req.display_name?.[0]?.toUpperCase() || req.username?.[0]?.toUpperCase() || '?'}
+          </div>
+          <div class="friend-info">
+            <div class="friend-name">${req.display_name || req.username}</div>
+            <div class="friend-status offline">Quer ser seu amigo</div>
+          </div>
+          <div class="request-actions">
+            <button class="btn-accept" onclick="acceptRequest('${req.id}')">
+              &#10003; Aceitar
+            </button>
+            <button class="btn-decline" onclick="declineRequest('${req.id}')">
+              &#10007; Recusar
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Busca de usuários
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+
+      if (query.length < 2) {
+        searchResults.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128269;</div>
+            <h3>Busque por jogadores</h3>
+            <p>Digite pelo menos 2 caracteres para buscar</p>
+          </div>
+        `;
+        return;
+      }
+
+      searchTimeout = setTimeout(() => performSearch(query), 300);
+    });
+
+    async function performSearch(query) {
+      searchResults.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Buscando...</p>
+        </div>
+      `;
+
+      const { data, error } = await searchUsers(query);
+
+      if (error) {
+        searchResults.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#9888;</div>
+            <h3>Erro na busca</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        searchResults.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">&#128269;</div>
+            <h3>Nenhum resultado</h3>
+            <p>Nenhum jogador encontrado com "${query}"</p>
+          </div>
+        `;
+        return;
+      }
+
+      renderSearchResults(data);
+    }
+
+    function renderSearchResults(users) {
+      searchResults.innerHTML = users.map(user => `
+        <div class="result-card">
+          <div class="friend-avatar offline" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            ${user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || '?'}
+          </div>
+          <div class="friend-info">
+            <div class="friend-name">${user.display_name || user.username}</div>
+            <div class="friend-status offline">Nível ${user.level || 1}</div>
+          </div>
+          <button class="btn-add" onclick="addFriend('${user.id}', this)" ${user.is_friend ? 'disabled' : ''}>
+            ${user.is_friend ? '&#10003; Amigo' : '+ Adicionar'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Ações globais
+    window.challengeFriend = async function(friendId, username) {
+      const gameType = prompt(`Desafiar ${username} em qual jogo?\n\nOpções: tictactoe, chess, checkers, connect4, reversi, battleship, truco, uno`);
+      if (!gameType) return;
+
+      const { error } = await sendChallenge(friendId, gameType.trim().toLowerCase());
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        alert('Desafio enviado com sucesso!');
+      }
+    };
+
+    window.removeFriendConfirm = async function(friendshipId) {
+      if (!confirm('Tem certeza que deseja remover este amigo?')) return;
+
+      const { error } = await removeFriend(friendshipId);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        loadFriends();
+      }
+    };
+
+    window.acceptRequest = async function(requestId) {
+      const { error } = await acceptFriendRequest(requestId);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        loadRequests();
+        loadFriends();
+      }
+    };
+
+    window.declineRequest = async function(requestId) {
+      const { error } = await declineFriendRequest(requestId);
+      if (error) {
+        alert('Erro: ' + error.message);
+      } else {
+        loadRequests();
+      }
+    };
+
+    window.addFriend = async function(userId, btn) {
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      const { error } = await sendFriendRequest(userId);
+      if (error) {
+        alert('Erro: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = '+ Adicionar';
+      } else {
+        btn.textContent = '&#10003; Solicitado';
+        alert('Solicitação enviada!');
+      }
+    };
+
+    // Inscreve em atualizações em tempo real
+    subscribeToFriendUpdates((payload) => {
+      console.log('Friend update:', payload);
+      if (currentTab === 'friends') loadFriends();
+      if (currentTab === 'requests') loadRequests();
+    });
+
+    // Carrega dados iniciais
+    loadFriends();
+    loadSuggestions();
+  </script>
+</body>
+</html>

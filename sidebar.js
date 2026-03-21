@@ -152,6 +152,26 @@ const SIDEBAR_CSS = `
   border-left: 3px solid #ff6b35;
 }
 
+/* Notification Badge */
+.sidebar-badge {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  margin-left: auto;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
 .sidebar-icon {
   font-size: 1.1rem;
   width: 26px;
@@ -234,6 +254,16 @@ export function initSidebar(options = {}) {
       <a href="${base}multiplayer.html" class="sidebar-link ${isActive('multi')}">
         <span class="sidebar-icon">🎮</span>
         <span>Multijogador</span>
+      </a>
+      <a href="${base}social.html" class="sidebar-link ${isActive('social')}">
+        <span class="sidebar-icon">👥</span>
+        <span>Amigos</span>
+        <span class="sidebar-badge" id="sidebar-friends-badge" style="display:none">0</span>
+      </a>
+      <a href="${base}social.html?tab=challenges" class="sidebar-link ${isActive('challenges')}">
+        <span class="sidebar-icon">⚔️</span>
+        <span>Desafios</span>
+        <span class="sidebar-badge" id="sidebar-challenges-badge" style="display:none">0</span>
       </a>
       <div class="sidebar-divider"></div>
       <span class="sidebar-section-label">Cartas</span>
@@ -481,4 +511,40 @@ export function initSidebar(options = {}) {
     `;
     document.head.appendChild(bugStyle);
   }
+
+  // ===== SOCIAL NOTIFICATIONS BADGE =====
+  // Atualiza badges de notificacoes na sidebar
+  async function updateSocialBadges() {
+    try {
+      // Import dinamico do notifications.js
+      const { getUnreadCount, getPendingChallenges } = await import(base + 'notifications.js?v=1');
+      const { getPendingChallengeCount } = await import(base + 'challenge-system.js?v=1');
+
+      const [notificationsCount, challengesCount] = await Promise.all([
+        getUnreadCount(),
+        getPendingChallengeCount()
+      ]);
+
+      const friendsBadge = document.getElementById('sidebar-friends-badge');
+      const challengesBadge = document.getElementById('sidebar-challenges-badge');
+
+      if (friendsBadge && notificationsCount > 0) {
+        friendsBadge.textContent = notificationsCount > 99 ? '99+' : notificationsCount;
+        friendsBadge.style.display = 'block';
+      }
+
+      if (challengesBadge && challengesCount > 0) {
+        challengesBadge.textContent = challengesCount > 99 ? '99+' : challengesCount;
+        challengesBadge.style.display = 'block';
+      }
+    } catch (e) {
+      // Silently fail if social modules not available
+    }
+  }
+
+  // Atualiza badges ao iniciar
+  updateSocialBadges();
+
+  // Atualiza a cada 30 segundos
+  setInterval(updateSocialBadges, 30000);
 }
