@@ -112,29 +112,32 @@ function randomPiece() {
 function handleKeydown(e) {
   if (state.gameOver || state.paused) return;
 
-  switch(e.key) {
-    case 'ArrowLeft':
+  const key = e.key.toLowerCase();
+
+  switch(key) {
+    case 'arrowleft':
     case 'a':
       e.preventDefault();
       movePiece(-1, 0);
       break;
-    case 'ArrowRight':
+    case 'arrowright':
     case 'd':
       e.preventDefault();
       movePiece(1, 0);
       break;
-    case 'ArrowDown':
+    case 'arrowdown':
     case 's':
       e.preventDefault();
       movePiece(0, 1);
       break;
-    case 'ArrowUp':
+    case 'arrowup':
     case 'w':
     case 'x':
       e.preventDefault();
       rotatePiece();
       break;
     case ' ':
+    case 'spacebar':
       e.preventDefault();
       hardDrop();
       break;

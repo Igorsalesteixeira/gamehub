@@ -108,8 +108,10 @@ function init() {
 
 function resizeCanvas() {
   const container = canvas.parentElement;
+  if (!container) return;
+
   const maxSize = Math.min(container.clientWidth - 32, container.clientHeight - 32, 420);
-  cellSize = Math.floor(maxSize / COLS);
+  cellSize = Math.max(Math.floor(maxSize / COLS), 8); // min 8px
   canvas.width = cellSize * COLS;
   canvas.height = cellSize * ROWS;
 }
@@ -146,11 +148,14 @@ function resetGame() {
 }
 
 function startGame() {
+  console.log('[Pac-Man] Starting game...');
   overlay.classList.add('hidden');
   running = true;
   paused = false;
   resetGame();
+  resizeCanvas();
   lastTick = performance.now();
+  console.log('[Pac-Man] Game started, requesting animation frame');
   requestAnimationFrame(gameLoop);
 }
 
@@ -182,7 +187,10 @@ function gameWin() {
 
 // ---- Game Loop ----
 function gameLoop(now) {
-  if (!running) return;
+  if (!running) {
+    console.log('[Pac-Man] Game loop stopped - not running');
+    return;
+  }
 
   const delta = now - lastTick;
 
