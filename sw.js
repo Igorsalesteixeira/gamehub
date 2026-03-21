@@ -11,6 +11,7 @@ const GAME_CACHE = 'gameshub-games-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/sidebar.js',
   '/supabase.js',
   '/auth-check.js',
@@ -20,6 +21,25 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
+// Jogos populares para precache
+const POPULAR_GAMES = [
+  '/games/solitaire/index.html',
+  '/games/solitaire/game.js',
+  '/games/solitaire/style.css',
+  '/games/termo/index.html',
+  '/games/termo/game.js',
+  '/games/termo/style.css',
+  '/games/snake/index.html',
+  '/games/snake/game.js',
+  '/games/snake/style.css',
+  '/games/tetris/index.html',
+  '/games/tetris/game.js',
+  '/games/tetris/style.css',
+  '/games/pacman/index.html',
+  '/games/pacman/game.js',
+  '/games/pacman/style.css'
+];
+
 // Instalação: cache dos assets estáticos
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -27,6 +47,19 @@ self.addEventListener('install', (event) => {
       .then((cache) => {
         console.log('[SW] Cacheando assets estáticos');
         return cache.addAll(STATIC_ASSETS);
+      })
+      .then(() => {
+        // Precache de jogos populares em background
+        return caches.open(GAME_CACHE).then(cache => {
+          console.log('[SW] Precacheando jogos populares');
+          return Promise.all(
+            POPULAR_GAMES.map(url =>
+              fetch(url).then(res => {
+                if (res.ok) cache.put(url, res);
+              }).catch(() => {})
+            )
+          );
+        });
       })
       .then(() => self.skipWaiting())
   );
@@ -67,6 +100,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Estratégia: Cache First para imagens
+  if (isImage(url)) {
+    event.respondWith(imageCache(request));
+    return;
+  }
+
   // Estratégia: Network First para jogos (com fallback offline)
   if (isGameFile(url)) {
     event.respondWith(networkFirst(request));
@@ -79,10 +118,16 @@ self.addEventListener('fetch', (event) => {
 
 // Verificar se é asset estático
 function isStaticAsset(url) {
-  const staticExts = ['.css', '.js', '.svg', '.png', '.jpg', '.woff2'];
+  const staticExts = ['.css', '.js', '.svg', '.woff2'];
   return staticExts.some((ext) => url.pathname.endsWith(ext)) ||
          url.pathname === '/' ||
          url.pathname === '/index.html';
+}
+
+// Verificar se é imagem
+function isImage(url) {
+  const imageExts = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico'];
+  return imageExts.some((ext) => url.pathname.endsWith(ext));
 }
 
 // Verificar se é arquivo de jogo
@@ -110,6 +155,27 @@ async function cacheFirst(request) {
     console.error('[SW] Falha ao buscar:', request.url, error);
     // Retornar página offline se disponível
     return caches.match('/offline.html');
+  }
+}
+
+// Estratégia: Cache First para imagens
+async function imageCache(request) {
+  const cache = await caches.open('gameshub-images-v1');
+  const cached = await cache.match(request);
+
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const response = await fetch(request);
+    if (response.ok && response.type === 'basic') {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    // Retornar placeholder ou erro para imagens
+    return new Response('', { status: 404, statusText: 'Not found' });
   }
 }
 

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline - Games Hub</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .offline-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #ff6b35;
+    }
+    p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.7);
+      max-width: 400px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+    }
+    .cached-games {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .cached-games h2 {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 1rem;
+    }
+    .game-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      margin: 0.25rem;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .game-link:hover {
+      background: rgba(255,107,53,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-icon">📡</div>
+  <h1>Você está offline</h1>
+  <p>Parece que você perdeu a conexão com a internet. Verifique sua rede e tente novamente.</p>
+  <button class="btn" onclick="window.location.reload()">Tentar Novamente</button>
+
+  <div class="cached-games" id="cached-games" style="display:none">
+    <h2>🎮 Jogos disponíveis offline:</h2>
+    <div id="games-list"></div>
+  </div>
+
+  <script>
+    // Verifica jogos em cache
+    if ('caches' in window) {
+      caches.open('gameshub-games-v1').then(cache => {
+        cache.keys().then(requests => {
+          const games = new Set();
+          requests.forEach(req => {
+            const match = req.url.match(/\/games\/([^/]+)/);
+            if (match) games.add(match[1]);
+          });
+          if (games.size > 0) {
+            document.getElementById('cached-games').style.display = 'block';
+            const list = document.getElementById('games-list');
+            games.forEach(game => {
+              const a = document.createElement('a');
+              a.href = `/games/${game}/`;
+              a.className = 'game-link';
+              a.textContent = `🎮 ${game}`;
+              list.appendChild(a);
+            });
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>

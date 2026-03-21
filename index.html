@@ -8,6 +8,18 @@
   <meta name="description" content="Jogue jogos online gratis direto no navegador. Cartas, Puzzle, Arcade, Tabuleiro e mais. Sem download!" />
   <meta name="keywords" content="jogos online, jogos gratis, jogos no navegador, games hub" />
   <link rel="canonical" href="https://gameshub.com.br/" />
+  <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
+  <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="msapplication-TileColor" content="#1a1a2e" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -26,9 +38,61 @@
   <meta name="twitter:description" content="Jogue dezenas de jogos gratis no navegador!" />
   <meta name="twitter:image" content="https://gameshub.com.br/og-image.png" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+
+  <!-- Critical CSS inline para eliminar render-blocking -->
+  <style>
+    /* Critical CSS - apenas o necessário para first paint */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .skip-link{position:absolute;top:-100%;left:0;padding:0.75rem 1.25rem;background:#ff6b35;color:#fff;font-weight:700;text-decoration:none;z-index:9999;transition:top 0.3s;border-radius:0 0 8px 0}
+    .skip-link:focus{top:0;outline:2px solid #fff;outline-offset:2px}
+    :focus-visible{outline:2px solid #ff6b35;outline-offset:2px}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff6b35;outline-offset:2px}
+    body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a1a;color:#e0e0e0;min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+    .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:1.2rem 1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;border-bottom:1px solid rgba(255,107,53,0.2)}
+    .logo{font-size:2.2rem;font-weight:800;color:#fff;text-shadow:0 0 20px rgba(255,107,53,0.4);letter-spacing:1px}
+    .tagline{color:rgba(255,255,255,0.6);font-size:0.95rem;margin-top:0.3rem;font-weight:600}
+    .hero{text-align:center;padding:2rem 1.5rem 1rem;max-width:700px;margin:0 auto;width:100%}
+    .hero-title{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:0.4rem}
+    .hero-title span{color:#ff6b35}
+    .search-box{position:relative;max-width:500px;margin:0 auto}
+    .search-input{width:100%;padding:0.8rem 1rem 0.8rem 2.8rem;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:14px;color:#fff;font-size:1rem;transition:all 0.2s}
+    .search-input:focus{outline:none;border-color:#ff6b35;background:rgba(255,255,255,0.08);box-shadow:0 0 0 3px rgba(255,107,53,0.15)}
+    .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;color:rgba(255,255,255,0.3);pointer-events:none}
+    .category-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:0.5rem;padding:0 1.5rem 1.5rem;max-width:900px;margin:0 auto}
+    .category-btn{padding:0.45rem 1rem;border-radius:999px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap}
+    .category-btn.active{background:linear-gradient(135deg,#ff6b35,#e85d2a);color:#fff;border-color:transparent}
+    .game-count{text-align:center;color:rgba(255,255,255,0.3);font-size:0.82rem;font-weight:600;margin-bottom:1rem;padding:0 1.5rem}
+    .main{flex:1;max-width:1200px;margin:0 auto;padding:0 1.5rem 2.5rem;width:100%}
+    .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+    .game-card{background:linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border-radius:16px;padding:1.3rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.6rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,0.06);transition:transform 0.25s,box-shadow 0.25s}
+    .game-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(255,107,53,0.2)}
+    .game-icon{font-size:2.6rem;line-height:1}
+    .game-info h3{font-size:1rem;font-weight:800;color:#fff;margin-bottom:0.2rem}
+    .game-info p{font-size:0.78rem;color:rgba(255,255,255,0.4)}
+    .game-card.hidden{display:none}
+    .badge-play{display:inline-block;padding:0.25rem 0.8rem;border-radius:999px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:linear-gradient(135deg,#ff6b35,#e85d2a);color:#fff}
+    .no-results{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.3);display:none}
+    .no-results.visible{display:block}
+    .footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:rgba(255,255,255,0.3);border-top:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);margin-top:auto}
+    /* Skeleton loading */
+    @keyframes skeleton-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:skeleton-pulse 1.5s ease-in-out infinite}
+    /* Mobile optimizations */
+    @media (max-width:768px){.hero-title{font-size:1.4rem}.games-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.8rem}}
+    @media (max-width:480px){.logo{font-size:1.6rem}.games-grid{grid-template-columns:1fr 1fr;gap:0.6rem}.game-card{padding:0.8rem}}
+  </style>
+
+  <!-- Preload da fonte Nunito -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" /></noscript>
+
+  <!-- CSS não-crítico carregado assíncronamente -->
+  <link rel="preload" href="style.css?v=3" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=3" /></noscript>
 
   <!-- Dados estruturados -->
   <script type="application/ld+json">
@@ -55,7 +119,8 @@
   </script>
 </head>
 <body>
-  <header class="header">
+  <a href="#main-content" class="skip-link">Pular para o conteúdo</a>
+  <header class="header" role="banner">
     <div class="header-inner">
       <div class="logo">🎮 Games Hub</div>
       <p class="tagline">Seus jogos favoritos, de graca e online!</p>
@@ -67,25 +132,25 @@
   <div class="hero">
     <h1 class="hero-title">Encontre seu <span>jogo favorito</span></h1>
     <p class="hero-subtitle">Todos gratuitos, sem download, direto no navegador</p>
-    <div class="search-box">
-      <span class="search-icon">🔍</span>
-      <input type="text" class="search-input" id="search-input" placeholder="Buscar jogos..." autocomplete="off">
-      <button class="search-clear" id="search-clear">&times;</button>
+    <div class="search-box" role="search">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input type="text" class="search-input" id="search-input" placeholder="Buscar jogos..." autocomplete="off" aria-label="Buscar jogos">
+      <button class="search-clear" id="search-clear" type="button" aria-label="Limpar busca">&times;</button>
     </div>
   </div>
 
   <!-- Category Filters -->
-  <div class="category-filters" id="category-filters">
-    <button class="category-btn active" data-category="all">Todos</button>
-    <button class="category-btn" data-category="cartas">🃏 Cartas</button>
-    <button class="category-btn" data-category="puzzle">🧩 Puzzle</button>
-    <button class="category-btn" data-category="arcade">🕹️ Arcade</button>
-    <button class="category-btn" data-category="tabuleiro">♟️ Tabuleiro</button>
-    <button class="category-btn" data-category="palavras">📝 Palavras</button>
-    <button class="category-btn" data-category="casual">🎪 Casual</button>
-  </div>
+  <nav class="category-filters" id="category-filters" role="navigation" aria-label="Filtros de categoria">
+    <button class="category-btn active" data-category="all" aria-pressed="true">Todos</button>
+    <button class="category-btn" data-category="cartas" aria-pressed="false"><span aria-hidden="true">🃏</span> Cartas</button>
+    <button class="category-btn" data-category="puzzle" aria-pressed="false"><span aria-hidden="true">🧩</span> Puzzle</button>
+    <button class="category-btn" data-category="arcade" aria-pressed="false"><span aria-hidden="true">🕹️</span> Arcade</button>
+    <button class="category-btn" data-category="tabuleiro" aria-pressed="false"><span aria-hidden="true">♟️</span> Tabuleiro</button>
+    <button class="category-btn" data-category="palavras" aria-pressed="false"><span aria-hidden="true">📝</span> Palavras</button>
+    <button class="category-btn" data-category="casual" aria-pressed="false"><span aria-hidden="true">🎪</span> Casual</button>
+  </nav>
 
-  <div class="game-count" id="game-count"></div>
+  <p class="game-count" id="game-count" aria-live="polite" aria-label="Contagem de jogos"></p>
 
   <!-- Live Rooms Widget -->
   <div class="live-rooms-section" id="live-rooms-section" style="display:none">
@@ -96,8 +161,8 @@
     <div class="live-rooms-grid" id="live-rooms-grid"></div>
   </div>
 
-  <main class="main">
-    <div class="games-grid" id="games-grid">
+  <main class="main" id="main-content" role="main">
+    <div class="games-grid" id="games-grid" role="list">
 
       <!-- ====== CARTAS ====== -->
       <a href="games/blackjack/index.html" class="game-card" data-category="cartas" data-name="Blackjack 21" data-game="blackjack">
@@ -519,15 +584,15 @@
     </div>
 
     <!-- Compartilhar -->
-    <div class="share-section">
+    <section class="share-section" aria-label="Compartilhar">
       <h3 class="share-title">Gostou? Compartilhe com amigos!</h3>
-      <div class="share-buttons">
-        <a href="https://api.whatsapp.com/send?text=Jogue%20jogos%20online%20de%20gra%C3%A7a%20no%20Games%20Hub!%20%F0%9F%8E%AE%20https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-whatsapp">WhatsApp</a>
-        <a href="https://twitter.com/intent/tweet?text=Jogue%20jogos%20online%20de%20gra%C3%A7a%20no%20Games%20Hub!%20%F0%9F%8E%AE&url=https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-twitter">Twitter</a>
-        <a href="https://www.facebook.com/sharer/sharer.php?u=https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-facebook">Facebook</a>
-        <button class="share-btn share-copy" id="btn-copy-link">Copiar Link</button>
+      <div class="share-buttons" role="group" aria-label="Opcoes de compartilhamento">
+        <a href="https://api.whatsapp.com/send?text=Jogue%20jogos%20online%20de%20gra%C3%A7a%20no%20Games%20Hub!%20%F0%9F%8E%AE%20https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-whatsapp" aria-label="Compartilhar no WhatsApp">WhatsApp</a>
+        <a href="https://twitter.com/intent/tweet?text=Jogue%20jogos%20online%20de%20gra%C3%A7a%20no%20Games%20Hub!%20%F0%9F%8E%AE&url=https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-twitter" aria-label="Compartilhar no Twitter">Twitter</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=https://gameshub.com.br/" target="_blank" rel="noopener noreferrer" class="share-btn share-facebook" aria-label="Compartilhar no Facebook">Facebook</a>
+        <button class="share-btn share-copy" id="btn-copy-link" aria-label="Copiar link do site">Copiar Link</button>
       </div>
-    </div>
+    </section>
 
     <div class="ad-slot" id="ad-banner"></div>
 
@@ -542,13 +607,17 @@
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer" role="contentinfo">
     <p>Feito com ❤️ &mdash; Games Hub &copy; 2025</p>
   </footer>
+
+  <script src="toast-notification.js"></script>
 
   <script type="module">
     import { supabase } from './supabase.js';
     import { initSidebar } from './sidebar.js?v=6';
+    import './pwa-install.js?v=1';
+    import './web-vitals.js?v=1';
     initSidebar({ active: 'inicio' });
 
     const authEl = document.getElementById('header-auth');
@@ -747,8 +816,16 @@
     // ---- Copy Link ----
     document.getElementById('btn-copy-link').addEventListener('click', function() {
       navigator.clipboard.writeText('https://gameshub.com.br/').then(() => {
-        this.textContent = 'Copiado!';
-        setTimeout(() => { this.textContent = 'Copiar Link'; }, 2000);
+        if (window.Toast) {
+          Toast.success('Link copiado para a área de transferência!', 3000);
+        } else {
+          this.textContent = 'Copiado!';
+          setTimeout(() => { this.textContent = 'Copiar Link'; }, 2000);
+        }
+      }).catch(() => {
+        if (window.Toast) {
+          Toast.error('Não foi possível copiar o link. Copie manualmente.', 3000);
+        }
       });
     });
 
@@ -847,5 +924,6 @@
 
     loadLiveRooms();
   </script>
+  <script src="toast-notification.js"></script>
 </body>
 </html>
