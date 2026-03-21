@@ -235,6 +235,37 @@ export async function getPendingChallenges() {
 }
 
 /**
+ * Retorna a contagem de desafios pendentes
+ * @returns {Promise<{count: number, error: Error|null}>}
+ */
+export async function getPendingChallengeCount() {
+  console.log(MODULE_NAME, 'Obtendo contagem de desafios pendentes');
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      return { count: 0, error: null };
+    }
+
+    const { count, error } = await supabase
+      .from('challenges')
+      .select('*', { count: 'exact', head: true })
+      .eq('challenged_id', session.user.id)
+      .eq('status', 'pending');
+
+    if (error) {
+      console.error(MODULE_NAME, 'Erro ao contar desafios:', error);
+      return { count: 0, error };
+    }
+
+    return { count: count || 0, error: null };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { count: 0, error: e };
+  }
+}
+
+/**
  * Lista desafios enviados pendentes
  * @returns {Promise<{data: Array|null, error: Error|null}>}
  */

@@ -517,7 +517,7 @@ export function initSidebar(options = {}) {
   async function updateSocialBadges() {
     try {
       // Import dinamico do notifications.js
-      const { getUnreadCount, getPendingChallenges } = await import(base + 'notifications.js?v=1');
+      const { getUnreadCount } = await import(base + 'notifications.js?v=1');
       const { getPendingChallengeCount } = await import(base + 'challenge-system.js?v=1');
 
       const [notificationsCount, challengesCount] = await Promise.all([

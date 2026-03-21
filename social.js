@@ -467,6 +467,357 @@ export async function blockUser(userId) {
 }
 
 // =============================================
+//  Funções de Perfil Público
+// =============================================
+
+/**
+ * Busca perfil de um usuário
+ * @param {string} userId - ID do usuário
+ * @returns {Promise<{data: Object|null, error: Error|null}>}
+ */
+export async function getUserProfile(userId) {
+  console.log(MODULE_NAME, 'Buscando perfil:', userId);
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url, bio, created_at, level, xp')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error(MODULE_NAME, 'Erro ao buscar perfil:', error);
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Verifica status de amizade entre usuários
+ * @param {string} userId - ID do usuário a verificar
+ * @returns {Promise<{data: Object|null, error: Error|null}>}
+ */
+export async function checkFriendshipStatus(userId) {
+  console.log(MODULE_NAME, 'Verificando amizade:', userId);
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      return { data: null, error: new Error('Usuário não autenticado') };
+    }
+
+    const currentUserId = session.user.id;
+
+    // Verifica se é o próprio usuário
+    if (currentUserId === userId) {
+      return { data: { is_friend: false, is_self: true, status: null }, error: null };
+    }
+
+    // Busca relação de amizade
+    const { data, error } = await supabase
+      .from('friendships')
+      .select('id, status, user_id, friend_id')
+      .or(`and(user_id.eq.${currentUserId},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${currentUserId})`)
+      .maybeSingle();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+      console.error(MODULE_NAME, 'Erro ao verificar amizade:', error);
+      return { data: null, error };
+    }
+
+    if (!data) {
+      return { data: { is_friend: false, is_self: false, status: null, id: null }, error: null };
+    }
+
+    const isFriend = data.status === 'accepted';
+    const isPending = data.status === 'pending';
+
+    return {
+      data: {
+        is_friend: isFriend,
+        is_self: false,
+        status: data.status,
+        is_pending: isPending,
+        id: data.id,
+        initiated_by_me: data.user_id === currentUserId
+      },
+      error: null
+    };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Busca estatísticas de jogos do usuário
+ * @param {string} userId - ID do usuário
+ * @returns {Promise<{data: Object|null, error: Error|null}>}
+ */
+export async function getUserStats(userId) {
+  console.log(MODULE_NAME, 'Buscando estatísticas:', userId);
+
+  try {
+    // Total de partidas
+    const { count: totalGames, error: totalError } = await supabase
+      .from('user_activity')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if (totalError) {
+      console.error(MODULE_NAME, 'Erro ao buscar estatísticas:', totalError);
+      return { data: null, error: totalError };
+    }
+
+    // Vitórias
+    const { count: wins, error: winsError } = await supabase
+      .from('user_activity')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('result', 'win');
+
+    if (winsError) {
+      console.error(MODULE_NAME, 'Erro ao buscar vitórias:', winsError);
+    }
+
+    // Jogos favoritos
+    const { data: favoriteGames, error: favError } = await supabase
+      .from('user_activity')
+      .select('game_type')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    const gameCounts = {};
+    (favoriteGames || []).forEach(g => {
+      gameCounts[g.game_type] = (gameCounts[g.game_type] || 0) + 1;
+    });
+
+    const topGames = Object.entries(gameCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([game, count]) => ({ game, count }));
+
+    return {
+      data: {
+        total_games: totalGames || 0,
+        wins: wins || 0,
+        win_rate: totalGames ? Math.round((wins / totalGames) * 100) : 0,
+        favorite_games: topGames
+      },
+      error: null
+    };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Busca jogos em comum entre usuários
+ * @param {string} userId - ID do outro usuário
+ * @returns {Promise<{data: Array|null, error: Error|null}>}
+ */
+export async function getCommonGames(userId) {
+  console.log(MODULE_NAME, 'Buscando jogos em comum');
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      return { data: null, error: new Error('Usuário não autenticado') };
+    }
+
+    const currentUserId = session.user.id;
+
+    // Busca jogos do usuário atual
+    const { data: myGames } = await supabase
+      .from('user_activity')
+      .select('game_type')
+      .eq('user_id', currentUserId);
+
+    // Busca jogos do outro usuário
+    const { data: theirGames } = await supabase
+      .from('user_activity')
+      .select('game_type')
+      .eq('user_id', userId);
+
+    const myGameTypes = new Set((myGames || []).map(g => g.game_type));
+    const theirGameTypes = new Set((theirGames || []).map(g => g.game_type));
+
+    // Encontra interseção
+    const common = [...myGameTypes].filter(g => theirGameTypes.has(g));
+
+    return { data: common, error: null };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Busca atividade recente do usuário
+ * @param {string} userId - ID do usuário
+ * @param {number} limit - Limite de resultados
+ * @returns {Promise<{data: Array|null, error: Error|null}>}
+ */
+export async function getUserActivity(userId, limit = 10) {
+  console.log(MODULE_NAME, 'Buscando atividade:', userId);
+
+  try {
+    const { data, error } = await supabase
+      .from('user_activity')
+      .select('id, game_type, result, score, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error(MODULE_NAME, 'Erro ao buscar atividade:', error);
+      return { data: null, error };
+    }
+
+    return { data: data || [], error: null };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+// =============================================
+//  Funções de Sugestões e Realtime
+// =============================================
+
+/**
+ * Busca sugestões de amigos baseado em jogos em comum
+ * @returns {Promise<{data: Array|null, error: Error|null}>}
+ */
+export async function getFriendSuggestions() {
+  console.log(MODULE_NAME, 'Buscando sugestões de amigos');
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      return { data: null, error: new Error('Usuário não autenticado') };
+    }
+
+    const currentUserId = session.user.id;
+
+    // Busca amigos atuais para excluir
+    const { data: friends } = await supabase
+      .from('friendships')
+      .select('friend_id, user_id')
+      .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`)
+      .eq('status', 'accepted');
+
+    const friendIds = (friends || []).map(f =>
+      f.user_id === currentUserId ? f.friend_id : f.user_id
+    );
+
+    // Busca solicitações pendentes para excluir
+    const { data: pending } = await supabase
+      .from('friendships')
+      .select('friend_id, user_id')
+      .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`)
+      .eq('status', 'pending');
+
+    const pendingIds = (pending || []).map(p =>
+      p.user_id === currentUserId ? p.friend_id : p.user_id
+    );
+
+    const excludeIds = [currentUserId, ...friendIds, ...pendingIds];
+
+    // Busca usuários que jogaram os mesmos jogos
+    const { data: activityMatches } = await supabase
+      .from('user_activity')
+      .select('user_id, game_type')
+      .eq('user_id', currentUserId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const userGames = activityMatches?.map(a => a.game_type) || [];
+
+    if (userGames.length === 0) {
+      // Se não tem jogos, retorna usuários aleatórios
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, username, display_name')
+        .not('id', 'in', `(${excludeIds.join(',')})`)
+        .limit(4);
+
+      return { data: data || [], error };
+    }
+
+    // Busca usuários com jogos em comum
+    const { data, error } = await supabase
+      .from('user_activity')
+      .select('user_id, profiles(username, display_name)')
+      .in('game_type', [...new Set(userGames)])
+      .not('user_id', 'in', `(${excludeIds.join(',')})`)
+      .limit(20);
+
+    if (error) {
+      console.error(MODULE_NAME, 'Erro ao buscar sugestões:', error);
+      return { data: null, error };
+    }
+
+    // Agrupa e conta jogos em comum
+    const userMap = new Map();
+    (data || []).forEach(activity => {
+      const userId = activity.user_id;
+      if (!userMap.has(userId)) {
+        userMap.set(userId, {
+          id: userId,
+          username: activity.profiles?.username,
+          display_name: activity.profiles?.display_name,
+          common_games: 0
+        });
+      }
+      userMap.get(userId).common_games++;
+    });
+
+    return { data: Array.from(userMap.values()).slice(0, 4), error: null };
+  } catch (e) {
+    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    return { data: null, error: e };
+  }
+}
+
+/**
+ * Inscreve em atualizações de amigos em tempo real
+ * @param {Function} callback - Função chamada quando houver atualização
+ * @returns {Object} Objeto com método unsubscribe
+ */
+export function subscribeToFriendUpdates(callback) {
+  console.log(MODULE_NAME, 'Inscrevendo em atualizações de amigos');
+
+  const channel = supabase.channel('friendships');
+
+  channel
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'friendships'
+    }, (payload) => {
+      console.log(MODULE_NAME, 'Atualização de amizade:', payload);
+      if (callback) {
+        callback(payload);
+      }
+    })
+    .subscribe();
+
+  return {
+    unsubscribe: () => {
+      channel.unsubscribe();
+    }
+  };
+}
+
+// =============================================
 //  Funções Auxiliares de Notificação
 // =============================================
 
