@@ -475,7 +475,85 @@ export function flip(element, options = {}) {
   });
 }
 
-// Adiciona estilos CSS para animações de fallback
+/**
+ * Classe AnimationSystem para compatibilidade com dashboard
+ * Envolve as funções individuais em uma API orientada a objetos
+ */
+export class AnimationSystem {
+  constructor() {
+    this.activeAnimations = new Map();
+  }
+
+  /**
+   * Aplica fadeIn em um elemento
+   */
+  fadeIn(element, options = {}) {
+    return fadeIn(element, options);
+  }
+
+  /**
+   * Aplica fadeOut em um elemento
+   */
+  fadeOut(element, options = {}) {
+    return fadeOut(element, options);
+  }
+
+  /**
+   * Aplica shake em um elemento
+   */
+  shake(element, options = {}) {
+    return shake(element, options);
+  }
+
+  /**
+   * Aplica bounce em um elemento
+   */
+  bounce(element, options = {}) {
+    return bounce(element, options);
+  }
+
+  /**
+   * Aplica slideUp em um elemento
+   */
+  slideUp(element, options = {}) {
+    return slideUp(element, options);
+  }
+
+  /**
+   * Aplica slideDown em um elemento
+   */
+  slideDown(element, options = {}) {
+    return slideDown(element, options);
+  }
+
+  /**
+   * Aplica rotate em um elemento
+   */
+  rotate(element, options = {}) {
+    return rotate(element, options);
+  }
+
+  /**
+   * Aplica pulse em um elemento
+   */
+  pulse(element, options = {}) {
+    return pulse(element, options);
+  }
+
+  /**
+   * Executa uma sequência de animações
+   */
+  sequence(element, animations) {
+    return sequence(element, animations);
+  }
+
+  /**
+   * Aplica flip em um elemento
+   */
+  flip(element, options = {}) {
+    return flip(element, options);
+  }
+}
 if (!document.getElementById('animation-system-styles')) {
   const style = document.createElement('style');
   style.id = 'animation-system-styles';
