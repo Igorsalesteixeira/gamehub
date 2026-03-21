@@ -632,3 +632,131 @@ body {
   background: rgba(255,107,53,0.3);
   color: #fff;
 }
+
+/* ===== REFINAMENTOS v7 - Tema Claro/Escuro ===== */
+
+/* Variáveis CSS */
+:root {
+  --color-correct: #6aaa64;
+  --color-present: #c9b458;
+  --color-absent: #3a3a3c;
+  --color-bg-dark: #121213;
+  --color-bg-light: #ffffff;
+  --color-border: #3a3a3c;
+  --color-border-light: #d3d6da;
+  --color-text: #ffffff;
+  --color-text-light: #1a1a1b;
+  --color-key: #818384;
+}
+
+/* Header refinado */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-theme, .btn-help {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.btn-theme:hover, .btn-help:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+}
+
+/* Animação de pulso na tile ativa */
+.tile.active {
+  border-color: #878a8c;
+  animation: pulse-border 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: #565758; }
+  50% { border-color: #878a8c; }
+}
+
+/* Modal de ajuda */
+#help-modal .modal {
+  max-width: 420px !important;
+}
+
+.help-examples {
+  margin: 1.5rem 0;
+}
+
+.help-examples h3 {
+  font-size: 1rem !important;
+  margin-bottom: 0.8rem !important;
+  color: #fff !important;
+}
+
+.help-examples p {
+  font-size: 0.9rem !important;
+  margin: 0.5rem 0 1rem !important;
+  color: #aaa !important;
+}
+
+.example-row {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.example-row .tile {
+  width: 45px;
+  height: 45px;
+  font-size: 1.2rem;
+}
+
+.btn-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Glassmorphism nos modais */
+.modal-overlay {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Responsivo para header */
+@media (max-width: 480px) {
+  .header-actions {
+    gap: 0.3rem;
+  }
+  .btn-theme, .btn-help {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+}

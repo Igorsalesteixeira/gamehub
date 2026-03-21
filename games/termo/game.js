@@ -2,11 +2,31 @@ import '../../auth-check.js';
 import { playSound, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
-// ===== Termo (Wordle BR) =====
+// ===== Termo (Wordle BR) v7 - Refinamento Visual =====
 import { supabase } from '../../supabase.js';
+
+// Debug mode
+console.log('[Termo] v7 - Inicializando...');
+const DEBUG = location.search.includes('debug');
+function debug(...args) {
+  if (DEBUG) console.log('[Termo]', ...args);
+}
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Theme management
+let currentTheme = localStorage.getItem('termo-theme') || 'dark';
+document.body.classList.toggle('light-theme', currentTheme === 'light');
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.classList.toggle('light-theme', currentTheme === 'light');
+  localStorage.setItem('termo-theme', currentTheme);
+  const btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+  debug('Theme toggled:', currentTheme);
+}
 
 const WORDS = [
   'ABACO','ABRIR','ACASO','ACIMA','ADEUS','AGORA','AINDA','AJOIO','ALEGA','ALGUM',
@@ -98,6 +118,14 @@ function getDailyWord() {
 }
 
 function init() {
+  debug('Initializing game...');
+
+  // Verificar elementos essenciais
+  if (!boardEl || !keyboardEl) {
+    console.error('[Termo] Elementos essenciais não encontrados');
+    return;
+  }
+
   // Initialize GameStats
   if (!gameStats) {
     gameStats = new GameStats('termo', { autoSync: true });
@@ -112,6 +140,10 @@ function init() {
   const stats = gameStats.get();
   winsDisplay.textContent = stats.gamesWon;
 
+  // Update theme button
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+
   // Game Design: Modo diario (todos jogam a mesma palavra por dia)
   targetWord = getDailyWord();
   currentRow = 0;
@@ -123,6 +155,8 @@ function init() {
   modalOverlay.classList.remove('show');
   renderBoard();
   renderKeyboard();
+
+  debug('Game initialized:', { targetWord, theme: currentTheme });
 }
 
 function renderBoard() {
@@ -358,6 +392,29 @@ document.addEventListener('keydown', (e) => {
 btnNewGame.addEventListener('click', () => {
   playSound('click');
   init();
+});
+
+// Theme toggle
+document.getElementById('btn-theme')?.addEventListener('click', () => {
+  playSound('click');
+  toggleTheme();
+});
+
+// Help modal
+document.getElementById('btn-help')?.addEventListener('click', () => {
+  playSound('click');
+  document.getElementById('help-modal').classList.add('show');
+});
+
+document.getElementById('btn-close-help')?.addEventListener('click', () => {
+  document.getElementById('help-modal').classList.remove('show');
+});
+
+// Close help modal on outside click
+document.getElementById('help-modal')?.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('help-modal')) {
+    document.getElementById('help-modal').classList.remove('show');
+  }
 });
 
 // Supabase stats - mantida para compatibilidade
