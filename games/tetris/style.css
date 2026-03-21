@@ -147,43 +147,45 @@ body::after {
   text-shadow: 0 0 10px var(--neon-cyan);
 }
 
-/* Container principal */
+/* Container principal - FORÇAR CENTRALIZAÇÃO */
 .game-container {
   position: relative;
   z-index: 2;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 0.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0.5rem !important;
   gap: 0.5rem;
-  width: 100%;
-  max-width: 100vw;
+  width: 100% !important;
+  max-width: 100vw !important;
   overflow-x: hidden;
   box-sizing: border-box;
 }
 
-/* Layout do jogo */
+/* Layout do jogo - FORÇAR CENTRALIZAÇÃO */
 .game-layout {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin: 0 auto;
-  flex-wrap: nowrap;
+  display: flex !important;
+  gap: 1rem !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+  flex-wrap: nowrap !important;
+  padding: 0 1rem;
 }
 
-/* Área principal do jogo */
+/* Área principal do jogo - FORÇAR CENTRALIZAÇÃO */
 .game-board {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-shrink: 0;
-  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  margin: 0 auto !important;
 }
 
 /* Painel lateral não deve encolher */
@@ -191,21 +193,21 @@ body::after {
   flex-shrink: 0;
 }
 
-/* Canvas do jogo com efeito holográfico */
+/* Canvas do jogo com efeito holográfico - FORÇAR CENTRALIZAÇÃO */
 #game-canvas {
-  border: 2px solid var(--glass-border);
-  border-radius: 8px;
-  background: var(--bg-darker);
-  width: 300px;
-  height: 600px;
-  max-width: 100%;
+  border: 2px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  background: var(--bg-darker) !important;
+  width: 300px !important;
+  height: 600px !important;
+  max-width: 100% !important;
   box-shadow:
     0 0 20px rgba(0, 212, 255, 0.2),
-    inset 0 0 30px rgba(0, 0, 0, 0.8);
-  image-rendering: pixelated;
-  display: block;
-  margin: 0 auto;
-  flex-shrink: 0;
+    inset 0 0 30px rgba(0, 0, 0, 0.8) !important;
+  image-rendering: pixelated !important;
+  display: block !important;
+  margin: 0 auto !important;
+  flex-shrink: 0 !important;
 }
 
 /* Painel lateral glassmorphism */
