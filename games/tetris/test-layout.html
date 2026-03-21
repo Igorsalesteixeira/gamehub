@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tetris Test Layout</title>
+  <link rel="stylesheet" href="../shared/design-system.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=7" />
+  <style>
+    /* Teste visual de alinhamento */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 50%;
+      width: 2px;
+      height: 100%;
+      background: red;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">Tetris</h1>
+    <div class="stats">
+      <div class="score-box">
+        <span class="score-icon">⭐</span>
+        <span id="score-display" class="score-value neon-text">0</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="game-container">
+    <div class="game-layout">
+      <aside class="side-panel">
+        <div class="info-box glass-panel">
+          <div class="info-label">Proxima</div>
+          <div style="width:80px;height:80px;background:#333;margin:0 auto;"></div>
+        </div>
+        <div class="info-box glass-panel">
+          <div class="info-label">Nivel</div>
+          <div class="info-value neon-text" id="level-display">1</div>
+        </div>
+        <div class="info-box glass-panel">
+          <div class="info-label">Linhas</div>
+          <div class="info-value neon-text" id="lines-display">0</div>
+        </div>
+      </aside>
+
+      <div class="game-board">
+        <canvas id="game-canvas" width="300" height="600" style="background:#222;"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-action="rotate">↻</button>
+    </div>
+    <div class="ctrl-row">
+      <button class="ctrl-btn" data-action="left">←</button>
+      <button class="ctrl-btn" data-action="down">↓</button>
+      <button class="ctrl-btn" data-action="right">→</button>
+    </div>
+  </div>
+
+  <script>
+    // Teste: desenhar linha central no canvas
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(148, 0, 4, 600);
+    console.log('Canvas size:', canvas.width, 'x', canvas.height);
+    console.log('Window width:', window.innerWidth);
+
+    // Log das dimensões
+    setTimeout(() => {
+      const layout = document.querySelector('.game-layout');
+      const board = document.querySelector('.game-board');
+      const container = document.querySelector('.game-container');
+
+      console.log('Container rect:', container?.getBoundingClientRect());
+      console.log('Layout rect:', layout?.getBoundingClientRect());
+      console.log('Board rect:', board?.getBoundingClientRect());
+      console.log('Canvas rect:', canvas?.getBoundingClientRect());
+    }, 100);
+  </script>
+</body>
+</html>

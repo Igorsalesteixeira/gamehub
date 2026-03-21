@@ -178,11 +178,14 @@ body::after {
   align-items: flex-start !important;
   justify-content: center !important;
   width: 100% !important;
-  max-width: 100% !important;
+  max-width: 1200px !important;
   box-sizing: border-box !important;
   margin: 0 auto !important;
   flex-wrap: nowrap !important;
   padding: 0 1rem;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Área principal do jogo - FORÇAR CENTRALIZAÇÃO */
