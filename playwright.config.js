@@ -5,8 +5,8 @@ module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0, // Reduzido de 2 para 1
-  workers: process.env.CI ? 2 : undefined, // Aumentado de 1 para 2
+  retries: 0,
+  workers: process.env.CI ? 4 : undefined,
   reporter: 'html',
   timeout: 30000, // Timeout global de 30s por teste
   use: {
