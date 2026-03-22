@@ -17,7 +17,6 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
 body {
@@ -26,6 +25,8 @@ body {
   color: #fff;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height para mobile */
 }
 
 /* ===== TOPBAR ===== */
@@ -78,6 +79,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+  overflow-y: auto; /* Permite scroll se necessario */
 }
 
 /* ===== SIDEBAR ===== */
@@ -226,15 +228,28 @@ body {
 
 .ctrl-btn:active {
   background: rgba(0, 212, 255, 0.3);
+  transform: scale(0.95);
+}
+
+.ctrl-top {
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.ctrl-drop {
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  color: #fff;
+  font-size: 1.3rem;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
   .game-wrapper {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 1rem;
-    padding: 1rem;
+    grid-template-rows: auto auto 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    overflow: visible; /* Permite que os controles apareçam */
   }
 
   .sidebar {
@@ -242,31 +257,127 @@ body {
     justify-content: center;
     width: 100%;
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .info-box {
-    min-width: 80px;
-    padding: 0.6rem;
+    min-width: 70px;
+    padding: 0.5rem;
+  }
+
+  .info-label {
+    font-size: 0.65rem;
+  }
+
+  .info-value {
+    font-size: 1.2rem;
+  }
+
+  #next-canvas {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Canvas responsivo - calcula altura disponivel */
+  .game-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   #game-canvas {
-    width: 280px;
-    height: 560px;
+    width: min(280px, 90vw);
+    height: min(480px, calc(100dvh - 280px)); /* Altura total - topbar - sidebar - controles */
+    max-width: 100%;
   }
 
   .mobile-controls {
     display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    padding: 0.8rem;
+    padding-bottom: max(0.8rem, env(safe-area-inset-bottom)); /* Safe area para iOS */
+    z-index: 50;
+    border-top: 1px solid var(--glass-border);
+    background: linear-gradient(to top, rgba(10, 10, 26, 0.98), rgba(10, 10, 26, 0.95));
+  }
+
+  /* Ajuste para o game-wrapper não ficar sob os controles */
+  .game-wrapper {
+    padding-bottom: 140px; /* Espaço para os controles fixos */
   }
 }
 
 @media (max-width: 400px) {
+  .game-wrapper {
+    gap: 0.3rem;
+    padding: 0.3rem;
+    padding-bottom: 130px;
+  }
+
   #game-canvas {
-    width: 260px;
-    height: 520px;
+    width: min(260px, 85vw);
+    height: min(420px, calc(100dvh - 250px));
   }
 
   .ctrl-btn {
-    width: 55px;
-    height: 55px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .info-box {
+    min-width: 60px;
+    padding: 0.4rem;
+  }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .topbar {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .game-title {
+    font-size: 1.1rem;
+  }
+
+  .game-wrapper {
+    grid-template-columns: auto 1fr auto;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    padding-bottom: 0.5rem; /* Sem padding extra em landscape */
+  }
+
+  #game-canvas {
+    width: min(200px, 30vw);
+    height: min(300px, calc(100dvh - 60px));
+  }
+
+  .sidebar {
+    flex-direction: column;
+    width: auto;
+  }
+
+  .info-box {
+    padding: 0.4rem;
+  }
+
+  #next-canvas {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Controles em landscape - lado direito */
+  .mobile-controls {
+    position: static;
+    flex-direction: column;
+    background: transparent;
+    border-top: none;
+    padding: 0.5rem;
   }
 }

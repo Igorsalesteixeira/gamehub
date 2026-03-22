@@ -66,11 +66,9 @@ function init() {
   overlayScore = document.getElementById('overlay-score');
   btnStart = document.getElementById('btn-start');
 
-  // Canvas sizes
-  canvas.width = COLS * BLOCK_SIZE;
-  canvas.height = ROWS * BLOCK_SIZE;
-  nextCanvas.width = 4 * BLOCK_SIZE;
-  nextCanvas.height = 4 * BLOCK_SIZE;
+  // Canvas sizes - responsivo para mobile
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
   // Event listeners
   btnStart.addEventListener('click', startGame);
@@ -85,6 +83,37 @@ function init() {
   });
 
   showStartScreen();
+}
+
+// Redimensiona canvas para caber na tela mobile
+function resizeCanvas() {
+  const isMobile = window.innerWidth <= 600;
+
+  if (isMobile) {
+    // Calcula tamanho disponivel
+    const maxWidth = Math.min(280, window.innerWidth * 0.9);
+    const maxHeight = Math.min(480, window.innerHeight - 200); // Reserva espaço para topbar e controles
+
+    // Mantem proporcao 10:20 (COLS:ROWS)
+    const blockSize = Math.min(maxWidth / COLS, maxHeight / ROWS);
+    const finalWidth = blockSize * COLS;
+    const finalHeight = blockSize * ROWS;
+
+    canvas.style.width = finalWidth + 'px';
+    canvas.style.height = finalHeight + 'px';
+
+    // Canvas interno mantem resolucao original para renderizacao
+    canvas.width = COLS * BLOCK_SIZE;
+    canvas.height = ROWS * BLOCK_SIZE;
+  } else {
+    canvas.width = COLS * BLOCK_SIZE;
+    canvas.height = ROWS * BLOCK_SIZE;
+    canvas.style.width = '';
+    canvas.style.height = '';
+  }
+
+  nextCanvas.width = 4 * BLOCK_SIZE;
+  nextCanvas.height = 4 * BLOCK_SIZE;
 }
 
 // ============================================
@@ -155,6 +184,7 @@ function handleMobileControl(action) {
     case 'right': movePiece(1, 0); break;
     case 'down': movePiece(0, 1); break;
     case 'rotate': rotatePiece(); break;
+    case 'drop': hardDrop(); break;
   }
 }
 

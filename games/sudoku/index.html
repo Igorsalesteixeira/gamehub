@@ -2,22 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="theme-color" content="#ff6b35" />
+  <meta name="theme-color" content="#7ba3a8" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Sudoku Online Gratis - Games Hub</title>
-  <meta name="description" content="Jogue Sudoku online e de graca. Varios niveis de dificuldade!" />
+  <meta name="description" content="Jogue Sudoku online e de graca. Varios niveis de dificuldade! Use o modo Lapis para anotar candidatos." />
   <link rel="canonical" href="https://gameshub.com.br/games/sudoku/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=2" />
-  <link rel="stylesheet" href="style.css?v=8" />
+  <link rel="stylesheet" href="style.css?v=12" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Sudoku",
-    "description": "Jogue Sudoku online grátis com três níveis de dificuldade. Complete a grade 9x9 sem repetir números.",
+    "description": "Jogue Sudoku online gratis com tres niveis de dificuldade. Complete a grade 9x9 sem repetir numeros. Modo Lapis para anotar candidatos.",
     "url": "https://gameshub.com.br/games/sudoku/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
@@ -36,12 +36,13 @@
     gtag('config', 'G-LNTD0KNJ6T');
   </script>
 </head>
-<body>
+<body class="sudoku-game">
+
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
-    <h1 class="game-title">🔢 Sudoku</h1>
+    <h1 class="game-title">Sudoku</h1>
     <div class="stats">
-      <span>⏱ <span id="timer-display">0:00</span></span>
+      <span id="timer-display">0:00</span>
     </div>
   </header>
 
@@ -52,10 +53,24 @@
         <option value="medium" selected>Medio</option>
         <option value="hard">Dificil</option>
       </select>
-      <button class="btn btn-sm" id="btn-new-game">Novo Jogo</button>
+      <div class="action-buttons">
+        <button class="btn-icon" id="btn-undo" title="Desfazer" aria-label="Desfazer ultima jogada">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7v6h6M3 13a9 9 0 1 0 2.5-6.5L3 9"/>
+          </svg>
+        </button>
+        <button class="btn-icon" id="btn-notes" title="Modo Lapis" aria-label="Ativar modo lapis para anotacoes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+          </svg>
+        </button>
+        <button class="btn btn-new" id="btn-new-game">Novo</button>
+      </div>
     </div>
 
-    <div class="board" id="board"></div>
+    <div class="board-wrapper">
+      <div class="board" id="board"></div>
+    </div>
 
     <div class="numpad" id="numpad">
       <button class="num-btn" data-num="1">1</button>
@@ -67,17 +82,28 @@
       <button class="num-btn" data-num="7">7</button>
       <button class="num-btn" data-num="8">8</button>
       <button class="num-btn" data-num="9">9</button>
-      <button class="num-btn erase-btn" data-num="0">✕</button>
+      <button class="num-btn erase-btn" data-num="0" title="Apagar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/>
+          <line x1="18" y1="9" x2="12" y2="15"/>
+          <line x1="12" y1="9" x2="18" y2="15"/>
+        </svg>
+      </button>
     </div>
+
+    <p class="hint-text" id="hint-text">Toque em uma celula e depois em um numero</p>
   </main>
 
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-      <div class="modal-icon">🎉</div>
+      <div class="modal-icon">&#127880;</div>
       <h2>Parabens!</h2>
       <p id="modal-message">Voce completou o Sudoku!</p>
-      <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
-      <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
+      <div class="modal-stats" id="modal-stats"></div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+        <button class="btn btn-whatsapp" id="btn-share">Compartilhar</button>
+      </div>
     </div>
   </div>
 
@@ -85,22 +111,23 @@
     import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'sudoku' });
   </script>
-  <script type="module" src="game.js?v=8"></script>
+  <script type="module" src="game.js?v=12"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Sudoku Online</h2>
-    <p>O Sudoku é o puzzle de lógica mais famoso do mundo. Preencha a grade 9×9 de forma que cada linha, cada coluna e cada bloco 3×3 contenha os números de 1 a 9 sem repetição. Disponível nos níveis fácil, médio e difícil — jogue sudoku online grátis sem download.</p>
+    <p>O Sudoku e o puzzle de logica mais famoso do mundo. Preencha a grade 9x9 de forma que cada linha, cada coluna e cada bloco 3x3 contenha os numeros de 1 a 9 sem repeticao. Disponivel nos niveis facil, medio e dificil.</p>
     <h3>Regras</h3>
     <ul>
-      <li>Cada linha deve conter todos os números de 1 a 9, sem repetição.</li>
-      <li>Cada coluna deve conter todos os números de 1 a 9, sem repetição.</li>
-      <li>Cada bloco 3×3 deve conter todos os números de 1 a 9, sem repetição.</li>
+      <li>Cada linha deve conter todos os numeros de 1 a 9, sem repeticao.</li>
+      <li>Cada coluna deve conter todos os numeros de 1 a 9, sem repeticao.</li>
+      <li>Cada bloco 3x3 deve conter todos os numeros de 1 a 9, sem repeticao.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>Comece pelos blocos e linhas que já têm mais números preenchidos.</li>
-      <li>Use a técnica de eliminação: se um número só cabe em uma célula de um bloco, coloque-o.</li>
+      <li>Comece pelos blocos e linhas que ja tem mais numeros preenchidos.</li>
+      <li>Use o <strong>Modo Lapis</strong> para anotar candidatos em cada celula.</li>
+      <li>Use a tecnica de eliminacao: se um numero so cabe em uma celula de um bloco, coloque-o.</li>
     </ul>
   </section>
 </body>

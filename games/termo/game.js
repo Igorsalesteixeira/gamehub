@@ -1,12 +1,11 @@
 import '../../auth-check.js';
 import { playSound, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
-import { GameTimer } from '../shared/timer.js';
-// ===== Termo (Wordle BR) v7 - Refinamento Visual =====
+// ===== Termo (Wordle BR) v8 - Refinamento Visual =====
 import { supabase } from '../../supabase.js';
 
 // Debug mode
-console.log('[Termo] v7 - Inicializando...');
+console.log('[Termo] v8 - Inicializando...');
 const DEBUG = location.search.includes('debug');
 function debug(...args) {
   if (DEBUG) console.log('[Termo]', ...args);
@@ -189,6 +188,12 @@ function renderKeyboard() {
       if (keyStates[key]) btn.classList.add(keyStates[key]);
       btn.textContent = key === 'ENTER' ? 'ENTER' : key;
       btn.dataset.key = key;
+      // Acessibilidade: aria-label para cada tecla
+      const ariaLabels = {
+        'ENTER': 'Enter - confirmar palavra',
+        '⌫': 'Apagar - remover última letra'
+      };
+      btn.setAttribute('aria-label', ariaLabels[key] || `Letra ${key}`);
       btn.addEventListener('click', () => {
         playSound('click');
         handleKey(key);
@@ -369,7 +374,79 @@ function showModal(title, message) {
   modalTitle.textContent = title;
   modalMessage.textContent = message;
   modalWord.textContent = targetWord;
+
+  // Adicionar botao de compartilhar se nao existir
+  let shareBtn = document.getElementById('btn-share');
+  let shareResultDiv = document.getElementById('share-result');
+
+  if (!shareBtn) {
+    shareBtn = document.createElement('button');
+    shareBtn.id = 'btn-share';
+    shareBtn.className = 'btn btn-share';
+    shareBtn.textContent = 'Compartilhar';
+    shareBtn.addEventListener('click', handleShare);
+    modalWord.parentElement.appendChild(shareBtn);
+  }
+
+  if (!shareResultDiv) {
+    shareResultDiv = document.createElement('div');
+    shareResultDiv.id = 'share-result';
+    shareResultDiv.className = 'share-result';
+    modalWord.parentElement.insertBefore(shareResultDiv, modalWord.nextSibling);
+  }
+
+  // Gerar resultado para compartilhar
+  shareResultDiv.textContent = generateShareText();
+
   modalOverlay.classList.add('show');
+}
+
+function generateShareText() {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+
+  let result = `Termo ${day}/${month}\n`;
+
+  for (let r = 0; r <= currentRow && r < MAX_GUESSES; r++) {
+    if (board[r].every(c => c !== '')) {
+      const guess = board[r].join('');
+      const evaluation = evaluate(guess, targetWord);
+      for (let i = 0; i < WORD_LENGTH; i++) {
+        if (evaluation[i] === 'correct') result += '🟩';
+        else if (evaluation[i] === 'present') result += '🟨';
+        else result += '⬛';
+      }
+      result += '\n';
+    }
+  }
+
+  if (board[currentRow].join('') === targetWord) {
+    result += `\nAcertei em ${currentRow + 1}/6!`;
+  }
+
+  return result;
+}
+
+function handleShare() {
+  const text = generateShareText();
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'Termo',
+      text: text
+    }).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showMessage('Copiado para a area de transferencia!');
+  }).catch(() => {
+    showMessage('Nao foi possivel copiar');
+  });
 }
 
 // Physical keyboard

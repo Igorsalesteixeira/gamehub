@@ -16,7 +16,46 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=14" />
+  <link rel="stylesheet" href="style.css?v=15" />
+
+  <!-- SVG Definitions for 3D Chess Pieces -->
+  <svg style="display: none;">
+    <defs>
+      <!-- White pieces gradients -->
+      <linearGradient id="whitePieceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#fefefe"/>
+        <stop offset="30%" style="stop-color:#f5f5f0"/>
+        <stop offset="70%" style="stop-color:#e8e4d8"/>
+        <stop offset="100%" style="stop-color:#d4d0c4"/>
+      </linearGradient>
+      <linearGradient id="whitePieceHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgba(255,255,255,0.8)"/>
+        <stop offset="50%" style="stop-color:rgba(255,255,255,0.2)"/>
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.1)"/>
+      </linearGradient>
+
+      <!-- Black pieces gradients -->
+      <linearGradient id="blackPieceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#4a4a4a"/>
+        <stop offset="30%" style="stop-color:#3a3a3a"/>
+        <stop offset="70%" style="stop-color:#2a2a2a"/>
+        <stop offset="100%" style="stop-color:#1a1a1a"/>
+      </linearGradient>
+      <linearGradient id="blackPieceHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:rgba(100,100,100,0.6)"/>
+        <stop offset="50%" style="stop-color:rgba(80,80,80,0.3)"/>
+        <stop offset="100%" style="stop-color:rgba(0,0,0,0.3)"/>
+      </linearGradient>
+
+      <!-- 3D Shadow filter -->
+      <filter id="pieceShadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
+      </filter>
+      <filter id="pieceShadowHover" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="3" dy="6" stdDeviation="5" flood-color="rgba(0,0,0,0.5)"/>
+      </filter>
+    </defs>
+  </svg>
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -44,7 +83,7 @@
     gtag('config', 'G-LNTD0KNJ6T');
   </script>
 </head>
-<body>
+<body class="chess-game">
 
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
@@ -99,7 +138,7 @@
   </div>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'xadrez' });</script>
-  <script type="module" src="game.js?v=13"></script>
+  <script type="module" src="game.js?v=15"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

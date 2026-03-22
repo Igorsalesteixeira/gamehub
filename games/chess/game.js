@@ -4,7 +4,7 @@ import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
 
 // ========== DEBUG & VERSION ==========
-console.log('[Xadrez] v13 Premium 3D - Inicializando...');
+console.log('[Xadrez] v15 Premium 3D SVG - Inicializando...');
 const DEBUG = location.search.includes('debug');
 function debug(...args) {
   if (DEBUG) console.log('[Xadrez]', ...args);
@@ -574,9 +574,12 @@ function renderBoard() {
     if (board[i] !== EMPTY) {
       const pieceSpan = document.createElement('span');
       pieceSpan.textContent = PIECE_SYMBOLS[board[i]];
-      // Aplica animação de chegada apenas na peça que acabou de se mover
+      pieceSpan.className = 'piece';
+      // Adiciona classe de cor para estilizacao
+      pieceSpan.classList.add(isWhite(board[i]) ? 'piece-white' : 'piece-black');
+      // Aplica animacao de chegada apenas na peca que acabou de se mover
       if (lastMove && lastMove.to === i) {
-        pieceSpan.className = 'piece-anim';
+        pieceSpan.classList.add('piece-anim');
         cell.classList.add('piece-moved');
       }
       cell.appendChild(pieceSpan);

@@ -2,11 +2,11 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
-// ===== Sudoku (Refatorado com módulos compartilhados) v8 =====
+// ===== Sudoku Zen v12 - Refatorado =====
 import { supabase } from '../../supabase.js';
 
 // Debug mode
-console.log('[Sudoku] v8 Zen - Inicializando...');
+console.log('[Sudoku] v12 Zen - Inicializando...');
 const DEBUG = location.search.includes('debug');
 function debug(...args) {
   if (DEBUG) console.log('[Sudoku]', ...args);
@@ -15,31 +15,44 @@ function debug(...args) {
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
 
+// Elementos DOM
 const boardEl = document.getElementById('board');
 const timerDisplay = document.getElementById('timer-display');
 const diffSelect = document.getElementById('difficulty-select');
 const btnNewGame = document.getElementById('btn-new-game');
 const btnPlayAgain = document.getElementById('btn-play-again');
+const btnUndo = document.getElementById('btn-undo');
+const btnNotes = document.getElementById('btn-notes');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalMessage = document.getElementById('modal-message');
+const modalStats = document.getElementById('modal-stats');
+const hintText = document.getElementById('hint-text');
 
 const REMOVE_COUNT = { easy: 35, medium: 45, hard: 55 };
+const STORAGE_KEY = 'sudoku-save';
 
-// ---- Stats ----
-const stats = new GameStats('sudoku');
-
-// ---- Timer ----
-const gameTimer = new GameTimer({
-  onTick: (seconds) => {
-    timerDisplay.textContent = formatTime(seconds);
-  }
-});
-
+// Estado do jogo
 let solution = [];
 let puzzle = [];
 let userGrid = [];
+let notes = []; // notes[row][col] = Set of numbers
 let selectedCell = null;
 let gameOver = false;
+let notesMode = false;
+let undoStack = [];
+let redoStack = [];
+let lastRenderedCells = new Map(); // Para otimizacao de render
+
+// Stats
+const stats = new GameStats('sudoku');
+
+// Timer
+const gameTimer = new GameTimer({
+  onTick: (seconds) => {
+    timerDisplay.textContent = formatTime(seconds);
+    saveGame();
+  }
+});
 
 // ===== Generator =====
 function generateSolution() {
@@ -124,13 +137,76 @@ function formatTime(s) {
   return `${m}:${(s % 60).toString().padStart(2, '0')}`;
 }
 
-// ===== Init =====
+// ===== Save/Load =====
+function saveGame() {
+  if (gameOver) return;
+  try {
+    const state = {
+      difficulty: diffSelect.value,
+      puzzle,
+      userGrid,
+      notes: notes.map(row => row.map(cell => Array.from(cell))),
+      selectedCell,
+      notesMode,
+      time: gameTimer.getTime()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    debug('Game saved');
+  } catch (e) {
+    debug('Error saving game:', e);
+  }
+}
+
+function loadGame() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return false;
+
+    const state = JSON.parse(saved);
+    if (!state.puzzle || !state.userGrid) return false;
+
+    // Restaurar estado
+    diffSelect.value = state.difficulty || 'medium';
+    puzzle = state.puzzle;
+    userGrid = state.userGrid;
+    notes = state.notes ? state.notes.map(row => row.map(cell => new Set(cell))) : createEmptyNotes();
+    selectedCell = null; // Sempre resetar selecao
+    notesMode = state.notesMode || false;
+
+    // Gerar solucao para o puzzle
+    solution = generateSolution();
+    const removeCount = REMOVE_COUNT[state.difficulty] || 45;
+
+    // Verificar se o tempo salvo e valido
+    if (state.time && state.time > 0) {
+      gameTimer.reset();
+      timerDisplay.textContent = formatTime(state.time);
+    }
+
+    debug('Game loaded from save');
+    return true;
+  } catch (e) {
+    debug('Error loading game:', e);
+    return false;
+  }
+}
+
+function clearSave() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// ===== Inicializacao =====
+function createEmptyNotes() {
+  return Array.from({ length: 9 }, () =>
+    Array.from({ length: 9 }, () => new Set())
+  );
+}
+
 function init() {
   debug('Initializing game...');
 
-  // Verificar elementos essenciais
   if (!boardEl || !timerDisplay) {
-    console.error('[Sudoku] Elementos essenciais não encontrados');
+    console.error('[Sudoku] Elementos essenciais nao encontrados');
     return;
   }
 
@@ -139,68 +215,207 @@ function init() {
   gameTimer.reset();
   timerDisplay.textContent = '0:00';
   selectedCell = null;
+  undoStack = [];
+  redoStack = [];
+  lastRenderedCells.clear();
   modalOverlay.classList.remove('show');
+  updateHintText();
+  updateNotesButton();
 
-  // Reseta stats
-  stats.reset();
-
-  solution = generateSolution();
-  const removeCount = REMOVE_COUNT[diffSelect.value];
-  puzzle = createPuzzle(solution, removeCount);
-  userGrid = puzzle.map(r => [...r]);
+  // Tentar carregar jogo salvo primeiro
+  if (loadGame()) {
+    debug('Restored saved game');
+  } else {
+    // Criar novo jogo
+    stats.reset();
+    solution = generateSolution();
+    const removeCount = REMOVE_COUNT[diffSelect.value];
+    puzzle = createPuzzle(solution, removeCount);
+    userGrid = puzzle.map(r => [...r]);
+    notes = createEmptyNotes();
+  }
 
   render();
+  debug('Game initialized:', { difficulty: diffSelect.value });
+}
 
-  debug('Game initialized:', { difficulty: diffSelect.value, removeCount });
+// ===== Renderizacao Otimizada =====
+function getCellKey(r, c) {
+  return `${r}-${c}`;
 }
 
 function render() {
-  boardEl.innerHTML = '';
+  // Primeira renderizacao - criar estrutura
+  if (!boardEl.hasChildNodes()) {
+    boardEl.innerHTML = '';
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const cell = createCellElement(r, c);
+        boardEl.appendChild(cell);
+        lastRenderedCells.set(getCellKey(r, c), { value: 0, notes: new Set() });
+      }
+    }
+  }
+
+  // Atualizar apenas celulas modificadas
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.row = r;
-      cell.dataset.col = c;
-
-      const val = userGrid[r][c];
-      if (val !== 0) cell.textContent = val;
-
-      if (puzzle[r][c] !== 0) {
-        cell.classList.add('given');
-      } else {
-        cell.classList.add('user');
-      }
-
-      // 3x3 borders
-      if (c === 2 || c === 5) cell.classList.add('border-right');
-      if (r === 2 || r === 5) cell.classList.add('border-bottom');
-
-      // Selection highlight
-      if (selectedCell && selectedCell[0] === r && selectedCell[1] === c) {
-        cell.classList.add('selected');
-      }
-
-      // Conflict check
-      if (val !== 0 && puzzle[r][c] === 0 && val !== solution[r][c]) {
-        cell.classList.add('conflict');
-      }
-
-      cell.addEventListener('click', () => selectCell(r, c));
-      boardEl.appendChild(cell);
+      updateCell(r, c);
     }
   }
 }
 
+function createCellElement(r, c) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.dataset.row = r;
+  cell.dataset.col = c;
+
+  // Bordas 3x3
+  if (c === 2 || c === 5) cell.classList.add('border-right');
+  if (r === 2 || r === 5) cell.classList.add('border-bottom');
+
+  cell.addEventListener('click', () => selectCell(r, c));
+  return cell;
+}
+
+function updateCell(r, c) {
+  const key = getCellKey(r, c);
+  const cell = boardEl.children[r * 9 + c];
+  const value = userGrid[r][c];
+  const cellNotes = notes[r][c];
+
+  // Verificar se precisa atualizar
+  const lastState = lastRenderedCells.get(key);
+  const needsUpdate = !lastState ||
+    lastState.value !== value ||
+    !setsEqual(lastState.notes, cellNotes);
+
+  if (!needsUpdate) return;
+
+  // Atualizar estado
+  lastRenderedCells.set(key, { value, notes: new Set(cellNotes) });
+
+  // Limpar classes
+  cell.classList.remove('given', 'user', 'selected', 'same-num', 'conflict', 'notes-mode');
+
+  // Limpar conteudo
+  cell.innerHTML = '';
+
+  // Classe base
+  if (puzzle[r][c] !== 0) {
+    cell.classList.add('given');
+    cell.textContent = value;
+  } else {
+    cell.classList.add('user');
+
+    if (value !== 0) {
+      cell.textContent = value;
+    } else if (cellNotes.size > 0) {
+      // Modo notas - mostrar grid 3x3
+      cell.classList.add('notes-mode');
+      const notesDiv = document.createElement('div');
+      notesDiv.className = 'notes-grid';
+      for (let n = 1; n <= 9; n++) {
+        const noteSpan = document.createElement('span');
+        noteSpan.className = 'note-num';
+        noteSpan.textContent = cellNotes.has(n) ? n : '';
+        notesDiv.appendChild(noteSpan);
+      }
+      cell.appendChild(notesDiv);
+    }
+  }
+
+  // Selecao
+  if (selectedCell && selectedCell[0] === r && selectedCell[1] === c) {
+    cell.classList.add('selected');
+  }
+
+  // Destacar mesmo numero
+  if (selectedCell && value !== 0 && value === userGrid[selectedCell[0]][selectedCell[1]]) {
+    cell.classList.add('same-num');
+  }
+
+  // Conflito
+  if (value !== 0 && puzzle[r][c] === 0 && value !== solution[r][c]) {
+    cell.classList.add('conflict');
+  }
+}
+
+function setsEqual(a, b) {
+  if (a.size !== b.size) return false;
+  for (const item of a) {
+    if (!b.has(item)) return false;
+  }
+  return true;
+}
+
 function selectCell(r, c) {
   if (gameOver) return;
-  if (puzzle[r][c] !== 0) return; // can't select given cells
+  if (puzzle[r][c] !== 0) return; // nao pode selecionar celulas dadas
+
   selectedCell = [r, c];
   if (!gameTimer.isRunning()) {
     startTimer();
   }
   initAudio();
+  haptic(5);
   render();
+  updateHintText();
+}
+
+// ===== Acoes do Usuario =====
+function pushUndo(action) {
+  undoStack.push(action);
+  redoStack = []; // Limpar redo apos nova acao
+}
+
+function undo() {
+  if (undoStack.length === 0) return;
+
+  const action = undoStack.pop();
+  const { type, row, col, oldValue, oldNotes } = action;
+
+  if (type === 'value') {
+    userGrid[row][col] = oldValue;
+    notes[row][col] = oldNotes ? new Set(oldNotes) : new Set();
+  } else if (type === 'note') {
+    notes[row][col] = new Set(oldNotes);
+  }
+
+  redoStack.push(action);
+  render();
+  playSound('place');
+  haptic(10);
+  debug('Undo:', action);
+}
+
+function toggleNotesMode() {
+  notesMode = !notesMode;
+  updateNotesButton();
+  updateHintText();
+  haptic(5);
+}
+
+function updateNotesButton() {
+  if (btnNotes) {
+    btnNotes.classList.toggle('active', notesMode);
+  }
+}
+
+function updateHintText() {
+  if (!hintText) return;
+
+  if (notesMode) {
+    hintText.textContent = 'Modo Lapis ativo - toque para adicionar/remover candidatos';
+    hintText.classList.add('notes-active');
+  } else if (selectedCell) {
+    hintText.textContent = 'Celula selecionada - toque em um numero';
+    hintText.classList.remove('notes-active');
+  } else {
+    hintText.textContent = 'Toque em uma celula e depois em um numero';
+    hintText.classList.remove('notes-active');
+  }
 }
 
 async function placeNumber(num) {
@@ -208,22 +423,52 @@ async function placeNumber(num) {
   const [r, c] = selectedCell;
   if (puzzle[r][c] !== 0) return;
 
-  userGrid[r][c] = num;
-  playSound('place');
+  initAudio();
+
+  if (notesMode && num !== 0) {
+    // Modo notas - toggle do numero
+    const oldNotes = new Set(notes[r][c]);
+
+    if (notes[r][c].has(num)) {
+      notes[r][c].delete(num);
+    } else {
+      notes[r][c].add(num);
+    }
+
+    pushUndo({ type: 'note', row: r, col: c, oldNotes });
+    playSound('place');
+    haptic(5);
+  } else {
+    // Modo normal - colocar numero
+    const oldValue = userGrid[r][c];
+    const oldNotes = new Set(notes[r][c]);
+
+    pushUndo({ type: 'value', row: r, col: c, oldValue, oldNotes });
+
+    userGrid[r][c] = num;
+    notes[r][c].clear(); // Limpar notas ao colocar numero
+
+    playSound('place');
+    haptic(10);
+  }
+
   render();
+  saveGame();
 
   // Check win
   if (checkComplete()) {
     gameOver = true;
     stopTimer();
+    clearSave();
     const timeSeconds = gameTimer.getTime();
     launchConfetti();
     playSound('win');
     setTimeout(() => {
       modalMessage.textContent = `Tempo: ${formatTime(timeSeconds)}`;
+      if (modalStats) {
+        modalStats.textContent = `Dificuldade: ${diffSelect.options[diffSelect.selectedIndex].text}`;
+      }
       modalOverlay.classList.add('show');
-
-      // Salva stats
       stats.recordGame(true, { time: timeSeconds });
       stats.syncToCloud();
     }, 300);
@@ -237,7 +482,34 @@ function checkComplete() {
   return true;
 }
 
-// Numpad
+// ===== Contagem de Numeros =====
+function countNumbers() {
+  const counts = {};
+  for (let n = 1; n <= 9; n++) {
+    counts[n] = 0;
+  }
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const val = userGrid[r][c];
+      if (val !== 0) {
+        counts[val]++;
+      }
+    }
+  }
+  return counts;
+}
+
+function updateNumpad() {
+  const counts = countNumbers();
+  document.querySelectorAll('.num-btn').forEach(btn => {
+    const num = parseInt(btn.dataset.num);
+    if (num >= 1 && num <= 9) {
+      btn.classList.toggle('used', counts[num] >= 9);
+    }
+  });
+}
+
+// ===== Event Listeners =====
 document.querySelectorAll('.num-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     placeNumber(parseInt(btn.dataset.num));
@@ -246,20 +518,86 @@ document.querySelectorAll('.num-btn').forEach(btn => {
 
 // Keyboard
 document.addEventListener('keydown', (e) => {
-  if (e.key >= '1' && e.key <= '9') placeNumber(parseInt(e.key));
-  if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') placeNumber(0);
-  if (e.key === 'ArrowUp' && selectedCell) selectCell(Math.max(0, selectedCell[0] - 1), selectedCell[1]);
-  if (e.key === 'ArrowDown' && selectedCell) selectCell(Math.min(8, selectedCell[0] + 1), selectedCell[1]);
-  if (e.key === 'ArrowLeft' && selectedCell) selectCell(selectedCell[0], Math.max(0, selectedCell[1] - 1));
-  if (e.key === 'ArrowRight' && selectedCell) selectCell(selectedCell[0], Math.min(8, selectedCell[1] + 1));
+  // Numeros
+  if (e.key >= '1' && e.key <= '9') {
+    placeNumber(parseInt(e.key));
+    return;
+  }
+
+  // Apagar
+  if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+    placeNumber(0);
+    return;
+  }
+
+  // Undo (Ctrl+Z)
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    e.preventDefault();
+    undo();
+    return;
+  }
+
+  // Toggle notas (N)
+  if (e.key === 'n' || e.key === 'N') {
+    toggleNotesMode();
+    return;
+  }
+
+  // Navegacao com setas
+  if (selectedCell) {
+    let [r, c] = selectedCell;
+    if (e.key === 'ArrowUp') selectCell(Math.max(0, r - 1), c);
+    if (e.key === 'ArrowDown') selectCell(Math.min(8, r + 1), c);
+    if (e.key === 'ArrowLeft') selectCell(r, Math.max(0, c - 1));
+    if (e.key === 'ArrowRight') selectCell(r, Math.min(8, c + 1));
+  }
 });
 
-btnNewGame.addEventListener('click', init);
-btnPlayAgain.addEventListener('click', init);
-diffSelect.addEventListener('change', init);
+// Botoes
+if (btnNewGame) {
+  btnNewGame.addEventListener('click', () => {
+    clearSave();
+    init();
+  });
+}
 
-document.getElementById('btn-share')?.addEventListener('click', () => {
-  shareOnWhatsApp(`🎉 Completei o Sudoku no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/sudoku/`);
-});
+if (btnPlayAgain) {
+  btnPlayAgain.addEventListener('click', () => {
+    clearSave();
+    init();
+  });
+}
 
+if (btnUndo) {
+  btnUndo.addEventListener('click', undo);
+}
+
+if (btnNotes) {
+  btnNotes.addEventListener('click', toggleNotesMode);
+}
+
+if (diffSelect) {
+  diffSelect.addEventListener('change', () => {
+    clearSave();
+    init();
+  });
+}
+
+const btnShare = document.getElementById('btn-share');
+if (btnShare) {
+  btnShare.addEventListener('click', () => {
+    shareOnWhatsApp(`Completei o Sudoku no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/sudoku/`);
+  });
+}
+
+// Fechar modal ao clicar fora
+if (modalOverlay) {
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      modalOverlay.classList.remove('show');
+    }
+  });
+}
+
+// ===== Iniciar =====
 init();

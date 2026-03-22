@@ -7,7 +7,7 @@
   <meta name="description" content="Jogue Tetris online e de graca. Encaixe as pecas, complete linhas e alcance a maior pontuacao!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=11" />
+  <link rel="stylesheet" href="style.css?v=14" />
   <meta name="theme-color" content="#00d4ff" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 </head>
@@ -56,7 +56,10 @@
 
   <!-- Controles mobile -->
   <div class="mobile-controls">
-    <button class="ctrl-btn" data-action="rotate">↻</button>
+    <div class="ctrl-row ctrl-top">
+      <button class="ctrl-btn" data-action="rotate">↻</button>
+      <button class="ctrl-btn ctrl-drop" data-action="drop">⬇</button>
+    </div>
     <div class="ctrl-row">
       <button class="ctrl-btn" data-action="left">←</button>
       <button class="ctrl-btn" data-action="down">↓</button>
@@ -64,6 +67,6 @@
     </div>
   </div>
 
-  <script type="module" src="game.js?v=11"></script>
+  <script type="module" src="game.js?v=14"></script>
 </body>
 </html>
