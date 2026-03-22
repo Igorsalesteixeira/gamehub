@@ -27,8 +27,8 @@ const BRICK_COLS    = 10;
 const BRICK_PAD     = 4;
 const BRICK_HEIGHT  = 18;
 const PADDLE_HEIGHT = 14;
-const BALL_RADIUS   = 6;
-const BRICK_COLORS  = ['#e94560','#ff6b6b','#ffa502','#ffd32a','#0be881','#18dcff'];
+const BALL_RADIUS   = 7;
+const BRICK_COLORS  = ['#ff6b6b','#ffa502','#ffd32a','#0be881','#18dcff','#a55eea'];
 
 // ---- Stats e Best Score ----
 const stats = new GameStats('breakout');
@@ -48,7 +48,7 @@ let wideTimer = 0;
 // ---- Power-ups ----
 let powerUps = [];
 const POWERUP_TYPES = ['wide', 'multi', 'life'];
-const POWERUP_COLORS = { wide: '#0be881', multi: '#18dcff', life: '#ff6b6b' };
+const POWERUP_COLORS = { wide: '#0be881', multi: '#a55eea', life: '#ff6b6b' };
 let extraBalls = [];
 
 // ---- Game Loop ----
@@ -296,64 +296,153 @@ function applyPowerUp(type) {
 }
 
 // =============================================
-//  DRAW
+//  DRAW - TEMA NEON ARCADE
 // =============================================
 function draw() {
-  ctx.clearRect(0, 0, W, H);
+  // Fundo com gradiente escuro
+  ctx.fillStyle = '#0a0a12';
+  ctx.fillRect(0, 0, W, H);
 
-  // Bricks
+  // Grade de fundo sutil
+  ctx.strokeStyle = 'rgba(233, 69, 96, 0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 30) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  // Bricks com glow
   for (let brick of bricks) {
     if (!brick.alive) continue;
-    ctx.fillStyle = brick.color;
-    if (brick.hits > 1) ctx.fillStyle = '#888';
+
+    // Glow externo
+    ctx.shadowColor = brick.color;
+    ctx.shadowBlur = 8;
+
+    // Bloco com gradiente
+    const grad = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.h);
+    if (brick.hits > 1) {
+      grad.addColorStop(0, '#888');
+      grad.addColorStop(1, '#555');
+    } else {
+      grad.addColorStop(0, brick.color);
+      grad.addColorStop(1, shadeColor(brick.color, -20));
+    }
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.roundRect(brick.x, brick.y, brick.w, brick.h, 4);
+    ctx.roundRect(brick.x, brick.y, brick.w, brick.h, 3);
     ctx.fill();
+
+    // Borda brilhante
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = brick.hits > 1 ? '#aaa' : brick.color;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Hit indicator para blocos resistentes
     if (brick.hits > 1) {
       ctx.fillStyle = brick.color;
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.4;
       ctx.fill();
       ctx.globalAlpha = 1;
     }
   }
 
-  // Paddle
+  // Paddle com glow neon
   const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
-  const grad = ctx.createLinearGradient(paddleX, 0, paddleX + pw, 0);
-  grad.addColorStop(0, '#e94560');
-  grad.addColorStop(1, '#ff6b6b');
-  ctx.fillStyle = grad;
+  ctx.shadowColor = wideTimer > 0 ? '#ffd32a' : '#ff6b6b';
+  ctx.shadowBlur = wideTimer > 0 ? 20 : 15;
+
+  const paddleGrad = ctx.createLinearGradient(paddleX, H - 30 - PADDLE_HEIGHT, paddleX, H - 30);
+  paddleGrad.addColorStop(0, '#ff6b6b');
+  paddleGrad.addColorStop(0.5, '#e94560');
+  paddleGrad.addColorStop(1, '#ff4757');
+  ctx.fillStyle = paddleGrad;
   ctx.beginPath();
   ctx.roundRect(paddleX, H - 30 - PADDLE_HEIGHT, pw, PADDLE_HEIGHT, 7);
   ctx.fill();
 
-  // Ball
+  // Borda do paddle
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#ffd32a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Bola principal com glow forte
+  ctx.shadowColor = '#fff';
+  ctx.shadowBlur = 12;
   ctx.fillStyle = '#fff';
   ctx.beginPath();
   ctx.arc(ballX, ballY, BALL_RADIUS, 0, Math.PI * 2);
   ctx.fill();
 
-  // Extra balls
+  // Borda da bola
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#ffd32a';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Extra balls com cor diferente
+  ctx.shadowColor = '#18dcff';
+  ctx.shadowBlur = 10;
   ctx.fillStyle = '#18dcff';
   for (let b of extraBalls) {
     ctx.beginPath();
     ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
     ctx.fill();
   }
+  ctx.shadowBlur = 0;
 
-  // Power-ups
+  // Power-ups com glow e ícones claros
   for (let p of powerUps) {
+    // Glow do power-up
+    ctx.shadowColor = POWERUP_COLORS[p.type];
+    ctx.shadowBlur = 15;
+
+    // Círculo externo
     ctx.fillStyle = POWERUP_COLORS[p.type];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Círculo interno
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.beginPath();
     ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 10px Nunito';
+
+    // Ícone central
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 9px "Press Start 2P", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const label = p.type === 'wide' ? 'W' : p.type === 'multi' ? 'M' : '+';
-    ctx.fillText(label, p.x, p.y);
+    const label = p.type === 'wide' ? '<>' : p.type === 'multi' ? '*' : '+';
+    ctx.fillText(label, p.x, p.y + 1);
   }
+  ctx.shadowBlur = 0;
+}
+
+// Helper para escurecer cores
+function shadeColor(color, percent) {
+  const num = parseInt(color.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = (num >> 16) + amt;
+  const G = (num >> 8 & 0x00FF) + amt;
+  const B = (num & 0x0000FF) + amt;
+  return '#' + (0x1000000 +
+    (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+    (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+    (B < 255 ? B < 1 ? 0 : B : 255)
+  ).toString(16).slice(1);
 }
 
 // =============================================

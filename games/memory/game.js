@@ -2,7 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
-// ===== Jogo da Memoria (Refatorado com módulos compartilhados) =====
+// ===== Jogo da Memoria (Redesigned with pointer events and accessibility) =====
 import { supabase } from '../../supabase.js';
 
 const EMOJIS = [
@@ -122,36 +122,43 @@ function initGame() {
 
   deck.forEach((emoji, i) => {
     const card = document.createElement('div');
-    card.className = 'card';
+    card.className = 'memory-card';
     card.dataset.index = i;
     card.dataset.emoji = emoji;
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'gridcell');
+    card.setAttribute('aria-label', `Carta ${i + 1}, clique para virar`);
 
     card.innerHTML = `
-      <div class="card-inner">
-        <div class="card-face card-back"></div>
-        <div class="card-face card-front">${emoji}</div>
+      <div class="memory-card-inner">
+        <div class="memory-card-face memory-card-back"></div>
+        <div class="memory-card-face memory-card-front">${emoji}</div>
       </div>
     `;
 
-    card.addEventListener('click', onCardClick);
-    card.addEventListener('touchend', onCardTouch);
+    // Use pointerdown for better cross-device support (touch and mouse)
+    card.addEventListener('pointerdown', onCardPointerDown);
+    card.addEventListener('keydown', onCardKeyDown);
 
     boardEl.appendChild(card);
     cards.push(card);
   });
 }
 
-// ===== Card interaction =====
-function onCardTouch(e) {
-  // Prevent ghost click on touch devices
+// ===== Card interaction with Pointer Events =====
+function onCardPointerDown(e) {
+  // Only handle left click / primary touch
+  if (e.button && e.button !== 0) return;
+
   e.preventDefault();
   handleCardFlip(this);
 }
 
-function onCardClick(e) {
-  // On touch devices, touchend already handled it
-  if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
-  handleCardFlip(this);
+function onCardKeyDown(e) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    handleCardFlip(this);
+  }
 }
 
 function handleCardFlip(card) {
@@ -169,8 +176,10 @@ function handleCardFlip(card) {
 
   // Flip card
   card.classList.add('flipped');
+  card.setAttribute('aria-label', `Carta ${card.dataset.emoji}, virada`);
   flippedCards.push(card);
   playSound('click'); // som ao virar carta
+
   // Mobile: feedback tátil ao virar carta
   if (navigator.vibrate) navigator.vibrate(10);
 
@@ -188,9 +197,12 @@ function checkMatch() {
   if (match) {
     a.classList.add('matched');
     b.classList.add('matched');
+    a.setAttribute('aria-label', `Par encontrado: ${a.dataset.emoji}`);
+    b.setAttribute('aria-label', `Par encontrado: ${b.dataset.emoji}`);
     flippedCards = [];
     matchedPairs++;
     playSound('win'); // som curto ao acertar par
+
     // Mobile: feedback tátil ao fazer match (sucesso)
     if (navigator.vibrate) navigator.vibrate([15, 8, 25]);
 
@@ -203,6 +215,8 @@ function checkMatch() {
     setTimeout(() => {
       a.classList.remove('flipped');
       b.classList.remove('flipped');
+      a.setAttribute('aria-label', `Carta ${parseInt(a.dataset.index) + 1}, clique para virar`);
+      b.setAttribute('aria-label', `Carta ${parseInt(b.dataset.index) + 1}, clique para virar`);
       flippedCards = [];
       isLocked = false;
     }, 900);
@@ -215,7 +229,8 @@ async function showVictory() {
   finalMoves.textContent = moves;
   finalTime.textContent = formatTime(timeSeconds);
   victoryModal.classList.remove('hidden');
-  // Mobile: feedback tátil na vitória (celebração)
+
+  // Mobile: feedback tátil na vitoria (celebracao)
   if (navigator.vibrate) navigator.vibrate([30, 20, 40, 20, 50]);
   launchConfetti();
   playSound('win');
@@ -231,7 +246,7 @@ btnPlayAgain.addEventListener('click', initGame);
 difficultySelect.addEventListener('change', initGame);
 
 document.getElementById('btn-share')?.addEventListener('click', () => {
-  shareOnWhatsApp(`🎉 Completei o Jogo da Memória no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/memory/`);
+  shareOnWhatsApp(`Completei o Jogo da Memoria no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/memory/`);
 });
 
 // Recalc card sizes on resize

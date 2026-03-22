@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="theme-color" content="#ff6b35" />
+  <meta name="theme-color" content="#4a6741" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Campo Minado Online Gratis - Games Hub</title>
@@ -21,13 +21,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=2" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Campo Minado",
-    "description": "Jogue Campo Minado (Minesweeper) online grátis. Encontre todas as células seguras sem pisar nas minas.",
+    "description": "Jogue Campo Minado (Minesweeper) online gratis. Encontre todas as celulas seguras sem pisar nas minas.",
     "url": "https://gameshub.com.br/games/minesweeper/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
@@ -47,44 +47,44 @@
     gtag('config', 'G-LNTD0KNJ6T');
   </script>
 </head>
-<body>
+<body class="minesweeper-game">
 
   <header class="topbar">
-    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <a href="../../index.html" class="btn-back" aria-label="Voltar para pagina inicial">&larr; Voltar</a>
     <h1 class="game-title">&#x1F4A3; Campo Minado</h1>
     <div class="stats">
-      <span>&#x1F4A3; <span id="mine-counter">0</span></span>
-      <span>&#x23F1;&#xFE0F; <span id="timer-display">0</span></span>
+      <span aria-label="Minas restantes">&#x1F4A3; <span id="mine-counter">0</span></span>
+      <span aria-label="Tempo">&#x23F1;&#xFE0F; <span id="timer-display">0</span></span>
     </div>
   </header>
 
-  <div class="controls-bar">
-    <div class="difficulty-selector">
-      <button class="diff-btn active" data-diff="easy">Facil</button>
-      <button class="diff-btn" data-diff="medium">Medio</button>
-      <button class="diff-btn" data-diff="hard">Dificil</button>
+  <div class="controls-bar" role="toolbar" aria-label="Controles do jogo">
+    <div class="difficulty-selector" role="group" aria-label="Selecionar dificuldade">
+      <button class="diff-btn active" data-diff="easy" aria-pressed="true">Facil</button>
+      <button class="diff-btn" data-diff="medium" aria-pressed="false">Medio</button>
+      <button class="diff-btn" data-diff="hard" aria-pressed="false">Dificil</button>
     </div>
     <div class="control-buttons">
-      <button class="btn btn-flag" id="btn-flag">&#x1F6A9; Bandeira</button>
+      <button class="btn btn-flag" id="btn-flag" aria-pressed="false">&#x1F6A9; Bandeira</button>
       <button class="btn btn-new" id="btn-new">Novo Jogo</button>
     </div>
   </div>
 
-  <div class="game-container">
+  <main class="game-container">
     <div class="board-wrapper">
-      <div id="board" class="board"></div>
+      <div id="board" class="board" role="grid" aria-label="Tabuleiro do Campo Minado"></div>
     </div>
-  </div>
+  </main>
 
   <!-- Modal de resultado -->
-  <div class="modal-overlay hidden" id="modal">
+  <div class="modal-overlay hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-content modal">
-      <div class="modal-icon" id="modal-icon">&#x1F4A3;</div>
+      <div class="modal-icon" id="modal-icon" aria-hidden="true">&#x1F4A3;</div>
       <h2 id="modal-title">Fim de Jogo</h2>
       <p id="modal-msg"></p>
       <p id="modal-stats" class="modal-stats"></p>
       <button class="btn btn-primary" id="btn-modal-new">Novo Jogo</button>
-      <button class="btn btn-whatsapp" id="btn-share">📱 Compartilhar no WhatsApp</button>
+      <button class="btn btn-whatsapp" id="btn-share">&#x1F4F1; Compartilhar no WhatsApp</button>
     </div>
   </div>
 
@@ -92,22 +92,22 @@
     import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'minesweeper' });
   </script>
-  <script type="module" src="game.js?v=7"></script>
+  <script type="module" src="game.js?v=8"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Campo Minado Online</h2>
-    <p>Campo Minado (Minesweeper) é o clássico jogo de lógica onde você deve revelar todas as células seguras do tabuleiro sem clicar em nenhuma mina. Os números indicam quantas minas estão nas células adjacentes. Escolha entre fácil, médio e difícil — jogue campo minado online grátis.</p>
+    <p>Campo Minado (Minesweeper) e o classico jogo de logica onde voce deve revelar todas as celulas seguras do tabuleiro sem clicar em nenhuma mina. Os numeros indicam quantas minas estao nas celulas adjacentes. Escolha entre facil, medio e dificil — jogue campo minado online gratis.</p>
     <h3>Regras</h3>
     <ul>
-      <li>Clique em uma célula para revelá-la; se for mina, você perde.</li>
-      <li>Os números mostram quantas minas existem nas 8 células ao redor.</li>
-      <li>Clique com o botão direito (ou use o botão Bandeira) para marcar uma mina suspeita.</li>
+      <li>Clique em uma celula para revela-la; se for mina, voce perde.</li>
+      <li>Os numeros mostram quantas minas existem nas 8 celulas ao redor.</li>
+      <li>Clique com o botao direito (ou use o botao Bandeira) para marcar uma mina suspeita.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>O primeiro clique nunca é mina — clique no centro para abrir mais área.</li>
-      <li>Se o número de bandeiras ao redor de uma célula numerada coincidir com o número, as demais células vizinhas são seguras.</li>
+      <li>O primeiro clique nunca e mina — clique no centro para abrir mais area.</li>
+      <li>Se o numero de bandeiras ao redor de uma celula numerada coincidir com o numero, as demais celulas vizinhas sao seguras.</li>
     </ul>
   </section>
 </body>

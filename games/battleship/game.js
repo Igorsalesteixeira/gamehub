@@ -5,9 +5,10 @@ import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
 
 // =============================================
-//  Batalha Naval — Games Hub
+//  Batalha Naval — Games Hub v15
 //  Single Player + Multiplayer Online
 // =============================================
+console.log('[Battleship] v15 - Initializing...');
 
 const ROWS = 10;
 const COLS = 10;
@@ -126,14 +127,22 @@ function createBoard() {
 
 // ===== MODE SELECTION =====
 document.getElementById('btn-single').addEventListener('click', () => {
-  initAudio();
-  playSound('click');
+  try {
+    initAudio();
+    playSound('click');
+  } catch (e) {
+    console.warn('Audio not initialized:', e);
+  }
   startSinglePlayer();
 });
 
 document.getElementById('btn-multi').addEventListener('click', () => {
-  initAudio();
-  playSound('click');
+  try {
+    initAudio();
+    playSound('click');
+  } catch (e) {
+    console.warn('Audio not initialized:', e);
+  }
   startMultiplayerSetup();
 });
 

@@ -1,4 +1,4 @@
-﻿import '../../auth-check.js';
+import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 // Mobile: haptic feedback helper
@@ -149,7 +149,8 @@ function renderBoard() {
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const cell = board[r][c];
-      const el = document.createElement('div');
+      // Use button for accessibility (semantic element)
+      const el = document.createElement('button');
       el.className = 'cell';
       el.style.width = cellSize + 'px';
       el.style.height = cellSize + 'px';
@@ -157,26 +158,42 @@ function renderBoard() {
       el.dataset.row = r;
       el.dataset.col = c;
 
+      // Build aria-label
+      let ariaLabel = '';
       if (cell.revealed) {
         el.classList.add('revealed');
         if (cell.mine) {
           el.textContent = '\u{1F4A3}';
-          if (cell.hitMine) el.classList.add('mine-hit');
-          else el.classList.add('mine-shown');
+          ariaLabel = 'Mina';
+          if (cell.hitMine) {
+            el.classList.add('mine-hit');
+            ariaLabel = 'Mina explodiu';
+          } else {
+            el.classList.add('mine-shown');
+          }
         } else if (cell.adjacentMines > 0) {
           el.textContent = cell.adjacentMines;
           el.dataset.num = cell.adjacentMines;
+          ariaLabel = `${cell.adjacentMines} minas adjacentes`;
+        } else {
+          ariaLabel = 'Célula vazia';
         }
+        el.disabled = true;
       } else if (cell.flagged) {
         el.classList.add('flagged');
         el.textContent = '\u{1F6A9}';
+        ariaLabel = 'Bandeira marcada';
         if (gameOver && !cell.mine) {
           el.classList.add('wrong-flag');
           el.textContent = '\u274C';
+          ariaLabel = 'Bandeira errada';
         }
       } else {
         el.classList.add('unrevealed');
+        ariaLabel = `Célula linha ${r + 1}, coluna ${c + 1}`;
       }
+
+      el.setAttribute('aria-label', ariaLabel);
 
       // Events
       el.addEventListener('click', (e) => handleClick(r, c, e));
@@ -366,12 +383,17 @@ document.getElementById('btn-share')?.addEventListener('click', () => {
 btnFlag.addEventListener('click', () => {
   flagMode = !flagMode;
   btnFlag.classList.toggle('active', flagMode);
+  btnFlag.setAttribute('aria-pressed', flagMode);
 });
 
 diffBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    diffBtns.forEach(b => b.classList.remove('active'));
+    diffBtns.forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     difficulty = btn.dataset.diff;
     init();
   });
