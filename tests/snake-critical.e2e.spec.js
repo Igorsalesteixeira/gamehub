@@ -45,7 +45,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -53,7 +53,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -65,7 +65,7 @@ for (const device of DEVICES) {
       await btnStart.click();
 
       // Aguarda início
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -78,11 +78,11 @@ for (const device of DEVICES) {
     test('deve mover cobra com setas do teclado', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move em todas direções
       await page.keyboard.press('ArrowRight');
@@ -101,11 +101,11 @@ for (const device of DEVICES) {
     test('deve pausar com tecla P', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Pausa
       await page.keyboard.press('p');
@@ -123,7 +123,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('.mobile-controls');
@@ -139,11 +139,11 @@ for (const device of DEVICES) {
       test('deve mover cobra com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia
         await page.locator('#btn-start').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         await page.locator('[data-dir="right"]').click();
@@ -159,11 +159,11 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao bater na parede', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move para cima até bater na parede
       for (let i = 0; i < 30; i++) {
@@ -172,7 +172,7 @@ for (const device of DEVICES) {
       }
 
       // Aguarda game over
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica que apareceu game over
       const overlay = page.locator('#overlay');
@@ -186,11 +186,11 @@ for (const device of DEVICES) {
     test('deve reiniciar ao clicar em Jogar Novamente', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia e causa game over
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       for (let i = 0; i < 25; i++) {
         await page.keyboard.press('ArrowUp');
@@ -203,7 +203,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toHaveText('Jogar Novamente');
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(page.locator('#overlay')).toBeHidden();
@@ -216,11 +216,11 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação ao comer fruta', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Score inicial
       const scoreBefore = await page.locator('#score-display').textContent();
@@ -252,7 +252,7 @@ for (const device of DEVICES) {
     test('deve salvar recorde no localStorage', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/snake/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica se localStorage tem chave do jogo
       const hasBestScore = await page.evaluate(() => {

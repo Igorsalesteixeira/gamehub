@@ -35,7 +35,7 @@ for (const game of CARD_GAMES) {
 
     test('deve carregar mesa com cartas', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica se há cartas na mesa
       const cards = page.locator('.card, .playing-card, [class*="card"]').first();
@@ -44,7 +44,7 @@ for (const game of CARD_GAMES) {
 
     test('deve distribuir cartas ao iniciar', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em iniciar
       const btnStart = page.locator('#btn-start, .btn-deal, .btn-primary').first();
@@ -62,7 +62,7 @@ for (const game of CARD_GAMES) {
     if (game.hasDrag) {
       test('deve arrastar carta entre colunas', async ({ page }) => {
         await page.goto(game.path, { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia o jogo
         const btnStart = page.locator('#btn-start, .btn-deal').first();
@@ -79,7 +79,7 @@ for (const game of CARD_GAMES) {
             await targetColumn.isVisible().catch(() => false)) {
 
           await sourceCard.dragTo(targetColumn);
-          await page.waitForTimeout(500);
+          await page.waitForTimeout(200);
 
           // Verifica se a carta ainda está visível (não houve erro)
           await expect(page.locator('.table, .board')).toBeVisible();
@@ -88,13 +88,13 @@ for (const game of CARD_GAMES) {
 
       test('deve selecionar carta com clique', async ({ page }) => {
         await page.goto(game.path, { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia
         const btnStart = page.locator('#btn-start').first();
         if (await btnStart.isVisible().catch(() => false)) {
           await btnStart.click();
-          await page.waitForTimeout(1000);
+          await page.waitForTimeout(300);
         }
 
         // Clica em uma carta
@@ -113,7 +113,7 @@ for (const game of CARD_GAMES) {
 
     test('deve ter botões de controle visíveis', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica botões comuns
       const buttons = page.locator('button, .btn');
@@ -123,7 +123,7 @@ for (const game of CARD_GAMES) {
 
     test('deve mostrar pontuação ou status', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica se há algum display de pontuação, tempo ou status
       const displays = page.locator('.score, .time, .status, .moves, #score-display, #timer');
@@ -137,13 +137,13 @@ for (const game of CARD_GAMES) {
 
     test('deve responder a duplo clique', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia
       const btnStart = page.locator('#btn-start').first();
       if (await btnStart.isVisible().catch(() => false)) {
         await btnStart.click();
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
       }
 
       // Duplo clique em uma carta

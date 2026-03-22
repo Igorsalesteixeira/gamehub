@@ -47,14 +47,14 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
       page.on('console', msg => {
         if (msg.type() === 'error') errors.push(msg.text());
       });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
       expect(errors).toHaveLength(0);
     });
 
     test('deve iniciar o jogo ao clicar no botão', async ({ page }) => {
       // Clica no botão de iniciar
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o overlay sumiu
       await expect(page.locator('#overlay')).toBeHidden();
@@ -64,13 +64,13 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
       await expect(canvas).toBeVisible();
 
       // Aguarda o jogo começar a rodar
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
     });
 
     test('deve mover a cobra com as setas do teclado', async ({ page }) => {
       // Inicia o jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Testa movimentos em todas as direções
       await page.keyboard.press('ArrowRight');
@@ -92,19 +92,19 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
     test('deve pausar e despausar com a tecla P', async ({ page }) => {
       // Inicia o jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move um pouco
       await page.keyboard.press('ArrowRight');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Pausa
       await page.keyboard.press('p');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Despausa
       await page.keyboard.press('p');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o jogo continua
       await expect(page.locator('#game-canvas')).toBeVisible();
@@ -113,7 +113,7 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
     test('deve mostrar game over ao bater na parede', async ({ page }) => {
       // Inicia o jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // A cobra começa indo para a direita (x: 1, y: 0)
       // Precisamos deixar ela andar até bater na parede direita
@@ -130,7 +130,7 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
       }
 
       // Aguarda o game over
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica que apareceu o game over
       const overlay = page.locator('#overlay');
@@ -148,7 +148,7 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
     test('deve reiniciar ao clicar em "Jogar Novamente"', async ({ page }) => {
       // Inicia e causa game over
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Força game over
       for (let i = 0; i < 20; i++) {
@@ -156,11 +156,11 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
         await page.waitForTimeout(100);
       }
 
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em Jogar Novamente
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o overlay sumiu e score zerou
       await expect(page.locator('#overlay')).toBeHidden();
@@ -189,7 +189,7 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
 
       // Inicia o jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Testa botões touch
       await page.locator('[data-dir="right"]').click();
@@ -226,7 +226,7 @@ test.describe('🐍 Snake - Testes E2E Ponta a Ponta', () => {
     test('deve carregar sem solicitar confirmação de saída', async ({ page }) => {
       // Inicia o jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Tenta navegar para outra página
       const newPage = await page.context().newPage();

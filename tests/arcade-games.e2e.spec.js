@@ -63,7 +63,7 @@ for (const game of GAMES) {
       });
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -82,7 +82,7 @@ for (const game of GAMES) {
 
     test('deve iniciar ao clicar no botão', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const btnStart = page.locator('#btn-start').first();
 
@@ -91,7 +91,7 @@ for (const game of GAMES) {
 
       if (hasStartButton) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o overlay sumiu (se existir)
         const overlay = page.locator('#overlay');
@@ -105,14 +105,14 @@ for (const game of GAMES) {
 
     test('deve pausar com a tecla P', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia o jogo (se tiver botão)
       const btnStart = page.locator('#btn-start').first();
       const hasStartButton = await btnStart.isVisible().catch(() => false);
       if (hasStartButton) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
       }
 
       // Testa pausar (não deve quebrar)
@@ -125,14 +125,14 @@ for (const game of GAMES) {
 
     test('deve responder a controles do teclado', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia (se tiver botão)
       const btnStart = page.locator('#btn-start').first();
       const hasStartButton = await btnStart.isVisible().catch(() => false);
       if (hasStartButton) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
       }
 
       // Testa setas (não deve quebrar)

@@ -140,7 +140,7 @@ test.describe('Gameplay Basico', () => {
     await page.click('#btn-pass');
 
     // Espera um pouco para CPU jogar
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(200);
 
     // Verifica se a rodada mudou ou a vez voltou
     const message = await page.locator('#message').textContent();
@@ -189,7 +189,7 @@ test.describe('IA e Bots', () => {
         await page.click('#btn-pass');
       }
 
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
     }
 
     // Verifica se o jogo progrediu
@@ -334,7 +334,7 @@ test.describe('Performance', () => {
 
     await page.goto(GAME_URL);
     await page.click('[data-players="2"]');
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(200);
 
     // Filtra erros aceitaveis (como de analytics)
     const criticalErrors = errors.filter(e =>

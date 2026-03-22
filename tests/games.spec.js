@@ -105,7 +105,7 @@ for (const game of GAMES) {
       await page.waitForLoadState('networkidle');
 
       // Espera um pouco para scripts carregarem
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica se há erros
       expect(errors, `Erros de JavaScript: ${errors.join(', ')}`).toHaveLength(0);
@@ -113,7 +113,7 @@ for (const game of GAMES) {
 
     test(`elementos essenciais existem`, async ({ page }) => {
       await page.goto(game.path);
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica título
       const title = await page.title();
@@ -133,14 +133,14 @@ for (const game of GAMES) {
 
     test(`botão de jogar funciona`, async ({ page }) => {
       await page.goto(game.path);
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Tenta clicar em botão de iniciar (vários seletores comuns)
       const startButton = page.locator('#btn-start, #btn-new-game, .btn-primary').first();
 
       if (await startButton.isVisible().catch(() => false)) {
         await startButton.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica se o overlay foi escondido ou o jogo começou
         const overlay = page.locator('#overlay, .modal-overlay').first();

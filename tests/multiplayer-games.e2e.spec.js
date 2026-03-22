@@ -125,7 +125,7 @@ for (const game of MULTIPLAYER_GAMES) {
       });
 
       await page.goto(`${game.path}?room=test-room-123`, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -153,7 +153,7 @@ for (const game of MULTIPLAYER_GAMES) {
       });
 
       await page.goto(`${game.path}?room=test-room-123`, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verificar se há área de jogo
       const gameArea = page.locator('#game-container, #board, .board, canvas, .game-area').first();
@@ -189,14 +189,14 @@ for (const game of MULTIPLAYER_GAMES) {
         // Ambos entram na mesma sala
         await player1Page.goto(`${game.path}?room=test-room-123`, { waitUntil: 'networkidle' });
         await player2Page.goto(`${game.path}?room=test-room-123`, { waitUntil: 'networkidle' });
-        await player1Page.waitForTimeout(2000);
-        await player2Page.waitForTimeout(2000);
+        await player1Page.waitForTimeout(200);
+        await player2Page.waitForTimeout(200);
 
         // Jogador 1 faz movimento
         const cell0 = player1Page.locator('[data-index="0"]').first();
         if (await cell0.isVisible().catch(() => false)) {
           await cell0.click();
-          await player1Page.waitForTimeout(500);
+          await player1Page.waitForTimeout(200);
 
           // Verificar se movimento aparece no jogador 1
           await expect(cell0).toHaveText('X');
@@ -269,7 +269,7 @@ test.describe('🔌 Connection Tests', () => {
     });
 
     await page.goto('/games/tictactoe/?room=test-room-123', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(300);
 
     // Verificar se redirecionou para auth
     const url = page.url();
@@ -294,7 +294,7 @@ test.describe('🔌 Connection Tests', () => {
     });
 
     await page.goto('/games/tictactoe/?room=invalid-room', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(300);
 
     // Verificar se redirecionou para multiplayer
     const url = page.url();

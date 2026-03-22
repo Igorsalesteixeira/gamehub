@@ -48,7 +48,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -56,13 +56,13 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Novo Jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       const btnNewGame = page.locator('#btn-new-game');
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que canvas está ativo
       const canvas = page.locator('#game-canvas');
@@ -76,11 +76,11 @@ for (const device of DEVICES) {
     test('deve mover peças com setas do teclado', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move peça para esquerda
       await page.keyboard.press('ArrowLeft');
@@ -101,11 +101,11 @@ for (const device of DEVICES) {
     test('deve rotacionar peças com seta para cima', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Rotaciona peça várias vezes
       for (let i = 0; i < 4; i++) {
@@ -120,7 +120,7 @@ for (const device of DEVICES) {
     test('deve mostrar próxima peça no painel lateral', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica canvas da próxima peça
       const nextCanvas = page.locator('#next-canvas');
@@ -130,7 +130,7 @@ for (const device of DEVICES) {
     test('deve mostrar nível e linhas no painel', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const levelDisplay = page.locator('#level-display');
@@ -146,7 +146,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('.mobile-controls');
@@ -162,11 +162,11 @@ for (const device of DEVICES) {
       test('deve controlar peças com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-new-game').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         await page.locator('#btn-left').click();
@@ -184,11 +184,11 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao empilhar peças no topo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Deixa o jogo rodar até game over (acelera queda)
       for (let i = 0; i < 100; i++) {
@@ -211,11 +211,11 @@ for (const device of DEVICES) {
     test('deve reiniciar ao clicar em Jogar Novamente', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tetris/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Causa game over
       for (let i = 0; i < 100; i++) {
@@ -229,7 +229,7 @@ for (const device of DEVICES) {
       const btnPlayAgain = page.locator('#btn-play-again');
       await expect(btnPlayAgain).toBeVisible({ timeout: 10000 });
       await btnPlayAgain.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que modal sumiu
       await expect(page.locator('#modal-overlay')).toBeHidden();
@@ -272,7 +272,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -280,13 +280,13 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Novo Jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       const btnNewGame = page.locator('#btn-new-game');
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que canvas está ativo
       const canvas = page.locator('#game-canvas');
@@ -296,11 +296,11 @@ for (const device of DEVICES) {
     test('deve mover raquete com setas do teclado', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move raquete para cima
       for (let i = 0; i < 10; i++) {
@@ -321,7 +321,7 @@ for (const device of DEVICES) {
     test('deve mudar dificuldade via select', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica select de dificuldade
       const difficultySelect = page.locator('#difficulty-select');
@@ -343,7 +343,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('.mobile-controls');
@@ -357,11 +357,11 @@ for (const device of DEVICES) {
       test('deve controlar raquete com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-new-game').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         for (let i = 0; i < 5; i++) {
@@ -382,7 +382,7 @@ for (const device of DEVICES) {
     test('deve mostrar fim de jogo ao atingir 5 pontos', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pong/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Seleciona dificuldade fácil para terminar rápido
       await page.locator('#difficulty-select').selectOption('easy');
@@ -390,10 +390,10 @@ for (const device of DEVICES) {
 
       // Inicia jogo
       await page.locator('#btn-new-game').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Deixa o jogo rodar até alguém fazer 5 pontos
-      await page.waitForTimeout(10000);
+      await page.waitForTimeout(3000);
 
       // Verifica se o jogo terminou
       const modal = page.locator('#modal-overlay');
@@ -438,7 +438,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -446,7 +446,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -456,7 +456,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible();
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -469,11 +469,11 @@ for (const device of DEVICES) {
     test('deve mover raquete com setas do teclado', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move raquete para esquerda
       for (let i = 0; i < 10; i++) {
@@ -494,7 +494,7 @@ for (const device of DEVICES) {
     test('deve mostrar vidas, nível e pontuação', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const scoreDisplay = page.locator('#score-display');
@@ -513,7 +513,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('#mobile-controls');
@@ -527,11 +527,11 @@ for (const device of DEVICES) {
       test('deve controlar raquete com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-start').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         for (let i = 0; i < 5; i++) {
@@ -552,17 +552,17 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação ao destruir blocos', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Score inicial
       const scoreBefore = await page.locator('#score-display').textContent();
 
       // Deixa o jogo rodar por um tempo
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(2000);
 
       // Verifica que jogo continua rodando
       await expect(page.locator('#game-canvas')).toBeVisible();
@@ -571,11 +571,11 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao perder 3 vidas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/breakout/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Deixa a bola cair 3 vezes
       await page.waitForTimeout(15000);
@@ -623,7 +623,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -631,7 +631,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -641,7 +641,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible();
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -654,16 +654,16 @@ for (const device of DEVICES) {
     test('deve pular com espaço', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Pula várias vezes
       for (let i = 0; i < 5; i++) {
         await page.keyboard.press('Space');
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
       }
 
       // Verifica que jogo continua rodando
@@ -673,15 +673,15 @@ for (const device of DEVICES) {
     test('deve abaixar com seta para baixo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Segura seta para baixo
       await page.keyboard.down('ArrowDown');
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
       await page.keyboard.up('ArrowDown');
 
       // Verifica que jogo continua rodando
@@ -691,7 +691,7 @@ for (const device of DEVICES) {
     test('deve mostrar pontuação e melhor score', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const scoreDisplay = page.locator('#score-display');
@@ -705,7 +705,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('#mobile-controls');
@@ -719,19 +719,19 @@ for (const device of DEVICES) {
       test('deve controlar com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-start').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botão pular
         await page.locator('[data-action="jump"]').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botão abaixar (pressiona e segura)
         await page.locator('[data-action="duck"]').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que jogo continua
         await expect(page.locator('#game-canvas')).toBeVisible();
@@ -741,11 +741,11 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação durante o jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Score inicial
       const scoreBefore = await page.locator('#score-display').textContent();
@@ -761,11 +761,11 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao colidir com obstáculo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Espera colidir (não pula, só deixa correr)
       await page.waitForTimeout(8000);
@@ -782,11 +782,11 @@ for (const device of DEVICES) {
     test('deve reiniciar ao clicar em Jogar Novamente', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/dinorunner/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Espera game over
       await page.waitForTimeout(8000);
@@ -795,7 +795,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible({ timeout: 10000 });
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(page.locator('#overlay')).toBeHidden();
@@ -838,7 +838,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -846,7 +846,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -856,7 +856,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible();
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -869,11 +869,11 @@ for (const device of DEVICES) {
     test('deve mover nave com setas e atirar com espaço', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move nave para esquerda
       for (let i = 0; i < 5; i++) {
@@ -898,7 +898,7 @@ for (const device of DEVICES) {
     test('deve mostrar pontuação, vidas e onda', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const scoreDisplay = page.locator('#score-display');
@@ -917,7 +917,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('#mobile-controls');
@@ -932,11 +932,11 @@ for (const device of DEVICES) {
       test('deve controlar nave e atirar com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-start').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         await page.locator('[data-dir="left"]').click();
@@ -954,11 +954,11 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação ao destruir aliens', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Atira algumas vezes
       for (let i = 0; i < 10; i++) {
@@ -973,14 +973,14 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao perder todas as vidas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/spaceinvaders/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Deixa o jogo rodar até game over
-      await page.waitForTimeout(20000);
+      await page.waitForTimeout(2000);
 
       // Verifica se o jogo terminou
       const overlay = page.locator('#overlay');
@@ -1025,7 +1025,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -1033,7 +1033,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -1043,7 +1043,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible();
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -1056,11 +1056,11 @@ for (const device of DEVICES) {
     test('deve mover Pac-Man com setas e WASD', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Move em todas direções
       await page.keyboard.press('ArrowRight');
@@ -1089,7 +1089,7 @@ for (const device of DEVICES) {
     test('deve mostrar pontuação, vidas e melhor score', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const scoreDisplay = page.locator('#score-display');
@@ -1105,7 +1105,7 @@ for (const device of DEVICES) {
       test('deve mostrar controles touch em mobile', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Verifica controles mobile
         const mobileControls = page.locator('#mobile-controls');
@@ -1121,11 +1121,11 @@ for (const device of DEVICES) {
       test('deve controlar Pac-Man com botões touch', async ({ page }) => {
         await page.setViewportSize(device.viewport);
         await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(300);
 
         // Inicia jogo
         await page.locator('#btn-start').click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Testa botões touch
         await page.locator('[data-dir="right"]').click();
@@ -1141,11 +1141,11 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação ao comer pontos', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Score inicial
       const scoreBefore = await page.locator('#score-display').textContent();
@@ -1163,14 +1163,14 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao perder todas as vidas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/pacman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Deixa o jogo rodar até game over
-      await page.waitForTimeout(20000);
+      await page.waitForTimeout(2000);
 
       // Verifica se o jogo terminou
       const overlay = page.locator('#overlay');
@@ -1215,7 +1215,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -1223,7 +1223,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao clicar em Jogar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica overlay visível
       const overlay = page.locator('#overlay');
@@ -1233,7 +1233,7 @@ for (const device of DEVICES) {
       const btnStart = page.locator('#btn-start');
       await expect(btnStart).toBeVisible();
       await btnStart.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que overlay sumiu
       await expect(overlay).toBeHidden();
@@ -1246,11 +1246,11 @@ for (const device of DEVICES) {
     test('deve atirar bolhas com clique do mouse', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Atira em diferentes posições
       const canvas = page.locator('#game-canvas');
@@ -1258,15 +1258,15 @@ for (const device of DEVICES) {
 
       // Atira para a esquerda
       await page.mouse.click(box.x + box.width * 0.3, box.y + box.height * 0.5);
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Atira para o centro
       await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.3);
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Atira para a direita
       await page.mouse.click(box.x + box.width * 0.7, box.y + box.height * 0.5);
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que jogo continua rodando
       await expect(page.locator('#game-canvas')).toBeVisible();
@@ -1275,7 +1275,7 @@ for (const device of DEVICES) {
     test('deve mostrar pontuação e contador de tiros', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays
       const scoreDisplay = page.locator('#score-display');
@@ -1288,11 +1288,11 @@ for (const device of DEVICES) {
     test('deve atualizar pontuação ao estourar bolhas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Score inicial
       const scoreBefore = await page.locator('#score-display').textContent();
@@ -1313,11 +1313,11 @@ for (const device of DEVICES) {
     test('deve mostrar game over quando bolhas chegam ao fundo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/bubble-shooter/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.locator('#btn-start').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Atira várias vezes para fazer novas fileiras aparecerem
       const canvas = page.locator('#game-canvas');
@@ -1325,7 +1325,7 @@ for (const device of DEVICES) {
 
       for (let i = 0; i < 30; i++) {
         await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.3);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
       }
 
       // Verifica se o jogo terminou
@@ -1371,7 +1371,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -1379,7 +1379,7 @@ for (const device of DEVICES) {
     test('deve iniciar jogo ao pressionar espaço', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica mensagem inicial
       const startMsg = page.locator('#start-msg');
@@ -1387,7 +1387,7 @@ for (const device of DEVICES) {
 
       // Inicia jogo com espaço
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que mensagem sumiu
       await expect(startMsg).toBeHidden();
@@ -1400,11 +1400,11 @@ for (const device of DEVICES) {
     test('deve fazer pássaro voar com espaço', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Faz o pássaro voar várias vezes
       for (let i = 0; i < 5; i++) {
@@ -1419,7 +1419,7 @@ for (const device of DEVICES) {
     test('deve mostrar melhor score', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica display de melhor score
       const bestDisplay = page.locator('#best-display');
@@ -1429,12 +1429,12 @@ for (const device of DEVICES) {
     test('deve controlar com clique/toque na tela', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo com clique
       const canvas = page.locator('#game-canvas');
       await canvas.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que mensagem sumiu
       await expect(page.locator('#start-msg')).toBeHidden();
@@ -1452,14 +1452,14 @@ for (const device of DEVICES) {
     test('deve mostrar game over ao bater no cano', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Espera game over (não faz nada, deixa o pássaro cair)
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(2000);
 
       // Verifica que apareceu game over
       const startMsg = page.locator('#start-msg');
@@ -1469,14 +1469,14 @@ for (const device of DEVICES) {
     test('deve reiniciar ao pressionar espaço após game over', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/flappybird/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Inicia jogo
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Espera game over
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(2000);
 
       // Verifica mensagem de game over
       const startMsg = page.locator('#start-msg');
@@ -1484,7 +1484,7 @@ for (const device of DEVICES) {
 
       // Reinicia
       await page.keyboard.press('Space');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que mensagem sumiu
       await expect(startMsg).toBeHidden();

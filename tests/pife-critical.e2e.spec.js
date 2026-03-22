@@ -56,7 +56,7 @@ test.describe('Pife - Testes Criticos', () => {
     await page.click('#btn-start');
 
     // Aguarda o jogo iniciar
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // Clica no monte
     await page.click('#deck-pile .deck-card');
@@ -77,7 +77,7 @@ test.describe('Pife - Testes Criticos', () => {
     // Inicia jogo
     await page.click('.player-btn[data-players="2"]');
     await page.click('#btn-start');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // Compra do monte
     await page.click('#deck-pile .deck-card');
@@ -103,7 +103,7 @@ test.describe('Pife - Testes Criticos', () => {
     // Inicia jogo com 4 jogadores
     await page.click('.player-btn[data-players="4"]');
     await page.click('#btn-start');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // Verifica se ha 3 oponentes (4 total - 1 humano)
     const opponents = await page.locator('.opponent');
@@ -120,7 +120,7 @@ test.describe('Pife - Testes Criticos', () => {
     // Inicia jogo
     await page.click('.player-btn[data-players="2"]');
     await page.click('#btn-start');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // Clica no botao ordenar
     await page.click('#btn-sort');
@@ -179,7 +179,7 @@ test.describe('Pife - Testes Criticos', () => {
     // Inicia jogo
     await page.click('.player-btn[data-players="2"]');
     await page.click('#btn-start');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // Clica em novo jogo
     await page.click('#btn-new');

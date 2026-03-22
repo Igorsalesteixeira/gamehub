@@ -18,7 +18,7 @@ test.describe('🃏 Sueca - Testes Críticos', () => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
 
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(300);
     expect(errors).toHaveLength(0);
   });
 

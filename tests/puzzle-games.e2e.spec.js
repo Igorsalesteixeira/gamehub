@@ -46,7 +46,7 @@ for (const game of GAMES) {
       page.on('pageerror', error => errors.push(error.message));
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -58,7 +58,7 @@ for (const game of GAMES) {
 
     test('deve ter elementos do jogo visíveis', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica se o body ou container principal existe
       const body = page.locator('body');
@@ -71,7 +71,7 @@ for (const game of GAMES) {
 
     test('deve iniciar ao clicar no botão', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const btnStart = page.locator('#btn-start, #btn-new-game, .btn-start, .btn-primary').first();
 
@@ -80,7 +80,7 @@ for (const game of GAMES) {
 
       if (hasStartButton) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         const overlay = page.locator('#overlay, .modal-overlay');
         const isHidden = await overlay.isHidden().catch(() => true);
@@ -90,7 +90,7 @@ for (const game of GAMES) {
 
     test('deve responder a interações', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em algum elemento do jogo se existir
       const clickable = page.locator('.cell, .tile, .card, .btn, button').first();

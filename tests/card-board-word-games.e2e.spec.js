@@ -66,7 +66,7 @@ for (const game of CARD_GAMES) {
       page.on('pageerror', error => errors.push(error.message));
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -78,7 +78,7 @@ for (const game of CARD_GAMES) {
 
     test('deve ter mesa/cartas visíveis', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const table = page.locator('.table, #tableau, .board, .cards-container, .game-board');
       await expect(table.first()).toBeVisible({ timeout: 5000 });
@@ -86,13 +86,13 @@ for (const game of CARD_GAMES) {
 
     test('deve iniciar ao clicar no botão', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const btnStart = page.locator('#btn-start, #btn-new-game, .btn-deal, .btn-primary').first();
 
       if (await btnStart.isVisible().catch(() => false)) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         const overlay = page.locator('#overlay, .modal-overlay');
         const isHidden = await overlay.isHidden().catch(() => true);
@@ -114,7 +114,7 @@ for (const game of BOARD_GAMES) {
       page.on('pageerror', error => errors.push(error.message));
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -126,7 +126,7 @@ for (const game of BOARD_GAMES) {
 
     test('deve ter tabuleiro visível', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const board = page.locator('#board, .board, .game-board, canvas').first();
       await expect(board).toBeVisible({ timeout: 5000 });
@@ -134,13 +134,13 @@ for (const game of BOARD_GAMES) {
 
     test('deve iniciar ao clicar no botão', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const btnStart = page.locator('#btn-start, #btn-new-game, .btn-start').first();
 
       if (await btnStart.isVisible().catch(() => false)) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
       }
 
       // Verifica se o tabuleiro ainda está visível
@@ -161,7 +161,7 @@ for (const game of WORD_GAMES) {
       page.on('pageerror', error => errors.push(error.message));
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -173,7 +173,7 @@ for (const game of WORD_GAMES) {
 
     test('deve ter área de jogo visível', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const gameArea = page.locator('.game-area, .word-grid, .letters, #game-board, .board');
       await expect(gameArea.first()).toBeVisible({ timeout: 5000 });
@@ -181,7 +181,7 @@ for (const game of WORD_GAMES) {
 
     test('deve aceitar input de teclado', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Tenta digitar algo
       await page.keyboard.press('a');

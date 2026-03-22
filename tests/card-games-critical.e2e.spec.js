@@ -61,7 +61,7 @@ for (const device of DEVICES) {
 
         await page.setViewportSize(device.viewport);
         await page.goto(game.path, { waitUntil: 'networkidle' });
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(200);
 
         expect(criticalErrors, `Erros criticos em ${game.name}: ${criticalErrors.join(', ')}`).toHaveLength(0);
       });
@@ -125,7 +125,7 @@ for (const device of DEVICES) {
 
       const stock = page.locator('#stock');
       await stock.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o waste pode ter cartas ou o monte ficou vazio
       const waste = page.locator('#waste');
@@ -150,7 +150,7 @@ for (const device of DEVICES) {
     test('deve mover carta entre colunas quando valido', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/solitaire/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Tenta arrastar da primeira coluna para a segunda
       const sourceCard = page.locator('#col0 .card').last();
@@ -158,7 +158,7 @@ for (const device of DEVICES) {
 
       if (await sourceCard.isVisible() && await targetCol.isVisible()) {
         await sourceCard.dragTo(targetCol);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();
@@ -177,7 +177,7 @@ for (const device of DEVICES) {
 
       // Faz um movimento (virar do monte)
       await page.locator('#stock').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o contador existe
       await expect(movesDisplay).toBeVisible();
@@ -213,7 +213,7 @@ for (const device of DEVICES) {
 
       const newGameBtn = page.locator('#btn-new');
       await newGameBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que o jogo foi reiniciado
       await expect(page.locator('.board')).toBeVisible();
@@ -250,7 +250,7 @@ for (const device of DEVICES) {
 
       // Testa mudar para 2 naipes
       await suitSelector.selectOption('2');
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que o jogo foi reiniciado
       await expect(page.locator('.board')).toBeVisible();
@@ -269,7 +269,7 @@ for (const device of DEVICES) {
 
       // Clica no monte
       await stock.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o jogo continua funcionando
       await expect(page.locator('.board')).toBeVisible();
@@ -332,7 +332,7 @@ for (const device of DEVICES) {
     test('deve permitir mover carta para celula livre', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/freecell/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Tenta mover carta do tableau para celula livre
       const sourceCard = page.locator('#col0 .card').last();
@@ -340,7 +340,7 @@ for (const device of DEVICES) {
 
       if (await sourceCard.isVisible() && await freeCell.isVisible()) {
         await sourceCard.dragTo(freeCell);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();
@@ -379,7 +379,7 @@ for (const device of DEVICES) {
 
       // Clica em Novo Jogo
       await page.locator('#btn-new').click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que as maos foram criadas
       const playerHand = page.locator('#player-hand');
@@ -422,7 +422,7 @@ for (const device of DEVICES) {
 
       // Inicia o jogo
       await page.locator('#btn-new').click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica displays de pontuacao
       const playerScore = page.locator('#player-score');
@@ -444,7 +444,7 @@ for (const device of DEVICES) {
     test('deve mostrar jogadores e fichas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/poker/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica oponentes
       for (let i = 1; i <= 3; i++) {
@@ -462,7 +462,7 @@ for (const device of DEVICES) {
     test('deve ter area de cartas comunitarias', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/poker/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const communityCards = page.locator('#community-cards');
       await expect(communityCards).toBeVisible();
@@ -471,7 +471,7 @@ for (const device of DEVICES) {
     test('deve mostrar indicador de fase', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/poker/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Verifica indicadores de fase
       await expect(page.locator('#phase-preflop')).toBeVisible();
@@ -483,7 +483,7 @@ for (const device of DEVICES) {
     test('deve ter area de acoes do jogador', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/poker/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const actionArea = page.locator('#action-area');
       await expect(actionArea).toBeVisible();
@@ -492,7 +492,7 @@ for (const device of DEVICES) {
     test('deve mostrar informacoes de blinds', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/poker/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const blindInfo = page.locator('#blind-info');
       await expect(blindInfo).toBeVisible();
@@ -528,7 +528,7 @@ for (const device of DEVICES) {
     test('deve distribuir 3 cartas para o jogador', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/truco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const playerHand = page.locator('#player-hand');
       await expect(playerHand).toBeVisible();
@@ -584,7 +584,7 @@ for (const device of DEVICES) {
     test('deve mostrar 3 oponentes', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/uno/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       for (let i = 1; i <= 3; i++) {
         const opponent = page.locator(`#opponent-${i}`);
@@ -598,7 +598,7 @@ for (const device of DEVICES) {
     test('deve distribuir 7 cartas para o jogador', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/uno/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const playerHand = page.locator('#player-hand');
       await expect(playerHand).toBeVisible();
@@ -660,7 +660,7 @@ for (const device of DEVICES) {
     test('deve mostrar placar de voce e CPU', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const scorePlayer = page.locator('#score-player');
       const scoreCpu = page.locator('#score-cpu');
@@ -672,7 +672,7 @@ for (const device of DEVICES) {
     test('deve mostrar indicador de turno', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const turnBadge = page.locator('#turn-badge');
       await expect(turnBadge).toBeVisible();
@@ -681,7 +681,7 @@ for (const device of DEVICES) {
     test('deve ter monte e descarte visiveis', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const stockPile = page.locator('#stock-pile');
       const discardDisplay = page.locator('#discard-display');
@@ -693,7 +693,7 @@ for (const device of DEVICES) {
     test('deve ter botoes de comprar do monte e descarte', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const btnDrawStock = page.locator('#btn-draw-stock');
       const btnDrawDiscard = page.locator('#btn-draw-discard');
@@ -705,7 +705,7 @@ for (const device of DEVICES) {
     test('deve mostrar mortos na mesa', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const morto1 = page.locator('#morto1-display');
       const morto2 = page.locator('#morto2-display');
@@ -717,7 +717,7 @@ for (const device of DEVICES) {
     test('deve ter area de mao do jogador', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const playerHand = page.locator('#player-hand-display');
       await expect(playerHand).toBeVisible();
@@ -726,7 +726,7 @@ for (const device of DEVICES) {
     test('deve ter botoes de acao (combinar, descartar, baixar)', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const btnMeld = page.locator('#btn-meld');
       const btnDiscard = page.locator('#btn-discard');
@@ -740,7 +740,7 @@ for (const device of DEVICES) {
     test('deve mostrar contador de cartas na mao', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/buraco/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const handCount = page.locator('#hand-count');
       await expect(handCount).toBeVisible();
@@ -762,7 +762,7 @@ for (const device of DEVICES) {
 
       // Virar cartas do monte
       await page.locator('#stock').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Tenta arrastar do waste para uma coluna
       const wasteCard = page.locator('#waste .card').last();
@@ -770,7 +770,7 @@ for (const device of DEVICES) {
 
       if (await wasteCard.isVisible()) {
         await wasteCard.dragTo(targetCol);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();
@@ -786,7 +786,7 @@ for (const device of DEVICES) {
       const card = page.locator('#col0 .card').last();
       if (await card.isVisible()) {
         await card.dblclick();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();

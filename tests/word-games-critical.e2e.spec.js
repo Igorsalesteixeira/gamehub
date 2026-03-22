@@ -48,7 +48,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -56,7 +56,7 @@ for (const device of DEVICES) {
     test('deve renderizar tabuleiro 6x5', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const board = page.locator('#board');
       await expect(board).toBeVisible();
@@ -73,7 +73,7 @@ for (const device of DEVICES) {
     test('deve renderizar teclado virtual', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const keyboard = page.locator('#keyboard');
       await expect(keyboard).toBeVisible();
@@ -87,7 +87,7 @@ for (const device of DEVICES) {
     test('deve digitar letras no tabuleiro', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Digita uma palavra
       await page.keyboard.press('T');
@@ -106,7 +106,7 @@ for (const device of DEVICES) {
     test('deve usar teclado virtual para digitar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em teclas do teclado virtual
       await page.locator('[data-key="A"]').click();
@@ -124,7 +124,7 @@ for (const device of DEVICES) {
     test('deve mostrar mensagem de palavra incompleta ao pressionar Enter', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Digita apenas 2 letras
       await page.keyboard.press('T');
@@ -133,7 +133,7 @@ for (const device of DEVICES) {
 
       // Pressiona Enter
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica mensagem
       const messageBar = page.locator('#message-bar');
@@ -143,7 +143,7 @@ for (const device of DEVICES) {
     test('deve apagar letra com Backspace', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Digita algumas letras
       await page.keyboard.press('T');
@@ -163,7 +163,7 @@ for (const device of DEVICES) {
     test('deve mostrar modal ao vencer o jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Mock para garantir vitória - injeta uma palavra conhecida
       await page.evaluate(() => {
@@ -193,7 +193,7 @@ for (const device of DEVICES) {
     test('deve iniciar novo jogo ao clicar no botão', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/termo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Faz uma tentativa
       await page.keyboard.press('T');
@@ -202,13 +202,13 @@ for (const device of DEVICES) {
       await page.keyboard.press('T');
       await page.keyboard.press('E');
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Clica em novo jogo se modal estiver visível
       const btnNew = page.locator('#btn-new-game');
       if (await btnNew.isVisible().catch(() => false)) {
         await btnNew.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o tabuleiro foi limpo
         const firstTile = page.locator('#tile-0-0');
@@ -249,7 +249,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -257,7 +257,7 @@ for (const device of DEVICES) {
     test('deve mostrar categoria da palavra', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const categoryName = page.locator('#category-name');
       await expect(categoryName).not.toHaveText('---');
@@ -267,7 +267,7 @@ for (const device of DEVICES) {
     test('deve mostrar slots vazios para a palavra', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const wordDisplay = page.locator('#word-display');
       await expect(wordDisplay).toBeVisible();
@@ -280,7 +280,7 @@ for (const device of DEVICES) {
     test('deve renderizar teclado QWERTY', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const keyboard = page.locator('#keyboard');
       await expect(keyboard).toBeVisible();
@@ -293,11 +293,11 @@ for (const device of DEVICES) {
     test('deve revelar letra correta ao clicar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica na letra A (comum em português)
       await page.locator('[data-key="A"]').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que a tecla foi marcada como usada
       const keyA = page.locator('[data-key="A"]');
@@ -308,7 +308,7 @@ for (const device of DEVICES) {
     test('deve incrementar contador de erros ao errar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em letras raras que provavelmente não estão na palavra
       await page.locator('[data-key="Z"]').click();
@@ -323,7 +323,7 @@ for (const device of DEVICES) {
     test('deve mostrar parte do boneco ao errar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em várias letras erradas
       const rareLetters = ['Z', 'X', 'Q', 'W', 'K', 'Y'];
@@ -345,11 +345,11 @@ for (const device of DEVICES) {
     test('deve aceitar input do teclado físico', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Pressiona tecla A
       await page.keyboard.press('a');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que a tecla virtual foi marcada
       const keyA = page.locator('[data-key="A"]');
@@ -359,7 +359,7 @@ for (const device of DEVICES) {
     test('deve mostrar modal ao vencer', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Tenta adivinhar todas as letras do alfabeto
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -371,7 +371,7 @@ for (const device of DEVICES) {
         }
       }
 
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica se o modal apareceu
       const modal = page.locator('#modal-overlay');
@@ -386,7 +386,7 @@ for (const device of DEVICES) {
     test('deve reiniciar ao clicar em Novo Jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/hangman/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica em algumas letras
       await page.locator('[data-key="A"]').click();
@@ -394,7 +394,7 @@ for (const device of DEVICES) {
 
       // Recarrega para novo jogo
       await page.reload();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que o contador de erros zerou
       const wrongCount = page.locator('#wrong-count');
@@ -422,7 +422,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -430,7 +430,7 @@ for (const device of DEVICES) {
     test('deve mostrar categoria e rodada', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const categoryName = page.locator('#category-name');
       await expect(categoryName).not.toHaveText('---');
@@ -442,7 +442,7 @@ for (const device of DEVICES) {
     test('deve mostrar letras embaralhadas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const scrambleArea = page.locator('#scramble-area');
       await expect(scrambleArea).toBeVisible();
@@ -455,7 +455,7 @@ for (const device of DEVICES) {
     test('deve mostrar slots de resposta vazios', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const answerArea = page.locator('#answer-area');
       await expect(answerArea).toBeVisible();
@@ -468,7 +468,7 @@ for (const device of DEVICES) {
     test('deve mover letra ao clicar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clica na primeira letra embaralhada
       const firstTile = page.locator('#scramble-area .letter-tile').first();
@@ -484,7 +484,7 @@ for (const device of DEVICES) {
     test('deve ter botões de controle visíveis', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       await expect(page.locator('#btn-hint')).toBeVisible();
       await expect(page.locator('#btn-shuffle')).toBeVisible();
@@ -494,7 +494,7 @@ for (const device of DEVICES) {
     test('deve embaralhar letras ao clicar no botão', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Pega ordem inicial
       const scrambleArea = page.locator('#scramble-area');
@@ -502,7 +502,7 @@ for (const device of DEVICES) {
 
       // Clica em embaralhar
       await page.locator('#btn-shuffle').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que a área ainda tem letras
       const newOrder = await scrambleArea.textContent();
@@ -512,14 +512,14 @@ for (const device of DEVICES) {
     test('deve usar dica e diminuir contador', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const hintsBefore = await page.locator('#hints-display').textContent();
       expect(parseInt(hintsBefore)).toBe(3);
 
       // Clica em dica
       await page.locator('#btn-hint').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que diminuiu as dicas
       const hintsAfter = await page.locator('#hints-display').textContent();
@@ -529,13 +529,13 @@ for (const device of DEVICES) {
     test('deve mostrar timer funcionando', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const timerDisplay = page.locator('#timer-display');
       const time1 = await timerDisplay.textContent();
 
       // Espera um pouco
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       const time2 = await timerDisplay.textContent();
       // Timer deve ter mudado
@@ -546,13 +546,13 @@ for (const device of DEVICES) {
     test('deve pular para próxima rodada', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/anagram/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const roundBefore = await page.locator('#round-display').textContent();
 
       // Clica em pular
       await page.locator('#btn-skip').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que mudou de rodada ou mostrou nova palavra
       const roundAfter = await page.locator('#round-display').textContent();
@@ -580,7 +580,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -588,7 +588,7 @@ for (const device of DEVICES) {
     test('deve renderizar canvas do grid', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const canvas = page.locator('#grid-canvas');
       await expect(canvas).toBeVisible();
@@ -597,7 +597,7 @@ for (const device of DEVICES) {
     test('deve mostrar lista de palavras', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const wordList = page.locator('#word-list');
       await expect(wordList).toBeVisible();
@@ -610,7 +610,7 @@ for (const device of DEVICES) {
     test('deve mostrar timer', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const timerDisplay = page.locator('#timer-display');
       await expect(timerDisplay).toBeVisible();
@@ -620,7 +620,7 @@ for (const device of DEVICES) {
     test('deve ter botão de novo jogo', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       await expect(page.locator('#btn-new')).toBeVisible();
     });
@@ -628,7 +628,7 @@ for (const device of DEVICES) {
     test('deve iniciar novo jogo ao clicar no botão', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Pega lista inicial
       const wordList = page.locator('#word-list');
@@ -636,7 +636,7 @@ for (const device of DEVICES) {
 
       // Clica em novo jogo
       await page.locator('#btn-new').click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que a lista ainda tem palavras
       const newWords = await wordList.textContent();
@@ -646,7 +646,7 @@ for (const device of DEVICES) {
     test('deve permitir interação com o canvas', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const canvas = page.locator('#grid-canvas');
       const box = await canvas.boundingBox();
@@ -667,7 +667,7 @@ for (const device of DEVICES) {
     test('deve mostrar modal ao completar (simulado)', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/wordsearch/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // O modal só aparece quando encontra todas as palavras
       // Verificamos que o modal existe mas não está visível inicialmente
@@ -696,7 +696,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros críticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -704,7 +704,7 @@ for (const device of DEVICES) {
     test('deve mostrar letra sorteada', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const letterDisplay = page.locator('#letter');
       await expect(letterDisplay).toBeVisible();
@@ -716,7 +716,7 @@ for (const device of DEVICES) {
     test('deve mostrar timer iniciado em 60', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const timer = page.locator('#timer');
       await expect(timer).toHaveText('60');
@@ -725,7 +725,7 @@ for (const device of DEVICES) {
     test('deve mostrar categorias com inputs', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const categories = page.locator('#categories');
       await expect(categories).toBeVisible();
@@ -738,7 +738,7 @@ for (const device of DEVICES) {
     test('deve digitar em um campo de categoria', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Pega a letra atual
       const currentLetter = await page.locator('#letter').textContent();
@@ -756,7 +756,7 @@ for (const device of DEVICES) {
     test('deve ter botão STOP visível', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const stopBtn = page.locator('#stop-btn');
       await expect(stopBtn).toBeVisible();
@@ -766,7 +766,7 @@ for (const device of DEVICES) {
     test('deve ter botão Nova Rodada', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       await expect(page.locator('#new-round')).toBeVisible();
     });
@@ -774,7 +774,7 @@ for (const device of DEVICES) {
     test('deve parar rodada ao clicar STOP', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Digita algo
       const currentLetter = await page.locator('#letter').textContent();
@@ -783,7 +783,7 @@ for (const device of DEVICES) {
 
       // Clica em STOP
       await page.locator('#stop-btn').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que os campos foram desabilitados
       const isDisabled = await firstInput.isDisabled();
@@ -793,7 +793,7 @@ for (const device of DEVICES) {
     test('deve mostrar resultados após parar', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Digita algo válido
       const currentLetter = await page.locator('#letter').textContent();
@@ -806,7 +806,7 @@ for (const device of DEVICES) {
 
       // Clica em STOP
       await page.locator('#stop-btn').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que resultados apareceram
       const results = page.locator('#results');
@@ -816,7 +816,7 @@ for (const device of DEVICES) {
     test('deve iniciar nova rodada ao clicar no botão', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Pega letra inicial
       const initialLetter = await page.locator('#letter').textContent();
@@ -824,11 +824,11 @@ for (const device of DEVICES) {
 
       // Para a rodada atual
       await page.locator('#stop-btn').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Clica em nova rodada
       await page.locator('#new-round').click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que o timer resetou
       const timer = page.locator('#timer');
@@ -839,7 +839,7 @@ for (const device of DEVICES) {
     test('deve decrementar timer automaticamente', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const timer = page.locator('#timer');
       const time1 = parseInt(await timer.textContent());
@@ -854,7 +854,7 @@ for (const device of DEVICES) {
     test('deve mostrar pontuação', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const score = page.locator('#score');
       await expect(score).toBeVisible();
@@ -864,7 +864,7 @@ for (const device of DEVICES) {
     test('deve navegar entre inputs com Tab', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/stopgame/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const firstInput = page.locator('.cat-input').first();
       await firstInput.focus();

@@ -48,7 +48,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/chess/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -103,7 +103,7 @@ for (const device of DEVICES) {
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o indicador de turno resetou
       const turnIndicator = page.locator('#turn-indicator');
@@ -153,7 +153,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/checkers/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -253,7 +253,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/ludo/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -319,7 +319,7 @@ for (const device of DEVICES) {
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o turno resetou
       const turnMsg = page.locator('#turn-msg');
@@ -347,7 +347,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/domino/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -430,7 +430,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/go/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -480,7 +480,7 @@ for (const device of DEVICES) {
 
       // Clica em uma intersecao
       await intersections.nth(40).click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica se a pedra foi colocada
       const stone = intersections.nth(40).locator('.stone');
@@ -518,7 +518,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/connect4/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -593,7 +593,7 @@ for (const device of DEVICES) {
       await expect(restartBtn).toBeVisible();
       await restartBtn.click();
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o status resetou
       const status = page.locator('#status');
@@ -621,7 +621,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/reversi/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -680,7 +680,7 @@ for (const device of DEVICES) {
 
       if (hintCount > 0) {
         await hints.first().click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica se a peca foi colocada
         const blackCount = page.locator('#black-count');
@@ -698,7 +698,7 @@ for (const device of DEVICES) {
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o placar resetou
       const blackCount = page.locator('#black-count');
@@ -726,7 +726,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/battleship/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -786,7 +786,7 @@ for (const device of DEVICES) {
 
       const btnRandom = page.locator('#btn-random');
       await btnRandom.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica se o botao de iniciar apareceu
       const btnStart = page.locator('#btn-start');
@@ -823,7 +823,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/tictactoe/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -947,7 +947,7 @@ for (const device of DEVICES) {
       await expect(btnNewGame).toBeVisible();
       await btnNewGame.click();
 
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o turno resetou
       const turnIndicator = page.locator('#turn-indicator');

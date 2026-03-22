@@ -50,7 +50,7 @@ for (const device of DEVICES) {
 
       await page.setViewportSize(device.viewport);
       await page.goto('/games/solitaire/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(criticalErrors, `Erros criticos: ${criticalErrors.join(', ')}`).toHaveLength(0);
     });
@@ -104,7 +104,7 @@ for (const device of DEVICES) {
 
       const stock = page.locator('#stock');
       await stock.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o waste pode ter cartas ou o monte ficou vazio
       const waste = page.locator('#waste');
@@ -129,7 +129,7 @@ for (const device of DEVICES) {
     test('deve mover carta entre colunas quando valido', async ({ page }) => {
       await page.setViewportSize(device.viewport);
       await page.goto('/games/solitaire/', { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       // Tenta arrastar da primeira coluna para a segunda
       const sourceCard = page.locator('#col0 .card').last();
@@ -137,7 +137,7 @@ for (const device of DEVICES) {
 
       if (await sourceCard.isVisible() && await targetCol.isVisible()) {
         await sourceCard.dragTo(targetCol);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();
@@ -156,7 +156,7 @@ for (const device of DEVICES) {
 
       // Faz um movimento (virar do monte)
       await page.locator('#stock').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Verifica que o contador existe
       await expect(movesDisplay).toBeVisible();
@@ -192,7 +192,7 @@ for (const device of DEVICES) {
 
       const newGameBtn = page.locator('#btn-new');
       await newGameBtn.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Verifica que o jogo foi reiniciado
       await expect(page.locator('.board')).toBeVisible();
@@ -205,7 +205,7 @@ for (const device of DEVICES) {
 
       // Virar cartas do monte
       await page.locator('#stock').click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
 
       // Tenta arrastar do waste para uma coluna
       const wasteCard = page.locator('#waste .card').last();
@@ -213,7 +213,7 @@ for (const device of DEVICES) {
 
       if (await wasteCard.isVisible()) {
         await wasteCard.dragTo(targetCol);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();
@@ -229,7 +229,7 @@ for (const device of DEVICES) {
       const card = page.locator('#col0 .card').last();
       if (await card.isVisible()) {
         await card.dblclick();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         // Verifica que o jogo continua funcionando
         await expect(page.locator('.board')).toBeVisible();

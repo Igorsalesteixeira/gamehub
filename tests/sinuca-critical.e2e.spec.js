@@ -136,7 +136,7 @@ test.describe('Sinuca - Testes Criticos', () => {
   test('deve exibir indicador de vez do jogador', async ({ page }) => {
     // Verificar se o indicador de vez aparece no canvas
     // (renderizado via JavaScript)
-    await page.waitForTimeout(500); // Aguardar inicializacao
+    await page.waitForTimeout(200); // Aguardar inicializacao
 
     const canvas = page.locator('#game-canvas');
     await expect(canvas).toBeVisible();

@@ -52,7 +52,7 @@ for (const game of GAMES) {
       });
 
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(200);
 
       expect(errors, `Erros: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -64,7 +64,7 @@ for (const game of GAMES) {
 
     test('deve ter elementos do jogo visíveis', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const body = page.locator('body');
       await expect(body).toBeVisible();
@@ -76,14 +76,14 @@ for (const game of GAMES) {
 
     test('deve iniciar ao clicar no botão', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       const btnStart = page.locator('#btn-start, #btn-new-game, .btn-start, .btn-primary, #start-btn').first();
       const hasStartButton = await btnStart.isVisible().catch(() => false);
 
       if (hasStartButton) {
         await btnStart.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(200);
 
         const overlay = page.locator('#overlay, .modal-overlay');
         const isHidden = await overlay.isHidden().catch(() => true);
@@ -95,7 +95,7 @@ for (const game of GAMES) {
 
     test('deve responder a interações básicas', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Clique em área do jogo
       const gameArea = page.locator('.game-container, #game-board, .board, canvas').first();
@@ -109,7 +109,7 @@ for (const game of GAMES) {
 
     test('deve responder a teclado', async ({ page }) => {
       await page.goto(game.path, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(300);
 
       // Testa teclas direcionais
       await page.keyboard.press('ArrowRight');
