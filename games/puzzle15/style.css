@@ -1,94 +1,315 @@
+/* =============================================
+   Puzzle 15 - Estilos do Jogo
+   Usa variáveis CSS do design-system
+   ============================================= */
+
+/* Reset e Base - usando variáveis do design-system */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff;
-  min-height: 100dvh; display: flex; flex-direction: column;
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Topbar */
 .topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.6rem 1rem; background: linear-gradient(135deg, #ff6b35, #e85d2a);
-  color: #fff; font-family: 'Nunito', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-text);
 }
+
 .btn-back {
-  color: #fff; text-decoration: none; font-weight: 700; font-size: 1rem;
-  padding: 0.3rem 0.7rem; border-radius: 8px; background: rgba(255,255,255,0.15);
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.15);
+  transition: all var(--transition-fast);
 }
-.game-title { font-size: 1.25rem; font-weight: 800; }
-.stats { font-weight: 700; display: flex; gap: 0.8rem; }
 
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.game-title {
+  font-size: clamp(1rem, 4vw, var(--font-size-xl));
+  font-weight: 800;
+}
+
+.stats {
+  font-weight: 700;
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+/* Container do jogo */
 .game-container {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 1rem; gap: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  gap: var(--space-6);
 }
 
+/* Tabuleiro */
 .board {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-  width: min(360px, 90vw); aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(4px, 1.5vw, 8px);
+  width: clamp(280px, 85vw, 400px);
+  aspect-ratio: 1;
 }
 
+/* Tiles */
 .tile {
-  background: linear-gradient(135deg, #ff6b35, #e85d2a);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(1.5rem, 6vw, 2.5rem); font-weight: 800;
-  color: #fff; cursor: pointer; aspect-ratio: 1;
-  transition: transform 0.15s;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.25rem, 5vw, var(--font-size-3xl));
+  font-weight: 800;
+  color: var(--color-text);
+  cursor: pointer;
+  aspect-ratio: 1;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  /* Acessibilidade - indicação visual de foco */
+  outline: none;
+  border: 3px solid transparent;
 }
-.tile:active { transform: scale(0.95); }
-.tile.empty { background: transparent; cursor: default; }
-.tile.empty:active { transform: none; }
 
+.tile:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(255, 230, 109, 0.4);
+}
+
+.tile:hover:not(.empty) {
+  transform: scale(1.02);
+}
+
+.tile:active:not(.empty) {
+  transform: scale(0.95);
+}
+
+.tile.empty {
+  background: rgba(255, 255, 255, 0.05);
+  cursor: default;
+}
+
+.tile.empty:active {
+  transform: none;
+}
+
+/* Indicação visual de peça movível */
+.tile.movable {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.tile.movable:focus {
+  border-color: var(--color-secondary);
+}
+
+/* Animações de slide */
 .tile.slide-up    { animation: slideUp    0.12s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .tile.slide-down  { animation: slideDown  0.12s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .tile.slide-left  { animation: slideLeft  0.12s cubic-bezier(0.25, 0.8, 0.25, 1); }
 .tile.slide-right { animation: slideRight 0.12s cubic-bezier(0.25, 0.8, 0.25, 1); }
 
-@keyframes slideUp    { from { transform: translateY(calc(100% + 6px)); } to { transform: translateY(0); } }
-@keyframes slideDown  { from { transform: translateY(calc(-100% - 6px)); } to { transform: translateY(0); } }
-@keyframes slideLeft  { from { transform: translateX(calc(100% + 6px)); } to { transform: translateX(0); } }
-@keyframes slideRight { from { transform: translateX(calc(-100% - 6px)); } to { transform: translateX(0); } }
+@keyframes slideUp    { from { transform: translateY(calc(100% + 8px)); } to { transform: translateY(0); } }
+@keyframes slideDown  { from { transform: translateY(calc(-100% - 8px)); } to { transform: translateY(0); } }
+@keyframes slideLeft  { from { transform: translateX(calc(100% + 8px)); } to { transform: translateX(0); } }
+@keyframes slideRight { from { transform: translateX(calc(-100% - 8px)); } to { transform: translateX(0); } }
 
+/* Botões - usar classes do design-system */
 .btn-orange {
-  background: linear-gradient(135deg, #ff6b35, #e85d2a); color: #fff;
-  padding: 0.8rem 2rem; font-size: 1.1rem; border-radius: 10px; border: none;
-  cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--font-size-lg);
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 700;
+  transition: all var(--transition-base);
 }
 
+.btn-orange:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-orange:active {
+  transform: translateY(0);
+}
+
+/* Modal - usa estilos base do design-system com overrides específicos */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-  display: none; align-items: center; justify-content: center;
-  z-index: 1000; padding: 1rem;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: var(--space-4);
 }
-.modal-overlay.show { display: flex; }
+
+.modal-overlay.show {
+  display: flex;
+}
+
 .modal {
-  background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px; padding: 2rem; text-align: center; max-width: 360px; width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  animation: modalIn 0.3s ease;
 }
-.modal h2 { font-size: 1.6rem; margin-bottom: 0.5rem; }
-.modal p { font-size: 1rem; margin-bottom: 1rem; color: #ccc; }
 
-/* ===== RESPONSIVIDADE MOBILE ===== */
+@keyframes modalIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+  animation: bounceIn 0.6s var(--bounce);
+}
+
+.modal h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-2);
+}
+
+.modal p {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.modal .btn {
+  margin-top: var(--space-2);
+}
+
+/* =============================================
+   Responsividade
+   ============================================= */
+
+/* Mobile pequeno */
 @media (max-width: 480px) {
-  .game-container { padding: 0.6rem; gap: 1rem; }
-  .board { width: min(300px, 92vw); gap: 4px; }
-  .tile { border-radius: 8px; }
-  .stats { gap: 0.5rem; font-size: 0.9rem; }
-  .btn-orange { padding: 0.6rem 1.5rem; font-size: 0.95rem; }
+  .game-container {
+    padding: var(--space-2);
+    gap: var(--space-4);
+  }
+
+  .board {
+    gap: 4px;
+    border-radius: var(--radius-md);
+  }
+
+  .tile {
+    border-radius: var(--radius-md);
+  }
+
+  .stats {
+    gap: var(--space-2);
+    font-size: var(--font-size-xs);
+  }
+
+  .btn-orange {
+    padding: var(--space-2) var(--space-6);
+    font-size: var(--font-size-base);
+  }
+
+  .modal {
+    padding: var(--space-6);
+    margin: var(--space-4);
+  }
 }
 
-/* ===== SEO GAME INFO SECTION ===== */
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .game-container {
+    padding: var(--space-6);
+  }
+
+  .board {
+    width: clamp(320px, 70vw, 450px);
+  }
+
+  .tile {
+    font-size: clamp(1.5rem, 4vw, var(--font-size-2xl));
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .board {
+    width: clamp(360px, 50vw, 500px);
+  }
+
+  .tile:hover:not(.empty) {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* SEO Game Info Section */
 .game-info {
   max-width: 780px;
-  margin: 1rem auto;
-  padding: 1rem 1.2rem;
-  background: rgba(0,0,0,0.15);
-  border-radius: 12px;
-  color: rgba(255,255,255,0.85);
-  font-size: 0.88rem;
+  margin: var(--space-4) auto;
+  padding: var(--space-4) var(--space-6);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
   line-height: 1.6;
 }
-.game-info h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
-.game-info h3 { font-size: 0.95rem; font-weight: 700; margin: 0.8rem 0 0.3rem; }
-.game-info ul { padding-left: 1.2rem; }
-.game-info li { margin-bottom: 0.2rem; }
+
+.game-info h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  margin-bottom: var(--space-2);
+  color: var(--color-text);
+}
+
+.game-info h3 {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  margin: var(--space-3) 0 var(--space-1);
+  color: var(--color-text);
+}
+
+.game-info ul {
+  padding-left: var(--space-6);
+}
+
+.game-info li {
+  margin-bottom: var(--space-1);
+}

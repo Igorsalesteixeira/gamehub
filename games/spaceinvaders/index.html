@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=9" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -74,11 +74,11 @@
     </div>
   </div>
 
-  <div class="mobile-controls" id="mobile-controls">
+  <div class="mobile-controls" id="mobile-controls" aria-label="Controles do jogo">
     <div class="ctrl-row">
-      <button class="ctrl-btn ctrl-wide" data-dir="left">&#9664;</button>
-      <button class="ctrl-btn ctrl-wide ctrl-shoot" data-dir="shoot">&#128299;</button>
-      <button class="ctrl-btn ctrl-wide" data-dir="right">&#9654;</button>
+      <button class="ctrl-btn ctrl-wide" data-dir="left" aria-label="Mover para esquerda">&#9664;</button>
+      <button class="ctrl-btn ctrl-wide ctrl-shoot" data-dir="shoot" aria-label="Atirar">&#128299;</button>
+      <button class="ctrl-btn ctrl-wide" data-dir="right" aria-label="Mover para direita">&#9654;</button>
     </div>
   </div>
 
@@ -86,7 +86,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'invaders' });
   </script>
-  <script type="module" src="game.js?v=11"></script>
+  <script type="module" src="game.js?v=12"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

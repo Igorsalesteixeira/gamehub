@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Flappy Bird Online Gratis - Games Hub</title>
   <meta name="description" content="Jogue Flappy Bird online e de graca. Passe pelos canos e faca o maior score!" />
   <link rel="canonical" href="https://gameshub.com.br/games/flappybird/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=7" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=8" />
+  <meta name="theme-color" content="#70c5ce" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
@@ -39,22 +39,60 @@
 <body>
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
-    <h1 class="game-title">🐦 Flappy Bird</h1>
+    <h1 class="game-title">Flappy Bird</h1>
     <div class="stats">
-      <span>🏆 <span id="best-display">0</span></span>
+      <span>Recorde: <span id="best-display">0</span></span>
     </div>
   </header>
 
   <main class="game-container">
     <canvas id="game-canvas"></canvas>
-    <div class="start-msg" id="start-msg">Toque ou pressione Espaco para jogar</div>
+
+    <!-- Score Display -->
+    <div class="score-display" id="score-display">0</div>
+
+    <!-- Pause Button -->
+    <button class="pause-btn hidden" id="pause-btn" aria-label="Pausar jogo">⏸</button>
+
+    <!-- Start Overlay -->
+    <div class="start-overlay" id="start-overlay">
+      <div class="start-msg" id="start-msg">
+        Toque para jogar<br>
+        <small>Passe pelos canos sem bater</small>
+      </div>
+    </div>
   </main>
+
+  <!-- Pause Modal -->
+  <div class="pause-modal" id="pause-modal">
+    <div class="pause-content">
+      <h2>⏸ Pausado</h2>
+      <div class="pause-buttons">
+        <button class="pause-btn-action resume" id="resume-btn">Continuar</button>
+        <button class="pause-btn-action restart" id="restart-btn-pause">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="game-over-overlay" id="game-over-modal">
+    <div class="game-over-content">
+      <h2>Fim de Jogo!</h2>
+      <div class="game-over-score">
+        Pontos: <span id="final-score" class="highlight">0</span>
+      </div>
+      <div class="game-over-score" id="new-record" style="display: none; color: #ffe66d;">
+        Novo Recorde!
+      </div>
+      <div class="game-over-hint">Toque para jogar novamente</div>
+    </div>
+  </div>
 
   <script type="module">
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'flappy' });
   </script>
-  <script type="module" src="game.js?v=10"></script>
+  <script type="module" src="game.js?v=11"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

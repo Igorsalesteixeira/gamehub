@@ -55,6 +55,12 @@ async function initMultiplayer() {
     modeIndicator.classList.add('multiplayer-mode');
   }
 
+  // Show loading state during connection
+  if (connectionStatus) {
+    connectionStatus.textContent = 'Conectando...';
+    connectionStatus.classList.add('loading');
+  }
+
   // Initialize multiplayer manager
   mpManager = new MultiplayerManager('go', ROOM_ID, {
     tableName: 'game_rooms',
@@ -62,6 +68,7 @@ async function initMultiplayer() {
       console.log('[Go] Connected to multiplayer');
       if (connectionStatus) {
         connectionStatus.textContent = 'Conectado';
+        connectionStatus.classList.remove('loading');
         connectionStatus.classList.add('connected');
       }
     },
@@ -69,10 +76,17 @@ async function initMultiplayer() {
       console.log('[Go] Disconnected from multiplayer');
       if (connectionStatus) {
         connectionStatus.textContent = 'Desconectado';
-        connectionStatus.classList.remove('connected');
+        connectionStatus.classList.remove('connected', 'loading');
       }
     },
-    onError: (err) => console.error('[Go] Multiplayer error:', err)
+    onError: (err) => {
+      console.error('[Go] Multiplayer error:', err);
+      if (connectionStatus) {
+        connectionStatus.textContent = 'Erro de conexao';
+        connectionStatus.classList.remove('connected', 'loading');
+        connectionStatus.style.color = 'var(--color-error)';
+      }
+    }
   });
 
   // Join room
@@ -232,7 +246,7 @@ function init() {
   lastMove = null;
   isProcessing = false;
   gameOver = false;
-  modal.style.display = 'none';
+  modal.classList.remove('show');
   updateUI();
   render();
 }
@@ -434,7 +448,7 @@ async function endGame() {
   }
 
   modalMsg.textContent = msg;
-  modal.style.display = 'flex';
+  modal.classList.add('show');
 
   if (blackTotal > whiteTotal) {
     launchConfetti();
@@ -462,42 +476,6 @@ async function endGame() {
   }
 }
 
-function cpuMove() {
-  // Simple AI: try captures, then play near existing stones, then random
-  let best = null;
-  let bestScore = -1;
-
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (!isLegal(r, c, WHITE)) continue;
-      let score = Math.random() * 2;
-      // Prefer center
-      score += (4 - Math.abs(r - 4)) * 0.3 + (4 - Math.abs(c - 4)) * 0.3;
-      // Check captures
-      const testBoard = clone(board);
-      testBoard[r][c] = WHITE;
-      const caps = removeCaptures(testBoard, WHITE);
-      score += caps * 10;
-      // Adjacent to own stones
-      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === WHITE) score += 2;
-      }
-      if (score > bestScore) { bestScore = score; best = [r, c]; }
-    }
-  }
-
-  if (best) {
-    const captured = playMove(best[0], best[1]);
-    if (captured > 0) playSound('capture');
-    else playSound('place');
-    updateUI();
-    render();
-  } else {
-    pass();
-  }
-  isProcessing = false;
-}
 
 async function handleClick(r, c) {
   if (gameOver || isProcessing) return;
@@ -536,7 +514,8 @@ async function handleClick(r, c) {
     updateUI();
     render();
     setTimeout(() => {
-      cpuMove();
+      cpuPlay();
+      isProcessing = false;
     }, 800);
   }
 }

@@ -3,8 +3,9 @@ import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '.
 import { GameStats } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager } from '../shared/input-manager.js';
-// ===== Pong (Refatorado) =====
 import { supabase } from '../../supabase.js';
+
+// ===== Pong (Redesigned) =====
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -14,21 +15,37 @@ const modalMessage = document.getElementById('modal-message');
 const btnNewGame = document.getElementById('btn-new-game');
 const btnPlayAgain = document.getElementById('btn-play-again');
 
-const W = 500, H = 350;
-canvas.width = W;
-canvas.height = H;
-
-const PADDLE_W = 10, PADDLE_H = 60;
+// Dimensoes base do jogo
+const BASE_W = 500;
+const BASE_H = 350;
+const PADDLE_W = 10;
+const PADDLE_H = 60;
 const BALL_SIZE = 8;
 const WIN_SCORE = 5;
-// Dificuldade: easy=2.2, normal=3.5, hard=5
+
+// Dificuldade
 const DIFFICULTY_SPEEDS = { easy: 2.2, normal: 3.5, hard: 5.0 };
-// Imprecisão da IA: easy=35px, normal=12px, hard=0px
-const DIFFICULTY_ERROR  = { easy: 35, normal: 12, hard: 0 };
+const DIFFICULTY_ERROR = { easy: 35, normal: 12, hard: 0 };
+
+// Cores neon
+const COLORS = {
+  bg: '#111118',
+  centerLine: '#333',
+  playerPaddle: '#ff6b35',
+  cpuPaddle: '#4dabf7',
+  ball: '#ffffff',
+  playerScore: 'rgba(255, 107, 53, 0.6)',
+  cpuScore: 'rgba(77, 171, 247, 0.6)',
+  glowOrange: 'rgba(255, 107, 53, 0.4)',
+  glowCyan: 'rgba(77, 171, 247, 0.4)'
+};
 
 let player, cpu, ball, playerScore, cpuScore, gameOverState;
 let ballTrail = [];
 let cpuTargetError = 12;
+let scale = 1;
+let W = BASE_W;
+let H = BASE_H;
 
 // ===== STATS =====
 const gameStats = new GameStats('pong', { autoSync: true });
@@ -38,8 +55,36 @@ function getDifficulty() {
   return sel ? sel.value : 'normal';
 }
 
+// ===== RESPONSIVE CANVAS =====
+function resizeCanvas() {
+  const container = document.querySelector('.game-container');
+  const maxWidth = Math.min(500, window.innerWidth - 16);
+  const maxHeight = window.innerHeight - 200; // Espaco para header e controles
+
+  // Manter proporcao
+  const ratio = BASE_W / BASE_H;
+  let width = maxWidth;
+  let height = width / ratio;
+
+  if (height > maxHeight) {
+    height = maxHeight;
+    width = height * ratio;
+  }
+
+  scale = width / BASE_W;
+  W = BASE_W;
+  H = BASE_H;
+
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+}
+
 function init() {
   initAudio();
+  resizeCanvas();
+
   player = { x: 15, y: H / 2 - PADDLE_H / 2 };
   cpu = { x: W - 15 - PADDLE_W, y: H / 2 - PADDLE_H / 2 };
   playerScore = 0;
@@ -73,17 +118,16 @@ function update(dt) {
     player.y = Math.min(H - PADDLE_H, player.y + 5);
   }
 
-  // CPU AI com dificuldade ajustável
+  // CPU AI com dificuldade ajustavel
   const diff = getDifficulty();
   const cpuSpeed = DIFFICULTY_SPEEDS[diff] ?? 3.5;
   const cpuCenter = cpu.y + PADDLE_H / 2;
-  // Target com "erro" baseado na dificuldade (IA se move para posição ligeiramente errada)
   const cpuTarget = ball.y + (ball.vx > 0 ? cpuTargetError : 0);
-  if (ball.vx > 0) { // bola vindo em direção à CPU
+
+  if (ball.vx > 0) {
     if (cpuCenter < cpuTarget - 8) cpu.y += cpuSpeed;
     else if (cpuCenter > cpuTarget + 8) cpu.y -= cpuSpeed;
   } else {
-    // Retornar ao centro vagarosamente
     if (cpuCenter < H / 2 - 20) cpu.y += cpuSpeed * 0.5;
     else if (cpuCenter > H / 2 + 20) cpu.y -= cpuSpeed * 0.5;
   }
@@ -143,12 +187,13 @@ function update(dt) {
 }
 
 function draw() {
-  ctx.fillStyle = '#111';
+  // Background
+  ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, W, H);
 
   // Center line
   ctx.setLineDash([8, 8]);
-  ctx.strokeStyle = '#333';
+  ctx.strokeStyle = COLORS.centerLine;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(W / 2, 0);
@@ -156,15 +201,22 @@ function draw() {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Paddles
-  ctx.fillStyle = '#ff6b35';
+  // Player paddle com glow
+  ctx.shadowColor = COLORS.glowOrange;
+  ctx.shadowBlur = 15;
+  ctx.fillStyle = COLORS.playerPaddle;
   ctx.fillRect(player.x, player.y, PADDLE_W, PADDLE_H);
-  ctx.fillStyle = '#4dabf7';
+
+  // CPU paddle com glow
+  ctx.shadowColor = COLORS.glowCyan;
+  ctx.fillStyle = COLORS.cpuPaddle;
   ctx.fillRect(cpu.x, cpu.y, PADDLE_W, PADDLE_H);
+
+  ctx.shadowBlur = 0;
 
   // Ball trail
   ballTrail.forEach((pos, i) => {
-    const alpha = (i / ballTrail.length) * 0.35;
+    const alpha = (i / ballTrail.length) * 0.4;
     const r = (BALL_SIZE / 2) * ((i + 1) / ballTrail.length);
     ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.beginPath();
@@ -172,17 +224,25 @@ function draw() {
     ctx.fill();
   });
 
-  // Ball
-  ctx.fillStyle = '#fff';
+  // Ball com glow
+  ctx.shadowColor = 'rgba(255,255,255,0.6)';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = COLORS.ball;
   ctx.beginPath();
   ctx.arc(ball.x + BALL_SIZE / 2, ball.y + BALL_SIZE / 2, BALL_SIZE / 2, 0, Math.PI * 2);
   ctx.fill();
+  ctx.shadowBlur = 0;
 
-  // Scores
+  // Scores com melhor contraste
   ctx.font = 'bold 48px Nunito';
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+
+  // Player score (laranja)
+  ctx.fillStyle = COLORS.playerScore;
   ctx.fillText(playerScore, W / 4, 60);
+
+  // CPU score (ciano)
+  ctx.fillStyle = COLORS.cpuScore;
   ctx.fillText(cpuScore, (3 * W) / 4, 60);
 }
 
@@ -190,11 +250,10 @@ function endGame(winner) {
   gameOverState = true;
   gameLoop.pause();
   const result = winner === 'player' ? 'win' : 'loss';
-  modalTitle.textContent = winner === 'player' ? 'Voce venceu! 🎉' : 'Computador venceu! 😔';
+  modalTitle.textContent = winner === 'player' ? 'Voce venceu!' : 'Computador venceu!';
   modalMessage.textContent = `${playerScore} x ${cpuScore}`;
   modalOverlay.classList.add('show');
 
-  // Save stats
   gameStats.recordGame(winner === 'player', { score: playerScore });
 
   saveGameStat(result);
@@ -221,19 +280,19 @@ const btnUp = document.getElementById('btn-up');
 const btnDown = document.getElementById('btn-down');
 
 if (btnUp && btnDown) {
-  // Touch controls for mobile
   const handleMobileMove = (dir) => {
     if (gameOverState) return;
     if (dir === 'up') {
-      player.y = Math.max(0, player.y - 5);
+      player.y = Math.max(0, player.y - 8);
     } else {
-      player.y = Math.min(H - PADDLE_H, player.y + 5);
+      player.y = Math.min(H - PADDLE_H, player.y + 8);
     }
   };
 
   let mobileInterval;
   const startMobile = (dir) => {
     stopMobile();
+    handleMobileMove(dir);
     mobileInterval = setInterval(() => handleMobileMove(dir), 16);
   };
   const stopMobile = () => { clearInterval(mobileInterval); };
@@ -242,11 +301,13 @@ if (btnUp && btnDown) {
   btnUp.addEventListener('touchend', stopMobile);
   btnUp.addEventListener('mousedown', () => startMobile('up'));
   btnUp.addEventListener('mouseup', stopMobile);
+  btnUp.addEventListener('mouseleave', stopMobile);
 
   btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); startMobile('down'); }, { passive: false });
   btnDown.addEventListener('touchend', stopMobile);
   btnDown.addEventListener('mousedown', () => startMobile('down'));
   btnDown.addEventListener('mouseup', stopMobile);
+  btnDown.addEventListener('mouseleave', stopMobile);
 }
 
 // Touch on canvas - move paddle to touch Y
@@ -258,19 +319,38 @@ canvas.addEventListener('touchmove', (e) => {
   player.y = Math.max(0, Math.min(H - PADDLE_H, touchY - PADDLE_H / 2));
 }, { passive: false });
 
+// Mouse control - follow mouse Y
+canvas.addEventListener('mousemove', (e) => {
+  if (gameOverState) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleY = H / rect.height;
+  const mouseY = (e.clientY - rect.top) * scaleY;
+  player.y = Math.max(0, Math.min(H - PADDLE_H, mouseY - PADDLE_H / 2));
+});
+
 btnNewGame.addEventListener('click', init);
 btnPlayAgain.addEventListener('click', init);
+
+// Resize handler
+window.addEventListener('resize', () => {
+  resizeCanvas();
+});
 
 async function saveGameStat(result) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
     await supabase.from('game_stats').insert({
-      user_id: session.user.id, game: 'pong',
-      result: result, moves: 0, time_seconds: 0,
+      user_id: session.user.id,
+      game: 'pong',
+      result: result,
+      moves: 0,
+      time_seconds: 0,
       score: playerScore,
     });
-  } catch (e) { console.warn('Erro ao salvar stats:', e); }
+  } catch (e) {
+    console.warn('Erro ao salvar stats:', e);
+  }
 }
 
 init();

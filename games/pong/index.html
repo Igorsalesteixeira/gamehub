@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
   <meta name="theme-color" content="#ff6b35" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -17,7 +17,7 @@
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Pong",
-    "description": "Jogue Pong online grátis contra o computador. O clássico jogo arcade de pingue-pongue — primeiro a 5 pontos vence.",
+    "description": "Jogue Pong online gratis contra o computador. O classico jogo arcade de pingue-pongue - primeiro a 5 pontos vence.",
     "url": "https://gameshub.com.br/games/pong/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
@@ -38,33 +38,35 @@
 </head>
 <body>
   <header class="topbar">
-    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
-    <h1 class="game-title">🏓 Pong</h1>
-    <div class="stats" style="display:flex;gap:0.7rem;align-items:center">
+    <a href="../../index.html" class="btn-back" aria-label="Voltar para pagina inicial">&larr; Voltar</a>
+    <h1 class="game-title">Pong</h1>
+    <div class="stats">
       <span>Primeiro a <strong>5</strong></span>
-      <select id="difficulty-select" style="font-family:Nunito,sans-serif;font-weight:700;font-size:0.8rem;background:#fff3;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:2px 6px;cursor:pointer">
-        <option value="easy">Fácil</option>
+      <select id="difficulty-select" aria-label="Selecionar dificuldade">
+        <option value="easy">Facil</option>
         <option value="normal" selected>Normal</option>
-        <option value="hard">Difícil</option>
+        <option value="hard">Dificil</option>
       </select>
     </div>
   </header>
 
   <main class="game-container">
-    <canvas id="game-canvas"></canvas>
-    <div class="mobile-controls">
-      <button class="ctrl-btn" id="btn-up">▲</button>
-      <button class="ctrl-btn" id="btn-down">▼</button>
+    <canvas id="game-canvas" aria-label="Area do jogo Pong"></canvas>
+    <div class="mobile-controls" role="group" aria-label="Controles do jogador">
+      <button class="ctrl-btn" id="btn-up" aria-label="Mover raquete para cima">&#9650;</button>
+      <button class="ctrl-btn" id="btn-down" aria-label="Mover raquete para baixo">&#9660;</button>
     </div>
     <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
   </main>
 
-  <div class="modal-overlay" id="modal-overlay">
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal">
       <h2 id="modal-title">Fim de Jogo!</h2>
       <p id="modal-message"></p>
-      <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
-      <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pong no Games Hub! Venha tentar me bater!')">�artilhar</button>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+        <button class="btn btn-whatsapp" id="btn-share" onclick="shareOnWhatsApp('Acabei de jogar Pong no Games Hub! Venha tentar me bater!')">Compartilhar</button>
+      </div>
     </div>
   </div>
 
@@ -72,22 +74,22 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'pong' });
   </script>
-  <script type="module" src="game.js?v=9"></script>
+  <script type="module" src="game.js?v=10"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Pong Online</h2>
-    <p>Pong é o avô dos videogames, criado pela Atari em 1972. Controle a raquete com o mouse, setas do teclado ou os botões na tela e rebata a bola para marcar pontos. O primeiro a chegar a 5 pontos vence! Jogue pong online grátis contra o computador.</p>
+    <p>Pong e oavo dos videogames, criado pela Atari em 1972. Controle a raquete com o mouse, setas do teclado ou os botoes na tela e rebata a bola para marcar pontos. O primeiro a chegar a 5 pontos vence! Jogue pong online gratis contra o computador.</p>
     <h3>Regras</h3>
     <ul>
-      <li>Use o mouse, as setas ▲▼ do teclado ou os botões na tela para mover a raquete.</li>
-      <li>Rebata a bola antes que ela passe pela sua raquete — cada ponto perdido vale 1 para o adversário.</li>
+      <li>Use o mouse, as setas do teclado ou os botoes na tela para mover a raquete.</li>
+      <li>Rebata a bola antes que ela passe pela sua raquete - cada ponto perdido vale 1 para o adversario.</li>
       <li>Vence quem marcar 5 pontos primeiro.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>Antecipe a trajetória da bola em vez de reagir no último momento.</li>
-      <li>Acerte a bola com as bordas da raquete para dar um ângulo mais difícil para o computador defender.</li>
+      <li>Antecipe a trajetoria da bola em vez de reagir no ultimo momento.</li>
+      <li>Acerte a bola com as bordas da raquete para dar um angulo mais dificil para o computador defender.</li>
     </ul>
   </section>
 </body>

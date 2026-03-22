@@ -1,96 +1,386 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Nunito', sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-.topbar { width: 100%; background: linear-gradient(135deg, #ff6b35, #e85d2a); padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-.topbar h1 { font-size: 1.2rem; font-weight: 800; }
-.back-btn { color: #fff; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+/* =============================================
+   Go (Baduk) - Estilos Específicos
+   Usa variáveis do design-system
+   ============================================= */
+
+/* Layout Principal */
+.topbar {
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  margin: 0;
+}
+
+.back-btn {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  transition: opacity var(--transition-fast);
+}
+
+.back-btn:hover {
+  opacity: 0.8;
+}
 
 /* Mode Indicator */
 .mode-indicator {
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-  background: rgba(255,255,255,0.2);
-  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
   font-weight: 600;
   margin-left: auto;
 }
+
 .mode-indicator.multiplayer-mode {
-  background: #4caf50;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--color-text);
 }
 
-#game-container { padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; max-width: 400px; }
-.info { font-size: 0.95rem; font-weight: 700; color: #a78bfa; text-align: center; }
+/* Game Container */
+#game-container {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 400px;
+}
+
+.info {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-cards);
+  text-align: center;
+}
 
 /* Connection Status */
 .connection-status {
-  font-size: 0.8rem;
-  color: #ff9800;
+  font-size: var(--font-size-sm);
+  color: var(--color-warning);
   font-weight: 600;
   display: none;
 }
+
 .connection-status.connected {
-  color: #4caf50;
-}
-.multiplayer-mode ~ #game-container .connection-status,
-#game-container:has(.multiplayer-mode) .connection-status {
-  display: block;
+  color: var(--color-success);
 }
 
-.board { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0; background: #c8a96e; padding: 8px; border-radius: 8px; max-width: 360px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-.cell { aspect-ratio: 1; background: #c8a96e; border: 1px solid rgba(0,0,0,0.3); cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-.cell:hover { background: #d4b87a; }
+.connection-status.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.connection-status.loading::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-warning);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.connection-status.connected::before {
+  content: '✓';
+  margin-right: var(--space-1);
+}
+
+.multiplayer-mode ~ #game-container .connection-status,
+#game-container:has(.multiplayer-mode) .connection-status {
+  display: flex;
+}
+
+/* Board - Tema Madeira Tradicional */
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0;
+  background: linear-gradient(135deg, #d4a76a 0%, #c8a96e 50%, #bfa264 100%);
+  padding: 8px;
+  border-radius: var(--radius-lg);
+  max-width: 360px;
+  width: 100%;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.cell {
+  aspect-ratio: 1;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background var(--transition-fast);
+}
+
+.cell:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 .cell.clickable::after {
   content: '';
   width: 30%;
   height: 30%;
-  background: rgba(255,107,53,0.4);
+  background: rgba(255, 107, 53, 0.4);
   border-radius: 50%;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity var(--transition-base);
 }
+
 .cell.clickable:hover::after {
   opacity: 1;
 }
-.stone { width: 85%; height: 85%; border-radius: 50%; }
-.stone.black { background: radial-gradient(circle at 35% 35%, #555, #111); box-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-.stone.white { background: radial-gradient(circle at 35% 35%, #fff, #ccc); box-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-.stone.last { box-shadow: 0 0 0 3px #ff6b35; }
-.actions { display: flex; gap: 0.5rem; }
-.btn { padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #ff6b35, #e85d2a); color: #fff; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
-.btn:active { transform: scale(0.95); }
-.btn-secondary { background: rgba(255,255,255,0.15); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal { background: #16213e; border-radius: 16px; padding: 2rem; text-align: center; max-width: 320px; }
-.modal p { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; white-space: pre-line; line-height: 1.5; }
 
-/* Thinking state for multiplayer */
+/* Pedras com efeito 3D */
+.stone {
+  width: 85%;
+  height: 85%;
+  border-radius: 50%;
+  transition: box-shadow var(--transition-base);
+}
+
+.stone.black {
+  background: radial-gradient(circle at 35% 35%, #555, #111);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.1);
+}
+
+.stone.white {
+  background: radial-gradient(circle at 35% 35%, #fff, #ddd);
+  box-shadow:
+    2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.stone.last {
+  box-shadow:
+    0 0 0 3px var(--color-primary),
+    2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-base);
+}
+
+/* Modal - usando padrão do design-system */
+.modal-overlay {
+  z-index: 2000;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  max-width: 90vw;
+  width: 360px;
+}
+
+.modal p {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+/* Thinking state for multiplayer/CPU */
 #game-container.thinking .board {
   opacity: 0.8;
   pointer-events: none;
 }
-#game-container.thinking .info {
-  color: #ff9800;
-}
 
-@media (max-width: 400px) {
-  .board { max-width: 300px; }
-  .topbar h1 { font-size: 1rem; }
-  .mode-indicator { font-size: 0.7rem; }
+#game-container.thinking .info {
+  color: var(--color-warning);
 }
 
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;
-  margin: 1rem auto;
-  padding: 1rem 1.2rem;
-  background: rgba(0,0,0,0.15);
-  border-radius: 12px;
-  color: rgba(255,255,255,0.85);
-  font-size: 0.88rem;
+  margin: var(--space-4) auto;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--font-size-sm);
   line-height: 1.6;
 }
-.game-info h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
-.game-info h3 { font-size: 0.95rem; font-weight: 700; margin: 0.8rem 0 0.3rem; }
-.game-info ul { padding-left: 1.2rem; }
-.game-info li { margin-bottom: 0.2rem; }
+
+.game-info h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  margin-bottom: var(--space-2);
+}
+
+.game-info h3 {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  margin: var(--space-3) 0 var(--space-1);
+}
+
+.game-info ul {
+  padding-left: var(--space-4);
+}
+
+.game-info li {
+  margin-bottom: var(--space-1);
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Mobile pequeno (360px-) */
+@media (max-width: 360px) {
+  .topbar {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .topbar h1 {
+    font-size: var(--font-size-base);
+  }
+
+  .mode-indicator {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .board {
+    max-width: 280px;
+    padding: 6px;
+  }
+
+  .info {
+    font-size: var(--font-size-sm);
+  }
+
+  .game-info {
+    padding: var(--space-3);
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile padrão (400px) */
+@media (max-width: 400px) {
+  .board {
+    max-width: 300px;
+  }
+
+  .topbar h1 {
+    font-size: var(--font-size-base);
+  }
+
+  .mode-indicator {
+    font-size: 0.7rem;
+  }
+}
+
+/* Mobile médio (480px) */
+@media (max-width: 480px) {
+  #game-container {
+    padding: var(--space-3);
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+}
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+  .game-info {
+    margin: var(--space-3);
+  }
+}
+
+/* Desktop (768px+) */
+@media (min-width: 768px) {
+  #game-container {
+    max-width: 450px;
+  }
+
+  .board {
+    max-width: 400px;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .topbar {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .topbar h1 {
+    font-size: var(--font-size-base);
+  }
+
+  #game-container {
+    padding: var(--space-2);
+    gap: var(--space-2);
+  }
+
+  .board {
+    max-width: 280px;
+    padding: 4px;
+  }
+
+  .game-info {
+    display: none;
+  }
+
+  .actions {
+    flex-direction: row;
+  }
+
+  .btn {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Landscape Tablet */
+@media (max-height: 600px) and (min-width: 768px) and (orientation: landscape) {
+  #game-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  .board {
+    max-width: 320px;
+  }
+}
