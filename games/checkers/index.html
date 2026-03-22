@@ -17,10 +17,10 @@
   <meta name="twitter:title" content="Jogo de Dama Online Gratis - Games Hub" />
   <meta name="twitter:description" content="Jogue Dama online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Serif:wght@700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=13" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=14" />
+  <meta name="theme-color" content="#131313" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
@@ -53,8 +53,8 @@
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
     <h1 class="game-title">&#9823; Dama</h1>
     <div class="stats">
-      <span class="stat-player">&#9899; <span id="player-count">12</span></span>
-      <span class="stat-cpu">&#128992; <span id="cpu-count">12</span></span>
+      <span class="stat-player">⚫ <span id="player-count">12</span></span>
+      <span class="stat-cpu">⚪ <span id="cpu-count">12</span></span>
       <span>⏱ <span id="timer-display">00:00</span></span>
     </div>
     <div class="mode-section">
@@ -72,7 +72,7 @@
     <div class="turn-indicator" id="turn-indicator">Sua vez</div>
     <div class="tutorial-hint" id="tutorial-hint">
       <span class="hint-icon">💡</span>
-      <span class="hint-text">Captura é obrigatória! Clique nas peças destacadas em vermelho para comer.</span>
+      <span class="hint-text">Captura é obrigatória! Clique nas peças com glow dourado para mover.</span>
       <button class="hint-close" id="hint-close">×</button>
     </div>
     <div class="board-container">
