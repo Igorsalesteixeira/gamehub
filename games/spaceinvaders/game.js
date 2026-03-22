@@ -2,7 +2,7 @@ import '../../auth-check.js?v=4';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js?v=4';
 import { GameStats } from '../shared/game-core.js?v=4';
 import { GameLoop } from '../shared/game-loop.js?v=4';
-import { InputManager } from '../shared/game-loop.js?v=4';
+import { InputManager } from '../shared/input-manager.js?v=4';
 import { ParticleSystem } from '../shared/skills/particle-system/index.js?v=1';
 import { shake, pulse } from '../shared/skills/animation-system/index.js?v=1';
 // =============================================
@@ -26,6 +26,9 @@ const waveDisplay = document.getElementById('wave-display');
 const BASE_W = 480;
 const BASE_H = 640;
 let scale = 1;
+
+// ===== SISTEMA DE PARTÍCULAS =====
+let particleSystem = null;
 
 function resize() {
   const container = canvas.parentElement;
@@ -88,9 +91,6 @@ let alienShootInterval = 90; // frames
 
 // Explosions
 let explosions = [];
-
-// ===== SISTEMA DE PARTÍCULAS =====
-let particleSystem = null;
 
 // ===== STATS =====
 const gameStats = new GameStats('spaceinvaders', { autoSync: true });

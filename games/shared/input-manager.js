@@ -548,3 +548,45 @@ export function createDirectionalInput(options = {}) {
     }
   };
 }
+
+/**
+ * Handler para botões mobile de controle (d-pad).
+ * Suporta haptic feedback e auto-repeat.
+ * @class MobileButtonHandler
+ */
+export class MobileButtonHandler {
+  constructor(selector, options = {}) {
+    this.hapticDuration = options.hapticDuration || 10;
+    this.repeatInterval = options.repeatInterval || 50;
+    this.onPress = options.onPress || (() => {});
+    this._timers = new Map();
+
+    const buttons = document.querySelectorAll(selector);
+    buttons.forEach(btn => {
+      const dir = btn.dataset.dir || btn.dataset.direction || btn.textContent.trim().toLowerCase();
+
+      const start = (e) => {
+        e.preventDefault();
+        this.onPress(dir);
+        if (navigator.vibrate) navigator.vibrate(this.hapticDuration);
+        const timer = setInterval(() => this.onPress(dir), this.repeatInterval);
+        this._timers.set(btn, timer);
+      };
+
+      const stop = () => {
+        const timer = this._timers.get(btn);
+        if (timer) {
+          clearInterval(timer);
+          this._timers.delete(btn);
+        }
+      };
+
+      btn.addEventListener('touchstart', start, { passive: false });
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('touchend', stop);
+      btn.addEventListener('touchcancel', stop);
+      btn.addEventListener('mouseup', stop);
+      btn.addEventListener('mouseleave', stop);
+    });
+  }
+}

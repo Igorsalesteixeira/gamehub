@@ -197,7 +197,11 @@ export class GameStats {
    * @returns {Promise<boolean>} Sucesso da operação
    */
   async syncToCloud() {
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = null;
+    try {
+      const res = await supabase.auth.getUser();
+      user = res?.data?.user;
+    } catch { /* auth indisponível */ }
     if (!user) {
       console.log(`[GameStats:${this.gameId}] Usuário não logado, pulando sync`);
       return false;
@@ -231,7 +235,11 @@ export class GameStats {
    * @returns {Promise<boolean>} Sucesso da operação
    */
   async loadFromCloud() {
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = null;
+    try {
+      const res = await supabase.auth.getUser();
+      user = res?.data?.user;
+    } catch { /* auth indisponível */ }
     if (!user) return false;
 
     try {
@@ -441,6 +449,29 @@ export class GameStorage {
         };
       })
       .filter(Boolean);
+  }
+}
+
+/**
+ * Gerenciador de melhor pontuação usando localStorage.
+ * @class BestScoreManager
+ */
+export class BestScoreManager {
+  constructor(gameId) {
+    this.key = `best_score_${gameId}`;
+  }
+
+  get() {
+    return parseInt(localStorage.getItem(this.key)) || 0;
+  }
+
+  checkAndUpdate(score) {
+    const best = this.get();
+    if (score > best) {
+      localStorage.setItem(this.key, score);
+      return true;
+    }
+    return false;
   }
 }
 

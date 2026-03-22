@@ -277,7 +277,7 @@ export async function getUnreadCount() {
     unreadCount = count || 0;
     return { count: unreadCount, error: null };
   } catch (e) {
-    console.error(MODULE_NAME, 'Erro inesperado:', e);
+    console.warn(MODULE_NAME, 'Erro inesperado:', e);
     return { count: 0, error: e };
   }
 }

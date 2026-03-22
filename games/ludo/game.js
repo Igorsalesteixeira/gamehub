@@ -62,12 +62,12 @@ const PLAYER_NAMES = ['Vermelho', 'Azul', 'Verde', 'Amarelo'];
 const DICE_FACES = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 // ---- DOM ----
-const canvas       = document.getElementById('board');
+const canvas       = document.getElementById('ludo-canvas');
 const ctx          = canvas.getContext('2d');
 const btnRoll      = document.getElementById('btn-roll');
-const btnNew       = document.getElementById('btn-new');
-const diceEl       = document.getElementById('dice');
-const timerEl      = document.getElementById('timer');
+const btnNew       = document.getElementById('btn-new-game');
+const diceEl       = document.getElementById('dice-display');
+const timerEl      = document.getElementById('timer-display');
 const turnMsg      = document.getElementById('turn-msg');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalIcon    = document.getElementById('modal-icon');

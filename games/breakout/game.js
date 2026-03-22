@@ -53,11 +53,11 @@ let extraBalls = [];
 
 // ---- Game Loop ----
 const gameLoop = new GameLoop({
-  onUpdate: () => {
+  update: () => {
     if (!running) return;
     update();
   },
-  onRender: () => {
+  render: () => {
     draw();
   }
 });
