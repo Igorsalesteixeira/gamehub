@@ -3,21 +3,21 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
 
-// Jogo de Dama (Checkers) - Dama Brasileira
-// Player = 'player' (dark pieces, bottom), CPU = 'cpu' (orange pieces, top)
-// Multiplayer: Player 1 = 'player' (brancas, bottom), Player 2 = 'cpu' (pretas, top)
+// ===== Jogo de Dama (Checkers) - Dama Brasileira =====
+// Player = 'player' (pecas escuras, baixo), CPU = 'cpu' (pecas vermelhas, cima)
+// Multiplayer: Jogador 1 = 'player' (pecas escuras), Jogador 2 = 'cpu' (pecas vermelhas)
 
 const BOARD_SIZE = 8;
 const PLAYER = 'player';
 const CPU = 'cpu';
 
-// === Multiplayer Detection ===
+// === Deteccao de Multiplayer ===
 const urlParams = new URLSearchParams(window.location.search);
 const ROOM_ID = urlParams.get('room');
 const IS_MULTIPLAYER = !!ROOM_ID;
 
-// ==================== STATE ====================
-let board = []; // 8x8 array: null | { owner, king }
+// ==================== ESTADO DO JOGO ====================
+let board = []; // Array 8x8: null | { owner, king }
 let selectedPiece = null; // { row, col }
 let validMoves = []; // [{ row, col, captures: [{row,col}] }]
 let currentTurn = PLAYER;
@@ -29,32 +29,36 @@ let timerInterval = null;
 let timerStarted = false;
 let isProcessing = false; // Flag para prevenir cliques duplos durante animacao
 
-// Improvement #2: draw detection
+// === Variaveis para navegacao por teclado ===
+let focusedCell = null; // { row, col } - celula com foco do teclado
+let keyboardMode = false; // Se esta usando navegacao por teclado
+
+// Melhoria #2: deteccao de empate
 let movesWithoutCapture = 0;
 const DRAW_LIMIT = 40;
 
-// Improvement #3: move counter
+// Melhoria #3: contador de jogadas
 let moveCount = 0;
 
-// Improvement #9: undo history
-let boardHistory = []; // Array of saved states
+// Melhoria #9: historico para desfazer
+let boardHistory = []; // Array de estados salvos
 
-// Improvement #10: animation tracking
-let animMoved = null;   // {row, col} — piece that just arrived
-let animCaptured = []; // Array of {row, col} — pieces being captured
+// Melhoria #10: rastreamento de animacao
+let animMoved = null;   // {row, col} — peca que acabou de chegar
+let animCaptured = []; // Array de {row, col} — pecas sendo capturadas
 
-// === Multiplayer State ===
+// === Estado do Multiplayer ===
 let mp = null;
 const gameStats = new GameStats('checkers');
 let myUserId = null;
-let myPlayerNumber = null; // 1 or 2
+let myPlayerNumber = null; // 1 ou 2
 let isMyTurn = true;
 let roomData = null;
 let player1Name = 'Jogador 1';
 let player2Name = 'Jogador 2';
 let opponentDisconnected = false;
 
-// ==================== DOM REFS ====================
+// ==================== REFERENCIAS DOM ====================
 const boardEl = document.getElementById('board');
 const turnIndicator = document.getElementById('turn-indicator');
 const playerCountEl = document.getElementById('player-count');
@@ -238,7 +242,7 @@ async function sendMove(from, to, captures, promoted, chain) {
   );
 }
 
-// ==================== INIT ====================
+// ==================== INICIALIZACAO ====================
 function initGame() {
   board = [];
   for (let r = 0; r < BOARD_SIZE; r++) {
@@ -266,103 +270,255 @@ function initGame() {
   animMoved = null;
   animCaptured = [];
   isProcessing = false;
+  focusedCell = null;
+  keyboardMode = false;
   stopTimer();
   timerStarted = false;
   timerSeconds = 0;
   if (timerDisplay) timerDisplay.textContent = '00:00';
   modalOverlay.classList.add('hidden');
   updateUndoButton();
+
+  // Limpa cache de elementos para recriar na proxima renderizacao
+  cellElements = [];
+  pieceElements = [];
+
   render();
   updateTurnIndicator();
   updateCounts();
 
-  // In multiplayer, determine if it's my turn
+  // No multiplayer, determina se e a vez do jogador
   if (IS_MULTIPLAYER) {
     isMyTurn = currentTurn === (myPlayerNumber === 1 ? PLAYER : CPU);
   }
 }
 
-// ==================== RENDER ====================
+// ==================== RENDERIZACAO ====================
+
+// Cache de elementos DOM para renderizacao otimizada
+let cellElements = []; // Array 2D de elementos de celula
+let pieceElements = []; // Array 2D de elementos de peca (ou null)
+
+// Funcao de renderizacao otimizada - atualiza apenas elementos que mudaram
 function render() {
-  // Compute forced-capture info before building DOM
+  // Calcula informacoes de captura forcada antes de construir o DOM
   const allMoves = currentTurn === PLAYER ? getAllMoves(PLAYER, board) : [];
   const hasForced = allMoves.length > 0 && allMoves[0].chain[0].captures.length > 0;
 
-  boardEl.innerHTML = '';
-  for (let r = 0; r < BOARD_SIZE; r++) {
-    for (let c = 0; c < BOARD_SIZE; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
-      cell.dataset.row = r;
-      cell.dataset.col = c;
+  // Se o tabuleiro ainda nao foi criado, cria tudo
+  if (cellElements.length === 0) {
+    boardEl.innerHTML = '';
+    cellElements = [];
+    pieceElements = [];
 
-      // Last move highlights
-      if (lastMove) {
-        if (lastMove.from.row === r && lastMove.from.col === c) cell.classList.add('last-from');
-        if (lastMove.to.row === r && lastMove.to.col === c) cell.classList.add('last-to');
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      cellElements[r] = [];
+      pieceElements[r] = [];
+
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        cell.setAttribute('tabindex', '0');
+        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `Casa ${String.fromCharCode(97 + c)}${8 - r}`);
+
+        // Eventos de click
+        cell.addEventListener('click', () => onCellClick(r, c));
+        cell.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          onCellClick(r, c);
+        });
+
+        // Eventos de teclado para acessibilidade
+        cell.addEventListener('keydown', (e) => handleKeyboardNavigation(e, r, c));
+        cell.addEventListener('focus', () => onFocusCell(r, c));
+        cell.addEventListener('blur', () => onBlurCell(r, c));
+
+        boardEl.appendChild(cell);
+        cellElements[r][c] = cell;
+        pieceElements[r][c] = null;
       }
-
-      // Valid move highlights
-      const moveMatch = validMoves.find(m => m.row === r && m.col === c);
-      if (moveMatch) {
-        if (moveMatch.captures && moveMatch.captures.length > 0) {
-          cell.classList.add('valid-capture');
-        } else {
-          cell.classList.add('valid-move');
-        }
-      }
-
-      // Piece
-      const piece = board[r][c];
-      if (piece) {
-        const pieceEl = document.createElement('div');
-        pieceEl.className = 'piece ' + piece.owner;
-        if (piece.king) pieceEl.classList.add('king');
-        if (selectedPiece && selectedPiece.row === r && selectedPiece.col === c) {
-          pieceEl.classList.add('selected');
-        }
-
-        // Improvement #7: must-capture highlight
-        if (!gameOver && hasForced && piece.owner === PLAYER) {
-          const canCapture = allMoves.some(m => m.from.row === r && m.from.col === c);
-          if (canCapture) {
-            pieceEl.classList.add('must-capture');
-            // Game Design: Show tutorial hint for new players
-            showTutorialHint();
-          }
-        }
-
-        // Improvement #10: appear animation + king promotion flash
-        if (animMoved && animMoved.row === r && animMoved.col === c) {
-          pieceEl.classList.add('appear');
-          if (animMoved.isPromotion) {
-            pieceEl.classList.add('king-promoted');
-          }
-        }
-
-        // Animation for captured pieces (fading out)
-        const isCaptured = animCaptured.some(cap => cap.row === r && cap.col === c);
-        if (isCaptured) {
-          pieceEl.classList.add('captured-anim');
-        }
-
-        cell.appendChild(pieceEl);
-      }
-
-      // Click handler
-      cell.addEventListener('click', () => onCellClick(r, c));
-      cell.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        onCellClick(r, c);
-      });
-
-      boardEl.appendChild(cell);
     }
   }
 
-  // Clear animation state after render so next render is clean
+  // Atualiza cada celula
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      updateCell(r, c, allMoves, hasForced);
+    }
+  }
+
+  // Limpa estado de animacao apos render para que o proximo render seja limpo
   animMoved = null;
   animCaptured = [];
+}
+
+// Atualiza uma unica celula (renderizacao incremental)
+function updateCell(r, c, allMoves, hasForced) {
+  const cell = cellElements[r][c];
+  if (!cell) return;
+
+  // Remove classes antigas
+  cell.classList.remove('last-from', 'last-to', 'valid-move', 'valid-capture', 'focused');
+
+  // Destaque do ultimo movimento
+  if (lastMove) {
+    if (lastMove.from.row === r && lastMove.from.col === c) cell.classList.add('last-from');
+    if (lastMove.to.row === r && lastMove.to.col === c) cell.classList.add('last-to');
+  }
+
+  // Destaque de movimentos validos
+  const moveMatch = validMoves.find(m => m.row === r && m.col === c);
+  if (moveMatch) {
+    if (moveMatch.captures && moveMatch.captures.length > 0) {
+      cell.classList.add('valid-capture');
+    } else {
+      cell.classList.add('valid-move');
+    }
+  }
+
+  // Celula com foco do teclado
+  if (focusedCell && focusedCell.row === r && focusedCell.col === c) {
+    cell.classList.add('focused');
+  }
+
+  // Atualiza ou cria peca
+  const piece = board[r][c];
+  const existingPiece = pieceElements[r][c];
+
+  if (piece) {
+    // Se nao existe elemento de peca, cria
+    if (!existingPiece) {
+      const pieceEl = document.createElement('div');
+      pieceEl.className = 'piece ' + piece.owner;
+      cell.appendChild(pieceEl);
+      pieceElements[r][c] = pieceEl;
+    }
+
+    const pieceEl = pieceElements[r][c];
+
+    // Atualiza classes da peca
+    pieceEl.className = 'piece ' + piece.owner;
+    if (piece.king) pieceEl.classList.add('king');
+    if (selectedPiece && selectedPiece.row === r && selectedPiece.col === c) {
+      pieceEl.classList.add('selected');
+    }
+
+    // Destaque de captura obrigatoria
+    if (!gameOver && hasForced && piece.owner === PLAYER) {
+      const canCapture = allMoves.some(m => m.from.row === r && m.from.col === c);
+      if (canCapture) {
+        pieceEl.classList.add('must-capture');
+        showTutorialHint();
+      }
+    }
+
+    // Animacao de aparecimento + flash de promocao
+    if (animMoved && animMoved.row === r && animMoved.col === c) {
+      pieceEl.classList.add('appear');
+      if (animMoved.isPromotion) {
+        pieceEl.classList.add('king-promoted');
+      }
+    }
+
+    // Animacao de peca capturada
+    const isCaptured = animCaptured.some(cap => cap.row === r && cap.col === c);
+    if (isCaptured) {
+      pieceEl.classList.add('captured-anim');
+    }
+  } else {
+    // Remove peca se existir mas nao deveria
+    if (existingPiece) {
+      existingPiece.remove();
+      pieceElements[r][c] = null;
+    }
+  }
+}
+
+// ==================== NAVEGACAO POR TECLADO ====================
+
+// Manipula navegacao por teclado
+function handleKeyboardNavigation(e, r, c) {
+  const key = e.key;
+
+  // Teclas de setas para navegar
+  if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight') {
+    e.preventDefault();
+    keyboardMode = true;
+
+    let newRow = r;
+    let newCol = c;
+
+    if (key === 'ArrowUp') newRow = Math.max(0, r - 1);
+    else if (key === 'ArrowDown') newRow = Math.min(BOARD_SIZE - 1, r + 1);
+    else if (key === 'ArrowLeft') newCol = Math.max(0, c - 1);
+    else if (key === 'ArrowRight') newCol = Math.min(BOARD_SIZE - 1, c + 1);
+
+    // Foca a nova celula
+    const newCell = cellElements[newRow]?.[newCol];
+    if (newCell) {
+      newCell.focus();
+    }
+  }
+
+  // Enter ou Espaco para selecionar/mover
+  if (key === 'Enter' || key === ' ') {
+    e.preventDefault();
+    onCellClick(r, c);
+  }
+
+  // Tab para navegar apenas entre pecas do jogador
+  if (key === 'Tab') {
+    e.preventDefault();
+    keyboardMode = true;
+
+    // Encontra a proxima peca do jogador atual
+    const playerPieces = [];
+    for (let pr = 0; pr < BOARD_SIZE; pr++) {
+      for (let pc = 0; pc < BOARD_SIZE; pc++) {
+        const p = board[pr][pc];
+        if (p && p.owner === PLAYER) {
+          playerPieces.push({ row: pr, col: pc });
+        }
+      }
+    }
+
+    if (playerPieces.length > 0) {
+      // Encontra indice atual
+      let currentIndex = -1;
+      if (focusedCell) {
+        currentIndex = playerPieces.findIndex(p => p.row === focusedCell.row && p.col === focusedCell.col);
+      }
+
+      // Proxima peca
+      const nextIndex = (currentIndex + 1) % playerPieces.length;
+      const nextPiece = playerPieces[nextIndex];
+      const nextCell = cellElements[nextPiece.row]?.[nextPiece.col];
+      if (nextCell) {
+        nextCell.focus();
+      }
+    }
+  }
+
+  // Escape para deselecionar
+  if (key === 'Escape') {
+    e.preventDefault();
+    selectedPiece = null;
+    validMoves = [];
+    render();
+  }
+}
+
+// Quando uma celula recebe foco
+function onFocusCell(r, c) {
+  focusedCell = { row: r, col: c };
+}
+
+// Quando uma celula perde foco
+function onBlurCell(r, c) {
+  // Mantem focusedCell ate que outra celula receba foco
 }
 
 function updateTurnIndicator() {
@@ -433,9 +589,9 @@ function updateUndoButton() {
   }
 }
 
-// ==================== MOVE LOGIC ====================
+// ==================== LOGICA DE MOVIMENTOS ====================
 
-// Improvement #1: Flying kings
+// Melhoria #1: Damas voadoras (flying kings)
 function getMovesForPiece(r, c, boardState) {
   const piece = boardState[r][c];
   if (!piece) return { simple: [], captures: [] };
@@ -443,7 +599,7 @@ function getMovesForPiece(r, c, boardState) {
   const allDirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
 
   if (!piece.king) {
-    // Regular piece: 1-step forward, 1-jump capture in all directions
+    // Peca comum: move 1 casa para frente, captura em todas as direcoes
     const moveDirs = piece.owner === PLAYER ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
     for (const [dr,dc] of allDirs) {
       const nr = r+dr, nc = c+dc;
@@ -457,7 +613,7 @@ function getMovesForPiece(r, c, boardState) {
       }
     }
   } else {
-    // Flying king: slide any distance
+    // Dama voadora: desliza qualquer distancia
     for (const [dr,dc] of allDirs) {
       let nr = r+dr, nc = c+dc;
       let foundEnemy = null;
@@ -467,10 +623,10 @@ function getMovesForPiece(r, c, boardState) {
           if (foundEnemy) captures.push({row:nr,col:nc,captures:[foundEnemy]});
           else simple.push({row:nr,col:nc,captures:[]});
         } else if (cell.owner !== piece.owner) {
-          if (foundEnemy) break; // second enemy in same ray — stop
+          if (foundEnemy) break; // segundo inimigo na mesma direcao — para
           foundEnemy = {row:nr,col:nc};
         } else {
-          break; // own piece
+          break; // peca propria
         }
         nr+=dr; nc+=dc;
       }
@@ -479,7 +635,7 @@ function getMovesForPiece(r, c, boardState) {
   return {simple, captures};
 }
 
-// Get all capture chains starting from (r,c) using DFS
+// Obtem todas as cadeias de captura a partir de (r,c) usando DFS
 function getCaptureChains(r, c, boardState, piece) {
   const { captures } = getMovesForPiece(r, c, boardState);
   if (captures.length === 0) return [];
@@ -491,7 +647,7 @@ function getCaptureChains(r, c, boardState, piece) {
     newBoard[r][c] = null;
     newBoard[cap.captures[0].row][cap.captures[0].col] = null;
 
-    // Check promotion
+    // Verifica promocao
     let promoted = false;
     if (!piece.king) {
       if ((piece.owner === PLAYER && cap.row === 0) || (piece.owner === CPU && cap.row === BOARD_SIZE - 1)) {
@@ -500,7 +656,7 @@ function getCaptureChains(r, c, boardState, piece) {
       }
     }
 
-    // In Brazilian Draughts, promotion stops the multi-capture
+    // Na Dama Brasileira, a promocao encerra a multi-captura
     if (promoted) {
       chains.push([{ row: cap.row, col: cap.col, captures: [...cap.captures] }]);
       continue;
@@ -522,7 +678,7 @@ function cloneBoard(b) {
   return b.map(row => row.map(cell => cell ? { ...cell } : null));
 }
 
-// Get all valid moves for a player, enforcing mandatory capture
+// Obtem todos os movimentos validos para um jogador, aplicando captura obrigatoria
 function getAllMoves(owner, boardState) {
   const allCaptures = [];
   const allSimple = [];
@@ -544,16 +700,16 @@ function getAllMoves(owner, boardState) {
     }
   }
 
-  // Mandatory capture: if captures exist, must capture
+  // Captura obrigatoria: se existem capturas, deve capturar
   if (allCaptures.length > 0) {
-    // Brazilian rule: must take the longest capture chain
+    // Regra brasileira: deve fazer a maior cadeia de captura
     const maxLen = Math.max(...allCaptures.map(m => m.chain.length));
     return allCaptures.filter(m => m.chain.length === maxLen);
   }
   return allSimple;
 }
 
-// Get valid destinations for a specific piece (for UI highlighting)
+// Obtem destinos validos para uma peca especifica (para destaque na UI)
 function getValidMovesForPiece(r, c) {
   const piece = board[r][c];
   if (!piece || piece.owner !== currentTurn) return [];
@@ -569,7 +725,7 @@ function getValidMovesForPiece(r, c) {
   }));
 }
 
-// ==================== UNDO (Improvement #9) ====================
+// ==================== DESFAZER (Melhoria #9) ====================
 
 function saveHistory() {
   const snapshot = {
@@ -602,7 +758,7 @@ function undoMove() {
   updateCounts();
 }
 
-// ==================== CLICK HANDLER ====================
+// ==================== MANIPULADOR DE CLIQUE ====================
 
 function onCellClick(r, c) {
   if (gameOver || isProcessing) return;
@@ -660,15 +816,15 @@ function executePlayerMove(fromR, fromC, moveTarget) {
   if (isProcessing) return;
   isProcessing = true;
 
-  // Save history before executing (Improvement #9) - only in single player
+  // Salva historico antes de executar (Melhoria #9) - apenas no single player
   if (!IS_MULTIPLAYER) {
     saveHistory();
   }
 
   const chain = moveTarget.fullChain;
-  moveCount++; // Improvement #3
+  moveCount++; // Melhoria #3
 
-  // Determine owner based on multiplayer or single player
+  // Determina o dono baseado no multiplayer ou single player
   const owner = IS_MULTIPLAYER ? (myPlayerNumber === 1 ? PLAYER : CPU) : PLAYER;
 
   executeMoveChain(fromR, fromC, chain, owner, () => {
@@ -677,7 +833,7 @@ function executePlayerMove(fromR, fromC, moveTarget) {
     multiCaptureActive = false;
     updateCounts();
 
-    // Improvement #2: draw detection (counted inside executeMoveChain)
+    // Melhoria #2: deteccao de empate (contado dentro de executeMoveChain)
     if (movesWithoutCapture >= DRAW_LIMIT) {
       isProcessing = false;
       endGame('draw');
@@ -689,10 +845,10 @@ function executePlayerMove(fromR, fromC, moveTarget) {
       return;
     }
 
-    // Switch turn
+    // Troca de turno
     currentTurn = currentTurn === PLAYER ? CPU : PLAYER;
 
-    // Multiplayer: send move to opponent
+    // Multiplayer: envia movimento para o oponente
     if (IS_MULTIPLAYER) {
       const lastStep = chain[chain.length - 1];
       const captures = chain.reduce((caps, step) => [...caps, ...(step.captures || [])], []);
@@ -717,12 +873,12 @@ function executePlayerMove(fromR, fromC, moveTarget) {
       return;
     }
 
-    // Single player: CPU turn
+    // Single player: turno da CPU
     updateUndoButton();
     updateTurnIndicator();
     render();
 
-    // Delay minimo de 800ms para jogadas da IA
+    // Atraso minimo de 800ms para jogadas da IA
     setTimeout(() => {
       cpuTurn();
     }, 800);
@@ -731,13 +887,13 @@ function executePlayerMove(fromR, fromC, moveTarget) {
 
 function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
   if (stepIndex === 0) {
-    // Count captures across whole chain for draw tracking (Improvement #2)
+    // Conta capturas em toda a cadeia para rastreamento de empate (Melhoria #2)
     const totalCaptures = chain.reduce((sum, step) => sum + step.captures.length, 0);
     if (totalCaptures > 0) {
       movesWithoutCapture = 0;
-      // Play capture sound
+      // Som de captura
       playSound('capture');
-      // 2D Games: Screen shake for impact feedback
+      // 2D Games: Screen shake para feedback de impacto
       const boardContainer = document.querySelector('.board-container');
       if (boardContainer) {
         boardContainer.classList.add('capturing');
@@ -757,19 +913,19 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
   const step = chain[stepIndex];
   const piece = board[fromR][fromC];
 
-  // Track captured pieces for animation (Improvement #10)
+  // Rastreia pecas capturadas para animacao (Melhoria #10)
   animCaptured = step.captures.map(cap => ({ row: cap.row, col: cap.col }));
 
-  // Remove captured pieces
+  // Remove pecas capturadas
   for (const cap of step.captures) {
     board[cap.row][cap.col] = null;
   }
 
-  // Move piece
+  // Move a peca
   board[step.row][step.col] = piece;
   board[fromR][fromC] = null;
 
-  // Check promotion
+  // Verifica promocao
   let promoted = false;
   if (!piece.king) {
     if ((piece.owner === PLAYER && step.row === 0) || (piece.owner === CPU && step.row === BOARD_SIZE - 1)) {
@@ -780,12 +936,12 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
 
   if (promoted) {
     playSound('levelup');
-    // 2D Games: Visual feedback for king promotion
+    // 2D Games: Feedback visual para promocao a dama
     animMoved = { row: step.row, col: step.col, isPromotion: true };
   }
 
   lastMove = { from: { row: fromR, col: fromC }, to: { row: step.row, col: step.col } };
-  animMoved = { row: step.row, col: step.col }; // Improvement #10
+  animMoved = { row: step.row, col: step.col }; // Melhoria #10
 
   updateCounts();
   render();
@@ -795,13 +951,13 @@ function executeMoveChain(fromR, fromC, chain, owner, callback, stepIndex = 0) {
       executeMoveChain(step.row, step.col, chain, owner, callback, stepIndex + 1);
     }, 300);
   } else {
-    // CPU move complete - update UI
+    // Movimento da CPU completo - atualiza UI
     updateUndoButton();
     callback();
   }
 }
 
-// ==================== CPU AI ====================
+// ==================== IA DA CPU ====================
 
 function cpuTurn() {
   if (gameOver) {
@@ -830,7 +986,7 @@ function cpuTurn() {
     validMoves = [];
     updateCounts();
 
-    // Improvement #2: draw check after CPU move
+    // Melhoria #2: verificacao de empate apos movimento da CPU
     if (movesWithoutCapture >= DRAW_LIMIT) {
       endGame('draw');
       isProcessing = false;
@@ -850,12 +1006,12 @@ function cpuTurn() {
   });
 }
 
-// Improvement #4: Easy — random move
+// Melhoria #4: Facil — movimento aleatorio
 function cpuTurnEasy(moves) {
   return moves[Math.floor(Math.random() * moves.length)];
 }
 
-// Improvement #4: Medium — existing greedy scoring
+// Melhoria #4: Medio — pontuacao gananciosa existente
 function cpuTurnMedium(moves) {
   let bestScore = -Infinity;
   let bestMoves = [];
@@ -913,7 +1069,7 @@ function cpuTurnMedium(moves) {
   return bestMoves[Math.floor(Math.random() * bestMoves.length)];
 }
 
-// Improvement #8: Minimax AI (Hard)
+// Melhoria #8: IA Minimax (Dificil)
 
 function evalBoard(b) {
   let score = 0;

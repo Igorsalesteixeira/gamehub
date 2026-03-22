@@ -322,10 +322,13 @@ function render() {
     const cell = document.createElement('div');
     cell.className = 'cell';
     cell.dataset.idx = i;
+    cell.setAttribute('role', 'gridcell');
+    cell.setAttribute('aria-label', `Celula ${Math.floor(i/8)+1},${i%8+1}`);
 
     if (board[i] !== EMPTY) {
       const piece = document.createElement('div');
       piece.className = 'piece ' + (board[i] === BLACK ? 'black' : 'white');
+      piece.setAttribute('aria-label', board[i] === BLACK ? 'Peca preta' : 'Peca branca');
       cell.appendChild(piece);
     }
 
@@ -334,7 +337,13 @@ function render() {
       // In multiplayer, only show valid moves for my color
       if (!IS_MULTIPLAYER || currentPlayer === myColor) {
         cell.classList.add('valid-move');
+        cell.setAttribute('aria-label', `Jogada valida em ${Math.floor(i/8)+1},${i%8+1}`);
         cell.addEventListener('click', () => handleCellClick(i));
+        // Touch support for mobile
+        cell.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          handleCellClick(i);
+        }, { passive: false });
       }
     }
 
@@ -792,12 +801,14 @@ function endGame() {
   modalIcon.textContent = icon;
   modalTitle.textContent = title;
   modalMsg.textContent = msg;
-  modalOverlay.classList.remove('hidden');
+  modalOverlay.classList.add('show');
+  modalOverlay.setAttribute('aria-hidden', 'false');
 }
 
 // --- Init ---
 function resetGame(shouldBroadcast = true) {
-  modalOverlay.classList.add('hidden');
+  modalOverlay.classList.remove('show');
+  modalOverlay.setAttribute('aria-hidden', 'true');
   initBoard();
   render();
   updateTurnIndicator();

@@ -5,12 +5,23 @@ import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js'
 
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
-let lastDrop = null; // { row, col } da ultima jogada para animacao
-let isProcessing = false; // Flag para prevenir cliques duplos
+let lastDrop = null;
+let isProcessing = false;
 const boardEl = document.getElementById('board');
 const statusEl = document.getElementById('status');
 const modal = document.getElementById('modal');
 const modalMsg = document.getElementById('modal-msg');
+const modalIcon = document.getElementById('modal-icon');
+const turnIndicator = document.getElementById('turn-indicator');
+const modeIndicator = document.getElementById('mode-indicator');
+
+// Score tracking
+let scores = { player: 0, cpu: 0, draw: 0 };
+const scorePlayerEl = document.getElementById('score-player');
+const scoreCpuEl = document.getElementById('score-cpu');
+const scoreDrawEl = document.getElementById('score-draw');
+const playerScoreEl = document.getElementById('player-score');
+const cpuScoreEl = document.getElementById('cpu-score');
 
 // === Multiplayer Setup ===
 const urlParams = new URLSearchParams(window.location.search);
@@ -31,23 +42,71 @@ function init() {
   gameOver = false;
   lastDrop = null;
   isProcessing = false;
+  modal.classList.remove('show');
   modal.style.display = 'none';
 
   if (IS_MULTIPLAYER) {
     isMyTurn = myPlayerNumber === currentPlayer;
-    updateStatus();
+    updateTurnIndicator();
+    updateScoreboardActive();
   } else {
-    statusEl.textContent = 'Sua vez! Clique em uma coluna.';
+    updateTurnIndicator();
+    updateScoreboardActive();
   }
 
   render();
+}
+
+function updateTurnIndicator() {
+  if (gameOver) {
+    turnIndicator.textContent = 'Fim de jogo!';
+    turnIndicator.className = 'turn-indicator';
+    return;
+  }
+
+  if (IS_MULTIPLAYER) {
+    const isMyPiece = currentPlayer === myPlayerNumber;
+    if (isMyTurn) {
+      turnIndicator.innerHTML = '<span class="piece-icon"></span> Sua vez!';
+      turnIndicator.className = 'turn-indicator player-turn';
+    } else {
+      const opponentName = myPlayerNumber === 1 ? player2Name : player1Name;
+      turnIndicator.innerHTML = `<span class="piece-icon"></span> Aguardando ${opponentName}...`;
+      turnIndicator.className = 'turn-indicator opponent-turn waiting';
+    }
+  } else {
+    if (currentPlayer === 1) {
+      turnIndicator.innerHTML = '<span class="piece-icon"></span> Sua vez!';
+      turnIndicator.className = 'turn-indicator player-turn';
+    } else {
+      turnIndicator.textContent = 'CPU pensando...';
+      turnIndicator.className = 'turn-indicator cpu-turn';
+    }
+  }
+}
+
+function updateScoreboardActive() {
+  playerScoreEl.classList.toggle('active', currentPlayer === 1 && !gameOver);
+  cpuScoreEl.classList.toggle('active', currentPlayer === 2 && !gameOver);
+}
+
+function updateScores(result) {
+  if (result === 'win') {
+    scores.player++;
+    scorePlayerEl.textContent = scores.player;
+  } else if (result === 'loss') {
+    scores.cpu++;
+    scoreCpuEl.textContent = scores.cpu;
+  } else if (result === 'draw') {
+    scores.draw++;
+    scoreDrawEl.textContent = scores.draw;
+  }
 }
 
 // === Multiplayer Functions ===
 async function initMultiplayer() {
   if (!IS_MULTIPLAYER) return;
 
-  // Initialize MultiplayerManager
   mp = new MultiplayerManager('connect4', ROOM_ID, {
     tableName: 'game_rooms'
   });
@@ -64,19 +123,25 @@ async function initMultiplayer() {
   const success = await mp.init();
   if (!success) return;
 
-  // Update UI
-  const modeIndicator = document.getElementById('mode-indicator');
   if (modeIndicator) {
-    modeIndicator.textContent = '👥 Multiplayer';
+    modeIndicator.textContent = 'Multiplayer';
     modeIndicator.classList.add('multiplayer-mode');
   }
 
-  // Get player info
   myPlayerNumber = mp.myPlayerNumber;
   player1Name = mp.roomData?.player1_name || 'Jogador 1';
   player2Name = mp.roomData?.player2_name || 'Jogador 2';
 
-  // Restore board state if exists
+  // Update score labels for multiplayer
+  const playerLabel = document.querySelector('#player-score .score-label');
+  const cpuLabel = document.querySelector('#cpu-score .score-label');
+  if (playerLabel) {
+    playerLabel.innerHTML = `<span class="piece-icon"></span> ${myPlayerNumber === 1 ? 'Voce' : player1Name}`;
+  }
+  if (cpuLabel) {
+    cpuLabel.innerHTML = `<span class="piece-icon"></span> ${myPlayerNumber === 2 ? 'Voce' : player2Name}`;
+  }
+
   if (mp.roomData?.state?.board) {
     board = mp.roomData.state.board;
     currentPlayer = mp.roomData.state.currentPlayer || 1;
@@ -85,7 +150,6 @@ async function initMultiplayer() {
     render();
   }
 
-  // Subscribe to events
   mp.on('move', handleRemoteMove);
   mp.on('player_joined', ({ playerNumber, playerName }) => {
     if (playerNumber === 2) {
@@ -96,22 +160,19 @@ async function initMultiplayer() {
     resetGame(false);
   });
 
-  // Update turn indicator
-  updateStatus();
+  updateTurnIndicator();
+  updateScoreboardActive();
 }
 
 async function handleRemoteMove(payload) {
-  // Ignore our own moves
   if (payload.playerId === mp?.myUserId) return;
 
-  // Apply move
   const { col, player } = payload;
   const row = drop(col, player);
   if (row === -1) return;
 
   render();
 
-  // Check result
   const win = checkWin(player);
   if (win) {
     endGame(player === myPlayerNumber ? 'win' : 'loss', win);
@@ -122,10 +183,10 @@ async function handleRemoteMove(payload) {
     return;
   }
 
-  // Switch turn
   currentPlayer = currentPlayer === 1 ? 2 : 1;
   isMyTurn = currentPlayer === myPlayerNumber;
-  updateStatus();
+  updateTurnIndicator();
+  updateScoreboardActive();
 
   playSound('place');
   haptic(15);
@@ -134,29 +195,10 @@ async function handleRemoteMove(payload) {
 async function sendMove(col, player) {
   if (!mp) return;
 
-  // Broadcast to other player
   await mp.send('move', { col, player });
 
-  // Update room state in database
   const nextTurn = currentPlayer === 1 ? 2 : 1;
   await mp.updateState({ board, currentPlayer, lastDrop }, { turn: nextTurn });
-}
-
-function updateStatus() {
-  if (gameOver) return;
-
-  if (IS_MULTIPLAYER) {
-    const currentPlayerName = currentPlayer === 1 ? player1Name : player2Name;
-    if (isMyTurn) {
-      statusEl.textContent = 'Sua vez! Clique em uma coluna.';
-      statusEl.classList.remove('waiting');
-    } else {
-      statusEl.textContent = `Aguardando ${currentPlayerName}...`;
-      statusEl.classList.add('waiting');
-    }
-  } else {
-    statusEl.textContent = currentPlayer === 1 ? 'Sua vez! Clique em uma coluna.' : 'Computador pensando...';
-  }
 }
 
 function render() {
@@ -165,16 +207,25 @@ function render() {
     for (let c = 0; c < COLS; c++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
+      cell.setAttribute('role', 'button');
+      cell.setAttribute('aria-label', `Coluna ${c + 1}, Linha ${ROWS - r}`);
+      cell.setAttribute('tabindex', '0');
+
       if (board[r][c] === 1) cell.classList.add('red');
       if (board[r][c] === 2) cell.classList.add('yellow');
 
-      // Animacao de queda para a peca recem colocada
       if (lastDrop && lastDrop.row === r && lastDrop.col === c) {
         cell.style.setProperty('--rows', r + 1);
         cell.classList.add('dropping');
       }
 
       cell.addEventListener('click', () => handleClick(c));
+      cell.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick(c);
+        }
+      });
       cell.addEventListener('mouseenter', () => highlightCol(c, true));
       cell.addEventListener('mouseleave', () => highlightCol(c, false));
       cell.dataset.row = r;
@@ -185,8 +236,6 @@ function render() {
 }
 
 function highlightCol(col, on) {
-  // In multiplayer, only highlight on my turn
-  // In single player, only highlight when it's player 1's turn
   if (gameOver) return;
   if (IS_MULTIPLAYER && !isMyTurn) return;
   if (!IS_MULTIPLAYER && currentPlayer !== 1) return;
@@ -239,10 +288,7 @@ function isFull() {
 function handleClick(col) {
   if (gameOver || isProcessing) return;
 
-  // Multiplayer: check if it's my turn
   if (IS_MULTIPLAYER && !isMyTurn) return;
-
-  // Single player: only player 1 can click
   if (!IS_MULTIPLAYER && currentPlayer !== 1) return;
 
   isProcessing = true;
@@ -255,7 +301,6 @@ function handleClick(col) {
     return;
   }
 
-  // Send move in multiplayer
   if (IS_MULTIPLAYER) {
     sendMove(col, player);
   }
@@ -270,19 +315,19 @@ function handleClick(col) {
 
   if (IS_MULTIPLAYER) {
     isMyTurn = false;
-    updateStatus();
+    updateTurnIndicator();
+    updateScoreboardActive();
     isProcessing = false;
   } else {
-    statusEl.textContent = 'Computador pensando...';
+    updateTurnIndicator();
+    updateScoreboardActive();
     const gameContainer = document.getElementById('game-container') || document.body;
     gameContainer.classList.add('thinking');
-    // Delay minimo de 800ms para jogadas da IA
     setTimeout(cpuMove, 800);
   }
 }
 
 function cpuMove() {
-  // AI: check win, block, prefer center
   let bestCol = -1;
 
   // 1. Can CPU win?
@@ -321,7 +366,8 @@ function cpuMove() {
   if (isFull()) { endGame('draw'); return; }
 
   currentPlayer = 1;
-  statusEl.textContent = 'Sua vez! Clique em uma coluna.';
+  updateTurnIndicator();
+  updateScoreboardActive();
   const gameContainer = document.getElementById('game-container') || document.body;
   gameContainer.classList.remove('thinking');
   isProcessing = false;
@@ -329,6 +375,9 @@ function cpuMove() {
 
 async function endGame(result, winCells) {
   gameOver = true;
+  playerScoreEl.classList.remove('active');
+  cpuScoreEl.classList.remove('active');
+
   if (winCells) {
     winCells.forEach(([r, c]) => {
       const idx = r * COLS + c;
@@ -336,29 +385,44 @@ async function endGame(result, winCells) {
     });
   }
 
-  let msg;
+  let msg, icon;
   if (IS_MULTIPLAYER) {
     const iWon = result === 'win';
-    msg = iWon ? '🏆 Voce venceu!' : result === 'draw' ? '🤝 Empate!' : '😔 Voce perdeu!';
+    if (iWon) {
+      msg = 'Voce venceu!';
+      icon = '🏆';
+    } else if (result === 'draw') {
+      msg = 'Empate!';
+      icon = '🤝';
+    } else {
+      msg = 'Voce perdeu!';
+      icon = '😔';
+    }
 
-    // Update room status
     if (mp && iWon) {
       await mp.finishGame(mp.myUserId);
     }
   } else {
-    const msgs = { win: '🏆 Voce venceu!', loss: '😔 CPU venceu!', draw: '🤝 Empate!' };
+    const msgs = { win: 'Voce venceu!', loss: 'CPU venceu!', draw: 'Empate!' };
+    const icons = { win: '🏆', loss: '😔', draw: '🤝' };
     msg = msgs[result];
+    icon = icons[result];
   }
 
+  updateScores(result);
+  modalIcon.textContent = icon;
   modalMsg.textContent = msg;
-  setTimeout(() => { modal.style.display = 'flex'; }, 600);
+
+  setTimeout(() => {
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+  }, 600);
 
   if (result === 'win') {
     launchConfetti();
     playSound('win');
   }
 
-  // Save stats
   await gameStats.save({
     result,
     moves: 0,
@@ -373,14 +437,32 @@ async function resetGame(shouldBroadcast = true) {
 
   if (IS_MULTIPLAYER && shouldBroadcast && mp) {
     await mp.send('game_reset', {});
-
-    // Reset room state
     await mp.resetRoom({ board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)), currentPlayer: 1, lastDrop: null });
   }
 }
 
-document.getElementById('restart').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
-document.getElementById('modal-btn').addEventListener('click', () => { initAudio(); playSound('click'); resetGame(true); });
+document.getElementById('restart').addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  resetGame(true);
+});
+
+document.getElementById('modal-btn').addEventListener('click', () => {
+  initAudio();
+  playSound('click');
+  modal.classList.remove('show');
+  modal.style.display = 'none';
+  resetGame(true);
+});
+
+// Close modal on backdrop click
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    resetGame(true);
+  }
+});
 
 // Cleanup
 window.addEventListener('beforeunload', () => {

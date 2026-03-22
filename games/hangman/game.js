@@ -1,7 +1,6 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
-import { GameTimer } from '../shared/timer.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
 
@@ -113,9 +112,13 @@ function init() {
 
 function renderWord() {
   wordDisplay.innerHTML = '';
+  wordDisplay.setAttribute('role', 'group');
+  wordDisplay.setAttribute('aria-label', 'Letras da palavra secreta');
   for (const letter of targetWord) {
     const slot = document.createElement('div');
     slot.className = 'letter-slot';
+    slot.setAttribute('role', 'letter');
+    slot.setAttribute('aria-label', guessedLetters.has(letter) ? `Letra ${letter}` : 'Letra oculta');
     if (guessedLetters.has(letter)) {
       slot.textContent = letter;
       slot.classList.add('revealed');
@@ -126,6 +129,8 @@ function renderWord() {
 
 function renderKeyboard() {
   keyboardEl.innerHTML = '';
+  keyboardEl.setAttribute('role', 'group');
+  keyboardEl.setAttribute('aria-label', 'Teclado virtual - clique nas letras para adivinhar');
   for (const row of KB_ROWS) {
     const rowEl = document.createElement('div');
     rowEl.className = 'keyboard-row';
@@ -134,13 +139,18 @@ function renderKeyboard() {
       btn.className = 'key';
       btn.textContent = key;
       btn.dataset.key = key;
+      btn.setAttribute('aria-label', `Letra ${key}`);
+      btn.setAttribute('type', 'button');
 
       if (guessedLetters.has(key)) {
         btn.classList.add('used');
+        btn.setAttribute('aria-disabled', 'true');
         if (targetWord.includes(key)) {
           btn.classList.add('correct');
+          btn.setAttribute('aria-label', `Letra ${key} - correta`);
         } else {
           btn.classList.add('wrong');
+          btn.setAttribute('aria-label', `Letra ${key} - incorreta`);
         }
       }
 

@@ -7,15 +7,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
   <meta name="theme-color" content="#ff6b35" />
+  <meta name="description" content="Jogue Cookie Clicker online gratis. Clique no cookie, acumule biscoitos e compre melhorias para automatizar a producao." />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Cookie Clicker",
-    "description": "Jogue Cookie Clicker online grátis. Clique no cookie, acumule biscoitos e compre melhorias para automatizar a produção.",
+    "description": "Jogue Cookie Clicker online gratis. Clique no cookie, acumule biscoitos e compre melhorias para automatizar a producao.",
     "url": "https://gameshub.com.br/games/cookieclicker/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
@@ -35,30 +36,45 @@
   </script>
 </head>
 <body>
-  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>🍪 Cookie Clicker</h1></div>
-  <div id="game-container">
-    <div class="cookie-count"><span id="count">0</span> cookies</div>
-    <div class="cps">por segundo: <span id="cps">0</span></div>
-    <div class="cookie-btn" id="cookie-btn">🍪</div>
-    <div class="shop" id="shop"></div>
-  </div>
-  <script type="module" src="game.js?v=4"></script>
+  <header class="topbar">
+    <a href="../../index.html" class="back-btn" aria-label="Voltar para pagina inicial">← Voltar</a>
+    <h1>🍪 Cookie Clicker</h1>
+  </header>
+
+  <main id="game-container" role="main" aria-label="Area do jogo Cookie Clicker">
+    <div class="cookie-count" aria-live="polite" aria-atomic="true">
+      <span id="count">0</span> cookies
+    </div>
+    <div class="cps" aria-live="polite" aria-atomic="true">
+      por segundo: <span id="cps">0</span>
+    </div>
+    <button
+      class="cookie-btn"
+      id="cookie-btn"
+      aria-label="Clique para ganhar cookies"
+      role="button"
+      tabindex="0"
+    >🍪</button>
+    <section class="shop" id="shop" aria-label="Loja de melhorias"></section>
+  </main>
+
+  <script type="module" src="game.js?v=5"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'cookie' });</script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
     <h2>Como jogar Cookie Clicker Online</h2>
-    <p>Cookie Clicker é o jogo clicker viciante mais famoso da internet. Clique no grande cookie para acumular biscoitos e use-os para comprar melhorias — avós, fábricas, fazendas — que produzem cookies automaticamente. O objetivo? Acumular tantos cookies quanto possível! Jogue cookie clicker online grátis.</p>
+    <p>Cookie Clicker e o jogo clicker viciante mais famoso da internet. Clique no grande cookie para acumular biscoitos e use-os para comprar melhorias — avos, fabricas, fazendas — que produzem cookies automaticamente. O objetivo? Acumular tantos cookies quanto possivel! Jogue cookie clicker online gratis.</p>
     <h3>Regras</h3>
     <ul>
       <li>Clique no cookie grande para ganhar biscoitos manualmente.</li>
-      <li>Use os cookies acumulados para comprar melhorias na loja e aumentar a produção por segundo (CPS).</li>
-      <li>Cada melhoria comprada aumenta a produção automaticamente.</li>
+      <li>Use os cookies acumulados para comprar melhorias na loja e aumentar a producao por segundo (CPS).</li>
+      <li>Cada melhoria comprada aumenta a producao automaticamente.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>Priorize as melhorias com maior produção por segundo em relação ao custo.</li>
-      <li>Continue clicando mesmo após comprar melhorias — cliques manuais somam à produção automática.</li>
+      <li>Priorize as melhorias com maior producao por segundo em relacao ao custo.</li>
+      <li>Continue clicando mesmo apos comprar melhorias — cliques manuais somam a producao automatica.</li>
     </ul>
   </section>
 </body>

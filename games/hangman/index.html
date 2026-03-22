@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=6" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -111,14 +111,14 @@
   </main>
 
   <!-- Result Modal -->
-  <div class="modal-overlay" id="modal-overlay">
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal">
       <h2 id="modal-title"></h2>
       <p id="modal-message"></p>
       <p class="modal-word">A palavra era: <strong id="modal-word"></strong></p>
-      <div class="modal-icon" id="modal-icon">🎯</div>
-      <button class="btn btn-primary" id="btn-new-game">Novo Jogo</button>
-      <button class="btn btn-whatsapp" id="btn-share" style="margin-top:10px;">Compartilhar no WhatsApp</button>
+      <div class="modal-icon" id="modal-icon" aria-hidden="true">🎯</div>
+      <button class="btn btn-primary" id="btn-new-game" aria-label="Iniciar novo jogo">Novo Jogo</button>
+      <button class="btn btn-whatsapp" id="btn-share" style="margin-top:10px;" aria-label="Compartilhar resultado no WhatsApp">Compartilhar no WhatsApp</button>
     </div>
   </div>
 
@@ -126,7 +126,7 @@
     import { initSidebar } from '../../sidebar.js?v=6';
     initSidebar({ active: 'forca' });
   </script>
-  <script type="module" src="game.js?v=6"></script>
+  <script type="module" src="game.js?v=7"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">

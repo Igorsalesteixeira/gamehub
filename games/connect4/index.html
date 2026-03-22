@@ -7,15 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=8" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=10" />
+  <meta name="theme-color" content="#2563eb" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
     "name": "Conecta 4",
-    "description": "Jogue Conecta 4 online grátis. Seja o primeiro a conectar 4 peças em linha, coluna ou diagonal.",
+    "description": "Jogue Conecta 4 online gratis. Seja o primeiro a conectar 4 pecas em linha, coluna ou diagonal.",
     "url": "https://gameshub.com.br/games/connect4/",
     "inLanguage": "pt-BR",
     "isAccessibleForFree": true,
@@ -35,33 +35,60 @@
   </script>
 </head>
 <body>
-  <div class="topbar"><a href="../../index.html" class="back-btn">← Voltar</a><h1>🔴 Conecte 4</h1></div>
-  <div id="game-container">
-    <div class="mode-indicator" id="mode-indicator">🤖 Single Player</div>
-    <div class="status" id="status">Sua vez! Clique em uma coluna.</div>
-    <div class="board" id="board"></div>
+  <header class="topbar">
+    <a href="../../index.html" class="back-btn">&larr; Voltar</a>
+    <h1>Lig 4</h1>
+    <div id="mode-indicator" class="mode-indicator">Single Player</div>
+  </header>
+
+  <main id="game-container">
+    <div class="scoreboard">
+      <div class="score-item player-score" id="player-score">
+        <span class="score-label"><span class="piece-icon"></span> Voce</span>
+        <span class="score-value" id="score-player">0</span>
+      </div>
+      <div class="score-item draw-score">
+        <span class="score-label">Empates</span>
+        <span class="score-value" id="score-draw">0</span>
+      </div>
+      <div class="score-item cpu-score" id="cpu-score">
+        <span class="score-label"><span class="piece-icon"></span> CPU</span>
+        <span class="score-value" id="score-cpu">0</span>
+      </div>
+    </div>
+
+    <div class="turn-indicator player-turn" id="turn-indicator">Sua vez!</div>
+
+    <div class="board" id="board" role="grid" aria-label="Tabuleiro Lig 4"></div>
+
     <button class="btn btn-primary" id="restart">Novo Jogo</button>
+  </main>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon"></div>
+      <p id="modal-msg"></p>
+      <button class="btn btn-primary" id="modal-btn">Jogar Novamente</button>
+    </div>
   </div>
-  <div class="modal-overlay" id="modal" style="display:none">
-    <div class="modal"><p id="modal-msg"></p><button class="btn btn-primary" id="modal-btn">Jogar Novamente</button></div>
-  </div>
-  <script type="module" src="game.js?v=9"></script>
+
+  <script type="module" src="game.js?v=11"></script>
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'connect4' });</script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
-    <h2>Como jogar Conecta 4 Online</h2>
-    <p>Conecta 4 é um jogo de estratégia para dois jogadores. Clique em uma coluna para soltar sua peça e tente conectar 4 peças da mesma cor em linha, coluna ou diagonal antes do adversário. Simples de aprender, difícil de dominar — jogue conecta 4 online grátis contra o computador.</p>
+    <h2>Como jogar Lig 4 Online</h2>
+    <p>Lig 4 (Conecta 4) e um jogo de estrategia para dois jogadores. Clique em uma coluna para soltar sua peca e tente conectar 4 pecas da mesma cor em linha, coluna ou diagonal antes do adversario. Simples de aprender, dificil de dominar - jogue conecta 4 online gratis contra o computador.</p>
     <h3>Regras</h3>
     <ul>
-      <li>Clique em qualquer coluna para soltar sua peça; ela cai para a posição mais baixa disponível.</li>
-      <li>Vence quem conectar 4 peças em sequência: horizontal, vertical ou diagonal.</li>
-      <li>O tabuleiro tem 7 colunas e 6 linhas; se estiver cheio sem vencedor, é empate.</li>
+      <li>Clique em qualquer coluna para soltar sua peca; ela cai para a posicao mais baixa disponivel.</li>
+      <li>Vence quem conectar 4 pecas em sequencia: horizontal, vertical ou diagonal.</li>
+      <li>O tabuleiro tem 7 colunas e 6 linhas; se estiver cheio sem vencedor, e empate.</li>
     </ul>
     <h3>Dicas</h3>
     <ul>
-      <li>Priorize a coluna central — quem controla o centro tem mais combinações de vitória.</li>
-      <li>Cuidado com ameaças duplas: criar duas sequências de 3 ao mesmo tempo força a vitória.</li>
+      <li>Priorize a coluna central - quem controla o centro tem mais combinacoes de vitoria.</li>
+      <li>Cuidado com ameacas duplas: criar duas sequencias de 3 ao mesmo tempo forca a vitoria.</li>
     </ul>
   </section>
 </body>
