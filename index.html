@@ -91,8 +91,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" /></noscript>
 
   <!-- CSS não-crítico carregado assíncronamente -->
-  <link rel="preload" href="style.css?v=3" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="style.css?v=3" /></noscript>
+  <link rel="preload" href="style.css?v=4" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=4" /></noscript>
 
   <!-- Dados estruturados -->
   <script type="application/ld+json">
@@ -1109,10 +1109,10 @@
 
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('user_id, display_name')
-          .in('user_id', friendIds);
+          .select('id, display_name')
+          .in('id', friendIds);
 
-        const profileMap = new Map(profiles?.map(p => [p.user_id, p.display_name]) || []);
+        const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
 
         const gameIcons = {
           solitaire: '🃏', freecell: '🂡', blackjack: '🃏', truco: '🂠', uno: '🟥', pyramid: '🔺',

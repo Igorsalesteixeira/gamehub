@@ -14,7 +14,7 @@
   <meta property="og:locale" content="pt_BR" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <style>
     body { background: #0f0f1a; }
@@ -326,7 +326,7 @@
   </footer>
 
   <script type="module">
-    import { supabase } from './supabase.js?v=3';
+    import { supabase } from './supabase.js?v=4';
     import { initSidebar } from './sidebar.js?v=7';
     initSidebar({ active: 'ranking' });
 
@@ -479,10 +479,10 @@
     async function fetchNames(uids) {
       if (!uids.length) return {};
       const { data } = await supabase.from('profiles')
-        .select('user_id, display_name').in('user_id', uids);
+        .select('id, display_name').in('id', uids);
       if (!data) return {};
       const map = {};
-      for (const p of data) map[p.user_id] = p.display_name || 'Jogador';
+      for (const p of data) map[p.id] = p.display_name || 'Jogador';
       return map;
     }
 
@@ -669,11 +669,11 @@
         for (let i = 0; i < allUids.length; i += 500) {
           const batch = allUids.slice(i, i + 500);
           const { data: profiles } = await supabase.from('profiles')
-            .select('user_id, display_name').in('user_id', batch);
+            .select('id, display_name').in('id', batch);
           if (profiles) profiles.forEach(p => {
-            if (stats[p.user_id]) {
-              stats[p.user_id].name = p.display_name || 'Jogador';
-              stats[p.user_id].hasName = !!(p.display_name && p.display_name.trim().length >= 2);
+            if (stats[p.id]) {
+              stats[p.id].name = p.display_name || 'Jogador';
+              stats[p.id].hasName = !!(p.display_name && p.display_name.trim().length >= 2);
             }
           });
         }
