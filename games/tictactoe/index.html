@@ -17,10 +17,11 @@
   <meta name="twitter:title" content="Jogo da Velha Online Gratis - Games Hub" />
   <meta name="twitter:description" content="Jogue Jogo da Velha online e de graca contra o computador!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/design-system.css?v=1" />
-  <link rel="stylesheet" href="style.css?v=6" />
-  <meta name="theme-color" content="#ff6b35" />
+  <link rel="stylesheet" href="style.css?v=7" />
+  <meta name="theme-color" content="#0e0e0e" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
   {
@@ -51,7 +52,7 @@
 
   <header class="topbar">
     <a href="../../index.html" class="btn-back">&larr; Voltar</a>
-    <h1 class="game-title">&#10060; Jogo da Velha</h1>
+    <h1 class="game-title"><span>✖</span> JOGO DA VELHA</h1>
     <div id="mode-indicator" class="mode-indicator"></div>
   </header>
 
@@ -101,7 +102,7 @@
   </main>
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=6'; initSidebar({ active: 'velha' });</script>
-  <script type="module" src="game.js?v=6"></script>
+  <script type="module" src="game.js?v=7"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
