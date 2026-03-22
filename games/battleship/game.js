@@ -1157,7 +1157,6 @@ window.addEventListener('pagehide', () => {
     try { mpSubscription.unsubscribe(); mpSubscription = null; } catch (e) {}
   }
 });
-});
 
 // ===== START =====
 init();
