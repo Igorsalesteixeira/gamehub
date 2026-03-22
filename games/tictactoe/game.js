@@ -33,6 +33,9 @@ let roomData = null;          // Multiplayer room data
 let player1Name = 'Jogador 1';
 let player2Name = 'Jogador 2';
 
+// === Scores ===
+const scores = { player: 0, cpu: 0, draw: 0 };
+
 // === Multiplayer Manager ===
 let mp = null;
 const gameStats = new GameStats('tictactoe');
