@@ -48,7 +48,8 @@ function validateGame(gamePath, gameName) {
         const modulePath = moduleMatch[1];
         // Check if shared module exists
         if (modulePath.includes('shared/')) {
-          const fullPath = path.join(__dirname, '..', modulePath.replace('.js', '') + '.js');
+          // Resolve path relative to the game directory, not to scripts/
+          const fullPath = path.join(gamePath, modulePath);
           if (!fs.existsSync(fullPath)) {
             issues.push(`Import not found: ${modulePath}`);
           }
