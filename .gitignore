@@ -27,3 +27,7 @@ npm-debug.log*
 # Temp files
 *.tmp
 *.temp
+
+# Test results (Playwright)
+test-results/
+.playwright-artifacts-*/
