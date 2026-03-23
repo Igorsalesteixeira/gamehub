@@ -1,20 +1,26 @@
-/* ===== TORRE BRASIL — TOWER DEFENSE ===== */
+/* ===== TORRE BRASIL — TOWER DEFENSE (Cartoon Theme) ===== */
 
 :root {
-  --bg: #131313;
-  --surface: #1a1a1a;
-  --surface-container: #222222;
-  --surface-high: #2a2a2a;
-  --primary: #2ecc71;
-  --primary-dim: #1a7a42;
-  --secondary: #f39c12;
-  --tertiary: #e74c3c;
-  --accent-gold: #f1c40f;
-  --on-surface: #e0e0e0;
-  --outline: #3a3a3a;
-  --font-display: 'Press Start 2P', 'VT323', monospace;
-  --font-body: 'Space Grotesk', sans-serif;
-  --font-ui: 'VT323', monospace;
+  --bg: #03A9F4;
+  --surface: #F5E6D0;
+  --surface-container: #EDE0CC;
+  --surface-high: #E8D8C0;
+  --primary: #FF5722;
+  --primary-dim: #E64A19;
+  --secondary: #FFC107;
+  --tertiary: #E74C3C;
+  --accent-gold: #FF8F00;
+  --on-surface: #3E2723;
+  --on-surface-light: #5D4037;
+  --outline: #8D6E63;
+  --border-thick: 3px solid #8D6E63;
+  --shadow-bottom: 0 4px 0 #5D4037;
+  --font-display: 'Nunito', sans-serif;
+  --font-body: 'Nunito', sans-serif;
+  --font-ui: 'Nunito', sans-serif;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
 }
 
 *, *::before, *::after {
@@ -30,6 +36,7 @@ html, body {
 
 body {
   font-family: var(--font-body);
+  font-weight: 700;
   background: var(--bg);
   color: var(--on-surface);
   display: flex;
@@ -43,9 +50,8 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(125deg, rgba(46, 204, 113, 0.05) 0%, transparent 40%),
-    linear-gradient(235deg, rgba(243, 156, 18, 0.03) 0%, transparent 40%),
-    linear-gradient(355deg, rgba(231, 76, 60, 0.02) 0%, transparent 30%);
+    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(255,255,255,0.12) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
@@ -57,7 +63,8 @@ body::before {
   justify-content: space-between;
   padding: 0.4rem 0.8rem;
   background: var(--surface);
-  border-bottom: 1px solid var(--outline);
+  border-bottom: var(--border-thick);
+  box-shadow: var(--shadow-bottom);
   position: relative;
   z-index: 10;
   flex-shrink: 0;
@@ -67,19 +74,22 @@ body::before {
   color: var(--primary);
   text-decoration: none;
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 1.1rem;
   padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   transition: background 0.2s;
 }
-.btn-back:hover { background: rgba(46, 204, 113, 0.15); }
+.btn-back:hover { background: rgba(255, 87, 34, 0.12); }
 
 .game-title {
   font-family: var(--font-display);
-  font-size: clamp(0.7rem, 2.5vw, 1rem);
+  font-weight: 800;
+  font-size: clamp(0.85rem, 2.5vw, 1.15rem);
   color: var(--primary);
-  text-shadow: 0 0 12px rgba(46, 204, 113, 0.4);
+  text-shadow: 2px 2px 0 #5D4037, 0 0 0 transparent;
   white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
 .stats {
@@ -93,14 +103,16 @@ body::before {
   gap: 0.3rem;
   background: var(--surface-container);
   padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--outline);
+  border-radius: var(--radius-xs);
+  border: var(--border-thick);
+  box-shadow: 0 2px 0 #5D4037;
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 1rem;
 }
 
 .score-icon { font-size: 0.9rem; }
-.score-value { color: var(--accent-gold); font-size: 1.1rem; }
+.score-value { color: var(--accent-gold); font-size: 1.1rem; font-weight: 800; }
 
 /* ── Game Container ── */
 .game-container {
@@ -126,7 +138,8 @@ body::before {
   gap: 0.4rem;
   padding: 0.4rem 0.6rem;
   background: var(--surface);
-  border-top: 1px solid var(--outline);
+  border-top: var(--border-thick);
+  box-shadow: 0 -3px 0 #5D4037;
   flex-shrink: 0;
   z-index: 5;
 }
@@ -137,19 +150,26 @@ body::before {
   align-items: center;
   gap: 0.15rem;
   padding: 0.3rem 0.5rem;
-  border-radius: 8px;
-  border: 2px solid var(--outline);
+  border-radius: var(--radius-sm);
+  border: 3px solid #8D6E63;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--surface-container);
+  box-shadow: 0 3px 0 #5D4037;
   min-width: 48px;
 }
 
 .tower-option:hover,
 .tower-option.selected {
   border-color: var(--primary);
-  background: rgba(46, 204, 113, 0.15);
-  transform: translateY(-2px);
+  background: #FFE0B2;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 0 #5D4037;
+}
+
+.tower-option:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 0 #5D4037;
 }
 
 .tower-option.disabled {
@@ -161,19 +181,23 @@ body::before {
   width: 28px;
   height: 28px;
   border-radius: 50%;
+  border: 2px solid #5D4037;
+  box-shadow: 0 2px 0 #3E2723;
 }
 
-.tucano-icon { background: linear-gradient(135deg, #f39c12, #2c3e50); }
-.arara-icon { background: linear-gradient(135deg, #e74c3c, #3498db); }
-.onca-icon { background: linear-gradient(135deg, #f1c40f, #2c3e50); }
-.jacare-icon { background: linear-gradient(135deg, #27ae60, #1a5c33); }
-.capivara-icon { background: linear-gradient(135deg, #a0522d, #8b4513); }
-.sucuri-icon { background: linear-gradient(135deg, #1a5c33, #0d3318); }
+.tucano-icon { background: linear-gradient(135deg, #FFB300, #FF6F00); }
+.arara-icon { background: linear-gradient(135deg, #EF5350, #42A5F5); }
+.onca-icon { background: linear-gradient(135deg, #FFD54F, #FF8F00); }
+.jacare-icon { background: linear-gradient(135deg, #66BB6A, #2E7D32); }
+.capivara-icon { background: linear-gradient(135deg, #A1887F, #6D4C41); }
+.sucuri-icon { background: linear-gradient(135deg, #4CAF50, #1B5E20); }
 
 .tower-cost {
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 0.85rem;
   color: var(--accent-gold);
+  text-shadow: 1px 1px 0 #5D4037;
 }
 
 /* ── Tower Info (upgrade/sell) ── */
@@ -186,43 +210,52 @@ body::before {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.8rem;
-  background: rgba(26, 26, 26, 0.95);
-  border: 1px solid var(--primary);
-  border-radius: 10px;
+  background: var(--surface);
+  border: 3px solid var(--primary);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 #5D4037, 0 8px 20px rgba(0,0,0,0.15);
   z-index: 6;
-  backdrop-filter: blur(6px);
 }
 
 .info-name {
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 1.1rem;
   color: var(--primary);
 }
 
 .info-level {
   font-family: var(--font-ui);
+  font-weight: 700;
   font-size: 0.9rem;
   color: var(--secondary);
 }
 
 .btn-action {
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 0.9rem;
   padding: 0.3rem 0.6rem;
-  border: 1px solid var(--outline);
-  border-radius: 6px;
+  border: 3px solid var(--outline);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   background: var(--surface-container);
   color: var(--on-surface);
+  box-shadow: 0 2px 0 #5D4037;
   transition: all 0.15s;
 }
 
-.btn-upgrade { border-color: var(--primary); color: var(--primary); }
-.btn-upgrade:hover { background: rgba(46, 204, 113, 0.2); }
-.btn-sell { border-color: var(--secondary); color: var(--secondary); }
-.btn-sell:hover { background: rgba(243, 156, 18, 0.2); }
-.btn-close { border-color: var(--tertiary); color: var(--tertiary); }
-.btn-close:hover { background: rgba(231, 76, 60, 0.2); }
+.btn-action:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.btn-upgrade { border-color: #4CAF50; color: #2E7D32; background: #C8E6C9; }
+.btn-upgrade:hover { background: #A5D6A7; }
+.btn-sell { border-color: #FFC107; color: #FF8F00; background: #FFF8E1; }
+.btn-sell:hover { background: #FFECB3; }
+.btn-close { border-color: var(--tertiary); color: var(--tertiary); background: #FFCDD2; }
+.btn-close:hover { background: #EF9A9A; }
 
 /* ── Modal Overlay ── */
 .modal-overlay {
@@ -231,24 +264,24 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.55);
   z-index: 50;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
 }
 
 .modal-overlay.hidden { display: none; }
 
 .glass-modal {
-  background: rgba(26, 26, 26, 0.95);
-  border: 1px solid var(--primary);
-  border-radius: 16px;
+  background: var(--surface);
+  border: 4px solid #8D6E63;
+  border-radius: 20px;
   padding: 2rem 2.5rem;
   text-align: center;
   max-width: 400px;
   width: 90%;
   box-shadow:
-    0 0 30px rgba(46, 204, 113, 0.15),
-    0 20px 60px rgba(0, 0, 0, 0.5);
+    0 6px 0 #5D4037,
+    0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
 .modal-icon {
@@ -258,57 +291,75 @@ body::before {
 
 .modal-title {
   font-family: var(--font-display);
-  font-size: clamp(1rem, 4vw, 1.4rem);
+  font-weight: 800;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
   color: var(--primary);
   margin-bottom: 0.5rem;
-  text-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+  text-shadow: 2px 2px 0 #5D4037;
+  letter-spacing: 0.5px;
 }
 
 .modal-subtitle {
   font-family: var(--font-body);
+  font-weight: 700;
   font-size: 0.95rem;
-  color: var(--on-surface);
-  opacity: 0.8;
+  color: var(--on-surface-light);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .overlay-score {
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 1.3rem;
   color: var(--accent-gold);
+  text-shadow: 1px 1px 0 #5D4037;
   margin-bottom: 1rem;
 }
 
 .btn {
   font-family: var(--font-ui);
+  font-weight: 800;
   font-size: 1.2rem;
   padding: 0.7rem 2rem;
-  border: none;
-  border-radius: 10px;
+  border: 3px solid transparent;
+  border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.2s;
   display: inline-block;
+  letter-spacing: 0.5px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+  background: var(--primary);
+  border-color: #BF360C;
   color: #fff;
-  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+  box-shadow: 0 4px 0 #BF360C;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+  box-shadow: 0 6px 0 #BF360C;
+}
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #BF360C;
 }
 
 .btn-whatsapp {
   background: #25d366;
+  border-color: #128C7E;
   color: #fff;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 0 #128C7E;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 .btn-whatsapp:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+  box-shadow: 0 6px 0 #128C7E;
+}
+.btn-whatsapp:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #128C7E;
 }
 
 /* ── Game Info Section ── */
@@ -319,7 +370,7 @@ body::before {
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .topbar { padding: 0.3rem 0.5rem; }
-  .game-title { font-size: 0.6rem; }
+  .game-title { font-size: 0.7rem; }
   .score-box { padding: 0.2rem 0.35rem; font-size: 0.85rem; }
   .score-value { font-size: 0.9rem; }
   .tower-panel { gap: 0.2rem; padding: 0.3rem; }
@@ -342,20 +393,23 @@ body::before {
     margin: 1rem auto;
     padding: 1.5rem;
     background: var(--surface);
-    border-radius: 12px;
-    border: 1px solid var(--outline);
+    border-radius: var(--radius);
+    border: var(--border-thick);
+    box-shadow: var(--shadow-bottom);
   }
   .game-info h2 {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 1.1rem;
     color: var(--primary);
     margin-bottom: 0.8rem;
+    text-shadow: 1px 1px 0 #5D4037;
   }
   .game-info p, .game-info li {
     font-size: 0.95rem;
     line-height: 1.6;
     color: var(--on-surface);
-    opacity: 0.85;
+    font-weight: 700;
   }
   .game-info ul {
     padding-left: 1.2rem;
