@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loja de Cosméticos - Games Hub</title>
+  <meta name="description" content="Compre itens cosméticos com suas moedas no Games Hub. Cartas, tabuleiros, molduras e mais!" />
+  <meta name="theme-color" content="#0d0d19" />
+  <link rel="manifest" href="manifest.json" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      background: #0d0d19;
+      color: #e9e6f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: rgba(24,24,39,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(71,70,85,0.15);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      text-shadow: 0 0 10px rgba(129,236,255,0.8), 0 0 30px rgba(129,236,255,0.4);
+      letter-spacing: 1.5px;
+    }
+    .page-title {
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      color: #aba9ba;
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+    .coin-display {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,152,0,0.1));
+      border: 1px solid rgba(255,193,7,0.3);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #ffd54f;
+    }
+    .coin-icon { font-size: 1.2rem; }
+
+    /* ===== MAIN ===== */
+    .shop-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ===== HERO BANNER ===== */
+    .shop-hero {
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, rgba(129,236,255,0.08), rgba(255,81,250,0.06));
+      border-radius: 20px;
+      border: 1px solid rgba(129,236,255,0.12);
+    }
+    .shop-hero h1 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+    .shop-hero h1 span {
+      background: linear-gradient(135deg, #81ecff, #ff51fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .shop-hero p {
+      color: #aba9ba;
+      font-size: 1rem;
+    }
+
+    /* ===== CATEGORY TABS ===== */
+    .category-tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(71,70,85,0.15);
+      background: rgba(233,230,248,0.04);
+      color: #aba9ba;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      background: rgba(233,230,248,0.08);
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(129,236,255,0.15), rgba(255,81,250,0.1));
+      color: #fff;
+      border-color: rgba(129,236,255,0.3);
+      box-shadow: 0 0 5px #00e5ff, 0 0 15px rgba(0,229,255,0.4);
+    }
+
+    /* ===== ITEMS GRID ===== */
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ===== ITEM CARD ===== */
+    .item-card {
+      background: linear-gradient(180deg, rgba(36,36,54,0.7), rgba(24,24,39,0.5));
+      border-radius: 16px;
+      padding: 1.3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+      border: 1.5px solid rgba(71,70,85,0.15);
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .item-card:hover {
+      transform: translateY(-4px);
+    }
+
+    /* Rarity borders */
+    .item-card[data-rarity="comum"] { border-color: rgba(150,150,160,0.3); }
+    .item-card[data-rarity="incomum"] { border-color: rgba(76,175,80,0.4); }
+    .item-card[data-rarity="raro"] { border-color: rgba(66,165,245,0.5); box-shadow: 0 0 12px rgba(66,165,245,0.15); }
+    .item-card[data-rarity="epico"] { border-color: rgba(171,71,188,0.5); box-shadow: 0 0 16px rgba(171,71,188,0.2); }
+    .item-card[data-rarity="lendario"] { border-color: rgba(255,193,7,0.5); box-shadow: 0 0 20px rgba(255,193,7,0.25); }
+
+    .item-card[data-rarity="comum"]:hover { box-shadow: 0 4px 20px rgba(150,150,160,0.15); }
+    .item-card[data-rarity="incomum"]:hover { box-shadow: 0 4px 20px rgba(76,175,80,0.2); }
+    .item-card[data-rarity="raro"]:hover { box-shadow: 0 4px 24px rgba(66,165,245,0.3); }
+    .item-card[data-rarity="epico"]:hover { box-shadow: 0 4px 28px rgba(171,71,188,0.35); }
+    .item-card[data-rarity="lendario"]:hover { box-shadow: 0 4px 32px rgba(255,193,7,0.4); }
+
+    .item-card.owned {
+      opacity: 0.85;
+    }
+    .item-card.equipped {
+      opacity: 1;
+    }
+
+    /* Rarity badge */
+    .rarity-badge {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+    }
+    .rarity-comum { background: rgba(150,150,160,0.2); color: #9696a0; }
+    .rarity-incomum { background: rgba(76,175,80,0.2); color: #66bb6a; }
+    .rarity-raro { background: rgba(66,165,245,0.2); color: #42a5f5; }
+    .rarity-epico { background: rgba(171,71,188,0.2); color: #ab47bc; }
+    .rarity-lendario { background: rgba(255,193,7,0.2); color: #ffc107; }
+
+    .item-icon {
+      font-size: 2.8rem;
+      line-height: 1;
+      margin: 0.3rem 0;
+    }
+    .item-name {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .item-desc {
+      font-size: 0.82rem;
+      color: #aba9ba;
+      line-height: 1.3;
+    }
+    .item-price {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #ffd54f;
+      margin: 0.2rem 0;
+    }
+
+    /* Buttons */
+    .btn-buy {
+      width: 100%;
+      padding: 0.55rem 1rem;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-buy.purchase {
+      background: linear-gradient(135deg, #81ecff, #00bcd4);
+      color: #0d0d19;
+    }
+    .btn-buy.purchase:hover {
+      box-shadow: 0 0 12px rgba(129,236,255,0.5);
+      transform: scale(1.02);
+    }
+    .btn-buy.purchase:disabled {
+      background: rgba(150,150,160,0.3);
+      color: #757484;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-buy.equip {
+      background: linear-gradient(135deg, rgba(76,175,80,0.3), rgba(76,175,80,0.15));
+      color: #66bb6a;
+      border: 1px solid rgba(76,175,80,0.3);
+    }
+    .btn-buy.equip:hover {
+      background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(76,175,80,0.25));
+      box-shadow: 0 0 10px rgba(76,175,80,0.3);
+    }
+    .btn-buy.equipped-btn {
+      background: rgba(76,175,80,0.15);
+      color: #66bb6a;
+      border: 1px solid rgba(76,175,80,0.4);
+      position: relative;
+    }
+    .btn-buy.equipped-btn::before {
+      content: '✓ ';
+    }
+
+    /* ===== INVENTORY COUNTER ===== */
+    .inventory-info {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #757484;
+      font-size: 0.88rem;
+    }
+    .inventory-info span {
+      color: #81ecff;
+      font-weight: 700;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 0.8rem 1.5rem;
+      border-radius: 14px;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+      backdrop-filter: blur(12px);
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success {
+      background: rgba(76,175,80,0.2);
+      color: #66bb6a;
+      border: 1px solid rgba(76,175,80,0.3);
+      box-shadow: 0 4px 24px rgba(76,175,80,0.2);
+    }
+    .toast.error {
+      background: rgba(244,67,54,0.2);
+      color: #ef5350;
+      border: 1px solid rgba(244,67,54,0.3);
+      box-shadow: 0 4px 24px rgba(244,67,54,0.2);
+    }
+    .toast.info {
+      background: rgba(129,236,255,0.15);
+      color: #81ecff;
+      border: 1px solid rgba(129,236,255,0.3);
+      box-shadow: 0 4px 24px rgba(129,236,255,0.15);
+    }
+
+    /* ===== CONFIRM MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-box {
+      background: linear-gradient(180deg, #1e1e30, #14142a);
+      border: 1px solid rgba(129,236,255,0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 0.8rem;
+    }
+    .modal-title {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+    .modal-desc {
+      color: #aba9ba;
+      font-size: 0.92rem;
+      margin-bottom: 0.8rem;
+      line-height: 1.4;
+    }
+    .modal-price {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #ffd54f;
+      margin-bottom: 1.2rem;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+    }
+    .modal-btn {
+      padding: 0.6rem 1.5rem;
+      border-radius: 12px;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .modal-btn.confirm {
+      background: linear-gradient(135deg, #81ecff, #00bcd4);
+      color: #0d0d19;
+    }
+    .modal-btn.confirm:hover {
+      box-shadow: 0 0 12px rgba(129,236,255,0.5);
+    }
+    .modal-btn.cancel {
+      background: rgba(233,230,248,0.08);
+      color: #aba9ba;
+      border: 1px solid rgba(71,70,85,0.2);
+    }
+    .modal-btn.cancel:hover {
+      background: rgba(233,230,248,0.15);
+      color: #fff;
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #757484;
+    }
+    .empty-state .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 1.2rem;
+      font-size: 0.85rem;
+      color: #757484;
+      border-top: 1px solid rgba(71,70,85,0.12);
+      background: #000;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .footer-links a {
+      color: #757484;
+      text-decoration: none;
+      font-size: 0.8rem;
+    }
+    .footer-links a:hover { color: #81ecff; }
+
+    /* ===== LENDARIO SHIMMER ===== */
+    @keyframes legendaryShimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .item-card[data-rarity="lendario"]::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 30%, rgba(255,193,7,0.06) 50%, transparent 70%);
+      background-size: 200% 100%;
+      animation: legendaryShimmer 3s ease-in-out infinite;
+      pointer-events: none;
+      border-radius: 16px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .header { padding: 0.8rem 1rem; }
+      .logo { font-size: 1.3rem; }
+      .shop-hero h1 { font-size: 1.5rem; }
+      .items-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.8rem; }
+      .item-card { padding: 1rem; }
+      .item-icon { font-size: 2.2rem; }
+      .item-name { font-size: 0.95rem; }
+      .tab-btn { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
+    }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <a href="index.html" class="logo">Games Hub</a>
+      <span class="page-title">Loja de Cosméticos</span>
+    </div>
+    <div class="coin-display" id="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span id="coin-balance">0</span>
+    </div>
+  </header>
+
+  <main class="shop-container">
+
+    <div class="shop-hero">
+      <h1>Loja de <span>Cosméticos</span></h1>
+      <p>Personalize seus jogos com itens exclusivos!</p>
+    </div>
+
+    <div class="inventory-info">
+      Você possui <span id="inventory-count">0</span> itens
+    </div>
+
+    <div class="category-tabs" id="category-tabs"></div>
+
+    <div class="items-grid" id="items-grid"></div>
+
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <div class="empty-icon">🏪</div>
+      <p>Nenhum item nesta categoria.</p>
+    </div>
+
+  </main>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-icon" id="modal-icon">🃏</div>
+      <div class="modal-title" id="modal-title">Comprar item?</div>
+      <div class="modal-desc" id="modal-desc">Descrição do item</div>
+      <div class="modal-price" id="modal-price">🪙 200</div>
+      <div class="modal-buttons">
+        <button class="modal-btn cancel" id="modal-cancel">Cancelar</button>
+        <button class="modal-btn confirm" id="modal-confirm">Comprar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <footer class="footer">
+    <p>Feito com ❤️ &mdash; Games Hub &copy; 2025</p>
+    <div class="footer-links">
+      <a href="sobre.html">Sobre</a>
+      <a href="privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { cosmeticsManager, SHOP_ITEMS, CATEGORIES } from './games/shared/cosmetics-manager.js';
+    import { coinManager } from './games/shared/coin-manager.js';
+    import { initSidebar } from './sidebar.js?v=6';
+    initSidebar({ active: 'shop' });
+
+    // === State ===
+    let activeCategory = 'all';
+    let pendingPurchaseId = null;
+
+    // === DOM refs ===
+    const coinBalanceEl = document.getElementById('coin-balance');
+    const inventoryCountEl = document.getElementById('inventory-count');
+    const tabsContainer = document.getElementById('category-tabs');
+    const gridContainer = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalPrice = document.getElementById('modal-price');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalConfirm = document.getElementById('modal-confirm');
+    const toastEl = document.getElementById('toast');
+
+    // === Update balance display ===
+    function updateBalance() {
+      coinBalanceEl.textContent = coinManager.getBalance().toLocaleString('pt-BR');
+    }
+
+    function updateInventoryCount() {
+      inventoryCountEl.textContent = cosmeticsManager.getInventory().length;
+    }
+
+    // === Render category tabs ===
+    function renderTabs() {
+      let html = `<button class="tab-btn active" data-cat="all">Todos</button>`;
+      for (const [key, cat] of Object.entries(CATEGORIES)) {
+        html += `<button class="tab-btn" data-cat="${key}">${cat.icon} ${cat.name}</button>`;
+      }
+      tabsContainer.innerHTML = html;
+
+      tabsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        activeCategory = btn.dataset.cat;
+        tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderItems();
+      });
+    }
+
+    // === Render items grid ===
+    function renderItems() {
+      const items = activeCategory === 'all'
+        ? SHOP_ITEMS
+        : SHOP_ITEMS.filter(i => i.category === activeCategory);
+
+      if (items.length === 0) {
+        gridContainer.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      const balance = coinManager.getBalance();
+      const equipped = cosmeticsManager.getEquipped();
+
+      gridContainer.innerHTML = items.map(item => {
+        const owned = cosmeticsManager.owns(item.id);
+        const isEquipped = equipped[item.category] === item.id;
+        const canAfford = balance >= item.price;
+
+        let btnHtml;
+        if (isEquipped) {
+          btnHtml = `<button class="btn-buy equipped-btn" data-action="unequip" data-id="${item.id}">Equipado</button>`;
+        } else if (owned) {
+          btnHtml = `<button class="btn-buy equip" data-action="equip" data-id="${item.id}">Equipar</button>`;
+        } else {
+          btnHtml = `<button class="btn-buy purchase" data-action="buy" data-id="${item.id}" ${!canAfford ? 'disabled' : ''}>Comprar</button>`;
+        }
+
+        return `
+          <div class="item-card ${owned ? 'owned' : ''} ${isEquipped ? 'equipped' : ''}" data-rarity="${item.rarity}">
+            <span class="rarity-badge rarity-${item.rarity}">${item.rarity}</span>
+            <div class="item-icon">${item.icon}</div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-desc">${item.desc}</div>
+            ${!owned ? `<div class="item-price">🪙 ${item.price.toLocaleString('pt-BR')}</div>` : ''}
+            ${btnHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // === Handle grid clicks ===
+    gridContainer.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.btn-buy');
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const itemId = btn.dataset.id;
+
+      if (action === 'buy') {
+        showPurchaseModal(itemId);
+      } else if (action === 'equip') {
+        cosmeticsManager.equip(itemId);
+        const item = SHOP_ITEMS.find(i => i.id === itemId);
+        showToast(`${item.icon} ${item.name} equipado!`, 'success');
+        renderItems();
+      } else if (action === 'unequip') {
+        const item = SHOP_ITEMS.find(i => i.id === itemId);
+        cosmeticsManager.unequip(item.category);
+        showToast(`${item.name} desequipado`, 'info');
+        renderItems();
+      }
+    });
+
+    // === Purchase Modal ===
+    function showPurchaseModal(itemId) {
+      const item = SHOP_ITEMS.find(i => i.id === itemId);
+      if (!item) return;
+      pendingPurchaseId = itemId;
+      modalIcon.textContent = item.icon;
+      modalTitle.textContent = `Comprar ${item.name}?`;
+      modalDesc.textContent = item.desc;
+      modalPrice.innerHTML = `🪙 ${item.price.toLocaleString('pt-BR')}`;
+      modalOverlay.classList.add('show');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('show');
+      pendingPurchaseId = null;
+    }
+
+    modalCancel.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    modalConfirm.addEventListener('click', async () => {
+      if (!pendingPurchaseId) return;
+      const itemId = pendingPurchaseId;
+      closeModal();
+
+      try {
+        const item = await cosmeticsManager.purchase(itemId);
+        showToast(`${item.icon} ${item.name} comprado com sucesso!`, 'success');
+        updateBalance();
+        updateInventoryCount();
+        renderItems();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    // === Toast ===
+    let toastTimeout;
+    function showToast(msg, type = 'info') {
+      clearTimeout(toastTimeout);
+      toastEl.textContent = msg;
+      toastEl.className = `toast ${type}`;
+      requestAnimationFrame(() => {
+        toastEl.classList.add('show');
+      });
+      toastTimeout = setTimeout(() => {
+        toastEl.classList.remove('show');
+      }, 3000);
+    }
+
+    // === Listen for coin changes ===
+    window.addEventListener('coins-changed', () => {
+      updateBalance();
+      renderItems();
+    });
+
+    // === Init ===
+    updateBalance();
+    updateInventoryCount();
+    renderTabs();
+    renderItems();
+  </script>
+
+  <script type="module" src="games/shared/pwa-register.js?v=1"></script>
+</body>
+</html>

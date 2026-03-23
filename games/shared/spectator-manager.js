@@ -73,11 +73,13 @@ class SpectatorManager {
   // Get list of active games that can be spectated
   async getActiveGames(limit = 10) {
     try {
+      const cutoff = new Date(Date.now() - 60 * 60000).toISOString(); // últimas 1h
       const { data } = await supabase
         .from('game_rooms')
         .select('id, game, player1_name, player2_name, status, created_at')
         .eq('status', 'playing')
         .not('player2_id', 'is', null)
+        .gte('created_at', cutoff)
         .order('created_at', { ascending: false })
         .limit(limit);
       return data || [];

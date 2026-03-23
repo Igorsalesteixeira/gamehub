@@ -30,6 +30,23 @@ class CoinManager {
   }
 
   /**
+   * Spend coins (for shop purchases, etc.)
+   * @param {number} amount
+   * @param {string} reason
+   * @returns {boolean} true if successful
+   */
+  spend(amount, reason = '') {
+    if (this.balance < amount) return false;
+    this.balance -= amount;
+    this._saveBalance();
+    this._logTransaction(-amount, reason);
+    window.dispatchEvent(new CustomEvent('coins-changed', {
+      detail: { balance: this.balance, spent: amount, reason }
+    }));
+    return true;
+  }
+
+  /**
    * Award coins with optional floating animation
    * @param {number} amount
    * @param {string} reason - 'game_played', 'game_won', 'daily_challenge', 'streak', 'achievement'

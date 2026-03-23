@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Criar Puzzle - Games Hub</title>
+  <meta name="description" content="Crie seu proprio Caca-Palavras e compartilhe com amigos! Editor de puzzles do Games Hub." />
+  <meta name="theme-color" content="#0d0d19" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #0d0d19;
+      color: #e0e0e0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: rgba(13, 13, 25, 0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .btn-back {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      transition: background 0.2s;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.1); }
+    .topbar h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      flex: 1;
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* ── Step Indicator ── */
+    .steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      border-bottom: 3px solid #1a1a2e;
+      transition: all 0.3s;
+    }
+    .step.active {
+      color: #00e5ff;
+      border-bottom-color: #00e5ff;
+    }
+    .step.done {
+      color: #4caf50;
+      border-bottom-color: #4caf50;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #12121f;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Type Selector ── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .type-card {
+      background: #1a1a2e;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .type-card:hover { border-color: rgba(0,229,255,0.3); }
+    .type-card.selected { border-color: #00e5ff; background: rgba(0,229,255,0.08); }
+    .type-card .icon { font-size: 32px; margin-bottom: 8px; }
+    .type-card .label { font-weight: 600; font-size: 14px; color: #fff; }
+    .type-card .soon {
+      font-size: 11px;
+      color: #f59e0b;
+      margin-top: 4px;
+    }
+    .type-card.disabled { opacity: 0.4; pointer-events: none; }
+
+    /* ── Inputs ── */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 10px 14px;
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: #00e5ff;
+    }
+    input[type="text"]::placeholder { color: #444; }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .input-row input { flex: 1; }
+
+    /* ── Word chips ── */
+    .word-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0;
+      min-height: 36px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.25);
+      color: #00e5ff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .chip .remove {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      font-size: 12px;
+      color: #ff5252;
+      transition: background 0.2s;
+    }
+    .chip .remove:hover { background: rgba(255,82,82,0.2); }
+
+    .word-count {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    /* ── Settings row ── */
+    .settings-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 480px) {
+      .settings-row { grid-template-columns: 1fr; }
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00e5ff, #007cf0);
+      color: #000;
+    }
+    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-primary:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: #ccc;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .btn-whatsapp {
+      background: #25d366;
+      color: #fff;
+    }
+    .btn-whatsapp:hover { filter: brightness(1.1); }
+    .btn-copy {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-copy:hover { background: rgba(255,255,255,0.12); }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Grid Preview ── */
+    .grid-preview {
+      display: grid;
+      gap: 2px;
+      margin: 16px auto;
+      max-width: 100%;
+      aspect-ratio: 1;
+      width: fit-content;
+    }
+    .grid-preview .cell {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      border-radius: 4px;
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      font-weight: 700;
+      color: #aaa;
+      user-select: none;
+      transition: all 0.15s;
+    }
+    .grid-preview .cell.highlight {
+      color: #00e5ff;
+      background: rgba(0,229,255,0.12);
+    }
+    @media (max-width: 480px) {
+      .grid-preview .cell { width: 24px; height: 24px; font-size: 13px; }
+    }
+
+    /* ── Placement list ── */
+    .placement-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .placement-list li {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .placement-list li.placed {
+      background: rgba(76,175,80,0.15);
+      color: #4caf50;
+    }
+    .placement-list li.failed {
+      background: rgba(255,82,82,0.15);
+      color: #ff5252;
+      text-decoration: line-through;
+    }
+
+    /* ── Share result ── */
+    .share-result {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .share-result.visible { display: block; }
+    .share-result .success-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .share-result h2 {
+      color: #4caf50;
+      margin-bottom: 8px;
+    }
+    .share-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin: 16px 0;
+    }
+    .share-link input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #00e5ff;
+      font-size: 13px;
+      outline: none;
+      font-family: monospace;
+    }
+    .share-link .btn { padding: 8px 16px; font-size: 13px; }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .alert.error {
+      display: block;
+      background: rgba(255,82,82,0.12);
+      border: 1px solid rgba(255,82,82,0.3);
+      color: #ff5252;
+    }
+    .alert.info {
+      display: block;
+      background: rgba(0,229,255,0.08);
+      border: 1px solid rgba(0,229,255,0.2);
+      color: #00e5ff;
+    }
+
+    /* ── Sections visibility ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── Footer space ── */
+    .footer-space { height: 40px; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="index.html" class="btn-back">&larr; Voltar</a>
+    <h1>Criar Puzzle</h1>
+  </header>
+
+  <div class="container">
+
+    <!-- Step indicator -->
+    <div class="steps">
+      <div class="step active" id="step1-ind">1. Tipo</div>
+      <div class="step" id="step2-ind">2. Editar</div>
+      <div class="step" id="step3-ind">3. Publicar</div>
+    </div>
+
+    <!-- ── STEP 1: Select Type ── -->
+    <div class="section active" id="section-type">
+      <div class="card">
+        <h2>Escolha o tipo de puzzle</h2>
+        <div class="type-grid">
+          <div class="type-card selected" data-type="wordsearch" id="type-wordsearch">
+            <div class="icon">&#128270;</div>
+            <div class="label">Caca-Palavras</div>
+          </div>
+          <div class="type-card disabled" data-type="nonogram">
+            <div class="icon">&#9638;</div>
+            <div class="label">Nonograma</div>
+            <div class="soon">Em breve</div>
+          </div>
+          <div class="type-card disabled" data-type="crossword">
+            <div class="icon">&#10010;</div>
+            <div class="label">Palavras Cruzadas</div>
+            <div class="soon">Em breve</div>
+          </div>
+        </div>
+        <div style="margin-top:20px; text-align:right;">
+          <button class="btn btn-primary" id="btn-next-type">Proximo &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Editor ── -->
+    <div class="section" id="section-editor">
+      <div class="card">
+        <h2>Editor de Caca-Palavras</h2>
+
+        <div class="settings-row">
+          <div>
+            <label for="puzzle-title">Titulo do Puzzle</label>
+            <input type="text" id="puzzle-title" placeholder="Ex: Capitais do Brasil" maxlength="60" />
+          </div>
+          <div>
+            <label for="grid-size">Tamanho do Grid</label>
+            <select id="grid-size">
+              <option value="10">10 x 10</option>
+              <option value="12" selected>12 x 12</option>
+              <option value="15">15 x 15</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <label for="difficulty">Dificuldade</label>
+            <select id="difficulty">
+              <option value="facil">Facil</option>
+              <option value="medio" selected>Medio</option>
+              <option value="dificil">Dificil</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+
+        <h3>Adicionar palavras</h3>
+        <div class="input-row">
+          <input type="text" id="word-input" placeholder="Digite uma palavra e pressione Enter" maxlength="20" />
+          <button class="btn btn-secondary" id="btn-add-word">Adicionar</button>
+        </div>
+        <div id="word-alert" class="alert"></div>
+        <div class="word-chips" id="word-chips"></div>
+        <div class="word-count" id="word-count">0 palavras adicionadas (minimo: 5)</div>
+
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-secondary" id="btn-back-type">&larr; Voltar</button>
+          <button class="btn btn-primary" id="btn-generate" disabled>Gerar Preview</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="card" id="preview-card" style="display:none;">
+        <h2>Preview do Grid</h2>
+        <div class="grid-preview" id="grid-preview"></div>
+        <ul class="placement-list" id="placement-list"></ul>
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn btn-secondary" id="btn-regenerate">Gerar Novamente</button>
+          <button class="btn btn-primary" id="btn-publish">Publicar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Share ── -->
+    <div class="section" id="section-share">
+      <div class="card">
+        <div class="share-result visible" id="share-result">
+          <div class="success-icon">&#9989;</div>
+          <h2>Puzzle Publicado!</h2>
+          <p style="color:#888; margin-bottom:8px;">Compartilhe o link com seus amigos:</p>
+          <div class="share-link">
+            <input type="text" id="share-url" readonly />
+            <button class="btn btn-copy" id="btn-copy">Copiar</button>
+          </div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn btn-whatsapp" id="btn-whatsapp">Compartilhar no WhatsApp</button>
+            <button class="btn btn-secondary" id="btn-create-another">Criar Outro</button>
+          </div>
+          <div id="copy-feedback" style="color:#4caf50; font-size:13px; margin-top:8px; display:none;">Link copiado!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-space"></div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from './sidebar.js?v=7';
+    initSidebar({ active: 'criar-puzzle' });
+  </script>
+  <script type="module" src="games/shared/pwa-register.js?v=1"></script>
+
+  <script type="module">
+    import { puzzleEditor } from './games/shared/puzzle-editor.js';
+
+    // ── State ──
+    const words = [];
+    let currentGrid = null;
+    let currentPlacements = null;
+    let selectedType = 'wordsearch';
+
+    // ── DOM ──
+    const $sectionType = document.getElementById('section-type');
+    const $sectionEditor = document.getElementById('section-editor');
+    const $sectionShare = document.getElementById('section-share');
+    const $step1 = document.getElementById('step1-ind');
+    const $step2 = document.getElementById('step2-ind');
+    const $step3 = document.getElementById('step3-ind');
+    const $wordInput = document.getElementById('word-input');
+    const $wordChips = document.getElementById('word-chips');
+    const $wordCount = document.getElementById('word-count');
+    const $wordAlert = document.getElementById('word-alert');
+    const $btnAddWord = document.getElementById('btn-add-word');
+    const $btnGenerate = document.getElementById('btn-generate');
+    const $btnRegenerate = document.getElementById('btn-regenerate');
+    const $btnPublish = document.getElementById('btn-publish');
+    const $btnNextType = document.getElementById('btn-next-type');
+    const $btnBackType = document.getElementById('btn-back-type');
+    const $gridPreview = document.getElementById('grid-preview');
+    const $previewCard = document.getElementById('preview-card');
+    const $placementList = document.getElementById('placement-list');
+    const $puzzleTitle = document.getElementById('puzzle-title');
+    const $gridSize = document.getElementById('grid-size');
+    const $difficulty = document.getElementById('difficulty');
+    const $shareUrl = document.getElementById('share-url');
+    const $btnCopy = document.getElementById('btn-copy');
+    const $btnWhatsapp = document.getElementById('btn-whatsapp');
+    const $btnCreateAnother = document.getElementById('btn-create-another');
+    const $copyFeedback = document.getElementById('copy-feedback');
+
+    // ── Navigation ──
+    function goToStep(n) {
+      [$sectionType, $sectionEditor, $sectionShare].forEach(s => s.classList.remove('active'));
+      [$step1, $step2, $step3].forEach(s => { s.classList.remove('active'); s.classList.remove('done'); });
+
+      if (n === 1) {
+        $sectionType.classList.add('active');
+        $step1.classList.add('active');
+      } else if (n === 2) {
+        $sectionEditor.classList.add('active');
+        $step1.classList.add('done');
+        $step2.classList.add('active');
+      } else if (n === 3) {
+        $sectionShare.classList.add('active');
+        $step1.classList.add('done');
+        $step2.classList.add('done');
+        $step3.classList.add('active');
+      }
+    }
+
+    $btnNextType.addEventListener('click', () => goToStep(2));
+    $btnBackType.addEventListener('click', () => goToStep(1));
+
+    // ── Type selection ──
+    document.querySelectorAll('.type-card:not(.disabled)').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedType = card.dataset.type;
+      });
+    });
+
+    // ── Word Management ──
+    function sanitizeWord(w) {
+      return w.trim().toUpperCase().replace(/[^A-ZÀÁÂÃÉÊÍÓÔÕÚÇ]/gi, '').replace(/[ÀÁÂÃ]/g, 'A')
+        .replace(/[ÉÊ]/g, 'E').replace(/[Í]/g, 'I').replace(/[ÓÔÕ]/g, 'O')
+        .replace(/[ÚÜ]/g, 'U').replace(/[Ç]/g, 'C');
+    }
+
+    function showAlert(msg, type = 'error') {
+      $wordAlert.textContent = msg;
+      $wordAlert.className = 'alert ' + type;
+      setTimeout(() => { $wordAlert.className = 'alert'; }, 3000);
+    }
+
+    function addWord() {
+      const raw = $wordInput.value;
+      const word = sanitizeWord(raw);
+      if (!word || word.length < 2) { showAlert('Palavra deve ter pelo menos 2 letras'); return; }
+      if (word.length > 15) { showAlert('Maximo 15 letras por palavra'); return; }
+      if (words.includes(word)) { showAlert('Palavra ja adicionada'); return; }
+      if (words.length >= 20) { showAlert('Maximo de 20 palavras'); return; }
+
+      const size = parseInt($gridSize.value);
+      if (word.length > size) { showAlert(`Palavra muito longa para grid ${size}x${size}`); return; }
+
+      words.push(word);
+      $wordInput.value = '';
+      renderChips();
+      updateGenButton();
+    }
+
+    function removeWord(idx) {
+      words.splice(idx, 1);
+      renderChips();
+      updateGenButton();
+    }
+
+    function renderChips() {
+      $wordChips.innerHTML = words.map((w, i) =>
+        `<span class="chip">${w}<span class="remove" data-idx="${i}">&times;</span></span>`
+      ).join('');
+      $wordCount.textContent = `${words.length} palavra${words.length !== 1 ? 's' : ''} adicionada${words.length !== 1 ? 's' : ''} (minimo: 5)`;
+    }
+
+    function updateGenButton() {
+      $btnGenerate.disabled = words.length < 5 || !$puzzleTitle.value.trim();
+    }
+
+    $btnAddWord.addEventListener('click', addWord);
+    $wordInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addWord(); } });
+    $wordChips.addEventListener('click', e => {
+      const rm = e.target.closest('.remove');
+      if (rm) removeWord(parseInt(rm.dataset.idx));
+    });
+    $puzzleTitle.addEventListener('input', updateGenButton);
+    $gridSize.addEventListener('change', updateGenButton);
+
+    // ── Grid Generation ──
+    function canPlace(grid, word, row, col, dir, size) {
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dir[0] * i;
+        const c = col + dir[1] * i;
+        if (r < 0 || r >= size || c < 0 || c >= size) return false;
+        if (grid[r][c] !== '' && grid[r][c] !== word[i]) return false;
+      }
+      return true;
+    }
+
+    function placeWord(grid, word, row, col, dir) {
+      const cells = [];
+      for (let i = 0; i < word.length; i++) {
+        const r = row + dir[0] * i;
+        const c = col + dir[1] * i;
+        grid[r][c] = word[i];
+        cells.push([r, c]);
+      }
+      return cells;
+    }
+
+    function generateGrid(wordList, size) {
+      const grid = Array.from({ length: size }, () => Array(size).fill(''));
+      const placements = [];
+      const failed = [];
+      const directions = [
+        [0, 1], [1, 0], [1, 1], [1, -1],
+        [0, -1], [-1, 0], [-1, -1], [-1, 1]
+      ];
+
+      const sorted = [...wordList].sort((a, b) => b.length - a.length);
+
+      for (const word of sorted) {
+        let placed = false;
+        for (let attempt = 0; attempt < 200 && !placed; attempt++) {
+          const dir = directions[Math.floor(Math.random() * directions.length)];
+          const row = Math.floor(Math.random() * size);
+          const col = Math.floor(Math.random() * size);
+
+          if (canPlace(grid, word, row, col, dir, size)) {
+            const cells = placeWord(grid, word, row, col, dir);
+            placements.push({ word, row, col, dir, cells });
+            placed = true;
+          }
+        }
+        if (!placed) failed.push(word);
+      }
+
+      // Fill empty
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (!grid[r][c]) grid[r][c] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
+      }
+
+      return { grid, placements, failed };
+    }
+
+    function renderPreview(grid, placements, failed, size) {
+      // Build set of highlighted cells
+      const highlighted = new Set();
+      for (const p of placements) {
+        for (const [r, c] of p.cells) highlighted.add(`${r},${c}`);
+      }
+
+      $gridPreview.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      $gridPreview.innerHTML = '';
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const div = document.createElement('div');
+          div.className = 'cell' + (highlighted.has(`${r},${c}`) ? ' highlight' : '');
+          div.textContent = grid[r][c];
+          $gridPreview.appendChild(div);
+        }
+      }
+
+      // Placement list
+      $placementList.innerHTML = '';
+      for (const p of placements) {
+        const li = document.createElement('li');
+        li.className = 'placed';
+        li.textContent = p.word;
+        $placementList.appendChild(li);
+      }
+      for (const w of failed) {
+        const li = document.createElement('li');
+        li.className = 'failed';
+        li.textContent = w + ' (nao coube)';
+        $placementList.appendChild(li);
+      }
+
+      $previewCard.style.display = 'block';
+      $previewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function doGenerate() {
+      const size = parseInt($gridSize.value);
+      const result = generateGrid(words, size);
+      currentGrid = result.grid;
+      currentPlacements = result.placements;
+      renderPreview(result.grid, result.placements, result.failed, size);
+    }
+
+    $btnGenerate.addEventListener('click', doGenerate);
+    $btnRegenerate.addEventListener('click', doGenerate);
+
+    // ── Publish ──
+    $btnPublish.addEventListener('click', async () => {
+      if (!currentGrid || !currentPlacements) { showAlert('Gere o preview primeiro'); return; }
+      const title = $puzzleTitle.value.trim();
+      if (!title) { showAlert('De um titulo ao puzzle'); return; }
+
+      $btnPublish.disabled = true;
+      $btnPublish.textContent = 'Publicando...';
+
+      try {
+        const puzzleData = {
+          grid: currentGrid,
+          words: words.slice(),
+          placements: currentPlacements.map(p => ({
+            word: p.word,
+            row: p.row,
+            col: p.col,
+            dir: p.dir
+          })),
+          size: parseInt($gridSize.value)
+        };
+
+        const result = await puzzleEditor.savePuzzle({
+          gameType: selectedType,
+          title,
+          data: puzzleData,
+          difficulty: $difficulty.value
+        });
+
+        $shareUrl.value = result.shareUrl;
+        goToStep(3);
+      } catch (err) {
+        showAlert(err.message || 'Erro ao publicar. Faca login primeiro.');
+      } finally {
+        $btnPublish.disabled = false;
+        $btnPublish.textContent = 'Publicar';
+      }
+    });
+
+    // ── Share actions ──
+    $btnCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText($shareUrl.value).then(() => {
+        $copyFeedback.style.display = 'block';
+        setTimeout(() => { $copyFeedback.style.display = 'none'; }, 2000);
+      });
+    });
+
+    $btnWhatsapp.addEventListener('click', () => {
+      const text = encodeURIComponent(`Jogue meu Caca-Palavras: ${$shareUrl.value}`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    });
+
+    $btnCreateAnother.addEventListener('click', () => {
+      words.length = 0;
+      currentGrid = null;
+      currentPlacements = null;
+      $puzzleTitle.value = '';
+      $previewCard.style.display = 'none';
+      renderChips();
+      updateGenButton();
+      goToStep(1);
+    });
+
+  </script>
+
+</body>
+</html>

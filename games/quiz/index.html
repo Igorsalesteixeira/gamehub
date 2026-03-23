@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Quiz Battle Online Gratis - Teste seu Conhecimento | Games Hub</title>
+  <meta name="description" content="Jogue Quiz Battle online e de graca. Teste seus conhecimentos em geografia, historia, ciencias, esportes e cultura pop com perguntas desafiadoras!" />
+  <meta name="keywords" content="quiz online, quiz battle, perguntas e respostas, trivia, quiz gratis, jogos de perguntas" />
+  <link rel="canonical" href="https://gameshub.com.br/games/quiz/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Quiz Battle Online Gratis - Teste seu Conhecimento | Games Hub" />
+  <meta property="og:description" content="Jogue Quiz Battle online e de graca. Teste seus conhecimentos em 5 categorias!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/quiz/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Quiz Battle Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Teste seus conhecimentos em geografia, historia, ciencias, esportes e cultura pop!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Quiz Battle",
+    "description": "Jogue Quiz Battle online gratis. Teste seus conhecimentos em geografia, historia, ciencias, esportes e cultura pop com perguntas desafiadoras!",
+    "url": "https://gameshub.com.br/games/quiz/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser",
+    "genre": "Trivia"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title"><span class="title-icon">&#129504;</span> QUIZ BATTLE</h1>
+  </header>
+
+  <main class="game-container">
+
+    <!-- Category selector -->
+    <div class="category-selector" id="categories">
+      <button class="cat-btn active" data-cat="all">Todas</button>
+      <button class="cat-btn" data-cat="geografia">&#127757; Geografia</button>
+      <button class="cat-btn" data-cat="historia">&#128220; Historia</button>
+      <button class="cat-btn" data-cat="cultura">&#127916; Cultura Pop</button>
+      <button class="cat-btn" data-cat="ciencias">&#128300; Ciencias</button>
+      <button class="cat-btn" data-cat="esportes">&#9917; Esportes</button>
+    </div>
+
+    <!-- Start screen -->
+    <div class="start-screen" id="start-screen">
+      <div class="start-icon">&#129504;</div>
+      <h2>Quiz Battle</h2>
+      <p>10 perguntas, 15 segundos cada</p>
+      <p class="start-subtitle">Escolha uma categoria acima ou jogue com todas!</p>
+      <button class="btn btn-primary" id="btn-start">Comecar!</button>
+    </div>
+
+    <!-- Question area -->
+    <div class="question-area" id="question-area" style="display:none">
+      <div class="question-header">
+        <div class="progress">Pergunta <span id="q-num">1</span>/10</div>
+        <div class="category-badge" id="cat-badge">Geografia</div>
+      </div>
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div>
+      <div class="score-display">Pontos: <strong id="score">0</strong></div>
+    </div>
+
+  </main>
+
+  <!-- Modal de resultado -->
+  <div class="modal-overlay hidden" id="modal">
+    <div class="modal">
+      <div class="modal-icon" id="modal-icon">&#127942;</div>
+      <h2 class="modal-title" id="modal-title">Resultado</h2>
+      <p class="modal-msg" id="modal-msg"></p>
+      <div class="modal-stats" id="modal-stats"></div>
+      <button class="btn btn-primary" id="btn-new">Jogar Novamente</button>
+      <button class="btn btn-whatsapp" id="btn-share">&#128241; Compartilhar</button>
+    </div>
+  </div>
+
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module">import { initSidebar } from '../../sidebar.js?v=7'; initSidebar({ active: 'quiz' });</script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Quiz Battle Online</h2>
+    <p>Quiz Battle e o jogo de perguntas e respostas definitivo! Teste seus conhecimentos em 5 categorias: Geografia, Historia, Cultura Pop, Ciencias e Esportes. Cada rodada tem 10 perguntas com 15 segundos para responder. Quanto mais rapido, mais pontos! Jogue quiz online gratis.</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Escolha a categoria desejada ou jogue com todas misturadas.</li>
+      <li>Voce tem 15 segundos para responder cada pergunta.</li>
+      <li>Respostas corretas valem 100 pontos + bonus de velocidade.</li>
+      <li>Se o tempo acabar, a pergunta e considerada errada.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Se nao souber, elimine as opcoes mais improvaveis antes de chutar.</li>
+      <li>Responda rapido para ganhar mais pontos de bonus!</li>
+      <li>Pratique em categorias especificas para melhorar seu conhecimento.</li>
+    </ul>
+  </section>
+</body>
+</html>
