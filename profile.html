@@ -174,16 +174,21 @@
     .section-title {
       font-size: 1.1rem;
       font-weight: 800;
-      color: #3E2723;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
       margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      background: #388E3C;
+      padding: 0.6rem 1rem;
+      border-radius: 14px;
+      border: 2px solid #2E7D32;
     }
     .section-title .trophy-count {
       font-size: 0.78rem;
       font-weight: 700;
-      color: #795548;
+      color: rgba(255,255,255,0.8);
       margin-left: auto;
     }
 
@@ -498,7 +503,7 @@
 
   <script type="module">
     import { supabase } from './supabase.js';
-    import { initSidebar } from './sidebar.js?v=6';
+    import { initSidebar } from './sidebar.js?v=9';
     initSidebar({ active: 'profile' });
 
     const { data: { session } } = await supabase.auth.getSession();
