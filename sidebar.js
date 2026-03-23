@@ -339,7 +339,7 @@ export function initSidebar(options = {}) {
       </a>
     </nav>
     <div class="sidebar-footer">
-      <span>Games Hub &copy; 2025</span>
+      <span>Games Hub &copy; 2026</span>
     </div>
   `;
   document.body.appendChild(aside);

@@ -1,11 +1,11 @@
 {
   "name": "Games Hub",
   "short_name": "GamesHub",
-  "description": "A melhor plataforma de jogos online gratuitos do Brasil. 41 jogos para jogar agora!",
+  "description": "A melhor plataforma de jogos online gratuitos do Brasil. 47 jogos para jogar agora!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
-  "theme_color": "#ff6b35",
+  "theme_color": "#0d0d19",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "pt-BR",
