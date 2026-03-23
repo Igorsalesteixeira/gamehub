@@ -1,70 +1,67 @@
 /**
- * PIFE - "Cozinha da Nonna"
- * Design System: The Sunday Alchemist (Editorial Material Realism)
- * Generated via Stitch + Manual Premium Implementation
- * LIGHT THEME — Italian kitchen warmth
- * v=8
+ * PIFE - Cartoon Theme
+ * Design: Playful cartoon style with Nunito font, bold borders, 3D shadows
+ * v=9
  */
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  /* Surface — Cream Tablecloth & Wood */
-  --bg-kitchen: #fef9f1;
-  --surface: #fef9f1;
-  --surface-dim: #ded9d2;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f8f3eb;
-  --surface-container: #f2ede5;
-  --surface-container-high: #ece8e0;
-  --surface-container-highest: #e7e2da;
-  --surface-variant: #e7e2da;
-  --surface-bright: #fef9f1;
+  /* Surface — Beige & Warm */
+  --bg-body: #FFF8E7;
+  --surface: #F5E6D0;
+  --surface-dim: #E8D5BE;
+  --surface-container-lowest: #FFFDF7;
+  --surface-container-low: #F5E6D0;
+  --surface-container: #EFE0CA;
+  --surface-container-high: #E8D5BE;
+  --surface-container-highest: #DCC9B0;
+  --surface-variant: #E8D5BE;
+  --surface-bright: #FFF8E7;
 
-  /* Deep Kitchen Shadows */
-  --bg-deep: #2a1510;
-  --bg-wood: #3a2218;
-  --bg-warm: #4a3020;
+  /* Card Table Green */
+  --table-green: #2E7D32;
+  --table-green-dark: #1B5E20;
+  --table-green-light: #43A047;
 
-  /* Primary — Tomato Red (Tablecloth) */
-  --primary: #9e2016;
-  --primary-container: #c0392b;
-  --primary-fixed: #ffdad5;
+  /* Primary — Orange */
+  --primary: #FF5722;
+  --primary-dark: #D84315;
+  --primary-light: #FF7043;
   --on-primary: #ffffff;
-  --on-primary-container: #ffe5e1;
 
-  /* Secondary — Enamel Green */
-  --secondary: #006d37;
-  --secondary-container: #6bfe9c;
+  /* Secondary — Green */
+  --secondary: #2E7D32;
+  --secondary-dark: #1B5E20;
   --on-secondary: #ffffff;
 
-  /* Tertiary — Warm Kitchen Amber */
-  --tertiary: #754800;
-  --tertiary-container: #965d00;
-  --tertiary-fixed: #ffddb9;
+  /* Brown tones */
+  --brown: #8D6E63;
+  --brown-dark: #5D4037;
+  --brown-light: #A1887F;
 
   /* Semantic */
-  --on-surface: #1d1c17;
-  --on-surface-variant: #59413d;
-  --outline: #8d706c;
-  --outline-variant: #e1bfb9;
-  --error: #ba1a1a;
-  --gold: #ffd700;
+  --on-surface: #3E2723;
+  --on-surface-variant: #5D4037;
+  --outline: #8D6E63;
+  --outline-variant: #BCAAA4;
+  --error: #D32F2F;
+  --gold: #FFD700;
 
   /* Spacing & Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 }
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== BODY — Italian Kitchen ===== */
+/* ===== BODY ===== */
 body {
-  background: var(--bg-kitchen);
-  font-family: 'Merriweather', 'Georgia', serif;
+  background: var(--bg-body);
+  font-family: 'Nunito', 'Segoe UI', sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -73,46 +70,33 @@ body {
   overflow-x: hidden;
 }
 
-/* Checkered tablecloth pattern + maiolica tile hint */
+/* Subtle polka dot pattern */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    /* Subtle checkered pattern (tablecloth) */
-    repeating-conic-gradient(
-      rgba(192, 57, 43, 0.03) 0% 25%,
-      transparent 0% 50%
-    ) 0 0 / 40px 40px,
-    /* Flour dust grain */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+    radial-gradient(circle, rgba(141, 110, 99, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Warm vignette + enamel lamp spotlight from above */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    /* Green enamel lamp cone of warm light */
-    radial-gradient(
-      ellipse 50% 45% at 50% 0%,
-      rgba(117, 72, 0, 0.06) 0%,
-      transparent 70%
-    ),
-    /* Warm vignette */
     radial-gradient(
       ellipse at 50% 50%,
-      transparent 50%,
-      rgba(42, 21, 16, 0.08) 100%
+      transparent 60%,
+      rgba(93, 64, 55, 0.06) 100%
     );
   pointer-events: none;
   z-index: 0;
 }
 
-/* ===== TOPBAR — Kitchen shelf / dark wood ===== */
+/* ===== TOPBAR ===== */
 .topbar {
   position: relative;
   z-index: 10;
@@ -120,29 +104,28 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: linear-gradient(180deg, var(--bg-wood), var(--bg-deep));
-  box-shadow:
-    0 4px 20px rgba(42, 21, 16, 0.3),
-    inset 0 -1px 0 rgba(255, 200, 128, 0.08);
+  background: var(--table-green);
+  border-bottom: 4px solid var(--table-green-dark);
+  box-shadow: 0 4px 0 var(--table-green-dark);
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .btn-back {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  font-family: 'Merriweather', serif;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 0.9rem;
-  transition: color 0.3s;
+  transition: color 0.3s, transform 0.2s;
 }
-.btn-back:hover { color: #fff; }
+.btn-back:hover { color: #fff; transform: scale(1.05); }
 
 .game-title {
-  font-size: 1.1rem;
-  font-weight: 900;
-  color: var(--tertiary-fixed);
-  text-shadow: 0 0 10px rgba(255, 221, 185, 0.2);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   letter-spacing: 0.5px;
 }
 
@@ -151,7 +134,7 @@ body::after {
   gap: 1rem;
   font-size: 0.82rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ===== GAME WRAPPER ===== */
@@ -168,24 +151,24 @@ body::after {
   width: 100%;
 }
 
-/* ===== CONFIG PANEL — Recipe card style ===== */
+/* ===== CONFIG PANEL ===== */
 .config-panel {
-  background: var(--surface-container-low);
+  background: var(--surface);
+  border: 3px solid var(--brown);
   border-radius: var(--radius-xl);
   padding: 2rem;
   text-align: center;
   max-width: 400px;
   width: 100%;
-  box-shadow:
-    0 20px 40px rgba(42, 21, 16, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 0 var(--brown-dark), 0 8px 20px rgba(93, 64, 55, 0.15);
 }
 
 .config-panel h2 {
   font-size: 1.5rem;
-  font-weight: 900;
+  font-weight: 800;
   margin-bottom: 1.5rem;
   color: var(--primary);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.08);
 }
 
 .config-option {
@@ -210,54 +193,55 @@ body::after {
   width: 50px;
   height: 50px;
   border-radius: var(--radius-md);
-  border: none;
-  background: var(--surface-container);
+  border: 3px solid var(--brown);
+  background: var(--surface-container-lowest);
   color: var(--on-surface-variant);
-  font-family: 'Merriweather', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.2rem;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(42, 21, 16, 0.06);
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 0 var(--brown-dark);
 }
 
 .player-btn:hover {
-  background: var(--primary-fixed);
-  color: var(--primary);
+  background: #FFE0B2;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--brown-dark);
 }
 
 .player-btn.active {
-  background: var(--primary-container);
+  background: var(--primary);
   color: var(--on-primary);
-  box-shadow:
-    0 4px 16px rgba(192, 57, 43, 0.3),
-    0 0 0 2px rgba(192, 57, 43, 0.15);
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 0 var(--primary-dark);
 }
 
 .btn-start {
-  background: linear-gradient(135deg, var(--primary-container), var(--primary));
+  background: var(--primary);
   color: var(--on-primary);
-  border: none;
+  border: 3px solid var(--primary-dark);
   border-radius: var(--radius-pill);
   padding: 0.9rem 2.5rem;
-  font-family: 'Merriweather', serif;
-  font-weight: 900;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow:
-    0 6px 20px rgba(192, 57, 43, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 0 var(--primary-dark);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 .btn-start:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 28px rgba(192, 57, 43, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 0 var(--primary-dark);
+  background: var(--primary-light);
 }
 
-.btn-start:active { transform: translateY(0) scale(0.97); }
+.btn-start:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
+}
 
 /* ===== GAME AREA ===== */
 .game-area {
@@ -280,36 +264,38 @@ body::after {
 }
 
 .opponent {
-  background: var(--surface-container);
+  background: var(--surface);
+  border: 3px solid var(--brown);
   border-radius: var(--radius-lg);
   padding: 0.8rem 1rem;
   text-align: center;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
   min-width: 100px;
-  box-shadow: 0 4px 12px rgba(42, 21, 16, 0.05);
+  box-shadow: 0 3px 0 var(--brown-dark);
 }
 
 .opponent.active-turn {
+  border-color: var(--primary);
   box-shadow:
-    0 0 0 2px rgba(117, 72, 0, 0.25),
-    0 0 20px rgba(117, 72, 0, 0.1),
-    0 4px 16px rgba(42, 21, 16, 0.08);
-  animation: lamp-glow 2s ease-in-out infinite;
+    0 3px 0 var(--primary-dark),
+    0 0 16px rgba(255, 87, 34, 0.2);
+  animation: cartoon-pulse 1.5s ease-in-out infinite;
 }
 
 .opponent.has-batted {
-  background: rgba(0, 109, 55, 0.08);
-  box-shadow: 0 0 0 1px rgba(0, 109, 55, 0.2);
+  background: #C8E6C9;
+  border-color: var(--secondary);
+  box-shadow: 0 3px 0 var(--secondary-dark);
 }
 
-@keyframes lamp-glow {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(117, 72, 0, 0.25), 0 0 20px rgba(117, 72, 0, 0.1); }
-  50% { box-shadow: 0 0 0 2px rgba(117, 72, 0, 0.35), 0 0 30px rgba(117, 72, 0, 0.15); }
+@keyframes cartoon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
 }
 
 .opp-name {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--on-surface-variant);
   margin-bottom: 0.5rem;
 }
@@ -318,29 +304,33 @@ body::after {
 
 .opp-count {
   font-size: 0.7rem;
+  font-weight: 700;
   color: var(--outline);
 }
 
-/* ===== TABLE AREA — Green felt section ===== */
+/* ===== TABLE AREA — Green card table ===== */
 .table-area {
-  background: linear-gradient(135deg, #2d5016, #1a3a0e);
+  background: var(--table-green);
+  border: 3px solid var(--table-green-dark);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   display: flex;
   justify-content: center;
   box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(42, 21, 16, 0.12);
+    0 4px 0 var(--table-green-dark),
+    inset 0 2px 6px rgba(0, 0, 0, 0.15);
   position: relative;
 }
 
-/* Felt fabric texture */
+/* Subtle felt texture */
 .table-area::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: var(--radius-xl);
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 128 128' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 16px 16px;
   pointer-events: none;
 }
 
@@ -361,8 +351,8 @@ body::after {
 
 .pile-label {
   font-size: 0.75rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -370,59 +360,69 @@ body::after {
 .deck-card {
   position: relative;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
-.deck-card.clickable:hover { transform: translateY(-5px); }
+.deck-card.clickable:hover { transform: translateY(-5px) scale(1.05); }
 
 .deck-count {
   position: absolute;
   bottom: 5px;
   right: 5px;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--primary);
   color: #fff;
   font-size: 0.7rem;
-  font-weight: 900;
+  font-weight: 800;
   padding: 2px 6px;
   border-radius: 10px;
+  border: 2px solid var(--primary-dark);
 }
 
-/* ===== CARDS — Craft cardboard texture ===== */
+/* ===== CARDS — Cartoon beige with brown border ===== */
 .card {
   width: 50px;
   height: 70px;
-  background: linear-gradient(165deg, #fffdf8 0%, #f5efe5 60%, #ece4d6 100%);
+  background: var(--surface);
+  border: 3px solid var(--brown);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Merriweather', serif;
-  font-weight: 900;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 1rem;
   color: var(--on-surface);
-  box-shadow:
-    0 3px 10px rgba(42, 21, 16, 0.12),
-    0 1px 3px rgba(42, 21, 16, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: 0 3px 0 var(--brown-dark);
   user-select: none;
   flex-shrink: 0;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card.red { color: var(--primary-container); }
+.card.red { color: #D32F2F; }
 
-.card.back {
-  background: linear-gradient(145deg, var(--bg-wood), var(--bg-deep));
+/* Card back — orange gradient with diamond pattern */
+.card.back,
+.card.face-down {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 6px,
+      rgba(255, 255, 255, 0.1) 6px,
+      rgba(255, 255, 255, 0.1) 7px
+    ),
+    linear-gradient(135deg, #FF7043 0%, #FF5722 40%, #E64A19 100%);
+  border-color: var(--primary-dark);
   color: transparent;
-  box-shadow:
-    0 3px 10px rgba(42, 21, 16, 0.2),
-    inset 0 1px 0 rgba(255, 200, 128, 0.06);
+  box-shadow: 0 3px 0 #BF360C;
 }
 
-.card.back::after {
+.card.back::after,
+.card.face-down::after {
   content: '◆';
-  font-size: 1.2rem;
-  color: rgba(255, 200, 128, 0.12);
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .card.small {
@@ -432,8 +432,8 @@ body::after {
 }
 
 .card.placeholder {
-  background: rgba(0, 109, 55, 0.08);
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  border: 3px dashed rgba(255, 255, 255, 0.25);
   box-shadow: none;
 }
 
@@ -442,44 +442,43 @@ body::after {
 }
 
 .card.clickable:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    0 8px 20px rgba(42, 21, 16, 0.15),
-    0 2px 4px rgba(42, 21, 16, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 6px 0 var(--brown-dark), 0 8px 16px rgba(93, 64, 55, 0.2);
 }
 
 .card.selected {
+  border-color: var(--secondary);
   box-shadow:
-    0 0 0 2px var(--secondary),
-    0 8px 20px rgba(0, 109, 55, 0.2);
-  transform: translateY(-5px);
+    0 3px 0 var(--secondary-dark),
+    0 0 0 3px rgba(46, 125, 50, 0.3);
+  transform: translateY(-6px);
 }
 
-/* ===== MESSAGE BAR — Napkin style ===== */
+/* ===== MESSAGE BAR ===== */
 .message-bar {
   text-align: center;
   padding: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  font-style: italic;
   color: var(--on-surface-variant);
   min-height: 30px;
 }
 
 /* ===== PLAYER AREA ===== */
 .player-area {
-  background: var(--surface-container-low);
+  background: var(--surface);
+  border: 3px solid var(--brown);
   border-radius: var(--radius-xl);
   padding: 1rem;
-  transition: all 0.4s ease;
-  box-shadow: 0 8px 24px rgba(42, 21, 16, 0.06);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 0 var(--brown-dark);
 }
 
 .player-area.active-turn {
+  border-color: var(--primary);
   box-shadow:
-    0 0 0 2px rgba(117, 72, 0, 0.2),
-    0 0 24px rgba(117, 72, 0, 0.08),
-    0 8px 24px rgba(42, 21, 16, 0.08);
+    0 4px 0 var(--primary-dark),
+    0 0 16px rgba(255, 87, 34, 0.15);
 }
 
 .player-info-row {
@@ -491,7 +490,7 @@ body::after {
 
 .player-name {
   font-size: 1rem;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--on-surface);
 }
 
@@ -516,7 +515,8 @@ body::after {
   gap: 1rem;
   justify-content: center;
   padding: 0.5rem;
-  background: rgba(0, 109, 55, 0.05);
+  background: rgba(46, 125, 50, 0.08);
+  border: 2px dashed rgba(46, 125, 50, 0.2);
   border-radius: var(--radius-lg);
   min-height: 75px;
 }
@@ -525,9 +525,10 @@ body::after {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: rgba(0, 109, 55, 0.08);
+  background: rgba(46, 125, 50, 0.1);
   border-radius: var(--radius-md);
-  box-shadow: 0 2px 6px rgba(42, 21, 16, 0.05);
+  border: 2px solid rgba(46, 125, 50, 0.2);
+  box-shadow: 0 2px 0 rgba(46, 125, 50, 0.15);
 }
 
 .sequence .card {
@@ -536,7 +537,7 @@ body::after {
   font-size: 0.85rem;
 }
 
-/* ===== ACTION BUTTONS — Ceramic tile feel ===== */
+/* ===== ACTION BUTTONS ===== */
 .action-area {
   display: flex;
   gap: 0.75rem;
@@ -548,101 +549,104 @@ body::after {
 .btn-action {
   padding: 0.7rem 1.5rem;
   border-radius: var(--radius-pill);
-  border: none;
-  font-family: 'Merriweather', serif;
-  font-weight: 900;
+  border: 3px solid transparent;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(42, 21, 16, 0.08);
+  transition: all 0.2s ease;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-.btn-action:active { transform: scale(0.97); }
-.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-action:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.2) !important; }
+.btn-action:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-container), var(--primary));
+  background: var(--primary);
   color: var(--on-primary);
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow:
-    0 6px 20px rgba(192, 57, 43, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 0 var(--primary-dark);
+  background: var(--primary-light);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, var(--secondary), #005228);
+  background: var(--secondary);
   color: var(--on-secondary);
+  border-color: var(--secondary-dark);
+  box-shadow: 0 4px 0 var(--secondary-dark);
 }
 
 .btn-secondary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow:
-    0 6px 20px rgba(0, 109, 55, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 6px 0 var(--secondary-dark);
+  background: var(--table-green-light);
 }
 
 .btn-danger {
-  background: var(--surface-container);
+  background: var(--surface-container-lowest);
   color: var(--error);
+  border-color: var(--outline-variant);
+  box-shadow: 0 3px 0 var(--brown-dark);
+  text-shadow: none;
 }
 
 .btn-danger:hover {
-  background: rgba(186, 26, 26, 0.08);
+  background: #FFEBEE;
+  border-color: var(--error);
 }
 
-/* ===== MODAL — Warm glassmorphism ===== */
+/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(42, 21, 16, 0.6);
+  background: rgba(62, 39, 35, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
   padding: 1rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal-overlay.hidden { display: none; }
 
 .modal-content {
-  background: linear-gradient(145deg,
-    rgba(254, 249, 241, 0.97),
-    rgba(248, 243, 235, 0.97));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--surface);
+  border: 3px solid var(--brown);
   border-radius: var(--radius-xl);
   padding: 2rem;
   text-align: center;
   max-width: 400px;
   width: 100%;
   box-shadow:
-    0 24px 48px rgba(42, 21, 16, 0.15),
-    0 0 60px rgba(117, 72, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  animation: modal-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    0 4px 0 var(--brown-dark),
+    0 12px 32px rgba(93, 64, 55, 0.25);
+  animation: modal-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes modal-enter {
-  from { transform: scale(0.9) translateY(20px); opacity: 0; }
+  from { transform: scale(0.85) translateY(20px); opacity: 0; }
   to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .modal-icon {
   font-size: 4rem;
   margin-bottom: 0.5rem;
-  filter: drop-shadow(0 4px 8px rgba(42, 21, 16, 0.1));
+  filter: drop-shadow(2px 3px 0 rgba(93, 64, 55, 0.2));
 }
 
 .modal-title {
   font-size: 1.6rem;
-  font-weight: 900;
+  font-weight: 800;
   color: var(--primary);
   margin-bottom: 1rem;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.06);
 }
 
 .modal-body { margin-bottom: 1.5rem; }
@@ -654,28 +658,30 @@ body::after {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  background: var(--surface-container);
+  background: var(--surface-container-lowest);
+  border: 2px solid var(--outline-variant);
   border-radius: var(--radius-lg);
   transition: background 0.3s;
 }
 
 .result-row.winner {
-  background: rgba(117, 72, 0, 0.08);
-  box-shadow: 0 0 0 1px rgba(117, 72, 0, 0.15);
+  background: #FFF3E0;
+  border-color: #FF9800;
+  box-shadow: 0 2px 0 #E65100;
 }
 
 .result-row.human {
-  border-left: 3px solid var(--primary-container);
+  border-left: 4px solid var(--primary);
 }
 
 .result-name {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--on-surface);
 }
 
 .result-points {
-  font-weight: 900;
-  color: var(--tertiary);
+  font-weight: 800;
+  color: var(--primary);
 }
 
 /* ===== GAME INFO ===== */
@@ -690,16 +696,16 @@ body::after {
 
 .game-info h2 {
   font-size: 1.4rem;
-  font-weight: 900;
+  font-weight: 800;
   margin-bottom: 1rem;
   color: var(--primary);
 }
 
 .game-info h3 {
   font-size: 1.1rem;
-  font-weight: 900;
+  font-weight: 800;
   margin: 1.2rem 0 0.5rem;
-  color: var(--tertiary);
+  color: var(--secondary);
 }
 
 .game-info p, .game-info li {
@@ -715,7 +721,7 @@ body::after {
 @media (max-width: 600px) {
   .card { width: 40px; height: 56px; font-size: 0.85rem; }
   .card.small { width: 28px; height: 40px; font-size: 0.6rem; }
-  .card.back::after { font-size: 0.9rem; }
+  .card.back::after, .card.face-down::after { font-size: 1rem; }
   .sequence .card { width: 32px; height: 45px; font-size: 0.7rem; }
   .player-hand { gap: 5px; }
   .opponent { min-width: 80px; padding: 0.6rem 0.8rem; }
