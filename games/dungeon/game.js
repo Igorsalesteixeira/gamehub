@@ -430,19 +430,13 @@ function computeVisibility() {
 function drawVisibleWorld() {
   tileGfx.clear();
 
-  // === DIAGNOSTIC: bright red square at player position ===
-  tileGfx.beginFill(0xff0000);
-  tileGfx.drawRect(player.x * TILE - TILE * 2, player.y * TILE - TILE * 2, TILE * 5, TILE * 5);
-  tileGfx.endFill();
-  // === END DIAGNOSTIC ===
-
-  const playerCX = player.x * TILE + TILE / 2;
-  const playerCY = player.y * TILE + TILE / 2;
+  const pcx = player.x * TILE + TILE / 2;
+  const pcy = player.y * TILE + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
   const lr = (lightRadius + flicker) * TILE;
 
-  // Draw ALL tiles around the player (no camera viewport dependency)
-  const drawRadius = lightRadius + 4;
+  // Draw tiles around the player
+  const drawRadius = lightRadius + 3;
   for (let dy = -drawRadius; dy <= drawRadius; dy++) {
     for (let dx = -drawRadius; dx <= drawRadius; dx++) {
       const x = player.x + dx;
@@ -454,82 +448,48 @@ function drawVisibleWorld() {
       const px = x * TILE;
       const py = y * TILE;
 
-      const isVisible = visibleSet.has(idx);
-      const isExplored = explored[idx];
+      // Distance-based visibility (no raycast needed for now)
+      const tileCX = px + TILE / 2;
+      const tileCY = py + TILE / 2;
+      const dist = Math.sqrt((tileCX - pcx) ** 2 + (tileCY - pcy) ** 2);
+      const inLight = dist <= lr;
 
-      if (!isVisible && !isExplored) continue;
-
-      // Calculate brightness
-      let brightness;
-      let warmth = 0;
-      if (isVisible) {
-        const tileCX = px + TILE / 2;
-        const tileCY = py + TILE / 2;
-        const dist = Math.sqrt((tileCX - playerCX) ** 2 + (tileCY - playerCY) ** 2);
-        brightness = Math.max(0.15, 1 - (dist / lr));
-        warmth = Math.max(0, 1 - dist / (lr * 0.5));
-      } else {
-        brightness = 0.12;
+      if (inLight) {
+        explored[idx] = true;
+        visibleSet.add(idx);
       }
 
-      if (t === TILE_WALL) {
-        tileGfx.beginFill(tintColor(COLORS.wall, brightness, warmth));
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
+      if (!inLight && !explored[idx]) continue;
 
-        if (isVisible && brightness > 0.3) {
-          tileGfx.lineStyle(1, tintColor(COLORS.wallLine, brightness * 0.6, warmth), 0.3);
-          tileGfx.moveTo(px, py + TILE / 2);
-          tileGfx.lineTo(px + TILE, py + TILE / 2);
-          if ((x + y) % 2 === 0) {
-            tileGfx.moveTo(px + TILE / 2, py);
-            tileGfx.lineTo(px + TILE / 2, py + TILE / 2);
-          } else {
-            tileGfx.moveTo(px + TILE / 2, py + TILE / 2);
-            tileGfx.lineTo(px + TILE / 2, py + TILE);
-          }
-          tileGfx.lineStyle(0);
-          tileGfx.beginFill(tintColor(COLORS.wallTop, brightness, warmth), 0.3);
-          tileGfx.drawRect(px, py, TILE, 3);
-          tileGfx.endFill();
-        }
-      } else if (t === TILE_FLOOR) {
-        const c = (x + y) % 2 === 0 ? COLORS.floor : COLORS.floorAlt;
-        tileGfx.beginFill(tintColor(c, brightness, warmth));
-        tileGfx.drawRect(px, py, TILE, TILE);
+      // Brightness: full in light, dim if only explored
+      const brightness = inLight ? Math.max(0.2, 1 - dist / lr) : 0.1;
+
+      // Simple color pick
+      let color;
+      if (t === TILE_WALL) color = COLORS.wall;
+      else if (t === TILE_FLOOR) color = (x + y) % 2 === 0 ? COLORS.floor : COLORS.floorAlt;
+      else if (t === TILE_DOOR) color = COLORS.door;
+      else if (t === TILE_STAIRS) color = COLORS.stairs;
+      else continue;
+
+      tileGfx.beginFill(darkenColor(color, brightness));
+      tileGfx.drawRect(px, py, TILE, TILE);
+      tileGfx.endFill();
+
+      // Wall top highlight
+      if (t === TILE_WALL && inLight && brightness > 0.3) {
+        tileGfx.beginFill(darkenColor(COLORS.wallTop, brightness), 0.3);
+        tileGfx.drawRect(px, py, TILE, 3);
         tileGfx.endFill();
-      } else if (t === TILE_DOOR) {
-        tileGfx.beginFill(tintColor(COLORS.door, brightness, warmth));
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-      } else if (t === TILE_STAIRS) {
-        tileGfx.beginFill(tintColor(COLORS.floor, brightness, warmth));
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-        if (isVisible) {
-          tileGfx.beginFill(tintColor(COLORS.stairs, brightness, warmth), 0.8);
-          tileGfx.drawRect(px + 4, py + 4, TILE - 8, TILE - 8);
-          tileGfx.endFill();
-          tileGfx.lineStyle(2, tintColor(COLORS.stairsGlow, brightness, warmth), 0.6);
-          for (let s = 0; s < 3; s++) {
-            const sy = py + 8 + s * 6;
-            tileGfx.moveTo(px + 8, sy);
-            tileGfx.lineTo(px + TILE - 8, sy);
-          }
-          tileGfx.lineStyle(0);
-        }
       }
     }
   }
 
-  // Warm torch glow around player
+  // Torch glow
   if (gameRunning) {
-    const glowAlpha = 0.12 + Math.sin(flickerTime * 5) * 0.04;
+    const glowAlpha = 0.1 + Math.sin(flickerTime * 5) * 0.03;
     tileGfx.beginFill(0x664422, glowAlpha);
-    tileGfx.drawCircle(playerCX, playerCY, lr * 0.5);
-    tileGfx.endFill();
-    tileGfx.beginFill(0x886633, glowAlpha * 0.5);
-    tileGfx.drawCircle(playerCX, playerCY, lr * 0.25);
+    tileGfx.drawCircle(pcx, pcy, lr * 0.4);
     tileGfx.endFill();
   }
 }
@@ -1213,8 +1173,7 @@ function gameLoop(ticker) {
   updateParticles(dt);
   updateCamera(false);
 
-  // Compute visibility then draw
-  computeVisibility();
+  visibleSet = new Set();
   drawVisibleWorld();
   drawEntities();
   drawParticles();
