@@ -1,27 +1,28 @@
-/* ===== TETRIS — Frozen Light: Ice Crystal Blocks ===== */
-/* Theme: "The Prismatic Void" — Stitch Design System    */
+/* ===== TETRIS — Blocos de Doce Cartoon ===== */
+/* Theme: Candy Blocks — chunky, colorful, 3D highlights */
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --bg: #050d3f;
-  --surface: #050d3f;
-  --surface-container: #131b4b;
-  --surface-high: #1e2656;
-  --primary: #00d4ff;
-  --secondary: #3b82f6;
-  --tertiary: #a855f7;
-  --on-surface: #e0e8ff;
-  --outline: #859398;
-  --radius: 4px;
+  --bg: #1A0533;
+  --bg-mid: #2D1B4E;
+  --surface: #3D2B5E;
+  --surface-light: #F5E6D0;
+  --primary: #FF4081;
+  --secondary: #7C4DFF;
+  --accent: #FFD54F;
+  --text: #FFFFFF;
 
-  /* Derived */
-  --primary-dim: rgba(0, 212, 255, 0.15);
-  --primary-glow: rgba(0, 212, 255, 0.35);
-  --secondary-dim: rgba(59, 130, 246, 0.15);
-  --tertiary-dim: rgba(168, 85, 247, 0.15);
-  --glass-bg: rgba(19, 27, 75, 0.75);
-  --glass-border: rgba(0, 212, 255, 0.18);
-  --frost: rgba(224, 232, 255, 0.06);
+  --piece-I: #00E5FF;
+  --piece-O: #FFD600;
+  --piece-T: #AA00FF;
+  --piece-S: #76FF03;
+  --piece-Z: #FF1744;
+  --piece-J: #2979FF;
+  --piece-L: #FF9100;
+
+  --radius: 16px;
+  --border-thick: 6px;
 }
 
 /* ===== RESET ===== */
@@ -36,9 +37,9 @@ html, body {
 }
 
 body {
-  font-family: 'Space Grotesk', 'Rajdhani', sans-serif;
-  background: var(--bg);
-  color: var(--on-surface);
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(145deg, #1A0533 0%, #2D1B4E 40%, #3D1B5E 70%, #1A0533 100%);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -47,100 +48,41 @@ body {
   position: relative;
 }
 
-/* ===== ICE TEXTURE OVERLAY (body::before) ===== */
+/* ===== CANDY BG TEXTURE ===== */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 600px 600px at 20% 30%, rgba(0, 212, 255, 0.04) 0%, transparent 70%),
-    radial-gradient(ellipse 400px 400px at 80% 60%, rgba(168, 85, 247, 0.03) 0%, transparent 70%),
-    repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(224, 232, 255, 0.008) 1deg, transparent 2deg);
+    radial-gradient(ellipse 500px 500px at 15% 25%, rgba(255, 64, 129, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 75% 65%, rgba(124, 77, 255, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 300px at 50% 90%, rgba(255, 213, 79, 0.05) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* ===== AURORA BOREALIS (body::after) ===== */
+/* ===== FLOATING CANDY SPARKLES ===== */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(170deg,
-      transparent 0%,
-      rgba(0, 212, 255, 0.06) 15%,
-      transparent 30%,
-      rgba(59, 130, 246, 0.05) 45%,
-      transparent 55%,
-      rgba(168, 85, 247, 0.04) 70%,
-      transparent 85%,
-      rgba(0, 212, 255, 0.03) 100%
-    );
-  filter: blur(40px);
-  animation: aurora 12s ease-in-out infinite alternate;
+    radial-gradient(2px 2px at 10% 20%, rgba(255, 213, 79, 0.4) 50%, transparent 51%),
+    radial-gradient(2px 2px at 30% 50%, rgba(255, 64, 129, 0.35) 50%, transparent 51%),
+    radial-gradient(2px 2px at 60% 30%, rgba(0, 229, 255, 0.3) 50%, transparent 51%),
+    radial-gradient(2px 2px at 80% 70%, rgba(124, 77, 255, 0.35) 50%, transparent 51%),
+    radial-gradient(2px 2px at 45% 85%, rgba(118, 255, 3, 0.3) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 90% 15%, rgba(255, 145, 0, 0.4) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 20% 75%, rgba(255, 23, 68, 0.35) 50%, transparent 51%);
+  animation: sparkle-drift 20s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;
 }
 
-@keyframes aurora {
-  0% {
-    opacity: 0.6;
-    transform: translateY(0) scaleX(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-20px) scaleX(1.05);
-  }
-  100% {
-    opacity: 0.7;
-    transform: translateY(10px) scaleX(0.98);
-  }
-}
-
-/* ===== FROZEN DUST PARTICLES ===== */
-@keyframes float-particle {
-  0%, 100% {
-    transform: translateY(0) translateX(0) scale(1);
-    opacity: 0;
-  }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  50% {
-    transform: translateY(-40vh) translateX(20px) scale(0.6);
-  }
-}
-
-/* Particle pseudo-elements on the wrapper */
-.game-wrapper::before,
-.game-wrapper::after {
-  content: '';
-  position: fixed;
-  width: 2px;
-  height: 2px;
-  border-radius: 50%;
-  background: var(--primary);
-  box-shadow:
-    120px 80vh 0 0 rgba(0, 212, 255, 0.4),
-    340px 70vh 0 1px rgba(59, 130, 246, 0.3),
-    560px 90vh 0 0 rgba(168, 85, 247, 0.35),
-    80px 60vh 0 1px rgba(0, 212, 255, 0.25),
-    450px 85vh 0 0 rgba(59, 130, 246, 0.3),
-    700px 75vh 0 1px rgba(168, 85, 247, 0.2),
-    200px 95vh 0 0 rgba(0, 212, 255, 0.3);
-  pointer-events: none;
-  z-index: 0;
-  animation: float-particle 16s ease-in-out infinite;
-}
-
-.game-wrapper::after {
-  animation-delay: -8s;
-  box-shadow:
-    180px 75vh 0 1px rgba(168, 85, 247, 0.3),
-    400px 65vh 0 0 rgba(0, 212, 255, 0.35),
-    600px 88vh 0 1px rgba(59, 130, 246, 0.25),
-    50px 92vh 0 0 rgba(168, 85, 247, 0.2),
-    300px 78vh 0 1px rgba(0, 212, 255, 0.4),
-    520px 82vh 0 0 rgba(59, 130, 246, 0.3);
+@keyframes sparkle-drift {
+  0% { opacity: 0.6; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-10px); }
+  100% { opacity: 0.7; transform: translateY(5px); }
 }
 
 /* ===== TOPBAR ===== */
@@ -149,49 +91,50 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--surface-container), var(--surface-high));
-  border-bottom: 1px solid var(--glass-border);
+  background: linear-gradient(135deg, var(--bg-mid), var(--surface));
+  border-bottom: 4px solid var(--primary);
   flex-shrink: 0;
   position: relative;
   z-index: 10;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(255, 64, 129, 0.2);
 }
 
 .btn-back {
-  font-family: 'Space Grotesk', sans-serif;
-  color: var(--primary);
+  font-family: 'Nunito', sans-serif;
+  color: var(--accent);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.75rem;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: var(--radius);
-  background: var(--primary-dim);
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.85rem;
+  border: 3px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(255, 213, 79, 0.1);
   transition: all 0.2s ease;
-  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .btn-back:hover {
-  background: rgba(0, 212, 255, 0.25);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+  background: rgba(255, 213, 79, 0.25);
+  box-shadow: 0 0 16px rgba(255, 213, 79, 0.3);
+  transform: translateY(-1px);
 }
 
 .game-title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
   letter-spacing: 2px;
   text-transform: uppercase;
-  background: linear-gradient(135deg, var(--primary), var(--secondary), var(--tertiary));
+  background: linear-gradient(135deg, var(--primary), var(--accent), var(--piece-I));
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: ice-shimmer 4s ease-in-out infinite alternate;
-  text-shadow: none;
+  animation: candy-shimmer 3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 2px 4px rgba(255, 64, 129, 0.4));
 }
 
-@keyframes ice-shimmer {
+@keyframes candy-shimmer {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
@@ -200,14 +143,14 @@ body::after {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--primary);
-  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 2px 6px rgba(255, 213, 79, 0.4);
 }
 
-/* ===== GAME WRAPPER — CSS GRID ===== */
+/* ===== GAME WRAPPER ===== */
 .game-wrapper {
   flex: 1;
   display: grid;
@@ -224,7 +167,46 @@ body::after {
   z-index: 1;
 }
 
-/* ===== SIDEBAR (game info panels) ===== */
+/* Candy floating particles on wrapper */
+.game-wrapper::before,
+.game-wrapper::after {
+  content: '';
+  position: fixed;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow:
+    120px 80vh 0 0 rgba(255, 213, 79, 0.35),
+    340px 70vh 0 1px rgba(255, 64, 129, 0.3),
+    560px 90vh 0 0 rgba(124, 77, 255, 0.3),
+    80px 60vh 0 1px rgba(0, 229, 255, 0.25),
+    450px 85vh 0 0 rgba(118, 255, 3, 0.25),
+    700px 75vh 0 1px rgba(255, 145, 0, 0.3);
+  pointer-events: none;
+  z-index: 0;
+  animation: candy-float 14s ease-in-out infinite;
+}
+
+.game-wrapper::after {
+  animation-delay: -7s;
+  box-shadow:
+    180px 75vh 0 1px rgba(124, 77, 255, 0.3),
+    400px 65vh 0 0 rgba(255, 64, 129, 0.3),
+    600px 88vh 0 1px rgba(255, 213, 79, 0.25),
+    50px 92vh 0 0 rgba(0, 229, 255, 0.3),
+    300px 78vh 0 1px rgba(255, 23, 68, 0.3),
+    520px 82vh 0 0 rgba(255, 145, 0, 0.3);
+}
+
+@keyframes candy-float {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  50% { transform: translateY(-35vh) translateX(15px) scale(0.6); }
+}
+
+/* ===== SIDEBAR ===== */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -233,14 +215,17 @@ body::after {
 }
 
 .info-box {
-  background: linear-gradient(145deg, var(--surface-container), var(--surface-high));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
+  background: linear-gradient(145deg, var(--surface), var(--bg-mid));
+  border: 3px solid rgba(255, 64, 129, 0.3);
+  border-radius: 16px;
   padding: 0.85rem 0.75rem;
   text-align: center;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.2s ease;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .info-box::before {
@@ -249,31 +234,32 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  opacity: 0.4;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--secondary));
+  border-radius: 16px 16px 0 0;
 }
 
 .info-box:hover {
-  border-color: rgba(0, 212, 255, 0.35);
+  border-color: rgba(255, 64, 129, 0.5);
+  transform: translateY(-2px);
 }
 
 .info-label {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--outline);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 0.4rem;
 }
 
 .info-value {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--primary);
-  text-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 2px 8px rgba(255, 213, 79, 0.4);
   line-height: 1;
 }
 
@@ -282,9 +268,9 @@ body::after {
   height: 80px;
   margin: 0 auto;
   display: block;
-  background: rgba(5, 13, 63, 0.8);
-  border: 1px solid rgba(0, 212, 255, 0.1);
-  border-radius: var(--radius);
+  background: rgba(26, 5, 51, 0.6);
+  border: 2px solid rgba(255, 64, 129, 0.2);
+  border-radius: 12px;
 }
 
 /* ===== GAME AREA ===== */
@@ -296,27 +282,28 @@ body::after {
 }
 
 #game-canvas {
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius);
-  background: #030820;
+  border: 6px solid;
+  border-image: linear-gradient(135deg, var(--primary), var(--accent), var(--piece-I), var(--secondary), var(--primary)) 1;
+  border-radius: 4px;
+  background: #0D0520;
   display: block;
   box-shadow:
-    0 0 20px rgba(0, 212, 255, 0.1),
-    0 0 60px rgba(59, 130, 246, 0.05),
-    inset 0 0 30px rgba(0, 212, 255, 0.03);
+    0 0 30px rgba(255, 64, 129, 0.15),
+    0 0 60px rgba(124, 77, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 /* ===== OVERLAY ===== */
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(5, 13, 63, 0.92);
-  backdrop-filter: blur(8px);
+  background: rgba(26, 5, 51, 0.92);
+  backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  border-radius: var(--radius);
+  border-radius: 4px;
 }
 
 .overlay.hidden {
@@ -326,12 +313,15 @@ body::after {
 .modal {
   text-align: center;
   padding: 2rem 2.5rem;
-  background: linear-gradient(145deg, var(--surface-container), var(--surface-high));
-  border: 1px solid var(--glass-border);
-  border-radius: calc(var(--radius) * 3);
+  background: linear-gradient(145deg, var(--surface), var(--bg-mid));
+  border: 3px solid rgba(255, 64, 129, 0.4);
+  border-radius: 24px;
   max-width: 300px;
   position: relative;
   overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .modal::before {
@@ -340,76 +330,84 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--tertiary));
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--piece-I), var(--secondary));
+  border-radius: 24px 24px 0 0;
 }
 
 .modal h2 {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 900;
   margin-bottom: 0.5rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(255, 64, 129, 0.3));
 }
 
 .modal p {
-  font-family: 'Space Grotesk', sans-serif;
-  color: var(--outline);
-  font-size: 0.9rem;
+  font-family: 'Nunito', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+  font-weight: 600;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
 #overlay-score {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--on-surface);
+  font-weight: 800;
+  color: var(--accent);
   margin-bottom: 1.5rem;
+  text-shadow: 0 2px 8px rgba(255, 213, 79, 0.4);
 }
 
 .btn {
-  font-family: 'Rajdhani', sans-serif;
-  padding: 0.7rem 2rem;
+  font-family: 'Nunito', sans-serif;
+  padding: 0.75rem 2.2rem;
   border: none;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: var(--bg);
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), #E91E63);
+  color: white;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(255, 64, 129, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .btn::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.2s;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.35);
-}
-
-.btn:hover::after {
-  opacity: 1;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 6px 24px rgba(255, 64, 129, 0.5),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
 }
 
 /* ===== MOBILE CONTROLS ===== */
@@ -435,51 +433,54 @@ body::after {
 }
 
 .ctrl-btn {
-  width: 60px;
-  height: 60px;
-  border: 1px solid rgba(0, 212, 255, 0.25);
-  border-radius: var(--radius);
-  background: linear-gradient(145deg, var(--surface-container), var(--surface-high));
-  color: var(--primary);
+  width: 62px;
+  height: 62px;
+  border: 3px solid rgba(255, 64, 129, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(145deg, var(--surface), var(--bg-mid));
+  color: var(--accent);
   font-size: 1.5rem;
+  font-weight: 800;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.05);
 }
 
 .ctrl-btn::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, var(--primary-dim), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.15s;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.06), transparent);
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
 }
 
 .ctrl-btn:active {
-  background: rgba(0, 212, 255, 0.2);
+  background: rgba(255, 64, 129, 0.2);
   transform: scale(0.93);
   border-color: var(--primary);
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
-}
-
-.ctrl-btn:active::before {
-  opacity: 1;
+  box-shadow: 0 0 16px rgba(255, 64, 129, 0.3);
 }
 
 .ctrl-drop {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(168, 85, 247, 0.25));
-  border-color: rgba(168, 85, 247, 0.3);
-  color: var(--on-surface);
+  background: linear-gradient(135deg, rgba(255, 64, 129, 0.25), rgba(124, 77, 255, 0.25));
+  border-color: rgba(124, 77, 255, 0.4);
+  color: var(--text);
   font-size: 1.3rem;
 }
 
 .ctrl-drop:active {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.4), rgba(168, 85, 247, 0.4));
-  border-color: var(--tertiary);
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+  background: linear-gradient(135deg, rgba(255, 64, 129, 0.4), rgba(124, 77, 255, 0.4));
+  border-color: var(--secondary);
+  box-shadow: 0 0 16px rgba(124, 77, 255, 0.4);
 }
 
 /* ===== RESPONSIVE — Portrait Mobile ===== */
@@ -537,11 +538,11 @@ body::after {
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, rgba(5, 13, 63, 0.98), rgba(5, 13, 63, 0.92));
+    background: linear-gradient(to top, rgba(26, 5, 51, 0.98), rgba(26, 5, 51, 0.92));
     padding: 0.8rem;
     padding-bottom: max(0.8rem, env(safe-area-inset-bottom));
     z-index: 50;
-    border-top: 1px solid var(--glass-border);
+    border-top: 3px solid rgba(255, 64, 129, 0.3);
     backdrop-filter: blur(12px);
   }
 
@@ -563,8 +564,8 @@ body::after {
   }
 
   .ctrl-btn {
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     font-size: 1.2rem;
   }
 
@@ -620,20 +621,20 @@ body::after {
   }
 }
 
-/* ===== SCROLLBAR STYLING ===== */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--surface);
+  background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--surface-high);
+  background: var(--surface);
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--outline);
+  background: var(--primary);
 }
