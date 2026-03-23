@@ -1,7 +1,7 @@
 import '../../auth-check.js';
 // =============================================
-//  COBRINHA — Redesign 3.0 "Cartoon Garden"
-//  Estilo Poki: cobra fofa, maçã cartoon, cenário verde
+//  COBRINHA — Redesign 3.0 v2 "Cartoon Garden"
+//  Nível Poki: cobra chunky, contornos grossos, tudo bold
 // =============================================
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
 import { GameStats, GameStorage } from '../shared/game-core.js';
@@ -37,15 +37,15 @@ let prevSnake = [], lerpT = 0;
 // ---- VFX state ----
 let particles = [];
 let screenShake = { x: 0, y: 0, intensity: 0 };
-let eatBump = 0; // bump traveling through snake body when eating
+let eatBump = 0;
 let eatBumpPos = 0;
 let deathTimer = -1;
 let timeElapsed = 0;
-let foodSpawnScale = 0; // for pop-in animation
+let foodSpawnScale = 0;
 let snakeExpression = 'normal'; // 'normal', 'happy', 'dead'
 let expressionTimer = 0;
 
-// ---- Decoration positions (generated once per game) ----
+// ---- Decoration positions ----
 let decorations = [];
 
 // ---- Colors ----
@@ -53,27 +53,39 @@ const C = {
   bgOuter:    0x4CAF50,
   bgInner1:   0xE8D5B7,
   bgInner2:   0xDEC9A8,
-  border:     0x3E8E41,
-  borderDark: 0x2E7D32,
+  // Board border — thick brown/red like Poki
+  borderOuter:0x8B4513,  // saddle brown
+  borderMid:  0xA0522D,  // sienna
+  borderInner:0x5D9E3C,  // green inner padding
+  borderGlow: 0x6DBF4A,  // lighter green edge
+  // Snake — chunky cartoon
   snakeBody:  0x4CAF50,
   snakeLight: 0x66BB6A,
-  snakeDark:  0x388E3C,
+  snakeDark:  0x2E7D32,  // dark outline
+  snakeOutline: 0x1B5E20, // very dark outline stroke
   snakeBelly: 0x81C784,
   eyeWhite:   0xFFFFFF,
   eyePupil:   0x1B5E20,
   cheek:      0xFF8A80,
   tongue:     0xE53935,
+  // Apple
   apple:      0xE53935,
   appleLight: 0xEF5350,
   appleDark:  0xC62828,
+  appleOutline:0x8B0000,
   appleShine: 0xFFFFFF,
   leaf:       0x4CAF50,
-  leafDark:   0x388E3C,
+  leafDark:   0x2E7D32,
   stem:       0x5D4037,
+  // Particles & Deco
   starYellow: 0xFFD54F,
   particle:   0xFFD54F,
   decoLeaf:   0x66BB6A,
+  decoLeafDark:0x388E3C,
   decoBush:   0x43A047,
+  decoBushDark:0x2E7D32,
+  flower:     0xFFFFFF,
+  flowerCenter:0xFFD54F,
 };
 
 // =============================================
@@ -86,7 +98,9 @@ function initPixi() {
   const rect = container.getBoundingClientRect();
   const maxW = Math.max(rect.width - 16, 100);
   const maxH = Math.max(rect.height - 16, 100);
-  const maxCell = Math.floor(Math.min(maxW, maxH) / GRID);
+  // Reserve more space for thick border + decorations
+  const PADDING = 5; // cells of padding around board
+  const maxCell = Math.floor(Math.min(maxW, maxH) / (GRID + PADDING));
   cellSize = Math.max(maxCell, 10);
   canvasSize = cellSize * GRID;
 
@@ -94,26 +108,28 @@ function initPixi() {
   const oldGlow = container.querySelector('canvas:not(#game-canvas)');
   if (oldGlow && !oldGlow._pixi) oldGlow.remove();
 
+  const totalSize = canvasSize + cellSize * PADDING;
+
   app = new PIXI.Application({
-    width: canvasSize + cellSize * 4, // extra space for decorations
-    height: canvasSize + cellSize * 4,
+    width: totalSize,
+    height: totalSize,
     backgroundColor: C.bgOuter,
     antialias: true,
     resolution: Math.min(window.devicePixelRatio || 1, 2),
     autoDensity: true,
   });
   app.view._pixi = true;
-  const totalSize = canvasSize + cellSize * 4;
   app.view.style.width = totalSize + 'px';
   app.view.style.height = totalSize + 'px';
-  app.view.style.borderRadius = '16px';
+  app.view.style.borderRadius = '20px';
 
   const overlayEl = container.querySelector('.modal-overlay');
   container.insertBefore(app.view, overlayEl);
 
+  const off = cellSize * PADDING / 2;
   gameContainer = new PIXI.Container();
-  gameContainer.x = cellSize * 2;
-  gameContainer.y = cellSize * 2;
+  gameContainer.x = off;
+  gameContainer.y = off;
   app.stage.addChild(gameContainer);
 
   // Layers
@@ -121,7 +137,7 @@ function initPixi() {
   gameContainer.addChild(bgGraphics);
 
   decoContainer = new PIXI.Container();
-  app.stage.addChild(decoContainer); // decorations outside game area
+  app.stage.addChild(decoContainer);
 
   foodGraphics = new PIXI.Graphics();
   gameContainer.addChild(foodGraphics);
@@ -137,70 +153,114 @@ function initPixi() {
 }
 
 // =============================================
-//  DECORATIONS (leaves, bushes around board)
+//  DECORATIONS (detailed leaves, bushes, flowers)
 // =============================================
 function generateDecorations() {
   decoContainer.removeChildren();
   decorations = [];
 
-  const offset = cellSize * 2; // gameContainer offset
+  const off = gameContainer.x;
   const W = canvasSize;
   const cs = cellSize;
+  const border = cs * 1.2; // border thickness
 
-  // Place bushes and leaves around the board edges
   const positions = [];
   // Top edge
-  for (let i = 0; i < 8; i++) positions.push({ x: offset + Math.random() * W, y: offset - cs * 0.5 + Math.random() * cs, side: 'top' });
+  for (let i = 0; i < 10; i++) positions.push({ x: off + Math.random() * W, y: off - border * 0.3 + Math.random() * border * 0.8 });
   // Bottom edge
-  for (let i = 0; i < 8; i++) positions.push({ x: offset + Math.random() * W, y: offset + W - cs * 0.5 + Math.random() * cs, side: 'bottom' });
+  for (let i = 0; i < 10; i++) positions.push({ x: off + Math.random() * W, y: off + W - border * 0.3 + Math.random() * border * 0.8 });
   // Left edge
-  for (let i = 0; i < 5; i++) positions.push({ x: offset - cs * 0.5 + Math.random() * cs, y: offset + Math.random() * W, side: 'left' });
+  for (let i = 0; i < 6; i++) positions.push({ x: off - border * 0.3 + Math.random() * border * 0.8, y: off + Math.random() * W });
   // Right edge
-  for (let i = 0; i < 5; i++) positions.push({ x: offset + W - cs * 0.5 + Math.random() * cs, y: offset + Math.random() * W, side: 'right' });
+  for (let i = 0; i < 6; i++) positions.push({ x: off + W - border * 0.3 + Math.random() * border * 0.8, y: off + Math.random() * W });
 
   positions.forEach(pos => {
     const g = new PIXI.Graphics();
     const type = Math.random();
-    if (type < 0.4) {
-      // Bush - cluster of circles
-      const size = cs * (0.6 + Math.random() * 0.4);
+    if (type < 0.35) {
+      // Bush - cluster with outline
+      const size = cs * (0.5 + Math.random() * 0.5);
+      // Dark outline
+      g.beginFill(C.decoBushDark);
+      g.drawCircle(0, 0, size + 2);
+      g.drawCircle(-size * 0.35, -size * 0.15, size * 0.75);
+      g.drawCircle(size * 0.3, -size * 0.1, size * 0.65);
+      g.endFill();
+      // Light fill
       g.beginFill(C.decoBush);
       g.drawCircle(0, 0, size);
       g.endFill();
       g.beginFill(C.decoLeaf);
-      g.drawCircle(-size * 0.3, -size * 0.2, size * 0.7);
-      g.drawCircle(size * 0.3, -size * 0.1, size * 0.6);
+      g.drawCircle(-size * 0.35, -size * 0.15, size * 0.65);
+      g.drawCircle(size * 0.3, -size * 0.1, size * 0.55);
       g.endFill();
-    } else if (type < 0.7) {
-      // Leaf
-      drawLeafDecoration(g, 0, 0, cs * 0.5, Math.random() * Math.PI * 2);
-    } else {
-      // Small flower
-      const r = cs * 0.2;
-      g.beginFill(0xFFFFFF, 0.9);
+      // Highlight
+      g.beginFill(0xFFFFFF, 0.12);
+      g.drawCircle(-size * 0.2, -size * 0.3, size * 0.35);
+      g.endFill();
+    } else if (type < 0.6) {
+      // Detailed leaf with outline
+      const leafSize = cs * (0.4 + Math.random() * 0.3);
+      const angle = Math.random() * Math.PI * 2;
+      // outline
+      g.beginFill(C.decoLeafDark);
+      g.drawEllipse(0, 0, leafSize + 1.5, leafSize * 0.45 + 1.5);
+      g.endFill();
+      g.beginFill(C.decoLeaf);
+      g.drawEllipse(0, 0, leafSize, leafSize * 0.45);
+      g.endFill();
+      // Leaf vein
+      g.lineStyle(1, C.decoLeafDark, 0.3);
+      g.moveTo(-leafSize * 0.7, 0);
+      g.lineTo(leafSize * 0.7, 0);
+      g.lineStyle(0);
+      g.rotation = angle;
+    } else if (type < 0.8) {
+      // Flower with outline
+      const r = cs * 0.22;
+      // Petal outlines
+      g.beginFill(C.decoLeafDark, 0.3);
       for (let p = 0; p < 5; p++) {
         const angle = (p / 5) * Math.PI * 2;
-        g.drawCircle(Math.cos(angle) * r, Math.sin(angle) * r, r * 0.6);
+        g.drawCircle(Math.cos(angle) * r, Math.sin(angle) * r, r * 0.65);
       }
       g.endFill();
-      g.beginFill(C.starYellow);
+      // Petals
+      g.beginFill(C.flower, 0.95);
+      for (let p = 0; p < 5; p++) {
+        const angle = (p / 5) * Math.PI * 2;
+        g.drawCircle(Math.cos(angle) * r, Math.sin(angle) * r, r * 0.55);
+      }
+      g.endFill();
+      // Center
+      g.beginFill(C.flowerCenter);
       g.drawCircle(0, 0, r * 0.5);
+      g.endFill();
+    } else {
+      // Small sparkle/star
+      const s = cs * 0.12;
+      g.beginFill(C.flowerCenter, 0.6);
+      drawStarShape(g, 0, 0, 4, s, s * 0.4);
       g.endFill();
     }
     g.x = pos.x;
     g.y = pos.y;
-    g.alpha = 0.85;
+    g.alpha = 0.9;
     decoContainer.addChild(g);
     decorations.push(g);
   });
 }
 
-function drawLeafDecoration(g, x, y, size, angle) {
-  g.beginFill(C.decoLeaf);
-  // Simple leaf shape using ellipse rotated
-  g.drawEllipse(x, y, size, size * 0.4);
-  g.endFill();
-  g.rotation = angle;
+function drawStarShape(g, x, y, points, outerR, innerR) {
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const px = x + Math.cos(angle) * r;
+    const py = y + Math.sin(angle) * r;
+    if (i === 0) g.moveTo(px, py);
+    else g.lineTo(px, py);
+  }
+  g.closePath();
 }
 
 // =============================================
@@ -220,7 +280,7 @@ class CartoonParticle {
     this.color = opts.color ?? C.starYellow;
     this.gravity = opts.gravity ?? 0.08;
     this.friction = opts.friction ?? 0.97;
-    this.type = opts.type ?? 'star'; // 'star', 'circle', 'leaf'
+    this.type = opts.type ?? 'star';
     this.rotSpeed = (Math.random() - 0.5) * 0.2;
     this.rot = Math.random() * Math.PI * 2;
 
@@ -233,7 +293,9 @@ class CartoonParticle {
   _draw() {
     this.gfx.clear();
     if (this.type === 'star') {
-      this._drawStar();
+      this.gfx.beginFill(this.color, this.life);
+      drawStarShape(this.gfx, 0, 0, 4, this.size, this.size * 0.4);
+      this.gfx.endFill();
     } else if (this.type === 'leaf') {
       this.gfx.beginFill(C.decoLeaf, this.life);
       this.gfx.drawEllipse(0, 0, this.size, this.size * 0.4);
@@ -243,21 +305,6 @@ class CartoonParticle {
       this.gfx.drawCircle(0, 0, this.size);
       this.gfx.endFill();
     }
-  }
-
-  _drawStar() {
-    const s = this.size;
-    const pts = 4;
-    this.gfx.beginFill(this.color, this.life);
-    this.gfx.moveTo(0, -s);
-    for (let i = 0; i < pts; i++) {
-      const a1 = ((i * 2 + 1) / (pts * 2)) * Math.PI * 2 - Math.PI / 2;
-      const a2 = ((i * 2 + 2) / (pts * 2)) * Math.PI * 2 - Math.PI / 2;
-      this.gfx.lineTo(Math.cos(a1) * s * 0.4, Math.sin(a1) * s * 0.4);
-      this.gfx.lineTo(Math.cos(a2) * s, Math.sin(a2) * s);
-    }
-    this.gfx.closePath();
-    this.gfx.endFill();
   }
 
   update() {
@@ -291,7 +338,7 @@ function emit(x, y, count, opts = {}) {
 }
 
 // =============================================
-//  GAME LOGIC (unchanged from original)
+//  GAME LOGIC (unchanged)
 // =============================================
 function initGame() {
   const mid = Math.floor(GRID / 2);
@@ -328,7 +375,7 @@ function spawnFood() {
     pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
   } while (occ.has(`${pos.x},${pos.y}`));
   food = pos;
-  foodSpawnScale = 0; // triggers pop-in animation
+  foodSpawnScale = 0;
 }
 
 function tick() {
@@ -351,23 +398,17 @@ function tick() {
     const fx = food.x * cs + cs / 2;
     const fy = food.y * cs + cs / 2;
 
-    // Cartoon star particles
     emit(fx, fy, 8, { color: C.starYellow, speed: 4, size: 5, decay: 0.02, gravity: 0.06, type: 'star' });
     emit(fx, fy, 5, { color: 0xFFFFFF, speed: 3, size: 3, decay: 0.025, gravity: 0.05, type: 'circle' });
 
-    // Eat bump effect
     eatBump = 1;
     eatBumpPos = 0;
-
-    // Happy expression
     snakeExpression = 'happy';
     expressionTimer = 0.5;
-
-    screenShake.intensity = 3; // subtle shake
+    screenShake.intensity = 3;
     playSound('eat');
     if (navigator.vibrate) navigator.vibrate([15]);
 
-    // Milestone celebration
     if (score % 10 === 0) {
       emit(fx, fy, 20, { color: C.starYellow, speed: 6, size: 6, decay: 0.012, gravity: 0.04, type: 'star' });
       emit(fx, fy, 10, { color: C.apple, speed: 5, size: 4, decay: 0.015, gravity: 0.05, type: 'circle' });
@@ -387,7 +428,7 @@ function setDirection(dir) {
 }
 
 // =============================================
-//  DEATH (cartoon style)
+//  DEATH
 // =============================================
 function triggerDeath() {
   deathTimer = 0;
@@ -434,56 +475,51 @@ function render(dt) {
   const t = timeElapsed;
   const interp = Math.min(lerpT, 1);
 
-  // ---- Screen shake ----
+  // Screen shake
+  const off = gameContainer._baseX || gameContainer.x;
+  if (!gameContainer._baseX) gameContainer._baseX = gameContainer.x;
+  if (!gameContainer._baseY) gameContainer._baseY = gameContainer.y;
   if (screenShake.intensity > 0) {
-    gameContainer.x = cellSize * 2 + (Math.random() - 0.5) * screenShake.intensity;
-    gameContainer.y = cellSize * 2 + (Math.random() - 0.5) * screenShake.intensity;
+    gameContainer.x = gameContainer._baseX + (Math.random() - 0.5) * screenShake.intensity;
+    gameContainer.y = gameContainer._baseY + (Math.random() - 0.5) * screenShake.intensity;
     screenShake.intensity *= 0.88;
     if (screenShake.intensity < 0.2) {
       screenShake.intensity = 0;
-      gameContainer.x = cellSize * 2;
-      gameContainer.y = cellSize * 2;
+      gameContainer.x = gameContainer._baseX;
+      gameContainer.y = gameContainer._baseY;
     }
   }
 
-  // ---- Background ----
   drawBackground(cs, W);
-
-  // ---- Food (apple) ----
   drawFood(cs, t);
-
-  // ---- Snake ----
   drawSnake(cs, W, t, interp);
 
-  // ---- Particles ----
+  // Particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.update();
-    if (p.life <= 0) {
-      p.destroy();
-      particles.splice(i, 1);
-    }
+    if (p.life <= 0) { p.destroy(); particles.splice(i, 1); }
   }
 
-  // ---- Expression timer ----
+  // Expression timer
   if (expressionTimer > 0) {
     expressionTimer -= dt * 0.001;
     if (expressionTimer <= 0) snakeExpression = 'normal';
   }
 
-  // ---- Eat bump decay ----
+  // Eat bump decay
   if (eatBump > 0) {
     eatBump *= 0.92;
     eatBumpPos += dt * 0.008;
     if (eatBump < 0.01) eatBump = 0;
   }
 
-  // ---- Food spawn animation ----
+  // Food spawn animation
   if (foodSpawnScale < 1) {
     foodSpawnScale = Math.min(1, foodSpawnScale + dt * 0.006);
   }
 
-  // ---- Ambient leaves (occasional) ----
+  // Ambient leaves
   if (Math.random() < 0.005) {
     const lx = Math.random() * W;
     emit(lx, -10, 1, { color: C.decoLeaf, speed: 0.5, size: 4, decay: 0.003, gravity: 0.02, friction: 0.999, type: 'leaf' });
@@ -491,31 +527,44 @@ function render(dt) {
 }
 
 // =============================================
-//  DRAW BACKGROUND
+//  DRAW BACKGROUND — thick border like Poki
 // =============================================
 function drawBackground(cs, W) {
   bgGraphics.clear();
 
-  // Board shadow
-  bgGraphics.beginFill(0x2E7D32, 0.3);
-  bgGraphics.drawRoundedRect(4, 4, W, W, 8);
+  const bw = cs * 0.8; // border width
+
+  // Outer shadow
+  bgGraphics.beginFill(0x000000, 0.12);
+  bgGraphics.drawRoundedRect(-bw + 4, -bw + 4, W + bw * 2, W + bw * 2, 20);
   bgGraphics.endFill();
 
-  // Board border (thick rounded)
-  bgGraphics.beginFill(C.borderDark);
-  bgGraphics.drawRoundedRect(-4, -4, W + 8, W + 8, 12);
+  // Outer brown border (thick)
+  bgGraphics.beginFill(C.borderOuter);
+  bgGraphics.drawRoundedRect(-bw, -bw, W + bw * 2, W + bw * 2, 18);
   bgGraphics.endFill();
 
-  bgGraphics.beginFill(C.border);
-  bgGraphics.drawRoundedRect(-2, -2, W + 4, W + 4, 10);
+  // Mid brown (lighter)
+  bgGraphics.beginFill(C.borderMid);
+  bgGraphics.drawRoundedRect(-bw + 3, -bw + 3, W + bw * 2 - 6, W + bw * 2 - 6, 16);
   bgGraphics.endFill();
 
-  // Board background
+  // Inner green padding
+  bgGraphics.beginFill(C.borderInner);
+  bgGraphics.drawRoundedRect(-bw * 0.35, -bw * 0.35, W + bw * 0.7, W + bw * 0.7, 10);
+  bgGraphics.endFill();
+
+  // Green edge highlight
+  bgGraphics.beginFill(C.borderGlow, 0.5);
+  bgGraphics.drawRoundedRect(-bw * 0.2, -bw * 0.2, W + bw * 0.4, W + bw * 0.4, 8);
+  bgGraphics.endFill();
+
+  // Board background (beige)
   bgGraphics.beginFill(C.bgInner1);
-  bgGraphics.drawRoundedRect(0, 0, W, W, 6);
+  bgGraphics.drawRoundedRect(0, 0, W, W, 4);
   bgGraphics.endFill();
 
-  // Checkerboard pattern (subtle)
+  // Checkerboard
   for (let y = 0; y < GRID; y++) {
     for (let x = 0; x < GRID; x++) {
       if ((x + y) % 2 === 0) {
@@ -525,10 +574,16 @@ function drawBackground(cs, W) {
       }
     }
   }
+
+  // Subtle inner shadow on board edges
+  bgGraphics.beginFill(0x000000, 0.04);
+  bgGraphics.drawRect(0, 0, W, cs * 0.3);
+  bgGraphics.drawRect(0, 0, cs * 0.3, W);
+  bgGraphics.endFill();
 }
 
 // =============================================
-//  DRAW FOOD (APPLE)
+//  DRAW FOOD — big chunky apple with outline
 // =============================================
 function drawFood(cs, t) {
   foodGraphics.clear();
@@ -536,45 +591,68 @@ function drawFood(cs, t) {
 
   const fx = food.x * cs + cs / 2;
   const fy = food.y * cs + cs / 2;
-  const wobble = Math.sin(t * 3) * 0.05;
-  const bounce = Math.sin(t * 2) * 2;
+  const bounce = Math.sin(t * 2) * 1.5;
 
-  // Pop-in scale
-  const popScale = foodSpawnScale < 1
-    ? easeOutBack(foodSpawnScale)
-    : 1;
-  const r = cs * 0.38 * popScale;
+  const popScale = foodSpawnScale < 1 ? easeOutBack(foodSpawnScale) : 1;
+  const r = cs * 0.44 * popScale; // bigger apple
+
+  const by = fy + bounce * 0.3;
+
+  // Shadow on ground
+  foodGraphics.beginFill(0x000000, 0.1);
+  foodGraphics.drawEllipse(fx, fy + r * 0.8, r * 0.7, r * 0.2);
+  foodGraphics.endFill();
+
+  // Dark outline
+  foodGraphics.beginFill(C.appleOutline);
+  foodGraphics.drawCircle(fx, by, r + 2.5);
+  foodGraphics.endFill();
 
   // Apple body
   foodGraphics.beginFill(C.apple);
-  foodGraphics.drawCircle(fx, fy + bounce * 0.3, r);
+  foodGraphics.drawCircle(fx, by, r);
   foodGraphics.endFill();
 
-  // Apple highlight (3D effect)
+  // Darker bottom half
+  foodGraphics.beginFill(C.appleDark, 0.3);
+  foodGraphics.drawEllipse(fx, by + r * 0.2, r * 0.85, r * 0.6);
+  foodGraphics.endFill();
+
+  // Highlight (3D)
   foodGraphics.beginFill(C.appleLight, 0.5);
-  foodGraphics.drawEllipse(fx - r * 0.2, fy - r * 0.2 + bounce * 0.3, r * 0.5, r * 0.4);
+  foodGraphics.drawEllipse(fx - r * 0.2, by - r * 0.25, r * 0.55, r * 0.45);
   foodGraphics.endFill();
 
-  // Apple shine (white specular)
-  foodGraphics.beginFill(C.appleShine, 0.7);
-  foodGraphics.drawCircle(fx - r * 0.25, fy - r * 0.3 + bounce * 0.3, r * 0.18);
+  // Specular shine
+  foodGraphics.beginFill(C.appleShine, 0.8);
+  foodGraphics.drawCircle(fx - r * 0.25, by - r * 0.35, r * 0.2);
   foodGraphics.endFill();
 
-  // Stem
-  foodGraphics.lineStyle(cs * 0.06, C.stem);
-  foodGraphics.moveTo(fx, fy - r + bounce * 0.3);
-  foodGraphics.lineTo(fx + cs * 0.03, fy - r - cs * 0.15 + bounce * 0.3);
+  // Stem (thicker)
+  foodGraphics.lineStyle(cs * 0.08, C.stem);
+  foodGraphics.moveTo(fx, by - r);
+  foodGraphics.bezierCurveTo(fx + cs * 0.02, by - r - cs * 0.1, fx + cs * 0.06, by - r - cs * 0.18, fx + cs * 0.04, by - r - cs * 0.2);
   foodGraphics.lineStyle(0);
 
-  // Leaf on top
+  // Leaf (bigger, with outline)
   const leafX = fx + cs * 0.06;
-  const leafY = fy - r - cs * 0.08 + bounce * 0.3;
-  foodGraphics.beginFill(C.leaf);
+  const leafY = by - r - cs * 0.08;
+  // Leaf outline
+  foodGraphics.beginFill(C.leafDark);
   foodGraphics.moveTo(leafX, leafY);
   foodGraphics.bezierCurveTo(
-    leafX + cs * 0.15, leafY - cs * 0.1,
-    leafX + cs * 0.2, leafY + cs * 0.05,
-    leafX + cs * 0.05, leafY + cs * 0.08
+    leafX + cs * 0.22, leafY - cs * 0.16,
+    leafX + cs * 0.3, leafY + cs * 0.06,
+    leafX + cs * 0.06, leafY + cs * 0.12
+  );
+  foodGraphics.endFill();
+  // Leaf fill
+  foodGraphics.beginFill(C.leaf);
+  foodGraphics.moveTo(leafX + 1, leafY + 1);
+  foodGraphics.bezierCurveTo(
+    leafX + cs * 0.2, leafY - cs * 0.12,
+    leafX + cs * 0.26, leafY + cs * 0.06,
+    leafX + cs * 0.06, leafY + cs * 0.1
   );
   foodGraphics.endFill();
 }
@@ -586,7 +664,7 @@ function easeOutBack(t) {
 }
 
 // =============================================
-//  DRAW SNAKE
+//  DRAW SNAKE — CHUNKY with thick outlines
 // =============================================
 function drawSnake(cs, W, t, interp) {
   snakeGraphics.clear();
@@ -599,7 +677,7 @@ function drawSnake(cs, W, t, interp) {
   const len = snake.length;
   if (len === 0) return;
 
-  // Calculate interpolated positions
+  // Interpolated positions
   const positions = [];
   for (let i = 0; i < len; i++) {
     const curr = snake[i], prev = prevSnake[i] || curr;
@@ -608,72 +686,76 @@ function drawSnake(cs, W, t, interp) {
     positions.push({ x: sx, y: sy });
   }
 
-  // Draw body shadow
-  snakeGraphics.beginFill(0x2E7D32, 0.2);
-  for (let i = len - 1; i >= 1; i--) {
+  // --- BODY OUTLINE (dark stroke around entire snake) ---
+  // Draw thick dark outline first, then lighter body on top
+  const outlineExtra = 3.5;
+
+  // Shadow under entire snake
+  for (let i = len - 1; i >= 0; i--) {
     const p = positions[i];
     const progress = i / len;
-    const segSize = cs * (0.38 - progress * 0.08);
-    // Eat bump
-    let bump = 0;
-    if (eatBump > 0) {
-      const dist = Math.abs(i - eatBumpPos * len);
-      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.1;
-    }
-    snakeGraphics.drawCircle(p.x + 2, p.y + 3, segSize + bump);
+    const segSize = getSegSize(cs, i, len) + getBump(i, len);
+    snakeGraphics.beginFill(0x000000, 0.1);
+    snakeGraphics.drawCircle(p.x + 2, p.y + 3, segSize + 1);
+    snakeGraphics.endFill();
   }
-  snakeGraphics.endFill();
 
-  // Draw body connections (thick rounded line between segments)
+  // Dark outline connections between segments
   for (let i = 0; i < len - 1; i++) {
     const p1 = positions[i];
     const p2 = positions[i + 1];
-    const progress = i / len;
-    const width = cs * (0.65 - progress * 0.15);
-
-    let bump = 0;
-    if (eatBump > 0) {
-      const dist = Math.abs(i - eatBumpPos * len);
-      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.15;
-    }
-
-    snakeGraphics.lineStyle(width + bump, C.snakeBody, 1);
+    const width = getSegWidth(cs, i, len) + getBump(i, len) * 2;
+    snakeGraphics.lineStyle(width + outlineExtra * 2, C.snakeOutline, 1);
     snakeGraphics.moveTo(p1.x, p1.y);
     snakeGraphics.lineTo(p2.x, p2.y);
   }
   snakeGraphics.lineStyle(0);
 
-  // Draw body segments (circles) - back to front
+  // Dark outline circles
+  for (let i = len - 1; i >= 0; i--) {
+    const p = positions[i];
+    const segSize = getSegSize(cs, i, len) + getBump(i, len);
+    snakeGraphics.beginFill(C.snakeOutline);
+    snakeGraphics.drawCircle(p.x, p.y, segSize + outlineExtra);
+    snakeGraphics.endFill();
+  }
+
+  // --- BODY FILL (green) ---
+  // Connections
+  for (let i = 0; i < len - 1; i++) {
+    const p1 = positions[i];
+    const p2 = positions[i + 1];
+    const width = getSegWidth(cs, i, len) + getBump(i, len) * 2;
+    snakeGraphics.lineStyle(width, C.snakeBody, 1);
+    snakeGraphics.moveTo(p1.x, p1.y);
+    snakeGraphics.lineTo(p2.x, p2.y);
+  }
+  snakeGraphics.lineStyle(0);
+
+  // Body segments (green circles) - back to front
   for (let i = len - 1; i >= 1; i--) {
     const p = positions[i];
-    const progress = i / len;
-    const segSize = cs * (0.35 - progress * 0.06);
-
-    let bump = 0;
-    if (eatBump > 0) {
-      const dist = Math.abs(i - eatBumpPos * len);
-      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.1;
-    }
+    const segSize = getSegSize(cs, i, len) + getBump(i, len);
 
     // Main body
     snakeGraphics.beginFill(C.snakeBody);
-    snakeGraphics.drawCircle(p.x, p.y, segSize + bump);
+    snakeGraphics.drawCircle(p.x, p.y, segSize);
     snakeGraphics.endFill();
 
-    // Belly highlight (lighter stripe)
-    snakeGraphics.beginFill(C.snakeBelly, 0.3);
-    snakeGraphics.drawEllipse(p.x, p.y + segSize * 0.15, segSize * 0.5, segSize * 0.35);
+    // Belly highlight
+    snakeGraphics.beginFill(C.snakeBelly, 0.35);
+    snakeGraphics.drawEllipse(p.x, p.y + segSize * 0.15, segSize * 0.55, segSize * 0.4);
     snakeGraphics.endFill();
 
-    // Top highlight (3D volume)
-    snakeGraphics.beginFill(C.snakeLight, 0.3);
-    snakeGraphics.drawCircle(p.x - segSize * 0.15, p.y - segSize * 0.2, segSize * 0.35);
+    // Top highlight (volume)
+    snakeGraphics.beginFill(C.snakeLight, 0.35);
+    snakeGraphics.drawCircle(p.x - segSize * 0.15, p.y - segSize * 0.2, segSize * 0.4);
     snakeGraphics.endFill();
 
-    // Dark pattern spots (every other)
-    if (i % 3 === 0) {
+    // Pattern spots
+    if (i % 4 === 0) {
       snakeGraphics.beginFill(C.snakeDark, 0.15);
-      snakeGraphics.drawCircle(p.x, p.y, segSize * 0.6);
+      snakeGraphics.drawCircle(p.x, p.y, segSize * 0.5);
       snakeGraphics.endFill();
     }
   }
@@ -682,116 +764,140 @@ function drawSnake(cs, W, t, interp) {
   drawSnakeHead(positions[0], cs, t);
 }
 
+function getSegSize(cs, i, len) {
+  if (i === 0) return cs * 0.55; // BIGGER head
+  const progress = i / len;
+  return cs * (0.42 - progress * 0.1); // thicker body
+}
+
+function getSegWidth(cs, i, len) {
+  const progress = i / len;
+  return cs * (0.78 - progress * 0.2); // thicker connections
+}
+
+function getBump(i, len) {
+  if (eatBump <= 0) return 0;
+  const dist = Math.abs(i - eatBumpPos * len);
+  return Math.max(0, eatBump * (1 - dist * 0.3)) * cellSize * 0.12;
+}
+
+// =============================================
+//  DRAW SNAKE HEAD — BIG with HUGE eyes
+// =============================================
 function drawSnakeHead(headPos, cs, t) {
   const hx = headPos.x;
   const hy = headPos.y;
   const dir = direction;
-  const headSize = cs * 0.44;
+  const headSize = cs * 0.55; // much bigger head
 
-  // Head shadow
-  snakeGraphics.beginFill(0x2E7D32, 0.2);
-  snakeGraphics.drawCircle(hx + 2, hy + 3, headSize);
+  // Head outline
+  const stretchX = 1 + Math.abs(dir.x) * 0.15;
+  const stretchY = 1 + Math.abs(dir.y) * 0.15;
+  const hdx = dir.x * cs * 0.06;
+  const hdy = dir.y * cs * 0.06;
+
+  // Dark outline
+  snakeGraphics.beginFill(C.snakeOutline);
+  snakeGraphics.drawEllipse(hx + hdx, hy + hdy, (headSize + 3.5) * stretchX, (headSize + 3.5) * stretchY);
   snakeGraphics.endFill();
 
-  // Head shape (slightly oval in direction of movement)
-  const stretchX = 1 + Math.abs(dir.x) * 0.12;
-  const stretchY = 1 + Math.abs(dir.y) * 0.12;
-
+  // Head fill
   snakeGraphics.beginFill(C.snakeBody);
-  snakeGraphics.drawEllipse(hx + dir.x * cs * 0.05, hy + dir.y * cs * 0.05, headSize * stretchX, headSize * stretchY);
+  snakeGraphics.drawEllipse(hx + hdx, hy + hdy, headSize * stretchX, headSize * stretchY);
   snakeGraphics.endFill();
 
-  // Top highlight
-  snakeGraphics.beginFill(C.snakeLight, 0.4);
-  snakeGraphics.drawEllipse(hx - headSize * 0.15, hy - headSize * 0.2, headSize * 0.5, headSize * 0.4);
+  // Top highlight (volume/3D)
+  snakeGraphics.beginFill(C.snakeLight, 0.45);
+  snakeGraphics.drawEllipse(hx + hdx - headSize * 0.15, hy + hdy - headSize * 0.25, headSize * 0.55, headSize * 0.4);
   snakeGraphics.endFill();
 
-  // ---- EYES ----
-  const eyeOff = cs * 0.17;
-  const eyeForward = cs * 0.08;
+  // ---- EYES (BIG!) ----
+  const eyeOff = cs * 0.22;    // further apart
+  const eyeSize = cs * 0.2;    // MUCH bigger
+  const pupilSize = cs * 0.11; // bigger pupils
   let ex1, ey1, ex2, ey2;
 
-  if (dir.x === 1)       { ex1 = eyeOff; ey1 = -eyeOff * 0.7; ex2 = eyeOff; ey2 = eyeOff * 0.7; }
-  else if (dir.x === -1) { ex1 = -eyeOff; ey1 = -eyeOff * 0.7; ex2 = -eyeOff; ey2 = eyeOff * 0.7; }
-  else if (dir.y === -1) { ex1 = -eyeOff * 0.7; ey1 = -eyeOff; ex2 = eyeOff * 0.7; ey2 = -eyeOff; }
-  else                   { ex1 = -eyeOff * 0.7; ey1 = eyeOff; ex2 = eyeOff * 0.7; ey2 = eyeOff; }
+  if (dir.x === 1)       { ex1 = eyeOff * 0.6; ey1 = -eyeOff * 0.75; ex2 = eyeOff * 0.6; ey2 = eyeOff * 0.75; }
+  else if (dir.x === -1) { ex1 = -eyeOff * 0.6; ey1 = -eyeOff * 0.75; ex2 = -eyeOff * 0.6; ey2 = eyeOff * 0.75; }
+  else if (dir.y === -1) { ex1 = -eyeOff * 0.75; ey1 = -eyeOff * 0.6; ex2 = eyeOff * 0.75; ey2 = -eyeOff * 0.6; }
+  else                   { ex1 = -eyeOff * 0.75; ey1 = eyeOff * 0.6; ex2 = eyeOff * 0.75; ey2 = eyeOff * 0.6; }
 
-  const eyeSize = cs * 0.14;
-  const pupilSize = cs * 0.07;
+  // Push eyes forward in direction of movement
+  const eyeFwd = cs * 0.12;
+  ex1 += dir.x * eyeFwd; ey1 += dir.y * eyeFwd;
+  ex2 += dir.x * eyeFwd; ey2 += dir.y * eyeFwd;
 
   if (snakeExpression === 'dead') {
     // X_X eyes
-    const xSize = eyeSize * 0.7;
-    snakeGraphics.lineStyle(2, C.eyePupil);
-    // Eye 1 - X
+    const xSize = eyeSize * 0.8;
+    snakeGraphics.lineStyle(3, C.snakeOutline);
     snakeGraphics.moveTo(hx + ex1 - xSize, hy + ey1 - xSize);
     snakeGraphics.lineTo(hx + ex1 + xSize, hy + ey1 + xSize);
     snakeGraphics.moveTo(hx + ex1 + xSize, hy + ey1 - xSize);
     snakeGraphics.lineTo(hx + ex1 - xSize, hy + ey1 + xSize);
-    // Eye 2 - X
     snakeGraphics.moveTo(hx + ex2 - xSize, hy + ey2 - xSize);
     snakeGraphics.lineTo(hx + ex2 + xSize, hy + ey2 + xSize);
     snakeGraphics.moveTo(hx + ex2 + xSize, hy + ey2 - xSize);
     snakeGraphics.lineTo(hx + ex2 - xSize, hy + ey2 + xSize);
     snakeGraphics.lineStyle(0);
   } else if (snakeExpression === 'happy') {
-    // ^_^ eyes (happy arcs)
-    snakeGraphics.lineStyle(2.5, C.eyePupil);
-    // Eye 1 - arc
-    snakeGraphics.arc(hx + ex1, hy + ey1 + eyeSize * 0.3, eyeSize * 0.6, Math.PI, 0);
-    // Eye 2 - arc
-    snakeGraphics.arc(hx + ex2, hy + ey2 + eyeSize * 0.3, eyeSize * 0.6, Math.PI, 0);
+    // ^_^ happy arcs
+    snakeGraphics.lineStyle(3, C.snakeOutline);
+    snakeGraphics.arc(hx + ex1, hy + ey1 + eyeSize * 0.3, eyeSize * 0.7, Math.PI, 0);
+    snakeGraphics.arc(hx + ex2, hy + ey2 + eyeSize * 0.3, eyeSize * 0.7, Math.PI, 0);
     snakeGraphics.lineStyle(0);
 
-    // Blush cheeks
-    snakeGraphics.beginFill(C.cheek, 0.35);
-    const cheekOff = dir.y !== 0 ? { x: eyeOff * 1.5, y: 0 } : { x: 0, y: eyeOff * 1.5 };
-    snakeGraphics.drawCircle(hx + cheekOff.x * 0.5, hy + cheekOff.y * 0.5 + cs * 0.05, cs * 0.08);
-    snakeGraphics.drawCircle(hx - cheekOff.x * 0.5, hy - cheekOff.y * 0.5 + cs * 0.05, cs * 0.08);
+    // Blush cheeks (bigger)
+    snakeGraphics.beginFill(C.cheek, 0.4);
+    const cheekDir = dir.y !== 0 ? { x: 1, y: 0 } : { x: 0, y: 1 };
+    snakeGraphics.drawCircle(hx + cheekDir.x * eyeOff * 1.4 + dir.x * cs * 0.05, hy + cheekDir.y * eyeOff * 1.4 + dir.y * cs * 0.05, cs * 0.1);
+    snakeGraphics.drawCircle(hx - cheekDir.x * eyeOff * 1.4 + dir.x * cs * 0.05, hy - cheekDir.y * eyeOff * 1.4 + dir.y * cs * 0.05, cs * 0.1);
     snakeGraphics.endFill();
   } else {
-    // Normal eyes - big white circles with pupils
+    // Normal big eyes
+    // Eye outline
+    snakeGraphics.beginFill(C.snakeOutline);
+    snakeGraphics.drawCircle(hx + ex1, hy + ey1, eyeSize + 2);
+    snakeGraphics.drawCircle(hx + ex2, hy + ey2, eyeSize + 2);
+    snakeGraphics.endFill();
+
     // Eye whites
     snakeGraphics.beginFill(C.eyeWhite);
     snakeGraphics.drawCircle(hx + ex1, hy + ey1, eyeSize);
     snakeGraphics.drawCircle(hx + ex2, hy + ey2, eyeSize);
     snakeGraphics.endFill();
 
-    // Pupils (look in direction of movement)
-    const pupilDX = dir.x * pupilSize * 0.4;
-    const pupilDY = dir.y * pupilSize * 0.4;
+    // Pupils (look in direction)
+    const pupilDX = dir.x * pupilSize * 0.35;
+    const pupilDY = dir.y * pupilSize * 0.35;
     snakeGraphics.beginFill(C.eyePupil);
     snakeGraphics.drawCircle(hx + ex1 + pupilDX, hy + ey1 + pupilDY, pupilSize);
     snakeGraphics.drawCircle(hx + ex2 + pupilDX, hy + ey2 + pupilDY, pupilSize);
     snakeGraphics.endFill();
 
-    // Eye shine
-    snakeGraphics.beginFill(0xFFFFFF, 0.8);
-    snakeGraphics.drawCircle(hx + ex1 - pupilSize * 0.3, hy + ey1 - pupilSize * 0.3, pupilSize * 0.35);
-    snakeGraphics.drawCircle(hx + ex2 - pupilSize * 0.3, hy + ey2 - pupilSize * 0.3, pupilSize * 0.35);
+    // Eye shine (big specular)
+    snakeGraphics.beginFill(0xFFFFFF, 0.9);
+    snakeGraphics.drawCircle(hx + ex1 - pupilSize * 0.3, hy + ey1 - pupilSize * 0.35, pupilSize * 0.45);
+    snakeGraphics.drawCircle(hx + ex2 - pupilSize * 0.3, hy + ey2 - pupilSize * 0.35, pupilSize * 0.45);
     snakeGraphics.endFill();
 
     // Subtle cheeks
-    snakeGraphics.beginFill(C.cheek, 0.15);
-    if (dir.y !== 0) {
-      snakeGraphics.drawCircle(hx - eyeOff * 1.2, hy + dir.y * cs * 0.02, cs * 0.07);
-      snakeGraphics.drawCircle(hx + eyeOff * 1.2, hy + dir.y * cs * 0.02, cs * 0.07);
-    } else {
-      snakeGraphics.drawCircle(hx + dir.x * cs * 0.02, hy - eyeOff * 1.2, cs * 0.07);
-      snakeGraphics.drawCircle(hx + dir.x * cs * 0.02, hy + eyeOff * 1.2, cs * 0.07);
-    }
+    snakeGraphics.beginFill(C.cheek, 0.2);
+    const cheekDir = dir.y !== 0 ? { x: 1, y: 0 } : { x: 0, y: 1 };
+    snakeGraphics.drawCircle(hx + cheekDir.x * eyeOff * 1.3, hy + cheekDir.y * eyeOff * 1.3 + dir.y * cs * 0.03, cs * 0.08);
+    snakeGraphics.drawCircle(hx - cheekDir.x * eyeOff * 1.3, hy - cheekDir.y * eyeOff * 1.3 + dir.y * cs * 0.03, cs * 0.08);
     snakeGraphics.endFill();
   }
 
   // ---- TONGUE ----
   if (snakeExpression === 'normal' && Math.sin(t * 8) > 0.3) {
-    const tongueBase = { x: hx + dir.x * headSize * 0.9, y: hy + dir.y * headSize * 0.9 };
-    const tongueLen = cs * 0.25;
+    const tongueBase = { x: hx + dir.x * headSize * 0.95, y: hy + dir.y * headSize * 0.95 };
+    const tongueLen = cs * 0.3;
     const tongueEnd = { x: tongueBase.x + dir.x * tongueLen, y: tongueBase.y + dir.y * tongueLen };
     const perpX = dir.y, perpY = -dir.x;
-    const forkLen = cs * 0.08;
+    const forkLen = cs * 0.1;
 
-    snakeGraphics.lineStyle(1.5, C.tongue, 0.9);
+    snakeGraphics.lineStyle(2, C.tongue, 0.9);
     snakeGraphics.moveTo(tongueBase.x, tongueBase.y);
     snakeGraphics.lineTo(tongueEnd.x, tongueEnd.y);
     snakeGraphics.moveTo(tongueEnd.x, tongueEnd.y);
@@ -801,14 +907,14 @@ function drawSnakeHead(headPos, cs, t) {
     snakeGraphics.lineStyle(0);
   }
 
-  // ---- Smile (subtle) ----
+  // ---- Smile ----
   if (snakeExpression === 'normal') {
-    const smileOff = headSize * 0.3;
-    snakeGraphics.lineStyle(1.5, C.snakeDark, 0.3);
+    const smileOff = headSize * 0.35;
+    snakeGraphics.lineStyle(2, C.snakeDark, 0.4);
     snakeGraphics.arc(
       hx + dir.x * smileOff * 0.5,
       hy + dir.y * smileOff * 0.5,
-      cs * 0.1,
+      cs * 0.12,
       dir.x === 1 ? 0 : dir.x === -1 ? Math.PI : dir.y === 1 ? Math.PI / 2 : -Math.PI / 2,
       dir.x === 1 ? Math.PI : dir.x === -1 ? 0 : dir.y === 1 ? -Math.PI / 2 : Math.PI / 2,
       dir.x === 1 || dir.y === -1
@@ -823,34 +929,37 @@ function drawSnakeDeath(cs, t) {
   const progress = deathTimer / 40;
   const len = snake.length;
 
-  // Snake fades and flattens
   for (let i = 0; i < len; i++) {
     const seg = snake[i];
     const sx = seg.x * cs + cs / 2;
     const sy = seg.y * cs + cs / 2;
-    const segSize = cs * (i === 0 ? 0.44 : 0.35 - (i / len) * 0.06);
+    const segSize = getSegSize(cs, i, len);
 
     const fadeAlpha = Math.max(0, 1 - progress * 1.5 + i * 0.02);
     if (fadeAlpha <= 0) continue;
 
-    // Body wobbles
     const wobbleX = Math.sin(t * 15 + i * 2) * progress * cs * 0.3;
     const wobbleY = Math.cos(t * 12 + i * 3) * progress * cs * 0.2;
+
+    // Outline
+    snakeGraphics.beginFill(C.snakeOutline, fadeAlpha * 0.5);
+    snakeGraphics.drawCircle(sx + wobbleX, sy + wobbleY, segSize * (1 - progress * 0.5) + 3);
+    snakeGraphics.endFill();
 
     snakeGraphics.beginFill(C.snakeBody, fadeAlpha);
     snakeGraphics.drawCircle(sx + wobbleX, sy + wobbleY, segSize * (1 - progress * 0.5));
     snakeGraphics.endFill();
 
-    // Stars above head on death
+    // Stars above head
     if (i === 0 && progress < 0.8) {
       for (let s = 0; s < 3; s++) {
         const starAngle = t * 5 + s * (Math.PI * 2 / 3);
-        const starR = cs * 0.5;
+        const starR = cs * 0.55;
         const starX = sx + Math.cos(starAngle) * starR;
-        const starY = sy - cs * 0.4 + Math.sin(starAngle * 0.5) * cs * 0.1;
+        const starY = sy - cs * 0.5 + Math.sin(starAngle * 0.5) * cs * 0.1;
 
         snakeGraphics.beginFill(C.starYellow, fadeAlpha * 0.8);
-        snakeGraphics.drawStar(starX, starY, 4, cs * 0.08, cs * 0.04);
+        drawStarShape(snakeGraphics, starX, starY, 4, cs * 0.1, cs * 0.05);
         snakeGraphics.endFill();
       }
     }
@@ -979,15 +1088,19 @@ function init() {
     const rect = container.getBoundingClientRect();
     const maxW = Math.max(rect.width - 16, 100);
     const maxH = Math.max(rect.height - 16, 100);
-    const maxCell = Math.floor(Math.min(maxW, maxH) / GRID);
+    const PADDING = 5;
+    const maxCell = Math.floor(Math.min(maxW, maxH) / (GRID + PADDING));
     cellSize = Math.max(maxCell, 10);
     canvasSize = cellSize * GRID;
-    const totalSize = canvasSize + cellSize * 4;
+    const totalSize = canvasSize + cellSize * PADDING;
     app.renderer.resize(totalSize, totalSize);
     app.view.style.width = totalSize + 'px';
     app.view.style.height = totalSize + 'px';
-    gameContainer.x = cellSize * 2;
-    gameContainer.y = cellSize * 2;
+    const off = cellSize * PADDING / 2;
+    gameContainer.x = off;
+    gameContainer.y = off;
+    gameContainer._baseX = off;
+    gameContainer._baseY = off;
     generateDecorations();
   });
 
