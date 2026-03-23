@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { MultiplayerManager } from '../shared/multiplayer-manager.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const SIZE = 9;
 const EMPTY = 0, BLACK = 1, WHITE = 2;
@@ -470,9 +471,11 @@ async function endGame() {
 
     // Save stats using shared module
     gameStats.recordGame(myResult === 'win');
+    onGameEnd('go', { won: myResult === 'win', multiplayer: true });
   } else {
     // Single player stats
     gameStats.recordGame(blackTotal > whiteTotal);
+    onGameEnd('go', { won: blackTotal > whiteTotal });
   }
 }
 

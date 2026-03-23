@@ -3,6 +3,7 @@ import { launchConfetti, playSound, shareOnWhatsApp } from '../shared/game-desig
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -198,6 +199,7 @@ async function showModal(title, message, result) {
   // Save stats using GameStats
   const finalTime = gameTimer ? gameTimer.getTime() : 0;
   gameStats.recordGame(true, { score: moves, time: finalTime });
+  onGameEnd('pyramid', { won: true, score: moves, time: finalTime * 1000 });
 }
 
 document.getElementById('btn-new').addEventListener('click', init);

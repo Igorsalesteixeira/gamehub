@@ -2,6 +2,7 @@
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // =============================================
 //  PACIÊNCIA SPIDER — game.js
 // =============================================
@@ -503,6 +504,7 @@ function showWin() {
   launchConfetti();
   playSound('win');
   gameStats.recordGame(true, { score: state.moves, time: finalTime });
+  onGameEnd('spider-solitaire', { won: true, score: state.moves, time: finalTime * 1000 });
 }
 
 

@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== CONSTANTS =====
 const DOTS = {
@@ -1061,6 +1062,7 @@ async function endMultiplayerGame(winner) {
   // Save stats using shared module
   if (winner === 'player') {
     gameStats.recordGame(true, { score, time: gameTimer.getTime() });
+    onGameEnd('domino', { won: true, score, time: gameTimer.getTime() * 1000 });
   }
 }
 
@@ -1106,6 +1108,7 @@ function handleGameEnd(roomData) {
 
     // Save stats using shared module
     gameStats.recordGame(true, { score, time: gameTimer.getTime() });
+    onGameEnd('domino', { won: true, score, time: gameTimer.getTime() * 1000 });
   } else if (winnerId === 'draw') {
     modalIcon.textContent = '🤝';
     modalTitle.textContent = 'Empate!';
@@ -1167,6 +1170,7 @@ function endGame(winner, score) {
 
     // Save stats using shared module
     gameStats.recordGame(true, { score, time: elapsed });
+    onGameEnd('domino', { won: true, score, time: elapsed * 1000 });
   } else if (winner === 'ai') {
     modalIcon.textContent  = '😞';
     modalTitle.textContent = 'IA venceu!';

@@ -2,9 +2,28 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 // ===== STATE =====
 let gridSize = 5;
@@ -60,17 +79,17 @@ function generatePuzzle() {
   for (let r = 0; r < gridSize; r++) {
     const row = [];
     for (let c = 0; c < gridSize; c++) {
-      row.push(Math.random() < 0.5 ? 1 : 0);
+      row.push(getRNG() < 0.5 ? 1 : 0);
     }
     solution.push(row);
   }
   // Ensure at least one filled cell per row and column
   for (let r = 0; r < gridSize; r++) {
-    if (!solution[r].includes(1)) solution[r][Math.floor(Math.random() * gridSize)] = 1;
+    if (!solution[r].includes(1)) solution[r][Math.floor(getRNG() * gridSize)] = 1;
   }
   for (let c = 0; c < gridSize; c++) {
     const col = solution.map(row => row[c]);
-    if (!col.includes(1)) solution[Math.floor(Math.random() * gridSize)][c] = 1;
+    if (!col.includes(1)) solution[Math.floor(getRNG() * gridSize)][c] = 1;
   }
 }
 
@@ -204,11 +223,17 @@ function checkWin() {
   modalStats.textContent = `Tempo: ${gameTimer.getFormatted()}`;
   modalEl.classList.remove('hidden');
   saveStats();
+  if (dailySeed) {
+    import('../shared/daily-challenge.js').then(m => {
+      m.dailyChallenge.recordResult({ won: true, time: gameTimer.getTime() * 1000 });
+    });
+  }
 }
 
 // ===== STATS =====
 async function saveStats() {
   gameStats.recordGame(true, { time: gameTimer.getTime() });
+  onGameEnd('nonogram', { won: true, time: gameTimer.getTime() * 1000 });
 }
 
 // ===== INIT =====
@@ -218,6 +243,10 @@ function newGame() {
   gameTimer.reset();
   timerEl.textContent = '0:00';
   playerGrid = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
+  // Reset daily RNG for deterministic generation each time
+  if (dailySeed) {
+    dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+  }
   generatePuzzle();
   render();
 }
@@ -232,13 +261,36 @@ diffBtns.forEach(btn => {
   });
 });
 
-document.getElementById('btn-new').addEventListener('click', newGame);
+document.getElementById('btn-new').addEventListener('click', () => {
+  if (dailySeed) return;
+  newGame();
+});
 document.getElementById('btn-modal-new').addEventListener('click', () => {
+  if (dailySeed) return;
   modalEl.classList.add('hidden');
   newGame();
 });
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🎉 Completei o Nonogram no Games Hub! Venha jogar tambem: https://gameshub.com.br/games/nonogram/`);
 });
+
+// Disable buttons in daily mode
+if (dailySeed) {
+  const btnNew = document.getElementById('btn-new');
+  const btnModalNew = document.getElementById('btn-modal-new');
+  [btnNew, btnModalNew].forEach(btn => {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Desafio diário: apenas uma tentativa';
+    }
+  });
+  diffBtns.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+  });
+}
 
 newGame();

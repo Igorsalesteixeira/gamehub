@@ -402,14 +402,46 @@ export class MultiplayerManager {
   }
 
   /**
-   * Marca o jogo como finalizado
+   * Marca o jogo como finalizado e atualiza ELO
    * @param {string} winnerId - ID do vencedor (ou null para empate)
+   * @param {Object} [opts] - Opções extras
+   * @param {number} [opts.opponentRating] - Rating ELO do oponente (se conhecido)
    */
-  async finishGame(winnerId = null) {
+  async finishGame(winnerId = null, opts = {}) {
     await this.updateState(null, {
       status: 'finished',
       winner: winnerId
     });
+
+    // Update ELO ratings
+    try {
+      const { eloManager } = await import('./elo-manager.js');
+      const opponentRating = opts.opponentRating || eloManager.getRating(this.gameType);
+
+      let result;
+      if (winnerId === null) {
+        result = 0.5; // draw
+      } else if (winnerId === this.myUserId) {
+        result = 1; // win
+      } else {
+        result = 0; // loss
+      }
+
+      eloManager.recordMatch(this.gameType, opponentRating, result);
+    } catch (e) {
+      console.warn('[MultiplayerManager] ELO update failed:', e);
+    }
+
+    // Trigger game-integration
+    try {
+      const { onGameEnd } = await import('./game-integration.js');
+      onGameEnd(this.gameType, {
+        won: winnerId === this.myUserId,
+        multiplayer: true
+      });
+    } catch (e) {
+      console.warn('[MultiplayerManager] Integration hook failed:', e);
+    }
   }
 
   /**

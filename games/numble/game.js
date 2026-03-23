@@ -1,9 +1,28 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 // ===== CONFIG =====
 const MAX_ATTEMPTS = 6;
@@ -38,20 +57,20 @@ function generateEquation() {
 
   while (attempts < 1000) {
     attempts++;
-    const op = ops[Math.floor(Math.random() * ops.length)];
+    const op = ops[Math.floor(getRNG() * ops.length)];
     let a, b, result;
 
     if (op === '+') {
-      a = Math.floor(Math.random() * 90) + 1;
-      b = Math.floor(Math.random() * 90) + 1;
+      a = Math.floor(getRNG() * 90) + 1;
+      b = Math.floor(getRNG() * 90) + 1;
       result = a + b;
     } else if (op === '-') {
-      a = Math.floor(Math.random() * 90) + 10;
-      b = Math.floor(Math.random() * (a - 1)) + 1;
+      a = Math.floor(getRNG() * 90) + 10;
+      b = Math.floor(getRNG() * (a - 1)) + 1;
       result = a - b;
     } else {
-      a = Math.floor(Math.random() * 20) + 2;
-      b = Math.floor(Math.random() * 20) + 2;
+      a = Math.floor(getRNG() * 20) + 2;
+      b = Math.floor(getRNG() * 20) + 2;
       result = a * b;
     }
 
@@ -232,6 +251,11 @@ function submitGuess() {
       modalStats.textContent = `Resposta: ${targetEquation}`;
       modalEl.classList.remove('hidden');
       saveStats('win', currentRow + 1);
+      if (dailySeed) {
+        import('../shared/daily-challenge.js').then(m => {
+          m.dailyChallenge.recordResult({ won: true, attempts: currentRow + 1 });
+        });
+      }
     }, 500);
     return;
   }
@@ -248,6 +272,11 @@ function submitGuess() {
       modalStats.textContent = `Resposta: ${targetEquation}`;
       modalEl.classList.remove('hidden');
       saveStats('loss', MAX_ATTEMPTS);
+      if (dailySeed) {
+        import('../shared/daily-challenge.js').then(m => {
+          m.dailyChallenge.recordResult({ won: false, attempts: MAX_ATTEMPTS });
+        });
+      }
     }, 500);
   }
 }
@@ -272,6 +301,7 @@ document.addEventListener('keydown', (e) => {
 // ===== STATS =====
 async function saveStats(result, moves) {
   gameStats.recordGame(result === 'win', { moves: moves });
+  onGameEnd('numble', { won: result === 'win', score: moves });
 }
 
 // ===== INIT =====
@@ -287,6 +317,10 @@ function newGame() {
       grid[r][c] = { char: '', state: null };
     }
   }
+  // Reset daily RNG for deterministic generation
+  if (dailySeed) {
+    dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+  }
   targetEquation = generateEquation();
   initAudio();
   renderBoard();
@@ -294,9 +328,21 @@ function newGame() {
 }
 
 document.getElementById('btn-modal-new').addEventListener('click', () => {
+  if (dailySeed) return;
   modalEl.classList.add('hidden');
   newGame();
 });
+
+// Disable new game button in daily mode
+if (dailySeed) {
+  const btnModalNew = document.getElementById('btn-modal-new');
+  if (btnModalNew) {
+    btnModalNew.disabled = true;
+    btnModalNew.style.opacity = '0.5';
+    btnModalNew.style.cursor = 'not-allowed';
+    btnModalNew.title = 'Desafio diário: apenas uma tentativa';
+  }
+}
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🎉 Acertei a equação no Numble do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/numble/`);
 });

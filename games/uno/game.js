@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // === GameStats ===
 const gameStats = new GameStats('uno', { autoSync: true });
@@ -927,6 +928,7 @@ function endGame(winner) {
   // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
     gameStats.recordGame(won, { score: moveCount });
+    onGameEnd('uno', { won, score: moveCount });
   }
 }
 

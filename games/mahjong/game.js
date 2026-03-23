@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -257,6 +258,7 @@ function showHint() {
 // ===== STATS =====
 async function saveStats(result) {
   gameStats.recordGame(result === 'win', { time: gameTimer.getTime() });
+  onGameEnd('mahjong', { won: result === 'win', time: gameTimer.getTime() * 1000 });
 }
 
 // ===== INIT =====

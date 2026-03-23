@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== Jogo de Dama (Checkers) - Dama Brasileira =====
 // Player = 'player' (pecas escuras, baixo), CPU = 'cpu' (pecas vermelhas, cima)
@@ -1202,6 +1203,7 @@ function endGame(winner) {
   else result = 'draw';
 
   saveGameStat(result);
+  onGameEnd('checkers', { won: result === 'win', time: timerSeconds * 1000 });
 
   if (winner === PLAYER) {
     modalIcon.innerHTML = '&#127942;';

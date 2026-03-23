@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -862,6 +863,7 @@ async function showdown(){
   // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
     gameStats.recordGame(humanWon, { score: players[0].chips });
+    onGameEnd('poker', { won: humanWon, score: players[0].chips });
   }
 
   setTimeout(()=>{
@@ -889,6 +891,7 @@ function awardPot(winnerIdx){
   // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
     gameStats.recordGame(humanWon, { score: players[0].chips });
+    onGameEnd('poker', { won: humanWon, score: players[0].chips });
   }
 
   setTimeout(()=>{

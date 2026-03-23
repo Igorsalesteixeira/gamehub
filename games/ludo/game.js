@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // =============================================
 //  LUDO — Complete Brazilian rules implementation
@@ -1282,6 +1283,7 @@ function endGame(humanWon, winnerCi = 0) {
   // Save stats using shared module
   const result = pos === 1 ? 'win' : 'loss';
   gameStats.recordGame(result === 'win', { score: pos, time: elapsed });
+  onGameEnd('ludo', { won: result === 'win', score: pos, time: elapsed * 1000 });
 
   // Update room status in multiplayer
   if (multiplayerMode) {

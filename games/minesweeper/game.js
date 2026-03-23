@@ -1,8 +1,27 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 // ===== CONFIG =====
 const DIFFICULTIES = {
@@ -93,10 +112,16 @@ function placeMines(safeRow, safeCol) {
     }
   }
 
+  // For daily mode, init a fresh RNG seeded with dailySeed + safeRow + safeCol
+  // so mines are deterministic per first-click position
+  if (dailySeed) {
+    dailyRNG = seededRNG((parseInt(dailySeed, 10) || 0) + safeRow * 100 + safeCol);
+  }
+
   let placed = 0;
   while (placed < totalMines) {
-    const r = Math.floor(Math.random() * rows);
-    const c = Math.floor(Math.random() * cols);
+    const r = Math.floor(getRNG() * rows);
+    const c = Math.floor(getRNG() * cols);
     if (!board[r][c].mine && !safeSet.has(`${r},${c}`)) {
       board[r][c].mine = true;
       placed++;
@@ -259,6 +284,12 @@ function handleClick(r, c, e) {
     playSound('explosion');
     showModal(false);
     saveGameStat('loss');
+    onGameEnd('minesweeper', { won: false, time: timerSeconds * 1000 });
+    if (dailySeed) {
+      import('../shared/daily-challenge.js').then(m => {
+        m.dailyChallenge.recordResult({ won: false, time: timerSeconds * 1000 });
+      });
+    }
     return;
   }
 
@@ -270,6 +301,12 @@ function handleClick(r, c, e) {
     clearInterval(timerInterval);
     showModal(true);
     saveGameStat('win');
+    onGameEnd('minesweeper', { won: true, time: timerSeconds * 1000 });
+    if (dailySeed) {
+      import('../shared/daily-challenge.js').then(m => {
+        m.dailyChallenge.recordResult({ won: true, time: timerSeconds * 1000 });
+      });
+    }
   }
 }
 
@@ -373,8 +410,31 @@ async function saveGameStat(result) {
 }
 
 // ===== EVENT LISTENERS =====
-btnNew.addEventListener('click', init);
-btnModalNew.addEventListener('click', init);
+btnNew.addEventListener('click', () => {
+  if (dailySeed) return;
+  init();
+});
+btnModalNew.addEventListener('click', () => {
+  if (dailySeed) return;
+  init();
+});
+
+// Disable buttons in daily mode
+if (dailySeed) {
+  [btnNew, btnModalNew].forEach(btn => {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Desafio diário: apenas uma tentativa';
+    }
+  });
+  diffBtns.forEach(btn => {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+  });
+}
 
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🎉 Ganhei no Campo Minado do Games Hub! Venha jogar tambem: https://gameshub.com.br/games/minesweeper/`);

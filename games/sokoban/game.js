@@ -1,6 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // =============================================
 //  SOKOBAN — game.js (refatorado com módulos compartilhados)
@@ -476,6 +477,7 @@ window.addEventListener('resize', () => {
 // =============================================
 async function saveGameStat() {
   gameStats.recordGame(true, { moves: moves });
+  onGameEnd('sokoban', { won: true, score: moves });
 }
 
 // =============================================

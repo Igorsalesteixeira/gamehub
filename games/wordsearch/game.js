@@ -2,9 +2,28 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 const CATEGORIES = {
   'Animais': ['GATO','CACHORRO','ELEFANTE','GIRAFA','TIGRE','LEAO','MACACO','COBRA','AGUIA','BALEIA','CAVALO','COELHO','GALINHA','PAPAGAIO','PINGUIM','TARTARUGA','JACARE','LOBO','URSO','RAPOSA','GOLFINHO','CORUJA','PANTERA','CAMELO','TUCANO'],
@@ -50,11 +69,11 @@ let placedWords = [];
 
 function pickWords() {
   const catKeys = Object.keys(CATEGORIES);
-  const cat = catKeys[Math.floor(Math.random() * catKeys.length)];
+  const cat = catKeys[Math.floor(getRNG() * catKeys.length)];
   const pool = [...CATEGORIES[cat]];
   const selected = [];
   while (selected.length < 10 && pool.length > 0) {
-    const idx = Math.floor(Math.random() * pool.length);
+    const idx = Math.floor(getRNG() * pool.length);
     const w = pool.splice(idx, 1)[0];
     if (w.length <= GRID_SIZE) selected.push(w);
   }
@@ -75,11 +94,11 @@ function canPlace(grid, word, r, c, dr, dc) {
 }
 
 function placeWord(grid, word) {
-  const dirs = [...DIRECTIONS].sort(() => Math.random() - 0.5);
+  const dirs = [...DIRECTIONS].sort(() => getRNG() - 0.5);
   for (let attempt = 0; attempt < 100; attempt++) {
     const dir = dirs[attempt % dirs.length];
-    const r = Math.floor(Math.random() * GRID_SIZE);
-    const c = Math.floor(Math.random() * GRID_SIZE);
+    const r = Math.floor(getRNG() * GRID_SIZE);
+    const c = Math.floor(getRNG() * GRID_SIZE);
     if (canPlace(grid, word, r, c, dir[0], dir[1])) {
       for (let i = 0; i < word.length; i++) {
         grid[r + dir[0] * i][c + dir[1] * i] = word[i];
@@ -94,7 +113,7 @@ function fillRandom(grid) {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   for (let r = 0; r < GRID_SIZE; r++)
     for (let c = 0; c < GRID_SIZE; c++)
-      if (grid[r][c] === '') grid[r][c] = letters[Math.floor(Math.random() * 26)];
+      if (grid[r][c] === '') grid[r][c] = letters[Math.floor(getRNG() * 26)];
 }
 
 function generatePuzzle() {
@@ -314,6 +333,11 @@ function onWin() {
   modalMessage.textContent = `Você encontrou todas as ${words.length} palavras em ${gameTimer.getFormatted()}!`;
   modalOverlay.classList.add('active');
   saveGameStat(t);
+  if (dailySeed) {
+    import('../shared/daily-challenge.js').then(m => {
+      m.dailyChallenge.recordResult({ won: true, time: t * 1000 });
+    });
+  }
 
   // Setup WhatsApp share button
   const shareBtn = document.getElementById('btn-share');
@@ -327,6 +351,7 @@ function onWin() {
 
 async function saveGameStat(timeSec) {
   gameStats.recordGame(true, { moves: words.length, time: timeSec });
+  onGameEnd('wordsearch', { won: true, time: timeSec * 1000 });
 }
 
 function renderWordList() {
@@ -346,6 +371,10 @@ function newGame() {
   selecting = false;
   selStart = null;
   selEnd = null;
+  // Reset daily RNG for deterministic generation
+  if (dailySeed) {
+    dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+  }
   generatePuzzle();
   initCanvas();
   renderWordList();
@@ -355,12 +384,27 @@ function newGame() {
 }
 
 document.getElementById('btn-new').addEventListener('click', () => {
+  if (dailySeed) return;
   playSound('click');
   newGame();
 });
 document.getElementById('btn-modal-new').addEventListener('click', () => {
+  if (dailySeed) return;
   playSound('click');
   newGame();
 });
+
+// Disable buttons in daily mode
+if (dailySeed) {
+  ['btn-new', 'btn-modal-new'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Desafio diário: apenas uma tentativa';
+    }
+  });
+}
 
 newGame();

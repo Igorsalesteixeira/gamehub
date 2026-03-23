@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // =============================================
 //  Batalha Naval — Games Hub v15
@@ -1102,6 +1103,7 @@ function checkWin() {
 
     if (!IS_MULTIPLAYER) {
       gameStats.recordGame(won, { time: gameTimer.getTime() });
+      onGameEnd('battleship', { won, time: gameTimer.getTime() * 1000 });
     }
     return true;
   }

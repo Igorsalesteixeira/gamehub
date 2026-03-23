@@ -6,6 +6,7 @@
 import '../../auth-check.js?v=4';
 import { supabase } from '../../supabase.js?v=2';
 import { launchConfetti, playSound, initAudio, haptic } from '../shared/game-design-utils.js?v=4';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const GAME_NAME = 'sueca';
 const IS_MOBILE = window.matchMedia('(pointer: coarse)').matches;
@@ -340,6 +341,7 @@ function endGame() {
   }
 
   saveScore(weWon ? 'win' : 'lose');
+  onGameEnd('sueca', { won: weWon, score: scores.us });
 }
 
 // Salvar pontuação

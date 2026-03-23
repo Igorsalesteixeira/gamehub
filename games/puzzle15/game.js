@@ -2,9 +2,28 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 const boardEl = document.getElementById('board');
 const movesDisplay = document.getElementById('moves-display');
@@ -32,7 +51,7 @@ const gameTimer = new GameTimer({
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(getRNG() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -74,6 +93,11 @@ function init() {
   movesDisplay.textContent = '0';
   timerDisplay.textContent = '0:00';
   modalOverlay.classList.remove('show');
+
+  // Reset daily RNG for deterministic shuffle
+  if (dailySeed) {
+    dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+  }
 
   do {
     tiles = shuffle([...Array(15).keys()].map(i => i + 1).concat([0]));
@@ -155,6 +179,11 @@ function handleClick(index) {
       modalMessage.textContent = `${moves} movimentos em ${gameTimer.getFormatted()}`;
       modalOverlay.classList.add('show');
       saveGameStat();
+      if (dailySeed) {
+        import('../shared/daily-challenge.js').then(m => {
+          m.dailyChallenge.recordResult({ won: true, time: gameTimer.getTime() * 1000, score: moves });
+        });
+      }
     }, 300);
   }
 }
@@ -245,8 +274,26 @@ function isWon() {
   return tiles[15] === 0;
 }
 
-btnNewGame.addEventListener('click', init);
-btnPlayAgain.addEventListener('click', init);
+btnNewGame.addEventListener('click', () => {
+  if (dailySeed) return;
+  init();
+});
+btnPlayAgain.addEventListener('click', () => {
+  if (dailySeed) return;
+  init();
+});
+
+// Disable buttons in daily mode
+if (dailySeed) {
+  [btnNewGame, btnPlayAgain].forEach(btn => {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Desafio diário: apenas uma tentativa';
+    }
+  });
+}
 
 document.getElementById('btn-share')?.addEventListener('click', () => {
   shareOnWhatsApp(`🎉 Completei o Puzzle 15 no Games Hub! Venha jogar também: https://gameshub.com.br/games/puzzle15/`);
@@ -254,6 +301,7 @@ document.getElementById('btn-share')?.addEventListener('click', () => {
 
 async function saveGameStat() {
   gameStats.recordGame(true, { moves: moves, time: gameTimer.getTime() });
+  onGameEnd('puzzle15', { won: true, score: moves, time: gameTimer.getTime() * 1000 });
 }
 
 init();

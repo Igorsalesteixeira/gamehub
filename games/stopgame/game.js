@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { createCountdown } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -155,6 +156,7 @@ document.getElementById('new-round').addEventListener('click', () => {
 async function saveStats() {
   if (totalScore === 0) return;
   gameStats.recordGame(true, { score: totalScore, moves: totalScore });
+  onGameEnd('stopgame', { won: true, score: totalScore });
 }
 
 init();

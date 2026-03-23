@@ -1,4 +1,5 @@
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const stats = new GameStats('quiz');
 
@@ -397,6 +398,7 @@ function endGame() {
   `;
 
   modalOverlay.classList.remove('hidden');
+  onGameEnd('quiz', { won: pct >= 70, score, time: totalTime * 1000 });
 }
 
 function resetGame() {

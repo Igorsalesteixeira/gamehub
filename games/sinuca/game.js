@@ -1,6 +1,7 @@
 import '../../auth-check.js?v=4';
 import { supabase } from '../../supabase.js?v=2';
 import { launchConfetti, playSound, initAudio } from '../shared/game-design-utils.js?v=4';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== Sistema de Partículas (Poeira) =====
 let particles = [];
@@ -1005,6 +1006,7 @@ function endGame() {
   }
 
   modalOverlay.classList.add('show');
+  onGameEnd('sinuca', { won: winner === 'player', score: playerScore });
 }
 
 function updateScoreDisplay() {

@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Initialize audio on first user interaction
 let audioInitialized = false;
@@ -368,6 +369,7 @@ function endRound(result, title, message) {
   // Save stats using GameStats
   const won = result === 'win' || result === 'blackjack';
   gameStats.recordGame(won, { score: won ? currentBet : 0 });
+  onGameEnd('blackjack', { won, score: won ? currentBet : 0 });
 }
 
 function closeModal() {

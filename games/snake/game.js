@@ -8,6 +8,7 @@ import { GameStats, GameStorage } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager, createDirectionalInput } from '../shared/input-manager.js';
 import { ParticleSystem } from '../shared/skills/particle-system/index.js';
+import { onGameEnd } from '../shared/game-integration.js';
 import { shake } from '../shared/skills/animation-system/index.js';
 
 // ---- Config ----
@@ -390,6 +391,7 @@ async function gameOver() {
 
   // Registra a partida nas estatísticas
   stats.recordGame(false, { score: score });
+  onGameEnd('snake', { won: false, score });
 
   if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
 

@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ========== DEBUG & VERSION ==========
 console.log('[Xadrez] v15 Premium 3D SVG - Inicializando...');
@@ -958,6 +959,7 @@ function endGame(result, customMessage = null) {
 
   renderBoard();
   saveGameStat(result);
+  onGameEnd('chess', { won: result === 'win', time: seconds * 1000, multiplayer: !!mp?.isMultiplayer });
 }
 
 function showResult(icon, title, msg) {

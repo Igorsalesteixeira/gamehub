@@ -141,24 +141,63 @@ class EloManager {
     } catch { return []; }
   }
 
-  // Find opponent within rating range for matchmaking
+  /**
+   * Find opponent within rating range for matchmaking.
+   * Queries waiting rooms, cross-references player ratings, and returns
+   * the closest match within the given range. Expands range if no match found.
+   * @param {string} gameId
+   * @param {number} range - Initial rating range (±)
+   * @returns {Object|null} Best matching room or null
+   */
   async findOpponent(gameId, range = 200) {
     try {
       const { supabase } = await import('../../supabase.js');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+
       const myRating = this.getRating(gameId);
-      const { data } = await supabase
+
+      // Get waiting rooms for this game (exclude my own)
+      const { data: rooms } = await supabase
         .from('game_rooms')
         .select('*')
-        .eq('game_type', gameId)
+        .eq('game', gameId)
         .eq('status', 'waiting')
         .is('player2_id', null)
-        .limit(10);
+        .neq('player1_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
-      if (!data || !data.length) return null;
+      if (!rooms || !rooms.length) return null;
 
-      // Filter by rating range (need to cross-reference player_ratings)
-      // For simplicity, return first available room
-      return data[0];
+      // Get ratings for all room hosts
+      const hostIds = rooms.map(r => r.player1_id);
+      const { data: ratings } = await supabase
+        .from('player_ratings')
+        .select('user_id, rating')
+        .eq('game_id', gameId)
+        .in('user_id', hostIds);
+
+      const ratingMap = {};
+      if (ratings) ratings.forEach(r => { ratingMap[r.user_id] = r.rating; });
+
+      // Score each room by rating proximity
+      const scored = rooms.map(room => {
+        const hostRating = ratingMap[room.player1_id] || DEFAULT_RATING;
+        const diff = Math.abs(myRating - hostRating);
+        return { room, hostRating, diff };
+      });
+
+      // Sort by closest rating
+      scored.sort((a, b) => a.diff - b.diff);
+
+      // Try with initial range, then expand
+      for (const maxRange of [range, range * 2, Infinity]) {
+        const match = scored.find(s => s.diff <= maxRange);
+        if (match) return { ...match.room, _opponentRating: match.hostRating };
+      }
+
+      return null;
     } catch { return null; }
   }
 }

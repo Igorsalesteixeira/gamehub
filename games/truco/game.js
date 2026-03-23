@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // === GameStats ===
 const gameStats = new GameStats('truco', { autoSync: true });
@@ -432,6 +433,7 @@ function endMatch() {
   // Save stats using GameStats (single player only)
   if (!isMultiplayer) {
     gameStats.recordGame(won);
+    onGameEnd('truco', { won });
   }
 
   if (isMultiplayer && gameChannel) { supabase.from('truco_rooms').update({ status: 'finished' }).eq('id', roomId); }

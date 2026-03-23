@@ -3,6 +3,7 @@ import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -409,6 +410,7 @@ function endGame() {
 
   // Save stats
   gameStats.recordGame(humanWon, { score: humanWon ? 0 : players[0].points });
+  onGameEnd('pife', { won: humanWon, score: humanWon ? 0 : players[0].points });
 
   // Show results
   let resultsHtml = '<div class="results-list">';

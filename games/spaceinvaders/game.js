@@ -5,6 +5,7 @@ import { GameLoop } from '../shared/game-loop.js?v=4';
 import { InputManager } from '../shared/input-manager.js?v=4';
 import { ParticleSystem } from '../shared/skills/particle-system/index.js?v=1';
 import { shake, pulse } from '../shared/skills/animation-system/index.js?v=1';
+import { onGameEnd } from '../shared/game-integration.js';
 // =============================================
 //  Space Invaders — Games Hub (Refatorado)
 // =============================================
@@ -510,6 +511,7 @@ async function gameOver() {
 
   // Save stats
   gameStats.recordGame(false, { score });
+  onGameEnd('spaceinvaders', { won: false, score });
 
   // Save to Supabase
   try {

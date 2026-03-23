@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { MultiplayerManager } from '../shared/multiplayer-manager.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // --- Constants ---
 const EMPTY = 0, BLACK = 1, WHITE = 2;
@@ -794,6 +795,7 @@ function endGame() {
 
   // Save stats using shared module
   gameStats.recordGame(result === 'win', { score: Math.max(black, white) });
+  onGameEnd('reversi', { won: result === 'win', score: Math.max(black, white) });
 
   turnEl.textContent = title;
   turnEl.className = 'turn-indicator';

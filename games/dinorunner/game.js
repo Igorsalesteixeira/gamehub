@@ -5,6 +5,7 @@ import { GameLoop } from '../shared/game-loop.js';
 import { InputManager } from '../shared/input-manager.js';
 // ===== Dino Runner (Refatorado) =====
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
@@ -233,6 +234,7 @@ function die() {
   // Save stats
   const isNewRecord = score > bestScore;
   gameStats.recordGame(isNewRecord, { score });
+  onGameEnd('dinorunner', { won: false, score });
 
   if (isNewRecord) {
     bestScore = score;

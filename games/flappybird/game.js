@@ -4,6 +4,7 @@ import { GameStats } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager } from '../shared/input-manager.js';
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== DOM Elements =====
 const canvas = document.getElementById('game-canvas');
@@ -215,6 +216,7 @@ function die() {
   // Save stats
   const isNewRecord = score > bestScore;
   gameStats.recordGame(isNewRecord, { score });
+  onGameEnd('flappybird', { won: false, score });
 
   if (isNewRecord) {
     bestScore = score;

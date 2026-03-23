@@ -4,6 +4,7 @@ import { supabase } from '../../supabase.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { InputManager } from '../shared/input-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const SIZE = 4;
 const boardEl = document.getElementById('board');
@@ -149,6 +150,7 @@ function move(direction) {
         modalMessage.textContent = `Pontuacao: ${score}`;
         modalOverlay.classList.add('show');
         saveGameStat();
+        onGameEnd('game2048', { won, score });
       }, 300);
     }
   }

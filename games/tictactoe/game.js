@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // =============================================
 //  Jogo da Velha (Tic-Tac-Toe) - Games Hub
@@ -433,6 +434,7 @@ async function saveGameStat(result) {
     roomId: ROOM_ID,
     isMultiplayer: IS_MULTIPLAYER
   });
+  onGameEnd('tictactoe', { won: result === 'win', multiplayer: IS_MULTIPLAYER });
 }
 
 // === Cleanup ===

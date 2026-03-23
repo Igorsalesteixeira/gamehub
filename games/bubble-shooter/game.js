@@ -3,6 +3,7 @@ import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '.
 import { GameStats } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager } from '../shared/input-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // =============================================
 //  BUBBLE SHOOTER — game.js (Refatorado)
 // =============================================
@@ -401,6 +402,7 @@ async function triggerWin() {
 
   // Save stats
   gameStats.recordGame(true, { score });
+  onGameEnd('bubble-shooter', { won: true, score });
 
   // Save stats to Supabase
   try {
@@ -426,6 +428,7 @@ function triggerGameOver() {
 
   // Save stats
   gameStats.recordGame(false, { score });
+  onGameEnd('bubble-shooter', { won: false, score });
 
   overlayIcon.textContent  = '💥';
   overlayTitle.textContent = 'Fim de Jogo!';

@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { MultiplayerManager, GameStats } from '../shared/multiplayer-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const ROWS = 6, COLS = 7;
 let board, currentPlayer, gameOver;
@@ -430,6 +431,7 @@ async function endGame(result, winCells) {
     roomId: ROOM_ID,
     isMultiplayer: IS_MULTIPLAYER
   });
+  onGameEnd('connect4', { won: result === 'win', multiplayer: IS_MULTIPLAYER });
 }
 
 async function resetGame(shouldBroadcast = true) {

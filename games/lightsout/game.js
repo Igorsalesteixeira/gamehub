@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, initAudio, shareOnWhatsApp } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -89,6 +90,7 @@ async function win() {
 
   // Salva estatísticas usando GameStats
   gameStats.recordGame(true, { moves: moves, time: timeSec });
+  onGameEnd('lightsout', { won: true, score: moves, time: timeSec * 1000 });
 }
 
 document.getElementById('restart').addEventListener('click', init);

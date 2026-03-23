@@ -376,6 +376,7 @@ function gameOver() {
   overlayScore.textContent = `Score: ${state.score}`;
   btnStart.textContent = 'Jogar Novamente';
   overlay.classList.remove('hidden');
+  import('../shared/game-integration.js').then(m => m.onGameEnd('tetris', { won: false, score: state.score }));
 }
 
 function showStartScreen() {

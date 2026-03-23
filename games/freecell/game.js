@@ -2,6 +2,7 @@
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // =============================================
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -84,6 +85,7 @@ function newGame() {
   ensureAudio();
   if (gameStarted && !checkWin()) {
     gameStats.recordGame(false, { score: state.moves });
+    onGameEnd('freecell', { won: false, score: state.moves });
   }
   gameStarted = false;
   selected = null;
@@ -876,6 +878,7 @@ function showWin() {
   if (gameTimer) gameTimer.stop();
   const finalTime = gameTimer ? gameTimer.getTime() : 0;
   gameStats.recordGame(true, { score: state.moves, time: finalTime });
+  onGameEnd('freecell', { won: true, score: state.moves, time: finalTime * 1000 });
   gameStarted = false;
   const m = String(Math.floor(finalTime / 60)).padStart(2,'0');
   const s = String(finalTime % 60).padStart(2,'0');

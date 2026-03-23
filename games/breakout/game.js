@@ -3,6 +3,7 @@ import { launchConfetti, playSound, shareOnWhatsApp, haptic, initAudio } from '.
 import { GameStats, BestScoreManager } from '../shared/game-core.js';
 import { GameLoop } from '../shared/game-loop.js';
 import { InputManager, MobileButtonHandler } from '../shared/input-manager.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // =============================================
 //  BREAKOUT — game.js (Refatorado com módulos compartilhados)
 // =============================================
@@ -505,6 +506,7 @@ async function gameOver() {
   btnStart.textContent     = 'Jogar Novamente';
   overlay.classList.remove('hidden');
   playSound('gameover');
+  onGameEnd('breakout', { won: false, score });
 }
 
 btnStart.addEventListener('click', startGame);

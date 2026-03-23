@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -299,6 +300,7 @@ function endGame(won) {
 
 async function saveGameStat(result, timeSec) {
   gameStats.recordGame(result === 'win', { score: score, time: timeSec });
+  onGameEnd('anagram', { won: result === 'win', score, time: timeSec * 1000 });
 }
 
 function newGame() {

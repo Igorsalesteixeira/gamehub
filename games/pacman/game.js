@@ -173,6 +173,7 @@ function gameOver() {
     localStorage.setItem('pacman-highscore', score);
     bestDisplay.textContent = score;
   }
+  import('../shared/game-integration.js').then(m => m.onGameEnd('pacman', { won: false, score }));
 }
 
 function gameWin() {
@@ -183,6 +184,7 @@ function gameWin() {
   btnStart.textContent = 'PROXIMO NIVEL';
   overlay.classList.remove('hidden');
   level++;
+  import('../shared/game-integration.js').then(m => m.onGameEnd('pacman', { won: true, score }));
 }
 
 // ---- Game Loop ----

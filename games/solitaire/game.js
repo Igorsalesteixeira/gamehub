@@ -7,6 +7,7 @@ import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // === GameStats ===
 const gameStats = new GameStats('solitaire', { autoSync: true });
@@ -105,6 +106,7 @@ function newGame() {
   if (gameStarted && !checkWin()) {
     const finalTime = gameTimer ? gameTimer.getTime() : 0;
     gameStats.recordGame(false, { time: finalTime });
+    onGameEnd('solitaire', { won: false, time: finalTime * 1000 });
   }
   gameStarted = false;
   selected = null;
@@ -992,6 +994,7 @@ function showWin() {
 
   // Save stats using GameStats
   gameStats.recordGame(true, { time: finalTime });
+  onGameEnd('solitaire', { won: true, time: finalTime * 1000 });
 
   gameStarted = false; // evita salvar 'loss' ao clicar "Novo Jogo" depois
   winStats.textContent = `${state.moves} movimentos em ${gameTimer.getFormatted()}`;

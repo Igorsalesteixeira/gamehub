@@ -2,6 +2,7 @@ import '../../auth-check.js';
 import { initAudio, playSound } from '../shared/game-design-utils.js';
 import { supabase } from '../../supabase.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // Mobile: haptic feedback helper
 function haptic(ms = 10) { if (navigator.vibrate) navigator.vibrate(ms); }
@@ -787,6 +788,7 @@ async function endRound(playerDown=false,cpuDown=false){
   // Save stats using GameStats (single player only)
   if (!IS_MULTIPLAYER) {
     gameStats.recordGame(won, { score: score });
+    onGameEnd('buraco', { won, score });
   }
 
   render();

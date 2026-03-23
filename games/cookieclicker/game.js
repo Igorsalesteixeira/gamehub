@@ -1,6 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, haptic } from '../shared/game-design-utils.js';
 import { GameStats, GameStorage } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== Cookie Clicker (Refatorado) =====
 
@@ -209,6 +210,7 @@ function startGameLoop() {
     });
 
     await gameStats.syncToCloud();
+    onGameEnd('cookieclicker', { won: true, score: Math.floor(totalEarned) });
   }, 300000);
 }
 

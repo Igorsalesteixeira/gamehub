@@ -1,6 +1,7 @@
 import '../../auth-check.js';
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // ===== Jogo da Forca =====
 import { supabase } from '../../supabase.js';
 
@@ -193,6 +194,7 @@ function handleGuess(letter) {
       // Update GameStats
       if (gameStats) {
         gameStats.recordGame(true, { moves: wrongGuesses });
+        onGameEnd('hangman', { won: true, score: wrongGuesses });
         // Keep localStorage in sync for backward compatibility
         localStorage.setItem('forca_wins', gameStats.get().gamesWon);
         winsDisplay.textContent = gameStats.get().gamesWon;
@@ -218,6 +220,7 @@ function handleGuess(letter) {
       // Update GameStats for loss
       if (gameStats) {
         gameStats.recordGame(false, { moves: wrongGuesses });
+        onGameEnd('hangman', { won: false, score: wrongGuesses });
       }
       // Reveal word
       const slots = wordDisplay.querySelectorAll('.letter-slot');

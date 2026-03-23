@@ -2,6 +2,7 @@ import '../../auth-check.js?v=4';
 import { supabase } from '../../supabase.js?v=2';
 import { initAudio, playSound, launchConfetti, showToast } from '../shared/game-design-utils.js?v=4';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 // ===== CONSTANTS =====
 const SUITS = ['♠', '♥', '♦', '♣'];
@@ -405,6 +406,7 @@ function endGame() {
 
   // Save stats
   gameStats.recordGame(humanWon, { score: humanWon ? winner.score : 0 });
+  onGameEnd('cacheta', { won: humanWon, score: humanWon ? winner.score : 0 });
 
   // Show results
   showResults(winner);

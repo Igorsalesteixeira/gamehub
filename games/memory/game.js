@@ -4,6 +4,7 @@ import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
 // ===== Jogo da Memoria (Redesigned with pointer events and accessibility) =====
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
 
 const EMOJIS = [
   '🐶','🐱','🐸','🦊','🐼','🐨','🦁','🐯',
@@ -237,6 +238,7 @@ async function showVictory() {
 
   // Salva stats
   stats.recordGame(true, { score: moves, time: timeSeconds });
+  onGameEnd('memory', { won: true, score: moves, time: timeSeconds * 1000 });
   await stats.syncToCloud();
 }
 

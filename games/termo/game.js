@@ -1,8 +1,27 @@
 import '../../auth-check.js';
 import { playSound, initAudio } from '../shared/game-design-utils.js';
 import { GameStats } from '../shared/game-core.js';
+import { onGameEnd } from '../shared/game-integration.js';
 // ===== Termo (Wordle BR) v8 - Refinamento Visual =====
 import { supabase } from '../../supabase.js';
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+if (dailySeed) {
+  dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+}
 
 // Debug mode
 console.log('[Termo] v8 - Inicializando...');
@@ -144,7 +163,14 @@ function init() {
   if (themeBtn) themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
 
   // Game Design: Modo diario (todos jogam a mesma palavra por dia)
-  targetWord = getDailyWord();
+  if (dailySeed) {
+    // Seeded daily challenge: use seed to pick word deterministically
+    const rng = seededRNG(parseInt(dailySeed, 10) || 0);
+    const idx = Math.floor(rng() * VALID_WORDS.length);
+    targetWord = VALID_WORDS[idx];
+  } else {
+    targetWord = getDailyWord();
+  }
   currentRow = 0;
   currentCol = 0;
   gameOver = false;
@@ -297,6 +323,7 @@ function submitGuess() {
       // Update GameStats
       if (gameStats) {
         gameStats.recordGame(true, { moves: currentRow + 1 });
+        onGameEnd('termo', { won: true, score: currentRow + 1 });
         // Keep localStorage in sync for backward compatibility
         localStorage.setItem('termo_wins', gameStats.get().gamesWon);
         winsDisplay.textContent = gameStats.get().gamesWon;
@@ -309,6 +336,11 @@ function submitGuess() {
       setTimeout(() => {
         showModal('Parabens! 🎉', `Voce acertou em ${currentRow + 1} tentativa${currentRow > 0 ? 's' : ''}!`);
         saveGameStat('win');
+        if (dailySeed) {
+          import('../shared/daily-challenge.js').then(m => {
+            m.dailyChallenge.recordResult({ won: true, attempts: currentRow + 1 });
+          });
+        }
       }, 600);
     } else {
       currentRow++;
@@ -319,9 +351,15 @@ function submitGuess() {
         // Update GameStats for loss
         if (gameStats) {
           gameStats.recordGame(false, { moves: MAX_GUESSES });
+          onGameEnd('termo', { won: false, score: MAX_GUESSES });
         }
         showModal('Que pena! 😔', 'Voce nao conseguiu adivinhar.');
         saveGameStat('loss');
+        if (dailySeed) {
+          import('../shared/daily-challenge.js').then(m => {
+            m.dailyChallenge.recordResult({ won: false, attempts: MAX_GUESSES });
+          });
+        }
       }
     }
   }, totalDelay);
@@ -454,6 +492,7 @@ document.addEventListener('keydown', (e) => {
   if (gameOver && e.key !== 'Enter') return;
   if (e.key === 'Enter') {
     if (gameOver && modalOverlay.classList.contains('show')) {
+      if (dailySeed) return; // Daily mode: no restart
       init();
       return;
     }
@@ -467,9 +506,18 @@ document.addEventListener('keydown', (e) => {
 
 // New game button
 btnNewGame.addEventListener('click', () => {
+  if (dailySeed) return; // Daily mode: single attempt only
   playSound('click');
   init();
 });
+
+// Disable new game button in daily mode
+if (dailySeed && btnNewGame) {
+  btnNewGame.disabled = true;
+  btnNewGame.style.opacity = '0.5';
+  btnNewGame.style.cursor = 'not-allowed';
+  btnNewGame.title = 'Desafio diário: apenas uma tentativa';
+}
 
 // Theme toggle
 document.getElementById('btn-theme')?.addEventListener('click', () => {

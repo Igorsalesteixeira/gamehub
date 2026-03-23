@@ -4,6 +4,25 @@ import { GameStats } from '../shared/game-core.js';
 import { GameTimer } from '../shared/timer.js';
 // ===== Sudoku Zen v12 - Refatorado =====
 import { supabase } from '../../supabase.js';
+import { onGameEnd } from '../shared/game-integration.js';
+
+// Daily challenge support
+const dailySeed = new URLSearchParams(window.location.search).get('daily');
+let dailyRNG = null;
+
+function seededRNG(seed) {
+  let s = seed;
+  return function() {
+    s |= 0; s = s + 0x6D2B79F5 | 0;
+    let t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getRNG() {
+  return dailyRNG ? dailyRNG() : Math.random();
+}
 
 // Debug mode
 console.log('[Sudoku] v12 Zen - Inicializando...');
@@ -74,7 +93,7 @@ function fillDiagonalBoxes(grid) {
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(getRNG() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -222,8 +241,17 @@ function init() {
   updateHintText();
   updateNotesButton();
 
-  // Tentar carregar jogo salvo primeiro
-  if (loadGame()) {
+  // Daily mode: always generate fresh with seeded RNG
+  if (dailySeed) {
+    dailyRNG = seededRNG(parseInt(dailySeed, 10) || 0);
+    stats.reset();
+    solution = generateSolution();
+    const removeCount = REMOVE_COUNT[diffSelect.value];
+    puzzle = createPuzzle(solution, removeCount);
+    userGrid = puzzle.map(r => [...r]);
+    notes = createEmptyNotes();
+  } else if (loadGame()) {
+    // Tentar carregar jogo salvo primeiro
     debug('Restored saved game');
   } else {
     // Criar novo jogo
@@ -470,7 +498,13 @@ async function placeNumber(num) {
       }
       modalOverlay.classList.add('show');
       stats.recordGame(true, { time: timeSeconds });
+      onGameEnd('sudoku', { won: true, time: timeSeconds * 1000 });
       stats.syncToCloud();
+      if (dailySeed) {
+        import('../shared/daily-challenge.js').then(m => {
+          m.dailyChallenge.recordResult({ won: true, time: timeSeconds * 1000 });
+        });
+      }
     }, 300);
   }
 }
@@ -556,6 +590,7 @@ document.addEventListener('keydown', (e) => {
 // Botoes
 if (btnNewGame) {
   btnNewGame.addEventListener('click', () => {
+    if (dailySeed) return;
     clearSave();
     init();
   });
@@ -563,9 +598,26 @@ if (btnNewGame) {
 
 if (btnPlayAgain) {
   btnPlayAgain.addEventListener('click', () => {
+    if (dailySeed) return;
     clearSave();
     init();
   });
+}
+
+// Disable buttons in daily mode
+if (dailySeed) {
+  [btnNewGame, btnPlayAgain].forEach(btn => {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Desafio diário: apenas uma tentativa';
+    }
+  });
+  if (diffSelect) {
+    diffSelect.disabled = true;
+    diffSelect.title = 'Desafio diário: dificuldade fixa';
+  }
 }
 
 if (btnUndo) {
