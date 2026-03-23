@@ -4,8 +4,6 @@
    CRT monitor aesthetic with phosphor green scanlines
    ============================================================= */
 
-/* ===== FONTS ===== */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ===== THEME TOKENS ===== */
 :root {
