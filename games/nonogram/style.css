@@ -1,144 +1,624 @@
-/* ===== RESET ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ================================================================
+   NONOGRAM — "Atelier de Pixel Art" by Stitch "The Digital Curator"
+   Light theme · Art studio / Canvas aesthetics
+   ================================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --studio-bg: #fef9f1;
+  --surface: #fef9f1;
+  --surface-container: #f2ede5;
+  --surface-container-high: #ece8e0;
+  --primary: #0061a4;
+  --primary-container: #2196f3;
+  --secondary: #b02f00;
+  --secondary-container: #ff5722;
+  --tertiary: #006e1c;
+  --tertiary-container: #42a547;
+  --on-surface: #1d1c17;
+  --on-primary: #ffffff;
+  --outline: #707883;
+  --outline-variant: #bfc7d4;
+  --roundness: 4px;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'Space Grotesk', sans-serif;
+  --cell-size: min(28px, 6.5vw);
+  --clue-size: min(24px, 5.5vw);
+  --grid-line: #c4bdb3;
+  --grid-line-thick: #a09889;
+  --filled-pixel: #1d1c17;
+  --filled-glow: rgba(29, 28, 23, 0.12);
+  --mark-color: #b02f00;
+  --error-bg: #fce4ec;
+  --error-color: #c62828;
+  --topbar-height: auto;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== BODY — Studio Wall ===== */
 body {
-  font-family: 'Nunito', sans-serif;
-  background: #1a1a2e;
-  background-image: radial-gradient(circle at 30% 70%, #16213e 0%, #1a1a2e 60%);
+  font-family: var(--font-display);
+  background: var(--studio-bg);
+  color: var(--on-surface);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  color: #fff;
   user-select: none;
   overflow-x: hidden;
+  position: relative;
 }
 
+/* Canvas texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 31px,
+      rgba(180, 170, 155, 0.12) 31px,
+      rgba(180, 170, 155, 0.12) 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 31px,
+      rgba(180, 170, 155, 0.12) 31px,
+      rgba(180, 170, 155, 0.12) 32px
+    );
+  opacity: 0.7;
+}
+
+/* ===== TOPBAR — Easel Header ===== */
 .topbar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: linear-gradient(135deg, #ff6b35, #e85d2a);
-  color: #fff; font-family: 'Nunito', sans-serif; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary) 0%, #004d82 100%);
+  color: var(--on-primary);
+  font-family: var(--font-display);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 .btn-back {
-  color: #fff; text-decoration: none; font-weight: 700; font-size: 0.85rem;
-  background: rgba(255,255,255,0.2); padding: 0.3rem 0.7rem; border-radius: 999px;
-  transition: background 0.2s; white-space: nowrap;
+  color: var(--on-primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--roundness);
+  transition: background 0.2s;
+  white-space: nowrap;
+  font-family: var(--font-display);
 }
-.btn-back:hover { background: rgba(255,255,255,0.35); }
-.game-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; }
-.stats { display: flex; gap: 0.8rem; font-size: 0.9rem; font-weight: 700; opacity: 0.95; white-space: nowrap; }
 
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.game-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  font-family: var(--font-display);
+}
+
+.stats {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.95;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+/* ===== CONTROLS BAR — Paint Palette Toolbar ===== */
 .controls-bar {
-  display: flex; align-items: center; justify-content: center; gap: 1rem;
-  padding: 0.5rem 1rem; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
-  flex-wrap: wrap; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--surface-container);
+  border-bottom: 1px solid var(--outline-variant);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
 }
-.difficulty-selector { display: flex; gap: 0.3rem; }
+
+.difficulty-selector {
+  display: flex;
+  gap: 0.35rem;
+}
+
 .diff-btn {
-  padding: 0.3rem 0.8rem; border: 2px solid rgba(255,255,255,0.25); border-radius: 999px;
-  background: transparent; color: #fff; font-family: 'Nunito', sans-serif; font-weight: 700;
-  font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+  padding: 0.35rem 0.85rem;
+  border: 2px solid var(--outline-variant);
+  border-radius: var(--roundness);
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
 }
-.diff-btn:hover { background: rgba(255,255,255,0.15); }
-.diff-btn.active { background: #e94560; border-color: #e94560; }
-.control-buttons { display: flex; gap: 0.4rem; }
 
-.btn {
-  padding: 0.35rem 1rem; border: none; border-radius: 999px; font-family: 'Nunito', sans-serif;
-  font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+.diff-btn:hover {
+  background: var(--surface-container-high);
+  border-color: var(--outline);
 }
-.btn:active { transform: scale(0.96); }
-.btn-new { background: #e94560; color: #fff; }
-.btn-new:hover { opacity: 0.88; }
-.btn-orange { background: #e94560; color: #fff; padding: 0.5rem 1.5rem; font-size: 1rem; border: none; border-radius: 999px; font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; }
-.btn-orange:hover { opacity: 0.88; }
 
+.diff-btn.active {
+  background: var(--secondary);
+  color: var(--on-primary);
+  border-color: var(--secondary);
+  box-shadow: 0 2px 6px rgba(176, 47, 0, 0.25);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-new {
+  background: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: var(--roundness);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 6px rgba(0, 97, 164, 0.2);
+}
+
+.btn-new:hover {
+  background: #004d82;
+}
+
+.btn-new:active {
+  transform: scale(0.96);
+}
+
+/* ===== GAME CONTAINER — Canvas on Easel ===== */
 .game-container {
-  flex: 1; display: flex; align-items: flex-start; justify-content: center;
-  padding: 0.8rem; overflow: auto;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: min(1rem, 2.5vw);
+  overflow: auto;
+  position: relative;
+  z-index: 1;
 }
 
-.nonogram-wrapper { display: inline-block; max-width: 100%; overflow: auto; }
+.nonogram-wrapper {
+  display: inline-block;
+  max-width: 100%;
+  overflow: auto;
+  background: #fffdf8;
+  border-radius: calc(var(--roundness) + 2px);
+  padding: min(8px, 1.5vw);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 6px 24px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(160, 152, 137, 0.2);
+  border: 2px solid var(--surface-container-high);
+}
 
+/* ===== NONOGRAM BOARD — Graph Paper Grid ===== */
 .nonogram-board {
   display: grid;
   gap: 0;
-  background: #333;
-  border: 2px solid #555;
-  border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  background: var(--grid-line);
+  border: 2px solid var(--grid-line-thick);
+  border-radius: var(--roundness);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
+/* ===== CLUE CELLS — Pencil Notes ===== */
 .clue-cell {
-  display: flex; align-items: flex-end; justify-content: center;
-  background: #2a2a4a; padding: 2px; font-size: 0.65rem; font-weight: 700;
-  color: rgba(255,255,255,0.8); flex-direction: column; text-align: center;
-  min-width: 24px; min-height: 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--surface-container);
+  padding: 2px;
+  font-size: min(0.65rem, 2.8vw);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--on-surface);
+  opacity: 0.85;
+  flex-direction: column;
+  text-align: center;
+  min-width: var(--clue-size);
+  min-height: var(--clue-size);
+  border: 1px solid rgba(196, 189, 179, 0.5);
 }
+
 .clue-cell.row-clue {
-  flex-direction: row; align-items: center; justify-content: flex-end; gap: 3px; padding-right: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  padding-right: 5px;
+  background: linear-gradient(90deg, var(--surface-container) 0%, #f7f2ea 100%);
 }
+
 .clue-cell.col-clue {
-  flex-direction: column; align-items: center; justify-content: flex-end; gap: 1px; padding-bottom: 2px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1px;
+  padding-bottom: 3px;
+  background: linear-gradient(180deg, var(--surface-container) 0%, #f7f2ea 100%);
 }
-.clue-cell.corner { background: #1e1e3a; }
 
+.clue-cell.corner {
+  background: var(--surface-container-high);
+}
+
+.clue-cell.done {
+  color: var(--outline-variant);
+  opacity: 0.5;
+}
+
+/* ===== GAME CELLS — Pixel Canvas ===== */
 .game-cell {
-  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-  background: #e0e0e0; border: 1px solid #bbb; cursor: pointer;
-  transition: background 0.1s; font-size: 0.9rem; font-weight: 800; color: #c00;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffef9;
+  border: 1px solid var(--grid-line);
+  cursor: pointer;
+  transition: background 0.1s ease, box-shadow 0.15s ease;
+  font-size: min(0.85rem, 3.2vw);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--mark-color);
   -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
-.game-cell:hover { background: #d0d0d0; }
-.game-cell.filled { background: #333; border-color: #222; }
-.game-cell.marked { background: #e0e0e0; color: #c00; }
-.game-cell.correct-row .filled-check,
-.game-cell.filled.row-done { background: #2a7a2a; border-color: #1a5a1a; }
 
-.clue-cell.done { color: rgba(255,255,255,0.3); }
+.game-cell:hover {
+  background: #f5f0e6;
+  box-shadow: inset 0 0 0 1px rgba(0, 97, 164, 0.15);
+}
 
-/* ===== MODAL ===== */
+/* Filled — Painted pixel with brush stroke feel */
+.game-cell.filled {
+  background: var(--filled-pixel);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+  transition: background 0.08s ease;
+}
+
+/* Marked — X mark */
+.game-cell.marked {
+  background: #fffef9;
+  color: var(--mark-color);
+}
+
+/* Error state */
+.game-cell.error {
+  background: var(--error-bg);
+  color: var(--error-color);
+  animation: cellShake 0.3s ease;
+}
+
+/* Row/col completed — green pixel */
+.game-cell.filled.row-done,
+.game-cell.correct-row .filled-check {
+  background: var(--tertiary);
+  border-color: rgba(0, 110, 28, 0.3);
+}
+
+@keyframes cellShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+}
+
+/* ===== MODAL — Glassmorphism Gallery Frame ===== */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100; backdrop-filter: blur(4px);
+  position: fixed;
+  inset: 0;
+  background: rgba(29, 28, 23, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
-.modal-overlay.hidden { display: none; }
+
+.modal-overlay.hidden {
+  display: none;
+}
+
 .modal-content {
-  background: #1e1e3a; border-radius: 16px; padding: 2rem 2.5rem; text-align: center;
-  animation: popIn 0.3s ease; border: 2px solid rgba(255,255,255,0.1); max-width: 90vw;
-}
-@keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-icon { font-size: 3.5rem; margin-bottom: 0.5rem; }
-.modal-content h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.3rem; }
-.modal-content p { font-size: 0.95rem; color: rgba(255,255,255,0.7); margin-bottom: 0.3rem; }
-.modal-stats { font-size: 1.1rem; font-weight: 700; color: #fff; }
-.modal-content .btn { margin-top: 1rem; }
-
-@media (max-width: 480px) {
-  .topbar { padding: 0.4rem 0.6rem; }
-  .game-title { font-size: 0.9rem; }
-  .stats { font-size: 0.8rem; gap: 0.5rem; }
-  .controls-bar { padding: 0.4rem 0.5rem; gap: 0.5rem; }
-  .diff-btn { padding: 0.25rem 0.6rem; font-size: 0.7rem; }
-  .btn { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
-  .game-container { padding: 0.4rem; }
-  .game-cell { width: 22px; height: 22px; font-size: 0.7rem; }
-  .clue-cell { font-size: 0.55rem; min-width: 18px; min-height: 18px; }
+  background: rgba(254, 249, 241, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: calc(var(--roundness) * 3);
+  padding: 2rem 2.5rem;
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  max-width: min(90vw, 380px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--on-surface);
 }
 
-/* ===== SEO GAME INFO SECTION ===== */
+.modal {
+  position: relative;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.75);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-icon {
+  font-size: 3.5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.modal-content h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-display);
+  color: var(--primary);
+}
+
+.modal-content p {
+  font-size: 0.95rem;
+  color: var(--outline);
+  margin-bottom: 0.3rem;
+  font-family: var(--font-display);
+}
+
+.modal-stats {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  font-family: var(--font-mono);
+  margin-bottom: 0.5rem;
+}
+
+.modal-content .btn {
+  margin-top: 0.8rem;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 0.45rem 1.2rem;
+  border: none;
+  border-radius: var(--roundness);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  display: inline-block;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 2px 8px rgba(0, 97, 164, 0.25);
+}
+
+.btn-primary:hover {
+  background: #004d82;
+  box-shadow: 0 4px 12px rgba(0, 97, 164, 0.35);
+}
+
+.btn-whatsapp {
+  background: var(--tertiary);
+  color: var(--on-primary);
+  box-shadow: 0 2px 8px rgba(0, 110, 28, 0.2);
+  margin-top: 0.5rem;
+  display: block;
+  width: 100%;
+}
+
+.btn-whatsapp:hover {
+  background: #005a16;
+}
+
+.btn-orange {
+  background: var(--secondary);
+  color: var(--on-primary);
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--roundness);
+  font-family: var(--font-display);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(176, 47, 0, 0.2);
+}
+
+.btn-orange:hover {
+  background: #8c2500;
+}
+
+/* ===== GAME INFO — Curator's Notes ===== */
 .game-info {
   max-width: 780px;
-  margin: 1rem auto;
-  padding: 1rem 1.2rem;
-  background: rgba(0,0,0,0.15);
-  border-radius: 12px;
-  color: rgba(255,255,255,0.85);
+  margin: 1.2rem auto;
+  padding: 1.2rem 1.5rem;
+  background: var(--surface-container);
+  border-radius: calc(var(--roundness) * 2);
+  color: var(--on-surface);
   font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.65;
+  font-family: var(--font-display);
+  border: 1px solid var(--outline-variant);
+  position: relative;
+  z-index: 1;
 }
-.game-info h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
-.game-info h3 { font-size: 0.95rem; font-weight: 700; margin: 0.8rem 0 0.3rem; }
-.game-info ul { padding-left: 1.2rem; }
-.game-info li { margin-bottom: 0.2rem; }
+
+.game-info h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.game-info h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.8rem 0 0.3rem;
+  color: var(--secondary);
+}
+
+.game-info p {
+  color: var(--on-surface);
+  opacity: 0.88;
+}
+
+.game-info ul {
+  padding-left: 1.2rem;
+}
+
+.game-info li {
+  margin-bottom: 0.25rem;
+  color: var(--on-surface);
+  opacity: 0.85;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .topbar {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .game-title {
+    font-size: 0.9rem;
+  }
+
+  .stats {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .controls-bar {
+    padding: 0.4rem 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .diff-btn {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.72rem;
+  }
+
+  .btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  .game-container {
+    padding: 0.4rem;
+  }
+
+  .nonogram-wrapper {
+    padding: min(4px, 1vw);
+  }
+
+  .game-cell {
+    width: min(22px, 5.8vw);
+    height: min(22px, 5.8vw);
+    font-size: min(0.7rem, 2.8vw);
+  }
+
+  .clue-cell {
+    font-size: min(0.55rem, 2.4vw);
+    min-width: min(18px, 4.8vw);
+    min-height: min(18px, 4.8vw);
+  }
+
+  .modal-content {
+    padding: 1.5rem 1.8rem;
+  }
+
+  .game-info {
+    margin: 0.8rem 0.5rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-cell {
+    width: min(18px, 5vw);
+    height: min(18px, 5vw);
+    font-size: min(0.6rem, 2.5vw);
+  }
+
+  .clue-cell {
+    font-size: min(0.48rem, 2.2vw);
+    min-width: min(15px, 4.2vw);
+    min-height: min(15px, 4.2vw);
+  }
+}
+
+@media (min-width: 768px) {
+  .game-cell {
+    width: 32px;
+    height: 32px;
+  }
+
+  .clue-cell {
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 0.72rem;
+  }
+
+  .nonogram-wrapper {
+    padding: 12px;
+  }
+}
