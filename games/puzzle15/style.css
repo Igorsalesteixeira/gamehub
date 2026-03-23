@@ -1,32 +1,37 @@
 /* =============================================
-   Puzzle 15 — "Hinoki Woodcraft: Sliding Temple"
-   Stitch "The Digital Masterpiece"
-   Dark Japanese temple wood aesthetic
+   Puzzle 15 — Cartoon Theme
+   Chunky, playful, bright blocks
    ============================================= */
-
 
 /* ── Design Tokens ── */
 :root {
-  --p15-bg: #210f07;
-  --p15-surface: #210f07;
-  --p15-surface-container: #2f1a12;
-  --p15-surface-container-high: #3b251c;
-  --p15-primary: #fcd4a1;
-  --p15-primary-container: #deb887;
-  --p15-secondary: #c8c6c5;
-  --p15-tertiary: #fed65a;
-  --p15-tertiary-container: #e0ba41;
-  --p15-on-surface: #ffdbce;
-  --p15-on-primary: #432c07;
-  --p15-on-primary-container: #634821;
-  --p15-felt: #2e7d32;
-  --p15-outline: #9a8f82;
-  --p15-outline-variant: #4e453b;
-  --p15-radius: 4px;
-  --p15-font-display: 'Noto Serif JP', serif;
-  --p15-font-ui: 'Space Grotesk', sans-serif;
+  --p15-bg: #7B1FA2;
+  --p15-bg-dark: #5C1580;
+  --p15-surface: #F5E6D0;
+  --p15-surface-border: #8D6E63;
+  --p15-primary: #FF6F00;
+  --p15-primary-dark: #CC5900;
+  --p15-secondary: #5D4037;
+  --p15-accent: #E91E63;
+  --p15-accent-dark: #AD1457;
+  --p15-on-surface: #3E2723;
+  --p15-on-primary: #fff;
+  --p15-green: #43A047;
+  --p15-green-dark: #2E7D32;
+  --p15-radius: 16px;
+  --p15-font: 'Nunito', sans-serif;
   --p15-transition: 0.2s ease;
   --p15-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Tile colors - 4 bright color groups */
+  --tile-red: #EF5350;
+  --tile-red-dark: #C62828;
+  --tile-blue: #42A5F5;
+  --tile-blue-dark: #1565C0;
+  --tile-green: #66BB6A;
+  --tile-green-dark: #2E7D32;
+  --tile-orange: #FFA726;
+  --tile-orange-dark: #E65100;
 }
 
 /* ── Reset ── */
@@ -38,8 +43,8 @@
 
 /* ── Body ── */
 body {
-  font-family: var(--p15-font-ui);
-  background: var(--p15-bg);
+  font-family: var(--p15-font);
+  background: linear-gradient(160deg, #9C27B0 0%, var(--p15-bg) 40%, var(--p15-bg-dark) 100%);
   color: var(--p15-on-surface);
   min-height: 100dvh;
   display: flex;
@@ -48,23 +53,13 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanlines overlay removed — visual noise on light backgrounds */
-
-/* Warm ambient light from top */
-body::after {
+/* Playful polka dot pattern */
+body::before {
   content: '';
   position: fixed;
-  top: -40%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120%;
-  height: 70%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(252, 212, 161, 0.07) 0%,
-    rgba(222, 184, 135, 0.03) 40%,
-    transparent 70%
-  );
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 8px, transparent 8px);
+  background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
 }
@@ -77,47 +72,48 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 12px min(24px, 4vw);
-  background: linear-gradient(
-    180deg,
-    var(--p15-surface-container-high) 0%,
-    var(--p15-surface-container) 100%
-  );
-  border-bottom: 1px solid var(--p15-outline-variant);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  background: var(--p15-surface);
+  border-bottom: 3px solid var(--p15-surface-border);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.1);
 }
 
 .btn-back {
-  color: var(--p15-primary);
+  color: var(--p15-secondary);
   text-decoration: none;
-  font-family: var(--p15-font-ui);
-  font-weight: 600;
+  font-family: var(--p15-font);
+  font-weight: 800;
   font-size: min(0.9rem, 3.5vw);
   padding: 6px 14px;
-  border-radius: var(--p15-radius);
-  background: rgba(252, 212, 161, 0.08);
-  border: 1px solid var(--p15-outline-variant);
-  transition: background var(--p15-transition), border-color var(--p15-transition);
+  border-radius: 12px;
+  background: #fff;
+  border: 2px solid var(--p15-surface-border);
+  box-shadow: 0 3px 0 var(--p15-surface-border);
+  transition: transform var(--p15-transition), box-shadow var(--p15-transition);
 }
 
 .btn-back:hover {
-  background: rgba(252, 212, 161, 0.15);
-  border-color: var(--p15-outline);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--p15-surface-border);
+}
+
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--p15-surface-border);
 }
 
 .game-title {
-  font-family: var(--p15-font-display);
-  font-size: clamp(1rem, 4.5vw, 1.5rem);
-  font-weight: 700;
-  color: var(--p15-primary);
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 6px rgba(252, 212, 161, 0.2);
+  font-family: var(--p15-font);
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  font-weight: 800;
+  color: var(--p15-bg);
+  letter-spacing: -0.01em;
 }
 
 .stats {
   display: flex;
   gap: min(16px, 3vw);
-  font-family: var(--p15-font-ui);
-  font-weight: 600;
+  font-family: var(--p15-font);
+  font-weight: 700;
   font-size: min(0.85rem, 3.2vw);
   color: var(--p15-secondary);
 }
@@ -139,69 +135,76 @@ body::after {
 .board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: clamp(3px, 1vw, 6px);
+  gap: clamp(5px, 1.2vw, 8px);
   width: min(400px, 88vw);
   aspect-ratio: 1;
-  padding: clamp(6px, 1.5vw, 10px);
-  background: var(--p15-surface-container);
-  border: 1px solid var(--p15-outline-variant);
-  border-radius: calc(var(--p15-radius) + 4px);
+  padding: clamp(8px, 2vw, 14px);
+  background: var(--p15-surface);
+  border: 3px solid var(--p15-surface-border);
+  border-radius: 20px;
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(252, 212, 161, 0.05);
+    0 6px 0 rgba(99,68,50,0.5),
+    0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Texture overlay removed */
+/* ── Tile ── */
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--p15-font);
+  font-weight: 800;
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  color: #fff;
+  border-radius: 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.12s var(--p15-bounce), box-shadow 0.12s ease;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.2);
+  position: relative;
+}
+
+/* Color groups by number: 1-4 red, 5-8 blue, 9-12 green, 13-15 orange */
+.tile:nth-child(16n+1):not(.empty),
+.tile:nth-child(16n+2):not(.empty),
+.tile:nth-child(16n+3):not(.empty),
+.tile:nth-child(16n+4):not(.empty) {
+  background: var(--tile-red);
+  border: 3px solid var(--tile-red-dark);
+  box-shadow: 0 4px 0 var(--tile-red-dark);
+}
+
+/* Since tiles are dynamic, we color by content via a general approach.
+   game.js sets textContent, so we use a single style for all tiles
+   and rely on the "chunky block" look */
+.tile:not(.empty) {
+  background: var(--tile-blue);
+  border: 3px solid var(--tile-blue-dark);
+  box-shadow: 0 4px 0 var(--tile-blue-dark);
+}
 
 .tile:focus-visible {
-  border-color: var(--p15-tertiary);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    inset 1px 0 0 rgba(255, 255, 255, 0.2),
-    inset -1px 0 0 rgba(0, 0, 0, 0.1),
-    0 0 0 3px rgba(254, 214, 90, 0.4);
+  outline: 3px solid var(--p15-primary);
+  outline-offset: 2px;
 }
 
 .tile:hover:not(.empty) {
-  transform: scale(1.03);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    inset 1px 0 0 rgba(255, 255, 255, 0.25),
-    inset -1px 0 0 rgba(0, 0, 0, 0.1),
-    0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--tile-blue-dark);
 }
 
 .tile:active:not(.empty) {
-  transform: scale(0.96);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--tile-blue-dark);
 }
 
-/* ── Empty Slot — green felt ── */
+/* ── Empty Slot ── */
 .tile.empty {
-  background:
-    radial-gradient(
-      ellipse at 30% 30%,
-      rgba(255, 255, 255, 0.03) 0%,
-      transparent 60%
-    ),
-    linear-gradient(
-      135deg,
-      #245a28 0%,
-      var(--p15-felt) 50%,
-      #1b5e20 100%
-    );
+  background: #E8D5BC;
+  border: 3px dashed #C9B39A;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.1);
   cursor: default;
   color: transparent;
-  box-shadow:
-    inset 0 3px 8px rgba(0, 0, 0, 0.5),
-    inset 0 -1px 4px rgba(0, 0, 0, 0.2),
-    inset 3px 0 8px rgba(0, 0, 0, 0.3),
-    inset -3px 0 8px rgba(0, 0, 0, 0.3);
 }
 
 .tile.empty:active {
@@ -211,16 +214,20 @@ body::after {
 /* ── Movable indicator ── */
 .tile.movable {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    inset 1px 0 0 rgba(255, 255, 255, 0.2),
-    inset -1px 0 0 rgba(0, 0, 0, 0.1),
-    0 0 0 2px rgba(252, 212, 161, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.3);
+    0 4px 0 var(--tile-blue-dark),
+    0 0 0 3px rgba(255,111,0,0.4);
+}
+
+.tile.movable:hover {
+  box-shadow:
+    0 6px 0 var(--tile-blue-dark),
+    0 0 0 3px rgba(255,111,0,0.5);
 }
 
 .tile.movable:focus {
-  border-color: var(--p15-tertiary);
+  box-shadow:
+    0 4px 0 var(--tile-blue-dark),
+    0 0 0 3px var(--p15-primary);
 }
 
 /* ── Slide Animations with bounce ── */
@@ -230,25 +237,25 @@ body::after {
 .tile.slide-right { animation: slideRight 0.18s var(--p15-bounce); }
 
 @keyframes slideUp {
-  0%   { transform: translateY(calc(100% + 6px)); }
+  0%   { transform: translateY(calc(100% + 8px)); }
   70%  { transform: translateY(-3px); }
   100% { transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  0%   { transform: translateY(calc(-100% - 6px)); }
+  0%   { transform: translateY(calc(-100% - 8px)); }
   70%  { transform: translateY(3px); }
   100% { transform: translateY(0); }
 }
 
 @keyframes slideLeft {
-  0%   { transform: translateX(calc(100% + 6px)); }
+  0%   { transform: translateX(calc(100% + 8px)); }
   70%  { transform: translateX(-3px); }
   100% { transform: translateX(0); }
 }
 
 @keyframes slideRight {
-  0%   { transform: translateX(calc(-100% - 6px)); }
+  0%   { transform: translateX(calc(-100% - 8px)); }
   70%  { transform: translateX(3px); }
   100% { transform: translateX(0); }
 }
@@ -259,77 +266,60 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: var(--p15-font-ui);
-  font-weight: 600;
+  font-family: var(--p15-font);
+  font-weight: 800;
   font-size: min(0.95rem, 3.8vw);
-  padding: 10px min(28px, 6vw);
-  border-radius: var(--p15-radius);
-  border: 1px solid var(--p15-outline-variant);
+  padding: 12px min(28px, 6vw);
+  border-radius: 14px;
+  border: 3px solid transparent;
   cursor: pointer;
   transition:
-    background var(--p15-transition),
-    transform 0.15s var(--p15-bounce),
+    transform 0.12s var(--p15-bounce),
     box-shadow var(--p15-transition);
   text-decoration: none;
 }
 
 .btn-primary {
-  background: linear-gradient(
-    165deg,
-    #e8ca97 0%,
-    var(--p15-primary-container) 50%,
-    #c89b5e 100%
-  );
+  background: var(--p15-primary);
   color: var(--p15-on-primary);
-  border-color: rgba(99, 72, 33, 0.3);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: var(--p15-primary-dark);
+  box-shadow: 0 4px 0 var(--p15-primary-dark);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 4px 16px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(252, 212, 161, 0.1);
+  box-shadow: 0 6px 0 var(--p15-primary-dark);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.2),
-    0 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--p15-primary-dark);
 }
 
 .btn-whatsapp {
-  background: linear-gradient(165deg, #2e8b3a 0%, #25a244 50%, #1d7d33 100%);
+  background: var(--p15-green);
   color: #fff;
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: var(--p15-green-dark);
+  box-shadow: 0 4px 0 var(--p15-green-dark);
 }
 
 .btn-whatsapp:hover {
   transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 16px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(46, 125, 50, 0.15);
+  box-shadow: 0 6px 0 var(--p15-green-dark);
 }
 
 .btn-whatsapp:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--p15-green-dark);
 }
 
 /* ── Modal ── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 7, 3, 0.85);
-  backdrop-filter: blur(12px) saturate(1.2);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  background: rgba(50, 10, 60, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -344,34 +334,32 @@ body::after {
 .modal {
   position: relative;
   z-index: 2001;
-  background: linear-gradient(
-    180deg,
-    var(--p15-surface-container-high) 0%,
-    var(--p15-surface-container) 100%
-  );
-  border: 1px solid var(--p15-outline-variant);
-  border-radius: calc(var(--p15-radius) + 4px);
+  background: var(--p15-surface);
+  border: 3px solid var(--p15-surface-border);
+  border-radius: 24px;
   padding: min(36px, 7vw);
   text-align: center;
   max-width: 400px;
   width: 100%;
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(252, 212, 161, 0.05),
-    inset 0 1px 0 rgba(252, 212, 161, 0.08);
-  animation: modalIn 0.35s var(--p15-bounce);
+    0 8px 0 rgba(99,68,50,0.4),
+    0 16px 40px rgba(0, 0, 0, 0.3);
+  animation: modalPop 0.4s var(--p15-bounce);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-@keyframes modalIn {
+@keyframes modalPop {
   0% {
-    transform: scale(0.85) translateY(20px);
+    transform: scale(0.5) rotate(-5deg);
     opacity: 0;
   }
+  60% {
+    transform: scale(1.05) rotate(1deg);
+  }
   100% {
-    transform: scale(1) translateY(0);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
@@ -397,15 +385,14 @@ body::after {
 }
 
 .modal h2 {
-  font-family: var(--p15-font-display);
+  font-family: var(--p15-font);
   font-size: min(1.6rem, 6vw);
-  font-weight: 700;
-  color: var(--p15-tertiary);
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  color: var(--p15-bg);
 }
 
 .modal p {
-  font-family: var(--p15-font-ui);
+  font-family: var(--p15-font);
   font-size: min(0.95rem, 3.8vw);
   color: var(--p15-secondary);
   line-height: 1.5;
@@ -424,29 +411,30 @@ body::after {
   max-width: 780px;
   margin: min(24px, 4vw) auto;
   padding: min(24px, 4vw) min(28px, 5vw);
-  background: var(--p15-surface-container);
-  border: 1px solid var(--p15-outline-variant);
-  border-radius: calc(var(--p15-radius) + 4px);
+  background: var(--p15-surface);
+  border: 3px solid var(--p15-surface-border);
+  border-radius: 20px;
   color: var(--p15-secondary);
-  font-family: var(--p15-font-ui);
+  font-family: var(--p15-font);
   font-size: min(0.88rem, 3.5vw);
   line-height: 1.7;
+  box-shadow: 0 4px 0 rgba(99,68,50,0.3);
 }
 
 .game-info h2 {
-  font-family: var(--p15-font-display);
+  font-family: var(--p15-font);
   font-size: min(1.15rem, 4.5vw);
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 10px;
-  color: var(--p15-primary);
+  color: var(--p15-bg);
 }
 
 .game-info h3 {
-  font-family: var(--p15-font-display);
+  font-family: var(--p15-font);
   font-size: min(1rem, 4vw);
-  font-weight: 600;
+  font-weight: 700;
   margin: 16px 0 6px;
-  color: var(--p15-primary);
+  color: var(--p15-bg);
 }
 
 .game-info p {
@@ -472,7 +460,7 @@ body::after {
 
   .board {
     width: min(360px, 92vw);
-    padding: clamp(4px, 1.2vw, 8px);
+    padding: clamp(6px, 1.5vw, 10px);
   }
 
   .tile {
@@ -508,12 +496,9 @@ body::after {
   }
 
   .tile:hover:not(.empty) {
+    transform: translateY(-3px);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-      inset 1px 0 0 rgba(255, 255, 255, 0.25),
-      inset -1px 0 0 rgba(0, 0, 0, 0.1),
-      0 6px 20px rgba(0, 0, 0, 0.4),
-      0 0 24px rgba(252, 212, 161, 0.08);
+      0 7px 0 var(--tile-blue-dark),
+      0 0 0 3px rgba(255,111,0,0.3);
   }
 }

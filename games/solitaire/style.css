@@ -1,66 +1,56 @@
 /**
- * SOLITAIRE - "Velvet & Gold: Monte Carlo 1952"
- * Design System: The Grand Croupier
- * Generated via Stitch + Manual Premium Implementation
- * v=25
+ * SOLITAIRE - Cartoon Card Table Theme
+ * Design: Playful cartoon with felt green, beige cards, 3D buttons
+ * Font: Nunito (700-800)
+ * v=26
  */
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  /* Surface Hierarchy */
-  --bg-lowest: #0a0f0a;
-  --bg-low: #0d1a0d;
-  --bg-medium: #142814;
-  --surface: #10150f;
-  --surface-dim: #10150f;
-  --surface-container-lowest: #0a0f0a;
-  --surface-container-low: #181d17;
-  --surface-container: #1c211b;
-  --surface-container-high: #262b25;
-  --surface-container-highest: #313630;
-  --surface-bright: #353b34;
-  --surface-variant: #313630;
+  /* Surface Hierarchy — Card Table Greens */
+  --bg-lowest: #1B5E20;
+  --bg-low: #236B26;
+  --bg-medium: #2E7D32;
+  --surface: #2E7D32;
+  --surface-dim: #256829;
+  --surface-container-lowest: #1B5E20;
+  --surface-container-low: #256829;
+  --surface-container: #2E7D32;
+  --surface-container-high: #388E3C;
+  --surface-container-highest: #43A047;
+  --surface-bright: #4CAF50;
+  --surface-variant: #388E3C;
 
-  /* Primary — 24k Gold */
-  --primary: #f2ca50;
-  --primary-container: #d4af37;
-  --primary-fixed: #ffe088;
-  --primary-fixed-dim: #e9c349;
+  /* Primary — Warm Orange */
+  --primary: #FF8F00;
+  --primary-container: #F57C00;
+  --primary-dark: #E65100;
+  --primary-light: #FFB74D;
 
-  /* Secondary — Burgundy */
-  --secondary: #ffb4a8;
-  --secondary-container: #920703;
-  --on-secondary: #690000;
+  /* Secondary — Berry Red */
+  --secondary: #E53935;
+  --secondary-dark: #C62828;
 
-  /* Tertiary — Amber */
-  --tertiary: #ffc377;
-  --tertiary-container: #eda439;
+  /* Tertiary — Sky Blue */
+  --tertiary: #29B6F6;
+  --tertiary-dark: #0288D1;
 
   /* Text */
-  --on-surface: #dfe4db;
-  --on-surface-variant: #d0c5af;
-  --on-primary: #3c2f00;
-  --cream: #faf6e8;
+  --on-surface: #FFFFFF;
+  --on-surface-variant: #E8F5E9;
+  --on-primary: #FFFFFF;
+  --cream: #FFF8E1;
 
-  /* Outlines */
-  --outline: #99907c;
-  --outline-variant: #4d4635;
-
-  /* Errors */
-  --error: #ffb4ab;
-  --error-container: #93000a;
-
-  /* Card Colors */
-  --card-face: #faf6e8;
-  --card-red: #c41e3a;
-  --card-black: #1a1a1a;
-  --card-back-bg: #0d1a2e;
+  /* Card Palette */
+  --card-face: #F5E6D0;
+  --card-border: #8D6E63;
+  --card-red: #D32F2F;
+  --card-black: #37474F;
 
   /* Functional */
-  --gold-glow: rgba(212, 175, 55, 0.4);
-  --gold-glow-strong: rgba(212, 175, 55, 0.6);
-  --chandelier: #ffb347;
-  --smoke: rgba(255, 255, 255, 0.03);
+  --btn-shadow: #BF360C;
+  --highlight: rgba(255, 183, 77, 0.4);
+  --drop-glow: rgba(255, 143, 0, 0.5);
 }
 
 /* ===== RESET & BASE ===== */
@@ -77,69 +67,48 @@ html {
 }
 
 body {
-  font-family: 'Newsreader', 'Noto Serif', 'Cormorant Garamond', serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
   min-height: 100vh;
   min-height: -webkit-fill-available;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  color: var(--cream);
+  color: var(--on-surface);
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
 
-  /* Deep casino felt with chandelier light */
+  /* Deep green felt table */
   background:
-    radial-gradient(ellipse at 50% -10%, rgba(255, 179, 71, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 30% 20%, #1a3a1a 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, #0d1a0d 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, var(--bg-medium) 0%, var(--surface) 50%, var(--bg-lowest) 100%);
-  background-color: var(--surface);
+    radial-gradient(ellipse at 50% 30%, rgba(76, 175, 80, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(27, 94, 32, 0.6) 0%, transparent 50%),
+    var(--bg-medium);
+  background-color: var(--bg-medium);
 }
 
-/* Felt texture + smoke overlay */
+/* Subtle felt texture */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    /* Smoke wisps */
-    radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.015) 0%, transparent 40%),
-    radial-gradient(ellipse at 75% 15%, rgba(255,255,255,0.01) 0%, transparent 35%),
-    /* Felt fiber texture */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 100% 100%, 100% 100%, 200px 200px;
-  opacity: 0.12;
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.06;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: soft-light;
 }
 
-/* Chandelier radial light from top center */
-body::after {
-  content: '';
-  position: fixed;
-  top: -20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120%;
-  height: 60%;
-  background: radial-gradient(ellipse at center, rgba(255, 179, 71, 0.06) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* ===== GLASSMORPHIC TOP BAR ===== */
+/* ===== CARTOON TOP BAR ===== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: rgba(16, 21, 15, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 2px solid;
-  border-image: linear-gradient(90deg, transparent 0%, var(--primary-container) 30%, var(--primary) 50%, var(--primary-container) 70%, transparent 100%) 1;
+  background: #1B5E20;
+  border-bottom: 3px solid #8D6E63;
   gap: 0.5rem;
   flex-wrap: nowrap;
   flex-shrink: 0;
@@ -148,23 +117,27 @@ body::after {
 }
 
 .btn-back {
-  color: var(--cream);
+  color: #fff;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.85rem;
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.08));
+  background: var(--primary);
   padding: 0.35rem 0.8rem;
-  border-radius: 0.375rem;
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  transition: all 0.25s ease;
+  border-radius: 14px;
+  border: 3px solid var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .btn-back:hover {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.35), rgba(212, 175, 55, 0.15));
-  border-color: var(--gold-glow);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 15px var(--gold-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .topbar-actions {
@@ -174,129 +147,115 @@ body::after {
 }
 
 .game-title {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
   white-space: nowrap;
-  color: var(--primary);
-  text-shadow:
-    0 0 8px var(--gold-glow),
-    0 2px 4px rgba(0,0,0,0.4);
+  color: #FFF8E1;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
 }
 
 .stats {
   display: flex;
   gap: 0.6rem;
   font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--on-surface-variant);
+  font-weight: 700;
+  color: #E8F5E9;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
-/* ===== CASINO CHIP BUTTONS ===== */
+/* ===== CARTOON 3D BUTTONS ===== */
 .btn {
   padding: 0.4rem 1rem;
   border: none;
-  border-radius: 0.375rem;
-  font-family: 'Newsreader', 'Cormorant Garamond', serif;
-  font-weight: 600;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 0.82rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   white-space: nowrap;
   position: relative;
-  overflow: hidden;
-}
-
-.btn::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  transition: left 0.5s ease;
-}
-
-.btn:hover::after {
-  left: 150%;
+  border: 3px solid transparent;
 }
 
 .btn:active {
-  transform: scale(0.97) translateY(1px);
+  transform: translateY(2px);
 }
 
 .btn:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
-}
-
-.btn:disabled::after {
-  display: none;
+  transform: none !important;
 }
 
 .btn-orange {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
-  color: var(--on-primary);
-  box-shadow:
-    0 2px 4px rgba(0,0,0,0.3),
-    0 4px 12px rgba(212, 175, 55, 0.2),
-    inset 0 1px 0 rgba(255,255,255,0.3),
-    inset 0 -1px 0 rgba(0,0,0,0.15);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
 }
 
 .btn-orange:hover:not(:disabled) {
-  box-shadow:
-    0 4px 8px rgba(0,0,0,0.4),
-    0 6px 20px rgba(212, 175, 55, 0.35),
-    0 0 25px var(--gold-glow),
-    inset 0 1px 0 rgba(255,255,255,0.35);
   transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+
+.btn-orange:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .btn-gray {
-  background: var(--surface-container-high);
-  color: var(--on-surface-variant);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    inset 0 -1px 0 rgba(0,0,0,0.2);
+  background: #607D8B;
+  color: #fff;
+  border-color: #455A64;
+  box-shadow: 0 4px 0 #455A64;
 }
 
 .btn-gray:hover:not(:disabled) {
-  background: var(--surface-bright);
-  box-shadow:
-    0 2px 8px rgba(0,0,0,0.3),
-    inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #455A64;
+}
+
+.btn-gray:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #455A64;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
-  color: var(--on-primary);
-  box-shadow:
-    0 4px 12px rgba(212, 175, 55, 0.3),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
 }
 
 .btn-primary:hover {
-  box-shadow:
-    0 6px 20px rgba(212, 175, 55, 0.4),
-    0 0 30px var(--gold-glow),
-    inset 0 1px 0 rgba(255,255,255,0.35);
   transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .btn-whatsapp {
-  background: linear-gradient(135deg, #25d366, #128c7e);
+  background: #25d366;
   color: #fff;
-  box-shadow: 0 3px 8px rgba(37, 211, 102, 0.3);
+  border-color: #1da851;
+  box-shadow: 0 4px 0 #1da851;
 }
 
 .btn-whatsapp:hover {
-  box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1da851;
+}
+
+.btn-whatsapp:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #1da851;
 }
 
 /* Draw selector */
@@ -305,35 +264,34 @@ body::after {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--on-surface-variant);
+  font-weight: 700;
+  color: #E8F5E9;
 }
 
 .draw-selector select {
-  background: var(--surface-container-low);
-  color: var(--cream);
-  border: 1px solid var(--outline-variant);
-  border-radius: 0.375rem;
+  background: #1B5E20;
+  color: #fff;
+  border: 3px solid #8D6E63;
+  border-radius: 12px;
   padding: 0.3rem 0.5rem;
-  font-family: 'Newsreader', serif;
-  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
 
 .draw-selector select:hover {
-  border-color: var(--outline);
-  background: var(--surface-container);
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+  border-color: var(--primary);
+  background: #256829;
 }
 
 .draw-selector select option {
-  background: var(--surface-container);
-  color: var(--cream);
+  background: #1B5E20;
+  color: #fff;
 }
 
-/* ===== BOARD — The Velvet Table ===== */
+/* ===== BOARD — The Card Table ===== */
 .board {
   flex: 1;
   overflow-y: auto;
@@ -363,15 +321,15 @@ body::after {
 }
 
 .area-label {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
-  font-size: 0.55rem;
-  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
-  color: var(--outline);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 3px;
   text-align: center;
-  opacity: 0.7;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .top-left {
@@ -387,59 +345,54 @@ body::after {
   align-items: center;
 }
 
-/* ===== STOCK & WASTE — Card Piles ===== */
+/* ===== STOCK & WASTE ===== */
 .stock-pile, .waste-pile {
   width: 76px;
   height: 106px;
-  border-radius: 0.5rem;
+  border-radius: 16px;
   position: relative;
   flex-shrink: 0;
-}/* Texture overlay removed */
+}
 
 .stock-pile:hover {
-  transform: scale(1.03) translateY(-2px);
+  transform: scale(1.05) translateY(-2px);
   box-shadow:
-    0 6px 12px rgba(0,0,0,0.5),
-    0 12px 30px rgba(0,0,0,0.3),
-    0 0 25px var(--gold-glow),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-  border-color: rgba(212, 175, 55, 0.5);
+    0 6px 0 rgba(0, 0, 0, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .stock-pile::before {
   content: '🂠';
-  color: var(--primary-fixed-dim);
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  color: var(--primary-light);
 }
 
 .stock-pile.empty {
-  background: var(--surface-container-lowest);
-  border: 2px dashed rgba(77, 70, 53, 0.4);
-  box-shadow: inset 0 4px 12px rgba(0,0,0,0.3);
+  background: rgba(27, 94, 32, 0.6);
+  border: 3px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
 }
 
 .stock-pile.empty::before {
   content: '↺';
   font-size: 1.8rem;
-  color: var(--outline);
-  opacity: 0.5;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .stock-pile.empty:hover {
-  border-color: var(--outline);
-  background: var(--surface-container-low);
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(27, 94, 32, 0.8);
 }
 
 .waste-pile {
-  border: 2px dashed rgba(77, 70, 53, 0.25);
-  border-radius: 0.5rem;
+  border: 3px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
   transition: all 0.2s;
   background: transparent;
 }
 
 .waste-pile:hover {
-  border-color: rgba(77, 70, 53, 0.45);
-  background: rgba(10, 15, 10, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(27, 94, 32, 0.3);
 }
 
 .waste-pile .card {
@@ -448,7 +401,7 @@ body::after {
   left: 0;
 }
 
-/* ===== FOUNDATIONS — Brass Frames ===== */
+/* ===== FOUNDATIONS ===== */
 .foundations-row {
   display: flex;
   gap: 0.5rem;
@@ -457,53 +410,46 @@ body::after {
 .foundation {
   width: 76px;
   height: 106px;
-  border: none;
-  border-radius: 0.5rem;
+  border: 3px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8rem;
-  color: rgba(153, 144, 124, 0.3);
+  color: rgba(255, 255, 255, 0.25);
   position: relative;
   cursor: pointer;
-  transition: all 0.25s ease;
-  /* Carved into felt — recessed look */
-  background: var(--surface-container-lowest);
-  box-shadow:
-    inset 0 2px 8px rgba(0,0,0,0.4),
-    inset 0 0 4px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  background: rgba(27, 94, 32, 0.5);
 }
 
 .foundation:hover {
-  background: var(--surface-container-low);
-  box-shadow:
-    inset 0 2px 6px rgba(0,0,0,0.3),
-    0 0 15px rgba(212, 175, 55, 0.1);
+  background: rgba(27, 94, 32, 0.7);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .foundation[data-suit="♠"]::before { content: '♠'; }
-.foundation[data-suit="♥"]::before { content: '♥'; color: rgba(196, 30, 58, 0.3); }
-.foundation[data-suit="♦"]::before { content: '♦'; color: rgba(196, 30, 58, 0.3); }
+.foundation[data-suit="♥"]::before { content: '♥'; color: rgba(211, 47, 47, 0.4); }
+.foundation[data-suit="♦"]::before { content: '♦'; color: rgba(211, 47, 47, 0.4); }
 .foundation[data-suit="♣"]::before { content: '♣'; }
 
 .foundation .card {
   position: absolute;
   inset: 0;
-  border-radius: 0.375rem;
+  border-radius: 14px;
 }
 
 .foundation.drop-target {
-  background: var(--surface-container-low);
-  box-shadow:
-    inset 0 1px 4px rgba(0,0,0,0.2),
-    0 0 15px var(--gold-glow),
-    0 0 30px rgba(212, 175, 55, 0.2);
-  animation: foundation-glow 1.5s ease-in-out infinite;
+  background: rgba(27, 94, 32, 0.7);
+  border-color: var(--primary);
+  border-style: solid;
+  box-shadow: 0 0 12px var(--drop-glow);
+  animation: foundation-glow 1.2s ease-in-out infinite;
 }
 
 @keyframes foundation-glow {
-  0%, 100% { box-shadow: inset 0 1px 4px rgba(0,0,0,0.2), 0 0 15px var(--gold-glow), 0 0 30px rgba(212, 175, 55, 0.15); }
-  50% { box-shadow: inset 0 1px 4px rgba(0,0,0,0.2), 0 0 25px var(--gold-glow-strong), 0 0 45px rgba(212, 175, 55, 0.25); }
+  0%, 100% { box-shadow: 0 0 8px var(--drop-glow); }
+  50% { box-shadow: 0 0 18px var(--drop-glow), 0 0 28px rgba(255, 143, 0, 0.25); }
 }
 
 /* ===== TABLEAU — 7 Columns ===== */
@@ -520,104 +466,84 @@ body::after {
 }
 
 .column.empty-slot {
-  background: var(--surface-container-lowest);
-  border-radius: 0.5rem;
+  background: rgba(27, 94, 32, 0.5);
+  border: 3px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
   height: 106px;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .column.drop-target {
   outline: none;
-  border-radius: 0.5rem;
-  background: rgba(212, 175, 55, 0.06);
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+  border-radius: 16px;
+  background: rgba(255, 143, 0, 0.12);
+  box-shadow: 0 0 12px rgba(255, 143, 0, 0.2);
 }
 
-/* ===== CARDS — Linen & Gold Leaf ===== */
+/* ===== CARDS — Beige Cartoon Style ===== */
 .card {
   width: 76px;
   height: 106px;
-  border-radius: 0.5rem;
+  border-radius: 16px;
   flex-shrink: 0;
   -webkit-touch-callout: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   container-type: inline-size;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .card:hover {
   z-index: 10;
 }
 
-/* Texture overlay removed */
-
-/* Face-up — Cream linen with gold-leaf edge */
+/* Face-up — Beige with brown border */
 .card.face-up {
-  background: linear-gradient(145deg, #fdfaf0 0%, var(--card-face) 50%, #f5f0e0 100%);
+  background: var(--card-face);
   cursor: pointer;
   position: relative;
   display: flex;
   flex-direction: column;
   padding: 4px 5px;
   overflow: hidden;
-  /* Ghost border — gold leaf edge */
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 3px solid var(--card-border);
+  border-radius: 16px;
   box-shadow:
-    0 1px 2px rgba(0,0,0,0.15),
-    0 3px 6px rgba(0,0,0,0.12),
-    0 6px 12px rgba(0,0,0,0.08),
-    0 10px 20px rgba(0,0,0,0.05),
-    inset 0 1px 0 rgba(255,255,255,0.6);
-}
-
-/* Linen texture overlay */
-.card.face-up::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 0.375rem;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  mix-blend-mode: multiply;
+    0 3px 0 rgba(0, 0, 0, 0.15),
+    0 5px 10px rgba(0, 0, 0, 0.12);
 }
 
 .card.face-up:hover {
   transform: translateY(-3px);
   box-shadow:
-    0 3px 6px rgba(0,0,0,0.2),
-    0 6px 12px rgba(0,0,0,0.15),
-    0 12px 24px rgba(0,0,0,0.1),
-    0 0 12px rgba(212, 175, 55, 0.15),
-    inset 0 1px 0 rgba(255,255,255,0.7);
+    0 6px 0 rgba(0, 0, 0, 0.12),
+    0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Selected — Pulsing gold aura */
+/* Selected — Orange highlight */
 .card.face-up.selected {
+  border-color: var(--primary);
   box-shadow:
-    0 0 0 2px var(--primary-container),
-    0 0 12px var(--gold-glow),
-    0 0 25px rgba(212, 175, 55, 0.3),
-    0 0 40px rgba(212, 175, 55, 0.15);
+    0 0 0 3px var(--primary),
+    0 4px 0 rgba(0, 0, 0, 0.15),
+    0 0 12px var(--drop-glow);
   z-index: 200;
-  animation: card-aura 2s ease-in-out infinite;
+  animation: card-bounce 0.8s ease-in-out infinite;
 }
 
-@keyframes card-aura {
+@keyframes card-bounce {
   0%, 100% {
-    box-shadow:
-      0 0 0 2px var(--primary-container),
-      0 0 12px var(--gold-glow),
-      0 0 25px rgba(212, 175, 55, 0.25),
-      0 0 40px rgba(212, 175, 55, 0.1);
-  }
-  50% {
+    transform: translateY(0);
     box-shadow:
       0 0 0 3px var(--primary),
-      0 0 18px var(--gold-glow-strong),
-      0 0 35px rgba(212, 175, 55, 0.35),
-      0 0 55px rgba(212, 175, 55, 0.15);
+      0 4px 0 rgba(0, 0, 0, 0.15),
+      0 0 12px var(--drop-glow);
+  }
+  50% {
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 3px var(--primary),
+      0 8px 0 rgba(0, 0, 0, 0.1),
+      0 0 18px var(--drop-glow);
   }
 }
 
@@ -643,15 +569,15 @@ body::after {
 }
 
 .corner-rank {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: clamp(0.65rem, 4cqw, 1rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.1;
 }
 
 .corner-suit {
   font-size: clamp(0.55rem, 3.5cqw, 0.85rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.1;
 }
 
@@ -665,22 +591,20 @@ body::after {
   min-height: 0;
 }
 
-/* Suit colors — NOT pure black per Stitch rules */
+/* Suit colors */
 .red {
   color: var(--card-red);
 }
 
 .black {
-  color: #2a2a28;
+  color: var(--card-black);
 }
 
-/* ===== WIN MODAL — Glassmorphic Celebration ===== */
+/* ===== WIN MODAL — Cartoon Pop ===== */
 .modal-overlay {
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(10, 15, 10, 0.8) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(27, 94, 32, 0.85) !important;
   z-index: 2000 !important;
   display: flex !important;
   align-items: center !important;
@@ -696,23 +620,20 @@ body::after {
 }
 
 .modal {
-  background:
-    linear-gradient(145deg, var(--surface-container-high) 0%, var(--surface-container) 50%, var(--surface-container-low) 100%);
-  color: var(--cream);
-  border-radius: 1rem;
+  background: var(--card-face);
+  color: var(--card-black);
+  border-radius: 24px;
   padding: 2.5rem 2rem;
   text-align: center;
   max-width: 360px;
   width: 90%;
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  border: 3px solid var(--card-border);
   box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    0 40px 80px rgba(0,0,0,0.3),
-    0 0 0 1px rgba(212, 175, 55, 0.15),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-  transform: scale(0.9);
+    0 8px 0 rgba(0, 0, 0, 0.15),
+    0 16px 32px rgba(0, 0, 0, 0.25);
+  transform: scale(0.5);
   opacity: 0;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .modal-overlay.show .modal {
@@ -723,28 +644,28 @@ body::after {
 .modal-icon {
   font-size: 4rem;
   margin-bottom: 0.8rem;
-  filter: drop-shadow(0 4px 12px var(--gold-glow));
-  animation: trophy-pulse 2s ease-in-out infinite;
+  animation: trophy-bounce 1s ease-in-out infinite;
 }
 
-@keyframes trophy-pulse {
-  0%, 100% { filter: drop-shadow(0 4px 12px var(--gold-glow)); transform: scale(1); }
-  50% { filter: drop-shadow(0 6px 24px var(--gold-glow-strong)); transform: scale(1.05); }
+@keyframes trophy-bounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-5deg); }
+  75% { transform: scale(1.1) rotate(5deg); }
 }
 
 .modal h2 {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.9rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 800;
   margin-bottom: 0.5rem;
-  color: var(--primary);
-  text-shadow: 0 0 15px var(--gold-glow), 0 2px 4px rgba(0,0,0,0.4);
+  color: var(--primary-dark);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.08);
 }
 
 .modal p {
   font-size: 1rem;
-  color: var(--on-surface-variant);
+  font-weight: 700;
+  color: #5D4037;
   margin-bottom: 0.5rem;
 }
 
@@ -772,7 +693,7 @@ body::after {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent 40%, rgba(212, 175, 55, 0.25) 50%, transparent 60%);
+  background: linear-gradient(45deg, transparent 40%, rgba(255, 183, 77, 0.3) 50%, transparent 60%);
   animation: victory-shine 3s ease-in-out infinite;
 }
 
@@ -797,16 +718,35 @@ body::after {
   }
 
   .card {
-    border-radius: 0.375rem;
+    border-radius: 12px;
   }
 
   .card.face-up {
     padding: 2px 3px;
-    border-radius: 0.375rem;
+    border-radius: 12px;
+    border-width: 2px;
   }
 
-  .card.face-up::before {
-    border-radius: 0.3rem;
+  .foundation {
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  .stock-pile, .waste-pile {
+    border-radius: 12px;
+  }
+
+  .stock-pile.empty {
+    border-width: 2px;
+  }
+
+  .waste-pile {
+    border-width: 2px;
+  }
+
+  .column.empty-slot {
+    border-radius: 12px;
+    border-width: 2px;
   }
 
   .tableau {
@@ -825,6 +765,7 @@ body::after {
   .topbar {
     padding: 0.4rem 0.6rem;
     gap: 0.3rem;
+    border-bottom-width: 2px;
   }
 
   .board {
@@ -834,11 +775,15 @@ body::after {
   .btn {
     padding: 0.3rem 0.6rem;
     font-size: 0.75rem;
+    border-radius: 10px;
+    border-width: 2px;
   }
 
   .draw-selector select {
     font-size: 0.72rem;
     padding: 0.22rem 0.35rem;
+    border-width: 2px;
+    border-radius: 10px;
   }
 
   .stats {
@@ -855,16 +800,24 @@ body::after {
   }
 
   .card {
-    border-radius: 0.3rem;
+    border-radius: 10px;
   }
 
   .card.face-up {
     padding: 2px 2px;
-    border-radius: 0.3rem;
+    border-radius: 10px;
   }
 
-  .card.face-up::before {
-    border-radius: 0.25rem;
+  .foundation {
+    border-radius: 10px;
+  }
+
+  .stock-pile, .waste-pile {
+    border-radius: 10px;
+  }
+
+  .column.empty-slot {
+    border-radius: 10px;
   }
 
   .tableau {
@@ -878,6 +831,7 @@ body::after {
   .btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.7rem;
+    border-radius: 8px;
   }
 
   .area-label {
@@ -893,16 +847,26 @@ body::after {
   }
 
   .card {
-    border-radius: 0.375rem;
+    border-radius: 12px;
   }
 
   .card.face-up {
     padding: 2px 3px;
-    border-radius: 0.3rem;
+    border-radius: 12px;
+    border-width: 2px;
   }
 
-  .card.face-up::before {
-    border-radius: 0.25rem;
+  .foundation {
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  .stock-pile, .waste-pile {
+    border-radius: 12px;
+  }
+
+  .column.empty-slot {
+    border-radius: 12px;
   }
 
   .hide-mobile {
@@ -916,6 +880,7 @@ body::after {
   .topbar {
     padding: 0.3rem 0.6rem;
     gap: 0.25rem;
+    border-bottom-width: 2px;
   }
 
   .board {
@@ -938,11 +903,15 @@ body::after {
   .btn {
     padding: 0.25rem 0.55rem;
     font-size: 0.72rem;
+    border-radius: 10px;
+    border-width: 2px;
   }
 
   .draw-selector select {
     font-size: 0.7rem;
     padding: 0.2rem 0.3rem;
+    border-width: 2px;
+    border-radius: 10px;
   }
 
   .stats {
@@ -968,29 +937,29 @@ body::after {
   max-width: 820px;
   margin: 1rem auto;
   padding: 1.2rem 1.5rem;
-  background: var(--surface-container-low);
-  border-radius: 0.75rem;
-  color: var(--on-surface-variant);
+  background: var(--card-face);
+  border: 3px solid var(--card-border);
+  border-radius: 20px;
+  color: #5D4037;
   font-size: 0.9rem;
   line-height: 1.7;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
 }
 
 .game-info h2 {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.6rem;
-  color: var(--primary);
-  letter-spacing: -0.02em;
+  color: var(--primary-dark);
 }
 
 .game-info h3 {
-  font-family: 'Cormorant Garamond', 'Noto Serif', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   margin: 1rem 0 0.4rem;
-  color: var(--cream);
+  color: var(--card-black);
 }
 
 .game-info ul {
@@ -1002,7 +971,7 @@ body::after {
 }
 
 .game-info strong {
-  color: var(--primary);
+  color: var(--primary-dark);
 }
 
 /* ===== UTILITIES ===== */
@@ -1019,6 +988,6 @@ body::after {
 }
 
 @keyframes drop-pulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.15); }
-  50% { box-shadow: 0 0 25px var(--gold-glow); }
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 143, 0, 0.2); }
+  50% { box-shadow: 0 0 18px var(--drop-glow); }
 }
