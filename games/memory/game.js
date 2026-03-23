@@ -191,6 +191,51 @@ function handleCardFlip(card) {
   }
 }
 
+// ===== Match particles (cartoon stars) =====
+function spawnMatchParticles(cardEl) {
+  const rect = cardEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const colors = ['#FFD54F', '#E040FB', '#00BCD4', '#76FF03', '#FF9800'];
+
+  // Spawn 8 small circle particles
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'match-particle';
+    const angle = (Math.PI * 2 / 8) * i + (Math.random() - 0.5) * 0.5;
+    const dist = 30 + Math.random() * 40;
+    const px = Math.cos(angle) * dist;
+    const py = Math.sin(angle) * dist;
+    const size = 4 + Math.random() * 6;
+    p.style.cssText = `
+      left: ${cx - size/2}px; top: ${cy - size/2}px;
+      width: ${size}px; height: ${size}px;
+      background: ${colors[i % colors.length]};
+      --px: ${px}px; --py: ${py}px;
+    `;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+
+  // Spawn 4 star emojis
+  for (let i = 0; i < 4; i++) {
+    const s = document.createElement('div');
+    s.className = 'match-star';
+    const angle = (Math.PI * 2 / 4) * i + Math.random() * 0.8;
+    const dist = 20 + Math.random() * 30;
+    const px = Math.cos(angle) * dist;
+    const py = Math.sin(angle) * dist - 15;
+    s.textContent = '\u2605';
+    s.style.cssText = `
+      left: ${cx}px; top: ${cy}px;
+      color: ${colors[i % colors.length]};
+      --px: ${px}px; --py: ${py}px;
+    `;
+    document.body.appendChild(s);
+    s.addEventListener('animationend', () => s.remove());
+  }
+}
+
 function checkMatch() {
   const [a, b] = flippedCards;
   const match = a.dataset.emoji === b.dataset.emoji;
@@ -203,6 +248,10 @@ function checkMatch() {
     flippedCards = [];
     matchedPairs++;
     playSound('win'); // som curto ao acertar par
+
+    // Spawn cartoon particles
+    spawnMatchParticles(a);
+    spawnMatchParticles(b);
 
     // Mobile: feedback tátil ao fazer match (sucesso)
     if (navigator.vibrate) navigator.vibrate([15, 8, 25]);

@@ -1,32 +1,33 @@
-/* ===== Memory Game — Cabinet of Wonders: Victorian Collection ===== */
-/* Stitch "The Curated Archive" — Dark Victorian mahogany & antique gold */
-
+/* ===== Memory Game — "Memória Fofa Cartoon" 3.0 ===== */
+/* Contornos grossos, highlights 3D, partículas, paleta vibrante */
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  /* Victorian Palette */
-  --color-bg: #1c110c;
-  --color-surface: #1c110c;
-  --color-surface-container: #291d17;
-  --color-surface-container-high: #342721;
-  --color-surface-container-highest: #40322c;
-  --color-primary: #f2c08d;
-  --color-primary-container: #d4a574;
-  --color-secondary: #ecc165;
-  --color-secondary-container: #795900;
-  --color-tertiary: #d5c7b5;
-  --color-tertiary-container: #b9ac9b;
-  --color-on-surface: #f5ded5;
-  --color-on-primary: #472a03;
-  --color-outline: #9c8e82;
-  --color-outline-variant: #50453b;
+  /* Cartoon Palette */
+  --bg: #7B1FA2;
+  --bg-dark: #4A148C;
+  --surface: #F5E6D0;
+  --primary: #E040FB;
+  --secondary: #00BCD4;
+  --accent: #FFD54F;
+  --card-back: #5C6BC0;
+  --card-back-dark: #3949AB;
+  --card-back-light: #7986CB;
+  --card-front: #FFF8E7;
+  --card-front-border: #4A148C;
+  --text-dark: #311B92;
+  --text-light: #FFFFFF;
+  --outline-thick: #2A0845;
+  --match-glow: #76FF03;
+  --match-green: #4CAF50;
+  --star-yellow: #FFD54F;
 
   /* Typography */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Newsreader', 'Times New Roman', serif;
+  --font-display: 'Nunito', 'Segoe UI', sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', sans-serif;
 
   /* Spacing */
   --space-1: 4px;
@@ -37,62 +38,59 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* Shadows — warm ambient */
-  --shadow-ambient: 0 8px 48px rgba(22, 12, 7, 0.5);
-  --shadow-card: 0 4px 16px rgba(22, 12, 7, 0.6);
-  --shadow-card-hover: 0 8px 32px rgba(22, 12, 7, 0.7), 0 0 24px rgba(242, 192, 141, 0.12);
-  --shadow-gold-glow: 0 0 20px rgba(242, 192, 141, 0.35), 0 0 48px rgba(242, 192, 141, 0.15);
+  /* Shadows — cartoon style */
+  --shadow-card: 0 4px 0 rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
+  --shadow-card-hover: 0 6px 0 rgba(0,0,0,0.3), 0 10px 24px rgba(0,0,0,0.25);
+  --shadow-board: 0 8px 0 rgba(0,0,0,0.25), 0 12px 40px rgba(0,0,0,0.3);
+  --shadow-btn: 0 4px 0 rgba(0,0,0,0.3);
 
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-medium: 0.35s ease;
-
-  /* CTA Gradient */
-  --gradient-cta: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
 }
 
 /* ===== BODY ===== */
 body {
   font-family: var(--font-body);
-  background: var(--color-bg);
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-dark) 50%, #38006b 100%);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  color: var(--color-on-surface);
+  color: var(--text-light);
   user-select: none;
   position: relative;
   overflow-x: hidden;
 }
 
-/* Victorian damask wallpaper pattern */
+/* Padrão decorativo de fundo (estrelas e pontos) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
-  opacity: 0.04;
+  opacity: 0.08;
   background-image:
-    radial-gradient(ellipse 24px 32px at 50% 50%, var(--color-primary) 0%, transparent 70%),
-    radial-gradient(ellipse 24px 32px at 0% 0%, var(--color-primary) 0%, transparent 70%),
-    radial-gradient(ellipse 24px 32px at 100% 100%, var(--color-primary) 0%, transparent 70%),
-    radial-gradient(ellipse 16px 24px at 50% 0%, var(--color-secondary) 0%, transparent 60%),
-    radial-gradient(ellipse 16px 24px at 0% 50%, var(--color-secondary) 0%, transparent 60%),
-    radial-gradient(ellipse 16px 24px at 100% 50%, var(--color-secondary) 0%, transparent 60%);
-  background-size: 64px 80px;
-  background-position: 0 0, 32px 40px, 32px 40px, 0 0, 32px 40px, 32px 40px;
+    radial-gradient(circle 3px at 20% 30%, var(--accent) 100%, transparent),
+    radial-gradient(circle 2px at 60% 15%, var(--primary) 100%, transparent),
+    radial-gradient(circle 3px at 80% 45%, var(--secondary) 100%, transparent),
+    radial-gradient(circle 2px at 35% 70%, var(--accent) 100%, transparent),
+    radial-gradient(circle 3px at 90% 80%, var(--primary) 100%, transparent),
+    radial-gradient(circle 2px at 10% 90%, var(--secondary) 100%, transparent),
+    radial-gradient(circle 2px at 50% 55%, var(--accent) 100%, transparent),
+    radial-gradient(circle 3px at 75% 25%, var(--secondary) 100%, transparent);
   pointer-events: none;
 }
 
-/* Warm candlelight glow */
+/* Glow suave no topo */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(242, 192, 141, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(236, 193, 101, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(236, 193, 101, 0.04) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(224, 64, 251, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 30% 100%, rgba(0, 188, 212, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 30% at 70% 100%, rgba(255, 213, 79, 0.08) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -117,53 +115,62 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-4);
-  background: rgba(41, 29, 23, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(74, 20, 140, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   gap: var(--space-2);
   flex-shrink: 0;
-  box-shadow: 0 2px 24px rgba(22, 12, 7, 0.5);
+  border-bottom: 3px solid var(--outline-thick);
+  box-shadow: 0 3px 12px rgba(0,0,0,0.3);
 }
 
 .btn-back {
-  color: var(--color-on-surface);
+  color: var(--text-light);
   text-decoration: none;
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.85rem;
-  background: var(--color-surface-container-high);
+  background: var(--primary);
   padding: var(--space-1) var(--space-3);
-  border-radius: 0px;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  border-radius: 12px;
+  border: 3px solid var(--outline-thick);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap;
+  box-shadow: var(--shadow-btn);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 .btn-back:hover {
-  background: var(--color-surface-container-highest);
-  color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+}
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3);
 }
 .btn-back:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
 .game-title {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 1.3rem;
+  font-weight: 900;
   white-space: nowrap;
-  color: var(--color-primary);
-  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 0 12px rgba(255,213,79,0.3);
+  letter-spacing: 0.5px;
 }
 
 .stats {
   display: flex;
   gap: var(--space-3);
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-tertiary);
+  font-weight: 800;
+  color: var(--text-light);
   white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 /* ===== GAME WRAPPER ===== */
@@ -188,55 +195,62 @@ body::after {
 
 #difficulty-select,
 .controls-bar select {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 800;
   padding: var(--space-1) var(--space-3);
-  border-radius: 0px;
-  border: none;
-  background: var(--color-surface-container-high);
-  color: var(--color-on-surface);
+  border-radius: 12px;
+  border: 3px solid var(--outline-thick);
+  background: var(--secondary);
+  color: var(--text-dark);
   cursor: pointer;
   outline: none;
-  transition: background var(--transition-fast);
+  transition: transform var(--transition-fast);
+  box-shadow: var(--shadow-btn);
   appearance: auto;
 }
 #difficulty-select:focus,
 .controls-bar select:focus {
-  background: var(--color-surface-container-highest);
-  box-shadow: 0 0 0 2px var(--color-primary);
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  transform: translateY(-1px);
 }
 #difficulty-select option,
 .controls-bar select option {
-  background: var(--color-surface-container);
-  color: var(--color-on-surface);
+  background: #fff;
+  color: var(--text-dark);
 }
 
 /* ===== BUTTONS ===== */
 .btn {
   padding: var(--space-2) var(--space-6);
-  border: none;
-  border-radius: 0px;
+  border: 3px solid var(--outline-thick);
+  border-radius: 14px;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
-  letter-spacing: 0.5px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-btn);
 }
-.btn:active { transform: scale(0.97); }
+.btn:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3) !important;
+}
 .btn:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
 .btn-orange {
-  background: var(--gradient-cta);
-  color: var(--color-on-primary);
+  background: linear-gradient(180deg, #FF9800, #F57C00);
+  color: #fff;
+  border-color: #BF360C;
 }
 .btn-orange:hover {
-  opacity: 0.9;
-  box-shadow: var(--shadow-gold-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 16px rgba(255,152,0,0.4);
 }
 
 .btn-sm {
@@ -245,33 +259,44 @@ body::after {
 }
 
 .btn-primary {
-  background: var(--gradient-cta);
-  color: var(--color-on-primary);
+  background: linear-gradient(180deg, var(--primary), #AB00D9);
+  color: #fff;
   font-size: 1rem;
   padding: var(--space-3) var(--space-6);
   margin-bottom: var(--space-2);
   display: block;
   width: 100%;
+  border-color: var(--outline-thick);
 }
 .btn-primary:hover {
-  box-shadow: var(--shadow-gold-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3), 0 0 20px rgba(224,64,251,0.4);
 }
 
 .btn-whatsapp {
-  background: #25d366;
+  background: linear-gradient(180deg, #25d366, #128C7E);
   color: #fff;
-  font-family: var(--font-body);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 800;
   font-size: 0.88rem;
   padding: var(--space-2) var(--space-4);
   display: block;
   width: 100%;
-  border-radius: 0px;
-  border: none;
+  border-radius: 14px;
+  border: 3px solid #0a5c36;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-btn);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
-.btn-whatsapp:hover { opacity: 0.88; }
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.3);
+}
+.btn-whatsapp:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.3);
+}
 
 /* ===== GAME CONTAINER ===== */
 .game-container {
@@ -289,12 +314,25 @@ body::after {
 /* ===== BOARD ===== */
 .board {
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3);
+  gap: 10px;
+  padding: var(--space-4);
   max-width: 100%;
   max-height: 100%;
-  background: rgba(41, 29, 23, 0.4);
-  box-shadow: var(--shadow-ambient);
+  background: linear-gradient(145deg, rgba(106, 27, 154, 0.6), rgba(74, 20, 140, 0.7));
+  border: 4px solid var(--outline-thick);
+  border-radius: 20px;
+  box-shadow: var(--shadow-board);
+  position: relative;
+}
+
+/* Board inner glow */
+.board::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 16px;
+  border: 2px solid rgba(224, 64, 251, 0.15);
+  pointer-events: none;
 }
 
 .board[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
@@ -309,19 +347,20 @@ body::after {
   outline: none;
 }
 .memory-card:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 14px;
 }
 
 .memory-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
 
-/* 3D flip animation */
+/* 3D flip */
 .memory-card.flipped .memory-card-inner {
   transform: rotateY(180deg);
 }
@@ -333,7 +372,7 @@ body::after {
 .memory-card-face {
   position: absolute;
   inset: 0;
-  border-radius: 0px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -341,100 +380,161 @@ body::after {
   -webkit-backface-visibility: hidden;
 }
 
-/* Card back — mahogany wood with Art Nouveau gold pattern */
+/* ===== Card BACK — Roxo/Indigo vibrante com padrão decorativo ===== */
 .memory-card-back {
-  background:
-    linear-gradient(135deg, #3d2416 0%, #2a1810 40%, #3d2416 70%, #2a1810 100%);
+  background: linear-gradient(145deg, var(--card-back-light) 0%, var(--card-back) 40%, var(--card-back-dark) 100%);
+  border: 4px solid var(--outline-thick);
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   overflow: hidden;
+  position: relative;
 }
 
-/* Art Nouveau decorative pattern overlay */
+/* Highlight 3D no topo */
 .memory-card-back::before {
   content: '';
   position: absolute;
-  inset: 5px;
-  background:
-    linear-gradient(45deg, transparent 40%, rgba(242, 192, 141, 0.08) 45%, transparent 50%),
-    linear-gradient(-45deg, transparent 40%, rgba(242, 192, 141, 0.08) 45%, transparent 50%),
-    linear-gradient(0deg, transparent 42%, rgba(212, 165, 116, 0.1) 48%, rgba(212, 165, 116, 0.1) 52%, transparent 58%),
-    linear-gradient(90deg, transparent 42%, rgba(212, 165, 116, 0.1) 48%, rgba(212, 165, 116, 0.1) 52%, transparent 58%);
-  background-size: 100% 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+  border-radius: 10px 10px 50% 50%;
+  pointer-events: none;
 }
 
-/* Gold filigree border inset */
+/* Padrão decorativo (estrela central + pontos) */
 .memory-card-back::after {
-  content: '';
+  content: '\2605';
   position: absolute;
-  inset: 4px;
-  background:
-    linear-gradient(var(--color-primary), var(--color-primary)) top left / calc(100% - 8px) 1px no-repeat,
-    linear-gradient(var(--color-primary), var(--color-primary)) bottom left / calc(100% - 8px) 1px no-repeat,
-    linear-gradient(var(--color-primary), var(--color-primary)) top left / 1px calc(100% - 8px) no-repeat,
-    linear-gradient(var(--color-primary), var(--color-primary)) top right / 1px calc(100% - 8px) no-repeat;
-  opacity: 0.25;
-  /* Corner flourishes via radial */
-  filter: none;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  color: rgba(255, 213, 79, 0.3);
+  text-shadow: 0 0 8px rgba(255, 213, 79, 0.2);
+  pointer-events: none;
 }
 
-/* Card front — museum spotlight illumination */
+/* ===== Card FRONT — Bege claro, emoji grande ===== */
 .card-front,
 .memory-card-front {
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 30%, rgba(242, 192, 141, 0.12) 0%, transparent 70%),
-    linear-gradient(180deg, var(--color-surface-container-highest) 0%, var(--color-surface-container-high) 100%);
+  background: linear-gradient(180deg, #FFF8E7 0%, #F5E6D0 60%, #EDD9BC 100%);
+  border: 4px solid var(--outline-thick);
+  border-radius: 14px;
   box-shadow: var(--shadow-card);
   transform: rotateY(180deg);
-  font-size: clamp(1.5rem, min(5vw, 5vh), 2.2rem);
-  color: var(--color-on-surface);
+  font-size: clamp(1.5rem, min(5vw, 5vh), 2.4rem);
+  color: var(--text-dark);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Matched cards — golden glow + scale down */
+/* Brilho sutil no topo da frente */
+.memory-card-front::before,
+.card-front::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, transparent 100%);
+  border-radius: 10px 10px 50% 50%;
+  pointer-events: none;
+}
+
+/* ===== Matched cards — Brilho verde + bounce ===== */
 .memory-card.matched .memory-card-front,
 .memory-card.matched .card-front {
   box-shadow:
-    0 0 16px rgba(242, 192, 141, 0.4),
-    0 0 40px rgba(242, 192, 141, 0.15),
+    0 0 12px rgba(118, 255, 3, 0.5),
+    0 0 30px rgba(118, 255, 3, 0.2),
     var(--shadow-card);
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 40%, rgba(242, 192, 141, 0.18) 0%, transparent 70%),
-    linear-gradient(180deg, var(--color-surface-container-highest) 0%, var(--color-surface-container-high) 100%);
+  border-color: var(--match-green);
 }
 
 .memory-card.matched {
-  animation: matchReveal 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: matchBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
+
+@keyframes matchBounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.12); }
+  50%  { transform: scale(0.95); }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Estrelinhas de match (via pseudo-element na carta) */
 .memory-card.matched::after {
   content: '';
   position: absolute;
-  inset: -2px;
-  box-shadow: 0 0 12px rgba(242, 192, 141, 0.3);
+  inset: -6px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle 4px at 10% 10%, var(--star-yellow) 50%, transparent 50%),
+    radial-gradient(circle 3px at 90% 15%, var(--star-yellow) 50%, transparent 50%),
+    radial-gradient(circle 4px at 85% 85%, var(--star-yellow) 50%, transparent 50%),
+    radial-gradient(circle 3px at 15% 90%, var(--star-yellow) 50%, transparent 50%),
+    radial-gradient(circle 3px at 50% 5%, var(--primary) 50%, transparent 50%),
+    radial-gradient(circle 3px at 50% 95%, var(--secondary) 50%, transparent 50%);
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0;
+  animation: matchStars 0.8s ease-out 0.15s forwards;
 }
 
-@keyframes matchReveal {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.06); }
-  100% { transform: scale(0.96); }
+@keyframes matchStars {
+  0%   { opacity: 1; transform: scale(0.5); }
+  50%  { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(1.8); }
 }
 
 /* Hover on unmatched, unflipped cards */
 .memory-card:not(.matched):not(.flipped):hover .memory-card-back {
   box-shadow: var(--shadow-card-hover);
-  transform: scale(1.02);
+  transform: translateY(-3px);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .memory-card:not(.matched):not(.flipped):hover .memory-card-back::after {
-  opacity: 0.4;
+  color: rgba(255, 213, 79, 0.5);
+}
+
+/* ===== PARTICLES CONTAINER (JS) ===== */
+.match-particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+  border-radius: 50%;
+  animation: particleFly 0.7s ease-out forwards;
+}
+
+@keyframes particleFly {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--px), var(--py)) scale(0); }
+}
+
+.match-star {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+  font-size: 1rem;
+  animation: starFloat 0.9s ease-out forwards;
+}
+
+@keyframes starFloat {
+  0%   { opacity: 1; transform: translate(0, 0) scale(0) rotate(0deg); }
+  40%  { opacity: 1; transform: translate(var(--px), var(--py)) scale(1.2) rotate(180deg); }
+  100% { opacity: 0; transform: translate(calc(var(--px) * 1.5), calc(var(--py) * 1.5)) scale(0) rotate(360deg); }
 }
 
 /* ===== VICTORY MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(28, 17, 12, 0.85);
+  background: rgba(42, 8, 69, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -446,52 +546,73 @@ body::after {
 
 .modal-content,
 .modal {
-  background: rgba(64, 50, 44, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 0px;
+  background: linear-gradient(160deg, #9C27B0 0%, #7B1FA2 50%, #6A1B9A 100%);
+  border: 4px solid var(--outline-thick);
+  border-radius: 24px;
   padding: var(--space-8);
   text-align: center;
-  animation: cabinetOpen 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: modalPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   max-width: 380px;
   width: 90%;
   box-shadow:
-    var(--shadow-ambient),
-    0 0 60px rgba(242, 192, 141, 0.1),
-    inset 0 1px 0 rgba(242, 192, 141, 0.1);
+    0 8px 0 rgba(0,0,0,0.3),
+    0 16px 48px rgba(0,0,0,0.4),
+    inset 0 2px 0 rgba(255,255,255,0.15);
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes cabinetOpen {
-  from { transform: scale(0.8) rotateY(-5deg); opacity: 0; }
-  to   { transform: scale(1) rotateY(0deg);    opacity: 1; }
+/* Highlight no modal */
+.modal::before,
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  border-radius: 20px 20px 50% 50%;
+  pointer-events: none;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.3) rotate(-5deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg);    opacity: 1; }
 }
 
 .modal-icon {
   font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 900;
   margin-bottom: var(--space-2);
-  color: var(--color-secondary);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.3), 0 0 16px rgba(255,213,79,0.4);
+  position: relative;
+  z-index: 1;
 }
 
 .modal-content h2,
 .modal h2 {
   font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: #fff;
   margin-bottom: var(--space-1);
-  letter-spacing: 1px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 1;
 }
 
 .modal-content p,
 .modal p {
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--color-tertiary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
   margin-bottom: var(--space-4);
+  position: relative;
+  z-index: 1;
 }
 
 .modal-stats {
@@ -500,6 +621,8 @@ body::after {
   gap: var(--space-6);
   margin-bottom: var(--space-4);
   padding: var(--space-3) 0;
+  position: relative;
+  z-index: 1;
 }
 
 .modal-stat {
@@ -507,36 +630,52 @@ body::after {
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+  background: rgba(0,0,0,0.2);
+  border-radius: 14px;
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid rgba(255,255,255,0.1);
 }
 
 .modal-stat-label {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: 0.7rem;
-  color: var(--color-outline);
+  color: rgba(255,255,255,0.6);
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 1.5px;
 }
 
 .modal-stat-value {
   font-family: var(--font-display);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.3);
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   .board {
-    gap: 6px;
+    gap: 7px;
     padding: var(--space-2);
+    border-radius: 16px;
+    border-width: 3px;
   }
   .memory-card-front,
   .card-front {
     font-size: clamp(1rem, min(4vw, 4vh), 1.5rem);
   }
+  .memory-card-face {
+    border-radius: 10px;
+  }
+  .memory-card-back,
+  .memory-card-front,
+  .card-front {
+    border-width: 3px;
+    border-radius: 10px;
+  }
   .game-title {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
   .controls-bar {
     padding: var(--space-1) var(--space-2);
@@ -549,15 +688,21 @@ body::after {
 
 @media (max-width: 360px) {
   .board {
-    gap: 4px;
-    padding: 2px;
+    gap: 5px;
+    padding: 4px;
+    border-radius: 12px;
   }
   .memory-card-front,
   .card-front {
     font-size: clamp(0.8rem, min(3.5vw, 3.5vh), 1.2rem);
   }
   .memory-card-face {
-    border-radius: 0px;
+    border-radius: 8px;
+  }
+  .memory-card-back,
+  .memory-card-front,
+  .card-front {
+    border-radius: 8px;
   }
 }
 
@@ -570,8 +715,9 @@ body::after {
     padding: var(--space-1) var(--space-2);
   }
   .board {
-    gap: 4px;
-    padding: 4px;
+    gap: 5px;
+    padding: 6px;
+    border-radius: 14px;
   }
   .memory-card-front,
   .card-front {
@@ -586,27 +732,29 @@ body::after {
   max-width: 780px;
   margin: var(--space-4) auto;
   padding: var(--space-4);
-  background: rgba(41, 29, 23, 0.5);
-  border-radius: 0px;
-  color: var(--color-tertiary);
+  background: rgba(74, 20, 140, 0.5);
+  border: 3px solid var(--outline-thick);
+  border-radius: 16px;
+  color: rgba(255,255,255,0.85);
   font-family: var(--font-body);
   font-size: 0.9rem;
+  font-weight: 600;
   line-height: 1.7;
 }
 .game-info h2 {
   font-family: var(--font-display);
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 900;
   margin-bottom: var(--space-2);
-  color: var(--color-primary);
-  letter-spacing: 0.5px;
+  color: var(--accent);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.3);
 }
 .game-info h3 {
   font-family: var(--font-display);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   margin: var(--space-3) 0 var(--space-1);
-  color: var(--color-on-surface);
+  color: var(--primary);
 }
 .game-info p {
   margin-bottom: var(--space-2);
@@ -618,5 +766,5 @@ body::after {
   margin-bottom: var(--space-1);
 }
 .game-info li::marker {
-  color: var(--color-primary-container);
+  color: var(--secondary);
 }
