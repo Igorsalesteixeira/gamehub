@@ -35,7 +35,8 @@ function resize() {
   const container = canvas.parentElement;
   const maxW = container.clientWidth - 16;
   const maxH = container.clientHeight - 16;
-  scale = Math.min(maxW / BASE_W, maxH / BASE_H, 1.5);
+  // Removed the 1.5 cap so the canvas fills the container properly
+  scale = Math.min(maxW / BASE_W, maxH / BASE_H);
   canvas.width = Math.floor(BASE_W * scale);
   canvas.height = Math.floor(BASE_H * scale);
 
@@ -602,6 +603,13 @@ const inputManager = new InputManager({
   preventDefault: true
 });
 
+// Prevent default browser behavior for game keys (Space scrolls page, arrows scroll)
+document.addEventListener('keydown', (e) => {
+  if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
 // Pause toggle
 inputManager.on('keyDown', (key) => {
   if ((key === 'p' || key === 'P' || key === 'Escape') && state === 'playing') {
@@ -640,6 +648,7 @@ ctrlBtns.forEach(btn => {
 
 // ===== START BUTTON =====
 btnStart.addEventListener('click', () => {
+  btnStart.blur(); // Remove focus so Space key doesn't re-trigger button
   startGame();
 });
 

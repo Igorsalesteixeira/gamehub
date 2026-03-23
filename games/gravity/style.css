@@ -295,6 +295,51 @@ body::before {
   transform: translateY(-1px);
 }
 
+/* ── Game Controls (DOM buttons) ── */
+.game-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 12px;
+}
+
+.ctrl-game-btn {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  padding: 0.6rem 1.8rem;
+  border: 2px solid;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.2s;
+  color: #fff;
+}
+
+.ctrl-play {
+  background: rgba(68, 136, 255, 0.2);
+  border-color: rgba(68, 136, 255, 0.7);
+  box-shadow: 0 0 16px rgba(68, 136, 255, 0.3);
+}
+
+.ctrl-play:hover {
+  background: rgba(68, 136, 255, 0.4);
+  box-shadow: 0 0 24px rgba(68, 136, 255, 0.5);
+}
+
+.ctrl-reset {
+  background: rgba(255, 68, 102, 0.2);
+  border-color: rgba(255, 68, 102, 0.7);
+  box-shadow: 0 0 16px rgba(255, 68, 102, 0.3);
+}
+
+.ctrl-reset:hover {
+  background: rgba(255, 68, 102, 0.4);
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .topbar {

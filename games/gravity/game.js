@@ -12,15 +12,15 @@ const storage = new GameStorage('gravity');
 
 // ── Constants ──
 const G_CONST = 800;           // gravitational constant
-const PARTICLE_SPEED = 1.8;    // initial emission speed
-const PARTICLE_RADIUS = 2.5;
-const TRAIL_LENGTH = 18;
-const WELL_RADIUS = 18;
-const PORTAL_RADIUS = 28;
-const SOURCE_RADIUS = 14;
-const EMIT_INTERVAL = 120;     // ms between particle emissions
+const PARTICLE_SPEED = 2.2;    // initial emission speed
+const PARTICLE_RADIUS = 5;
+const TRAIL_LENGTH = 22;
+const WELL_RADIUS = 22;
+const PORTAL_RADIUS = 35;
+const SOURCE_RADIUS = 18;
+const EMIT_INTERVAL = 100;     // ms between particle emissions
 const MAX_PARTICLES = 150;
-const ABSORPTION_DIST = 22;
+const ABSORPTION_DIST = 32;
 const WALL_BOUNCE = 0.6;
 const LONG_PRESS_MS = 500;
 
@@ -129,6 +129,9 @@ const btnStart = document.getElementById('btn-start');
 const btnShare = document.getElementById('btn-share');
 const scoreDisplay = document.getElementById('score-display');
 const bestDisplay = document.getElementById('best-display');
+const gameControls = document.getElementById('game-controls');
+const btnPlay = document.getElementById('btn-play');
+const btnReset = document.getElementById('btn-reset');
 
 // ── Init ──
 async function init() {
@@ -248,16 +251,18 @@ function showMenu() {
   overlay.classList.remove('hidden');
   overlayIcon.textContent = '🌀';
   overlayTitle.textContent = 'Gravity Pulse';
-  overlayMsg.textContent = 'Clique para criar campos gravitacionais.\nGuie as partículas até o portal!';
+  overlayMsg.textContent = 'Clique no espaço para criar campos de gravidade.\nGuie as partículas verdes até o portal roxo!';
   overlayScore.textContent = '';
   btnStart.textContent = 'Jogar';
   btnShare.style.display = 'none';
+  gameControls.style.display = 'none';
   clearGame();
 }
 
 function showLevelComplete(stars, pct) {
   phase = 'complete';
   overlay.classList.remove('hidden');
+  gameControls.style.display = 'none';
   overlayIcon.textContent = stars >= 3 ? '⭐' : stars >= 2 ? '🌟' : '✨';
   overlayTitle.textContent = `Nível ${currentLevel + 1} Completo!`;
   const starStr = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
@@ -279,6 +284,7 @@ function showLevelComplete(stars, pct) {
 function showLevelFail() {
   phase = 'complete';
   overlay.classList.remove('hidden');
+  gameControls.style.display = 'none';
   overlayIcon.textContent = '💫';
   overlayTitle.textContent = `Nível ${currentLevel + 1}`;
   const pct = totalEmitted > 0 ? totalCollected / totalEmitted : 0;
@@ -304,6 +310,23 @@ btnStart.addEventListener('click', () => {
     } else {
       startLevel(0);
     }
+  }
+});
+
+// DOM play/reset buttons (reliable, no PixiJS event issues)
+btnPlay.addEventListener('click', () => {
+  if (phase === 'placement') {
+    startSimulation();
+    btnPlay.style.display = 'none';
+    btnReset.style.display = 'inline-block';
+  }
+});
+
+btnReset.addEventListener('click', () => {
+  if (phase === 'simulation' || phase === 'placement') {
+    resetLevel();
+    btnPlay.style.display = 'inline-block';
+    btnReset.style.display = 'none';
   }
 });
 
@@ -343,6 +366,10 @@ function startLevel(idx) {
   clearGame();
   buildLevel(currentLevel);
   phase = 'placement';
+  // Show DOM controls
+  gameControls.style.display = 'flex';
+  btnPlay.style.display = 'inline-block';
+  btnReset.style.display = 'none';
   buildHUD();
 }
 
@@ -412,27 +439,43 @@ function drawPortals() {
     container.x = t.x;
     container.y = t.y;
 
-    // Outer glow
+    // Large outer glow
     const glow = new PIXI.Graphics();
-    glow.beginFill(COL.portalGlow, 0.15);
-    glow.drawCircle(0, 0, PORTAL_RADIUS * 2);
+    glow.beginFill(COL.portalGlow, 0.12);
+    glow.drawCircle(0, 0, PORTAL_RADIUS * 3);
+    glow.endFill();
+    glow.beginFill(COL.portal, 0.08);
+    glow.drawCircle(0, 0, PORTAL_RADIUS * 2.2);
     glow.endFill();
     container.addChild(glow);
 
-    // Rings
-    for (let i = 3; i >= 0; i--) {
+    // Bright rings
+    for (let i = 4; i >= 0; i--) {
       const ring = new PIXI.Graphics();
-      ring.lineStyle(2, COL.portal, 0.3 + i * 0.15);
-      ring.drawCircle(0, 0, PORTAL_RADIUS - i * 4);
+      ring.lineStyle(2.5, COL.portal, 0.35 + i * 0.12);
+      ring.drawCircle(0, 0, PORTAL_RADIUS - i * 5);
       container.addChild(ring);
     }
 
-    // Core
+    // Bright core
     const core = new PIXI.Graphics();
-    core.beginFill(COL.portal, 0.5);
-    core.drawCircle(0, 0, 8);
+    core.beginFill(COL.portal, 0.7);
+    core.drawCircle(0, 0, 12);
+    core.endFill();
+    core.beginFill(0xddaaff, 0.5);
+    core.drawCircle(0, 0, 6);
     core.endFill();
     container.addChild(core);
+
+    // "PORTAL" label
+    const label = new PIXI.Text('PORTAL', {
+      fontFamily: 'VT323',
+      fontSize: 14,
+      fill: COL.portal,
+    });
+    label.anchor.set(0.5);
+    label.y = -PORTAL_RADIUS - 14;
+    container.addChild(label);
 
     t._container = container;
     portalLayer.addChild(container);
@@ -465,20 +508,47 @@ function drawBlackholes() {
 
 function drawSource() {
   const gfx = new PIXI.Graphics();
-  gfx.beginFill(COL.source, 0.6);
+
+  // Outer glow
+  gfx.beginFill(COL.sourceGlow, 0.1);
+  gfx.drawCircle(levelSource.x, levelSource.y, SOURCE_RADIUS * 2.5);
+  gfx.endFill();
+
+  // Body
+  gfx.beginFill(COL.source, 0.7);
   gfx.drawCircle(levelSource.x, levelSource.y, SOURCE_RADIUS);
   gfx.endFill();
-  gfx.lineStyle(2, COL.sourceGlow, 0.8);
+  gfx.lineStyle(2, COL.sourceGlow, 0.9);
   gfx.drawCircle(levelSource.x, levelSource.y, SOURCE_RADIUS);
 
-  // Arrow showing direction
-  const ax = levelSource.x + Math.cos(levelSource.angle) * (SOURCE_RADIUS + 8);
-  const ay = levelSource.y + Math.sin(levelSource.angle) * (SOURCE_RADIUS + 8);
-  gfx.lineStyle(2, COL.sourceGlow, 0.9);
+  // Arrow showing direction (bigger, more visible)
+  const arrowLen = SOURCE_RADIUS + 18;
+  const ax = levelSource.x + Math.cos(levelSource.angle) * arrowLen;
+  const ay = levelSource.y + Math.sin(levelSource.angle) * arrowLen;
+  gfx.lineStyle(3, COL.sourceGlow, 0.9);
   gfx.moveTo(levelSource.x + Math.cos(levelSource.angle) * SOURCE_RADIUS, levelSource.y + Math.sin(levelSource.angle) * SOURCE_RADIUS);
   gfx.lineTo(ax, ay);
 
+  // Arrowhead
+  const headLen = 8;
+  const headAngle = 0.5;
+  gfx.moveTo(ax, ay);
+  gfx.lineTo(ax - Math.cos(levelSource.angle - headAngle) * headLen, ay - Math.sin(levelSource.angle - headAngle) * headLen);
+  gfx.moveTo(ax, ay);
+  gfx.lineTo(ax - Math.cos(levelSource.angle + headAngle) * headLen, ay - Math.sin(levelSource.angle + headAngle) * headLen);
+
   sourceLayer.addChild(gfx);
+
+  // "FONTE" label
+  const label = new PIXI.Text('FONTE', {
+    fontFamily: 'VT323',
+    fontSize: 14,
+    fill: COL.source,
+  });
+  label.anchor.set(0.5);
+  label.x = levelSource.x;
+  label.y = levelSource.y - SOURCE_RADIUS - 14;
+  sourceLayer.addChild(label);
 }
 
 // ── Input ──
@@ -669,6 +739,9 @@ function startSimulation() {
   totalCollected = 0;
   particles = [];
   emitTimer = 0;
+  // Sync DOM buttons
+  btnPlay.style.display = 'none';
+  btnReset.style.display = 'inline-block';
 }
 
 function resetLevel() {
@@ -680,6 +753,9 @@ function resetLevel() {
   phase = 'placement';
   trailLayer.removeChildren();
   particleLayer.removeChildren();
+  // Sync DOM buttons
+  btnPlay.style.display = 'inline-block';
+  btnReset.style.display = 'none';
 }
 
 function emitParticle() {
@@ -1045,27 +1121,35 @@ function buildHUD() {
       hudLayer.addChild(countText);
     }
 
-    // Play/Reset buttons at bottom
-    const btnY = H - (isMobile ? 45 : 55);
-
+    // Instruction text (buttons are now DOM elements)
     if (phase === 'placement') {
-      // PLAY button — always available, even without wells placed
-      drawHUDButton(W / 2 - 50, btnY, 100, isMobile ? 32 : 38, '▶ JOGAR', COL.attractor, () => {
-        startSimulation();
-      });
-
-      // Instruction
       const instrText = new PIXI.Text(
-        isMobile ? 'Toque = atrator | Segure = repulsor' : 'Clique = atrator | Direito = repulsor | Espaço = jogar',
-        { fontFamily: 'Space Grotesk', fontSize: isMobile ? 10 : 12, fill: COL.hudDim }
+        isMobile ? 'Toque para criar gravidade → depois LANÇAR' : 'Clique = criar gravidade | Direito = repulsor | Espaço = lançar',
+        { fontFamily: 'Space Grotesk', fontSize: isMobile ? 11 : 13, fill: COL.hudDim }
       );
       instrText.anchor.set(0.5, 1);
       instrText.x = W / 2;
-      instrText.y = btnY - 6;
+      instrText.y = H - (isMobile ? 55 : 65);
       hudLayer.addChild(instrText);
-    } else {
-      // RESET button
-      drawHUDButton(W / 2 - 50, btnY, 100, isMobile ? 32 : 38, '↺ RESET', COL.repulsor, () => resetLevel());
+
+      // Arrow from source to target showing particle path
+      if (levelSource && levelTargets.length > 0) {
+        const arrowGfx = new PIXI.Graphics();
+        const t = levelTargets[0];
+        arrowGfx.lineStyle(2, COL.portal, 0.2 + Math.sin(breathPhase) * 0.1);
+        // Dashed line from source to target
+        const dx = t.x - levelSource.x;
+        const dy = t.y - levelSource.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const steps = Math.floor(dist / 20);
+        for (let i = 0; i < steps; i += 2) {
+          const frac1 = i / steps;
+          const frac2 = Math.min((i + 1) / steps, 1);
+          arrowGfx.moveTo(levelSource.x + dx * frac1, levelSource.y + dy * frac1);
+          arrowGfx.lineTo(levelSource.x + dx * frac2, levelSource.y + dy * frac2);
+        }
+        hudLayer.addChild(arrowGfx);
+      }
     }
 
   } else if (phase === 'sandbox') {

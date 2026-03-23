@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=1" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <meta name="theme-color" content="#050515" />
   <link rel="manifest" href="/manifest.json" />
   <script type="application/ld+json">
@@ -55,11 +55,16 @@
   </header>
   <div class="game-container">
     <div id="pixi-container"></div>
+    <!-- Game action buttons (DOM, not PixiJS — guaranteed click handling) -->
+    <div id="game-controls" class="game-controls" style="display:none;">
+      <button type="button" class="ctrl-game-btn ctrl-play" id="btn-play">▶ LANÇAR</button>
+      <button type="button" class="ctrl-game-btn ctrl-reset" id="btn-reset" style="display:none;">↺ RESET</button>
+    </div>
     <div class="modal-overlay glass-overlay" id="overlay">
       <div class="modal glass-modal">
         <div class="modal-icon" id="overlay-icon">🌀</div>
         <h2 id="overlay-title" class="modal-title">Gravity Pulse</h2>
-        <p id="overlay-msg" class="modal-subtitle">Clique para criar campos gravitacionais. Guie as particulas ate o portal!</p>
+        <p id="overlay-msg" class="modal-subtitle">Clique no espaço para criar campos de gravidade.<br>As partículas verdes serão atraídas até o portal roxo!</p>
         <div id="overlay-score" class="overlay-score neon-score"></div>
         <button type="button" class="btn btn-primary" id="btn-start">Jogar</button>
         <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">Compartilhar</button>
@@ -70,7 +75,7 @@
     import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'gravity' });
   </script>
-  <script type="module" src="game.js?v=2"></script>
+  <script type="module" src="game.js?v=3"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>

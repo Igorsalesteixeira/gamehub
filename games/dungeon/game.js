@@ -42,7 +42,7 @@ const COLORS = {
 };
 
 // ── State ──
-let app, worldContainer, lightingLayer, hudContainer, minimapGfx;
+let app, worldContainer, lightRT, lightSprite, hudContainer, minimapGfx;
 let mapW, mapH, tiles, explored, rooms;
 let player, enemies, items;
 let floor = 1;
@@ -97,12 +97,15 @@ function boot() {
   DOM.container.appendChild(app.view);
 
   worldContainer = new PIXI.Container();
-  lightingLayer = new PIXI.Graphics();
+  const rect2 = DOM.container.getBoundingClientRect();
+  lightRT = PIXI.RenderTexture.create({ width: rect2.width, height: rect2.height });
+  lightSprite = new PIXI.Sprite(lightRT);
+  lightSprite.blendMode = PIXI.BLEND_MODES.MULTIPLY;
   hudContainer = new PIXI.Container();
   minimapGfx = new PIXI.Graphics();
 
   app.stage.addChild(worldContainer);
-  app.stage.addChild(lightingLayer);
+  app.stage.addChild(lightSprite);
   app.stage.addChild(hudContainer);
   app.stage.addChild(minimapGfx);
 
@@ -112,6 +115,7 @@ function boot() {
   const resize = () => {
     const r = DOM.container.getBoundingClientRect();
     app.renderer.resize(r.width, r.height);
+    if (lightRT) lightRT.resize(r.width, r.height);
   };
   window.addEventListener('resize', resize);
 
@@ -542,56 +546,53 @@ function drawEntities() {
 
 // ── Dynamic Lighting ──
 function updateLighting() {
-  lightingLayer.clear();
-
   const sw = app.screen.width;
   const sh = app.screen.height;
   const camX = -worldContainer.x;
   const camY = -worldContainer.y;
 
-  // Player center in world coordinates
   const cx = player.px + TILE / 2;
   const cy = player.py + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
   const lr = (lightRadius + flicker) * TILE;
 
-  // Screen-space player position
   const screenPX = cx - camX;
   const screenPY = cy - camY;
 
-  // Determine visible tiles range (only process on-screen tiles)
+  // Raycast to determine visible tiles
+  const visibleSet = new Set();
+  const rayCount = 150;
+  for (let r = 0; r < rayCount; r++) {
+    const angle = (r / rayCount) * Math.PI * 2;
+    const rdx = Math.cos(angle);
+    const rdy = Math.sin(angle);
+    for (let dist = 0; dist < lr; dist += TILE * 0.45) {
+      const wx = cx + rdx * dist;
+      const wy = cy + rdy * dist;
+      const tx = Math.floor(wx / TILE);
+      const ty = Math.floor(wy / TILE);
+      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
+      const idx = ty * mapW + tx;
+      visibleSet.add(idx);
+      explored[idx] = true;
+      if (tiles[idx] === TILE_WALL) break;
+    }
+  }
+
+  // Build light map
+  const gfx = new PIXI.Graphics();
+
+  // Full darkness base
+  gfx.beginFill(0x000000);
+  gfx.drawRect(0, 0, sw, sh);
+  gfx.endFill();
+
+  // Tile range on screen
   const startTX = Math.max(0, Math.floor(camX / TILE) - 1);
   const startTY = Math.max(0, Math.floor(camY / TILE) - 1);
   const endTX = Math.min(mapW, Math.ceil((camX + sw) / TILE) + 1);
   const endTY = Math.min(mapH, Math.ceil((camY + sh) / TILE) + 1);
 
-  // Raycast to determine visible tiles
-  const visibleSet = new Set();
-  const rayCount = 150;
-
-  for (let r = 0; r < rayCount; r++) {
-    const angle = (r / rayCount) * Math.PI * 2;
-    const rdx = Math.cos(angle);
-    const rdy = Math.sin(angle);
-
-    for (let dist = 0; dist < lr; dist += 1.5) {
-      const wx = cx + rdx * dist;
-      const wy = cy + rdy * dist;
-      const tx = Math.floor(wx / TILE);
-      const ty = Math.floor(wy / TILE);
-
-      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
-
-      const idx = ty * mapW + tx;
-      visibleSet.add(idx);
-      explored[idx] = true;
-
-      // Walls block light but are themselves visible
-      if (tiles[idx] === TILE_WALL) break;
-    }
-  }
-
-  // Draw per-tile darkness for on-screen tiles
   for (let ty = startTY; ty < endTY; ty++) {
     for (let tx = startTX; tx < endTX; tx++) {
       const idx = ty * mapW + tx;
@@ -599,50 +600,40 @@ function updateLighting() {
       const sy = ty * TILE - camY;
 
       if (visibleSet.has(idx)) {
-        // Tile is lit — apply partial darkness based on distance
         const tileCX = tx * TILE + TILE / 2;
         const tileCY = ty * TILE + TILE / 2;
         const dist = Math.sqrt((tileCX - cx) ** 2 + (tileCY - cy) ** 2);
-        const brightness = Math.max(0, 1 - (dist / lr));
-        // brightness 1 = fully lit (no overlay), 0 = fully dark
-        const darkness = 1 - brightness;
-        if (darkness > 0.03) {
-          lightingLayer.beginFill(COLORS.darkness, darkness * 0.88);
-          lightingLayer.drawRect(sx - 0.5, sy - 0.5, TILE + 1, TILE + 1);
-          lightingLayer.endFill();
-        }
+        const brightness = Math.max(0.05, 1 - (dist / lr));
+        // Warm torch tint near center
+        const warmth = Math.max(0, 1 - dist / (lr * 0.5));
+        const r = Math.min(255, Math.floor(brightness * (210 + warmth * 45)));
+        const g = Math.min(255, Math.floor(brightness * (195 + warmth * 25)));
+        const b = Math.min(255, Math.floor(brightness * (170 - warmth * 40)));
+        const color = (r << 16) | (g << 8) | b;
+        gfx.beginFill(color);
+        gfx.drawRect(sx, sy, TILE, TILE);
+        gfx.endFill();
       } else if (explored[idx]) {
-        // Explored but not in current light — dim fog of war
-        lightingLayer.beginFill(COLORS.darkness, 0.8);
-        lightingLayer.drawRect(sx - 0.5, sy - 0.5, TILE + 1, TILE + 1);
-        lightingLayer.endFill();
-      } else {
-        // Never explored — completely black
-        lightingLayer.beginFill(COLORS.darkness, 1);
-        lightingLayer.drawRect(sx - 0.5, sy - 0.5, TILE + 1, TILE + 1);
-        lightingLayer.endFill();
+        gfx.beginFill(0x1a1a1a);
+        gfx.drawRect(sx, sy, TILE, TILE);
+        gfx.endFill();
       }
+      // Unexplored tiles stay black from the base fill
     }
   }
 
-  // Also fill edges beyond the map with darkness
-  // Left
-  if (startTX > 0 || camX < 0) {
-    lightingLayer.beginFill(COLORS.darkness, 1);
-    lightingLayer.drawRect(-camX - sw, -camY - sh, sw + camX, sh * 3);
-    lightingLayer.endFill();
-  }
+  // Warm torch glow at player center
+  const glowAlpha = 0.15 + Math.sin(flickerTime * 5) * 0.05;
+  gfx.beginFill(0xffcc88, glowAlpha);
+  gfx.drawCircle(screenPX, screenPY, lr * 0.35);
+  gfx.endFill();
+  gfx.beginFill(0xffddaa, 0.08);
+  gfx.drawCircle(screenPX, screenPY, lr * 0.15);
+  gfx.endFill();
 
-  // Torch glow circle (warm light in center)
-  const glowAlpha = 0.08 + Math.sin(flickerTime * 5) * 0.03;
-  lightingLayer.beginFill(COLORS.torch, glowAlpha);
-  lightingLayer.drawCircle(screenPX, screenPY, lr * 0.35);
-  lightingLayer.endFill();
-
-  // Inner bright glow
-  lightingLayer.beginFill(0xffcc88, 0.04);
-  lightingLayer.drawCircle(screenPX, screenPY, lr * 0.15);
-  lightingLayer.endFill();
+  // Render light map to texture
+  app.renderer.render(gfx, { renderTexture: lightRT, clear: true });
+  gfx.destroy();
 }
 
 // ── Camera ──
