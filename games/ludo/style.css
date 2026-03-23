@@ -1,68 +1,68 @@
-/* ===== LUDO - ENCHANTED REALM: THE CRYSTAL BOARD ===== */
-/* Theme: Stitch "The Relic Archive" — Mystical Void with Gemstone Glow */
-
+/* ===== LUDO - CARTOON FUN THEME ===== */
+/* Theme: Bright, playful, chunky cartoon style */
 
 /* ===== CSS VARIABLES ===== */
 :root {
   /* Background & Surface */
-  --bg: #161021;
-  --surface: #161021;
-  --surface-container: #231d2e;
-  --surface-high: #2d2739;
+  --bg: #4CAF50;
+  --bg-dark: #388E3C;
+  --surface: #F5E6D0;
+  --surface-container: #FFF8F0;
+  --surface-high: #FFFFFF;
 
-  /* Primary — Amethyst */
-  --primary: #ddb8ff;
-  --primary-bright: #c084fc;
-  --primary-glow: rgba(192, 132, 252, 0.35);
-  --primary-dim: rgba(221, 184, 255, 0.12);
+  /* Primary — Fun Orange */
+  --primary: #FF6F00;
+  --primary-bright: #FF8F00;
+  --primary-dark: #E65100;
 
-  /* Secondary — Golden Magic */
-  --secondary: #ffc640;
-  --secondary-bright: #e3aa00;
-  --secondary-glow: rgba(255, 198, 64, 0.35);
+  /* Secondary — Playful Blue */
+  --secondary: #2196F3;
+  --secondary-dark: #1565C0;
 
-  /* Tertiary — Sapphire Blue */
-  --tertiary: #92ccff;
-  --tertiary-bright: #47a6ea;
+  /* Accent — Cheerful Yellow */
+  --accent: #FFC107;
+  --accent-dark: #FFA000;
 
-  /* On-Surface & Outline */
-  --on-surface: #e9def6;
-  --on-surface-muted: #b8aec4;
-  --outline: #978d9d;
-  --outline-variant: #4c4452;
+  /* Text */
+  --on-surface: #3E2723;
+  --on-surface-muted: #5D4037;
+  --on-primary: #FFFFFF;
+  --outline: #8D6E63;
+  --outline-light: #BCAAA4;
 
-  /* Gemstone Player Colors */
-  --ruby: #e74c3c;
-  --ruby-glow: rgba(231, 76, 60, 0.5);
-  --sapphire: #3498db;
-  --sapphire-glow: rgba(52, 152, 219, 0.5);
-  --emerald: #2ecc71;
-  --emerald-glow: rgba(46, 204, 113, 0.5);
-  --amber: #f39c12;
-  --amber-glow: rgba(243, 156, 18, 0.5);
+  /* Player Colors */
+  --red: #E53935;
+  --red-dark: #C62828;
+  --blue: #1E88E5;
+  --blue-dark: #1565C0;
+  --green: #43A047;
+  --green-dark: #2E7D32;
+  --yellow: #FDD835;
+  --yellow-dark: #F9A825;
 
   /* Shadows */
-  --shadow-crystal: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 60px rgba(192, 132, 252, 0.08);
-  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-chunky: 0 4px 0 rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.12);
 
   /* Radius */
-  --radius: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 16px;
+  --radius: 8px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-pill: 999px;
 }
 
 /* ===== RESET ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== BODY — MYSTICAL VOID ===== */
+/* ===== BODY ===== */
 body {
-  font-family: 'Inter', 'Lora', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
   background: var(--bg);
   background-image:
-    radial-gradient(ellipse at 20% 80%, rgba(192, 132, 252, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(71, 166, 234, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(227, 170, 0, 0.03) 0%, transparent 60%);
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.08) 0%, transparent 50%);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -72,44 +72,16 @@ body {
   position: relative;
 }
 
-/* Mystical void overlay */
+/* Subtle polka dot pattern */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at 15% 85%, rgba(231, 76, 60, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(52, 152, 219, 0.04) 0%, transparent 40%),
-    radial-gradient(circle at 50% 0%, rgba(192, 132, 252, 0.06) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Enchanted light particles */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
   background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(221, 184, 255, 0.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 30% 70%, rgba(255, 198, 64, 0.5) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 60% 15%, rgba(146, 204, 255, 0.6) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 60%, rgba(192, 132, 252, 0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 45% 45%, rgba(255, 198, 64, 0.4) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 90% 85%, rgba(221, 184, 255, 0.5) 0%, transparent 100%),
-    radial-gradient(1px 1px at 5% 50%, rgba(146, 204, 255, 0.4) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 35%, rgba(192, 132, 252, 0.3) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 25% 90%, rgba(255, 198, 64, 0.45) 0%, transparent 100%),
-    radial-gradient(1px 1px at 55% 80%, rgba(221, 184, 255, 0.35) 0%, transparent 100%);
-  animation: particleDrift 20s ease-in-out infinite alternate;
+    radial-gradient(circle, rgba(255, 255, 255, 0.08) 2px, transparent 2px);
+  background-size: 32px 32px;
   pointer-events: none;
   z-index: 0;
-}
-
-@keyframes particleDrift {
-  0% { opacity: 0.6; transform: translateY(0) scale(1); }
-  50% { opacity: 1; transform: translateY(-8px) scale(1.02); }
-  100% { opacity: 0.7; transform: translateY(4px) scale(0.98); }
 }
 
 /* ===== TOP BAR ===== */
@@ -118,9 +90,8 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  background: linear-gradient(180deg, rgba(22, 16, 33, 0.92) 0%, rgba(35, 29, 46, 0.85) 100%);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--outline-variant);
+  background: var(--surface);
+  border-bottom: 3px solid var(--outline);
   gap: 0.5rem;
   flex-shrink: 0;
   z-index: 10;
@@ -130,39 +101,44 @@ body::after {
 .btn-back {
   color: var(--on-surface);
   text-decoration: none;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 0.85rem;
-  background: rgba(192, 132, 252, 0.1);
-  padding: 0.35rem 0.8rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--outline-variant);
-  transition: all 0.25s ease;
-  white-space: nowrap;
+  background: var(--accent);
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--accent-dark);
+  box-shadow: 0 3px 0 var(--accent-dark);
+  transition: all 0.15s ease;
 }
 .btn-back:hover {
-  background: rgba(192, 132, 252, 0.2);
-  border-color: var(--primary-bright);
-  box-shadow: 0 0 12px var(--primary-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--accent-dark);
+}
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--accent-dark);
 }
 
 .game-title {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
   white-space: nowrap;
-  text-shadow: 0 0 20px var(--primary-glow), 0 2px 8px rgba(0, 0, 0, 0.6);
   color: var(--primary);
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .topbar-right {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--tertiary);
-  opacity: 0.9;
+  font-weight: 800;
+  color: var(--secondary);
   white-space: nowrap;
+  background: var(--surface-high);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius);
+  border: 2px solid var(--outline-light);
 }
 
 /* ===== MULTIPLAYER MENU ===== */
@@ -189,14 +165,13 @@ body::after {
 }
 
 .menu-section h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 800;
   text-align: center;
   margin-bottom: 0.5rem;
-  color: var(--primary);
-  text-shadow: 0 0 16px var(--primary-glow);
-  letter-spacing: 1px;
+  color: var(--surface-high);
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .mode-buttons {
@@ -212,46 +187,51 @@ body::after {
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
-  background: linear-gradient(145deg, rgba(192, 132, 252, 0.08), rgba(192, 132, 252, 0.02));
-  border: 2px solid var(--outline-variant);
-  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 3px solid var(--outline);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   color: var(--on-surface);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  box-shadow: 0 4px 0 var(--outline);
 }
 
 .mode-btn:hover {
-  background: rgba(192, 132, 252, 0.12);
-  border-color: var(--outline);
-  box-shadow: 0 0 16px rgba(192, 132, 252, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--outline);
+}
+
+.mode-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .mode-btn.active {
-  border-color: var(--primary-bright);
-  background: linear-gradient(145deg, rgba(192, 132, 252, 0.18), rgba(192, 132, 252, 0.06));
-  box-shadow: 0 0 20px var(--primary-glow), inset 0 0 20px rgba(192, 132, 252, 0.05);
+  border-color: var(--primary);
+  background: #FFF3E0;
+  box-shadow: 0 4px 0 var(--primary-dark);
 }
 
 .mode-icon { font-size: 2rem; }
-.mode-label { font-size: 0.85rem; font-weight: 600; font-family: 'Inter', sans-serif; }
+.mode-label { font-size: 0.85rem; font-weight: 800; font-family: 'Nunito', sans-serif; }
 
 .multiplayer-options {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  background: linear-gradient(145deg, var(--surface-container), var(--surface));
+  background: var(--surface);
   padding: 1.25rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--outline-variant);
-  box-shadow: var(--shadow-float);
+  border-radius: var(--radius-lg);
+  border: 3px solid var(--outline);
+  box-shadow: var(--shadow-chunky);
 }
 
 .option-group { display: flex; flex-direction: column; gap: 0.5rem; }
 .option-group label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--on-surface-muted);
 }
 
@@ -260,27 +240,36 @@ body::after {
 .player-count-selector .btn {
   flex: 1;
   padding: 0.6rem;
-  background: rgba(192, 132, 252, 0.08);
-  border: 2px solid var(--outline-variant);
-  border-radius: var(--radius-lg);
+  background: var(--surface-high);
+  border: 3px solid var(--outline-light);
+  border-radius: var(--radius-md);
   color: var(--on-surface);
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.15s ease;
+  box-shadow: 0 3px 0 var(--outline-light);
 }
 
-.player-count-selector .btn:hover { background: rgba(192, 132, 252, 0.15); }
+.player-count-selector .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--outline-light);
+}
+.player-count-selector .btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline-light);
+}
 .player-count-selector .btn.active {
-  border-color: var(--primary-bright);
-  background: rgba(192, 132, 252, 0.2);
-  box-shadow: 0 0 12px var(--primary-glow);
+  border-color: var(--secondary);
+  background: #E3F2FD;
+  box-shadow: 0 3px 0 var(--secondary-dark);
 }
 
 .or-divider {
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.85rem;
+  font-weight: 800;
   color: var(--outline);
   position: relative;
 }
@@ -289,8 +278,9 @@ body::after {
   position: absolute;
   top: 50%;
   width: 30%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--outline-variant), transparent);
+  height: 2px;
+  background: var(--outline-light);
+  border-radius: 2px;
 }
 .or-divider::before { left: 0; }
 .or-divider::after { right: 0; }
@@ -299,26 +289,28 @@ body::after {
 
 .join-room-group input {
   padding: 0.75rem 1rem;
-  border: 2px solid var(--outline-variant);
-  border-radius: var(--radius-lg);
-  background: rgba(192, 132, 252, 0.06);
+  border: 3px solid var(--outline-light);
+  border-radius: var(--radius-md);
+  background: var(--surface-high);
   color: var(--on-surface);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
   font-size: 1rem;
   text-align: center;
   letter-spacing: 2px;
   text-transform: uppercase;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: border-color 0.2s;
 }
 .join-room-group input::placeholder {
-  color: var(--outline);
+  color: var(--outline-light);
   text-transform: none;
   letter-spacing: normal;
+  font-weight: 600;
 }
 .join-room-group input:focus {
   outline: none;
-  border-color: var(--primary-bright);
-  box-shadow: 0 0 16px var(--primary-glow);
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
 }
 
 /* ===== WAITING ROOM ===== */
@@ -345,54 +337,58 @@ body::after {
 }
 
 .waiting-content h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--primary);
-  text-shadow: 0 0 20px var(--primary-glow);
-  letter-spacing: 1px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--surface-high);
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 .room-code-display {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, var(--surface-container), var(--surface-high));
+  background: var(--surface);
   padding: 0.75rem 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--outline-variant);
-  box-shadow: var(--shadow-float);
+  border-radius: var(--radius-md);
+  border: 3px solid var(--outline);
+  box-shadow: var(--shadow-chunky);
 }
 
 .code-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.85rem;
+  font-weight: 700;
   color: var(--on-surface-muted);
 }
 .code-value {
   font-size: 1.4rem;
   font-weight: 800;
   letter-spacing: 4px;
-  font-family: 'Cinzel', monospace;
-  color: var(--secondary);
-  text-shadow: 0 0 14px var(--secondary-glow);
+  font-family: 'Nunito', monospace;
+  color: var(--primary);
 }
 
 .btn-copy {
   padding: 0.4rem 0.8rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.75rem;
-  font-weight: 600;
-  background: rgba(192, 132, 252, 0.15);
-  border: 1px solid var(--outline-variant);
+  font-weight: 800;
+  background: var(--accent);
+  border: 2px solid var(--accent-dark);
   border-radius: var(--radius);
   color: var(--on-surface);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  box-shadow: 0 2px 0 var(--accent-dark);
 }
 .btn-copy:hover {
-  background: rgba(192, 132, 252, 0.25);
-  border-color: var(--primary-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 var(--accent-dark);
+}
+.btn-copy:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--accent-dark);
 }
 
 .players-list { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
@@ -402,29 +398,30 @@ body::after {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background: var(--surface-container);
-  border-radius: var(--radius-lg);
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 3px solid var(--outline-light);
+  transition: all 0.2s ease;
 }
 
-.player-slot.waiting { opacity: 0.5; border-color: var(--outline-variant); }
+.player-slot.waiting { opacity: 0.55; }
 .player-slot.filled {
-  background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.04));
-  border-color: var(--emerald);
-  box-shadow: 0 0 12px rgba(46, 204, 113, 0.15);
+  background: #E8F5E9;
+  border-color: var(--green);
+  box-shadow: 0 3px 0 var(--green-dark);
 }
 
-.slot-color { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px rgba(255, 255, 255, 0.15); }
-.slot-status { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.9rem; }
+.slot-color { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(0, 0, 0, 0.15); }
+.slot-status { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 0.9rem; }
 
 .waiting-actions { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; }
 .waiting-hint {
-  font-family: 'Lora', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.85rem;
-  font-style: italic;
-  color: var(--outline);
+  font-weight: 700;
+  color: var(--surface-high);
   text-align: center;
+  opacity: 0.85;
 }
 
 /* ===== GAME WRAPPER ===== */
@@ -454,41 +451,43 @@ body::after {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  background: var(--surface-container);
-  border: 2px solid transparent;
+  background: var(--surface);
+  border: 3px solid var(--outline-light);
   border-radius: var(--radius-pill);
-  padding: 0.2rem 0.6rem;
-  font-family: 'Inter', sans-serif;
+  padding: 0.25rem 0.65rem;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.78rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: 800;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .player-chip.active {
   background: var(--surface-high);
-  box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* Gemstone glow effects per player */
+/* Chunky color borders per player */
 .player-chip-red.active {
-  border-color: var(--ruby);
-  box-shadow: 0 0 14px var(--ruby-glow), inset 0 0 8px rgba(231, 76, 60, 0.1);
+  border-color: var(--red);
+  box-shadow: 0 3px 0 var(--red-dark);
 }
 .player-chip-blue.active {
-  border-color: var(--sapphire);
-  box-shadow: 0 0 14px var(--sapphire-glow), inset 0 0 8px rgba(52, 152, 219, 0.1);
+  border-color: var(--blue);
+  box-shadow: 0 3px 0 var(--blue-dark);
 }
 .player-chip-green.active {
-  border-color: var(--emerald);
-  box-shadow: 0 0 14px var(--emerald-glow), inset 0 0 8px rgba(46, 204, 113, 0.1);
+  border-color: var(--green);
+  box-shadow: 0 3px 0 var(--green-dark);
 }
 .player-chip-yellow.active {
-  border-color: var(--amber);
-  box-shadow: 0 0 14px var(--amber-glow), inset 0 0 8px rgba(243, 156, 18, 0.1);
+  border-color: var(--yellow);
+  box-shadow: 0 3px 0 var(--yellow-dark);
 }
 
-.player-chip.is-me .chip-name { color: var(--secondary); text-shadow: 0 0 8px var(--secondary-glow); }
-.chip-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px rgba(255, 255, 255, 0.2); }
+.player-chip.is-me .chip-name { color: var(--primary); }
+.chip-color-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(0, 0, 0, 0.12); }
 .chip-name { color: var(--on-surface-muted); }
 .chip-score { font-size: 0.72rem; color: var(--outline); }
 
@@ -502,14 +501,14 @@ body::after {
 }
 
 #ludo-canvas {
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-crystal);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-chunky), 0 0 0 4px var(--outline);
   width: min(450px, 96vw, 60vh);
   height: min(450px, 96vw, 60vh);
   cursor: pointer;
   display: block;
-  background: linear-gradient(145deg, #1e1830, #251e38);
-  border: 1px solid var(--outline-variant);
+  background: var(--surface);
+  border: 3px solid var(--outline);
 }
 
 /* ===== CONTROLS ===== */
@@ -524,59 +523,65 @@ body::after {
 
 .dice-area { display: flex; align-items: center; gap: 0.8rem; }
 
-/* Crystal dice glow */
+/* Cartoon dice */
 .dice {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   line-height: 1;
-  min-width: 2.4rem;
+  min-width: 2.6rem;
   text-align: center;
-  filter: drop-shadow(0 0 10px var(--primary-glow)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
-  transition: transform 0.1s;
   color: var(--primary);
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.15);
+  transition: transform 0.1s;
 }
 .dice.rolling { animation: rollDice 0.5s ease; }
 
 @keyframes rollDice {
-  0% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 10px var(--primary-glow)); }
-  25% { transform: rotate(90deg) scale(1.2); filter: drop-shadow(0 0 20px var(--secondary-glow)); }
-  50% { transform: rotate(180deg) scale(0.9); filter: drop-shadow(0 0 14px rgba(146, 204, 255, 0.5)); }
-  75% { transform: rotate(270deg) scale(1.15); filter: drop-shadow(0 0 18px var(--primary-glow)); }
-  100% { transform: rotate(360deg) scale(1); filter: drop-shadow(0 0 10px var(--primary-glow)); }
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(90deg) scale(1.3); }
+  50% { transform: rotate(180deg) scale(0.85); }
+  75% { transform: rotate(270deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 /* ===== BUTTONS ===== */
 .btn {
-  padding: 0.5rem 1.5rem;
+  padding: 0.55rem 1.5rem;
   border: none;
-  border-radius: var(--radius-pill);
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
+  border-radius: var(--radius-md);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.12s ease;
   position: relative;
 }
-.btn:active { transform: scale(0.95); }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(2px); }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-bright), #9b59b6);
-  color: #161021;
-  box-shadow: 0 3px 16px var(--primary-glow);
-  text-shadow: none;
+  background: var(--primary);
+  color: var(--on-primary);
+  border: 3px solid var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-dark);
 }
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 24px rgba(192, 132, 252, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+.btn-primary:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--primary-dark);
 }
 
 .btn-secondary {
-  background: rgba(192, 132, 252, 0.1);
+  background: var(--surface);
   color: var(--on-surface);
-  border: 1px solid var(--outline-variant);
+  border: 3px solid var(--outline);
+  box-shadow: 0 4px 0 var(--outline);
 }
 .btn-secondary:hover {
-  background: rgba(192, 132, 252, 0.18);
-  border-color: var(--outline);
+  box-shadow: 0 6px 0 var(--outline);
+}
+.btn-secondary:active {
+  box-shadow: 0 1px 0 var(--outline);
 }
 
 .btn-small {
@@ -584,120 +589,131 @@ body::after {
   font-size: 0.8rem;
 }
 
-.btn-large { padding: 0.8rem 2rem; font-size: 1rem; }
+.btn-large { padding: 0.8rem 2rem; font-size: 1.05rem; }
 
 .btn:disabled {
-  background: var(--surface-high);
+  background: #D7CCC8;
   color: var(--outline);
-  box-shadow: none;
+  border-color: var(--outline-light);
+  box-shadow: 0 2px 0 var(--outline-light);
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Roll button — amethyst crystal energy */
+/* Roll button — cheerful blue */
 #btn-roll {
-  background: linear-gradient(135deg, var(--primary-bright), #8b5cf6, #7c3aed);
-  color: #fff;
-  box-shadow: 0 3px 16px var(--primary-glow);
-  font-family: 'Cinzel', serif;
+  background: var(--secondary);
+  color: var(--on-primary);
+  border: 3px solid var(--secondary-dark);
+  box-shadow: 0 4px 0 var(--secondary-dark);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
   letter-spacing: 0.5px;
 }
 #btn-roll:hover:not(:disabled) {
-  box-shadow: 0 4px 28px rgba(192, 132, 252, 0.55);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 0 var(--secondary-dark);
+  transform: translateY(-2px);
+}
+#btn-roll:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--secondary-dark);
+  transform: translateY(2px);
 }
 #btn-roll:disabled {
-  background: var(--surface-high);
+  background: #D7CCC8;
   color: var(--outline);
-  box-shadow: none;
+  border-color: var(--outline-light);
+  box-shadow: 0 2px 0 var(--outline-light);
 }
 
 #btn-new-game {
-  background: rgba(192, 132, 252, 0.1);
+  background: var(--surface);
   color: var(--on-surface-muted);
   font-size: 0.8rem;
   padding: 0.35rem 1rem;
-  border: 1px solid var(--outline-variant);
+  border: 2px solid var(--outline-light);
+  border-radius: var(--radius-md);
+  box-shadow: 0 3px 0 var(--outline-light);
 }
 #btn-new-game:hover {
-  background: rgba(192, 132, 252, 0.2);
-  border-color: var(--primary-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--outline-light);
+}
+#btn-new-game:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--outline-light);
 }
 
 .turn-msg {
-  font-family: 'Lora', serif;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--on-surface-muted);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--surface-high);
   text-align: center;
   min-height: 1.2em;
-  text-shadow: 0 0 12px rgba(192, 132, 252, 0.15);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .waiting-msg {
-  font-family: 'Lora', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.9rem;
-  font-weight: 500;
-  font-style: italic;
-  color: var(--outline);
+  font-weight: 700;
+  color: var(--surface-high);
   text-align: center;
   padding: 0.5rem;
-  background: rgba(192, 132, 252, 0.06);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--outline-variant);
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 3px solid var(--outline);
+  box-shadow: var(--shadow-chunky);
 }
 
-/* ===== MODAL — GLASSMORPHISM ===== */
+/* ===== MODAL — CARTOON POP ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 6, 18, 0.82);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  backdrop-filter: blur(10px);
 }
 .modal-overlay.hidden { display: none; }
 
 .modal {
   text-align: center;
-  background: linear-gradient(145deg, rgba(35, 29, 46, 0.92), rgba(22, 16, 33, 0.95));
-  border: 1px solid rgba(192, 132, 252, 0.25);
+  background: var(--surface);
+  border: 3px solid var(--outline);
   border-radius: var(--radius-xl);
   padding: 2rem 2.5rem;
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.7),
-    0 0 60px rgba(192, 132, 252, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
+  box-shadow: 0 6px 0 var(--outline), 0 12px 32px rgba(0, 0, 0, 0.25);
   animation: popIn 0.35s cubic-bezier(.34, 1.56, .64, 1);
   max-width: 90vw;
 }
 
 @keyframes popIn {
-  from { transform: scale(0.7); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
-.modal-icon { font-size: 3.5rem; margin-bottom: 0.5rem; filter: drop-shadow(0 0 12px var(--secondary-glow)); }
+.modal-icon { font-size: 3.5rem; margin-bottom: 0.5rem; }
 .modal h2 {
-  font-family: 'Cinzel', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.3rem;
-  color: var(--secondary);
-  text-shadow: 0 0 20px var(--secondary-glow);
-  letter-spacing: 1px;
+  color: var(--primary);
+  text-shadow: 1px 2px 0 rgba(0, 0, 0, 0.1);
 }
 .modal p {
-  font-family: 'Lora', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
+  font-weight: 700;
   color: var(--on-surface-muted);
   margin-bottom: 0.4rem;
 }
 .modal-stats {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.88rem;
+  font-weight: 700;
   color: var(--outline);
   margin-bottom: 1rem;
   line-height: 1.6;
@@ -710,50 +726,43 @@ body::after {
 .game-info {
   max-width: 780px;
   margin: 1rem auto;
-  padding: 1rem 1.2rem;
-  background: linear-gradient(145deg, var(--surface-container), var(--surface));
+  padding: 1.2rem 1.4rem;
+  background: var(--surface);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--outline-variant);
+  border: 3px solid var(--outline);
   color: var(--on-surface-muted);
-  font-family: 'Lora', serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 0.88rem;
+  font-weight: 700;
   line-height: 1.7;
   position: relative;
   z-index: 1;
+  box-shadow: var(--shadow-chunky);
 }
 .game-info h2 {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   color: var(--primary);
-  letter-spacing: 0.5px;
 }
 .game-info h3 {
-  font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
   margin: 0.8rem 0 0.3rem;
   color: var(--on-surface);
 }
 .game-info ul { padding-left: 1.2rem; }
 .game-info li { margin-bottom: 0.2rem; }
 
-/* ===== MAGIC DUST PARTICLES ANIMATION ===== */
-@keyframes magicDust {
-  0% { opacity: 0; transform: translateY(0) scale(0); }
-  20% { opacity: 1; transform: translateY(-10px) scale(1); }
-  80% { opacity: 0.6; transform: translateY(-40px) scale(0.8); }
-  100% { opacity: 0; transform: translateY(-60px) scale(0); }
-}
-
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
-  .game-title { font-size: 0.95rem; }
+  .game-title { font-size: 1rem; }
   .player-chip { font-size: 0.72rem; padding: 0.18rem 0.5rem; }
-  .dice { font-size: 2rem; }
+  .dice { font-size: 2.2rem; }
   #btn-roll { font-size: 0.82rem; padding: 0.4rem 1.1rem; }
-  .turn-msg { font-size: 0.8rem; }
+  .turn-msg { font-size: 0.82rem; }
   .multiplayer-menu, .waiting-room { padding: 1rem; }
   .mode-btn { padding: 0.75rem; }
   .mode-icon { font-size: 1.5rem; }

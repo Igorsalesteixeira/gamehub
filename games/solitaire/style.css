@@ -354,16 +354,32 @@ body::before {
   flex-shrink: 0;
 }
 
+/* Stock with cards — card-back appearance */
+.stock-pile {
+  background: linear-gradient(135deg, #E65100, #FF8F00);
+  border: 3px solid #BF360C;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.15),
+    0 5px 10px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .stock-pile:hover {
   transform: scale(1.05) translateY(-2px);
   box-shadow:
-    0 6px 0 rgba(0, 0, 0, 0.3),
+    0 6px 0 rgba(0, 0, 0, 0.2),
     0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .stock-pile::before {
   content: '🂠';
-  color: var(--primary-light);
+  font-size: 2.2rem;
+  opacity: 0.5;
 }
 
 .stock-pile.empty {
@@ -494,6 +510,46 @@ body::before {
 
 .card:hover {
   z-index: 10;
+}
+
+/* Face-down — Card back (orange pattern) */
+.card.face-down {
+  background: linear-gradient(135deg, #E65100, #FF8F00);
+  border: 3px solid #BF360C;
+  border-radius: 16px;
+  box-shadow:
+    0 3px 0 rgba(0, 0, 0, 0.15),
+    0 5px 10px rgba(0, 0, 0, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative pattern on card back */
+.card.face-down::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.08) 4px,
+      rgba(255, 255, 255, 0.08) 8px
+    );
+}
+
+.card.face-down::after {
+  content: '🂠';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  opacity: 0.4;
 }
 
 /* Face-up — Beige with brown border */
@@ -727,6 +783,20 @@ body::before {
     border-width: 2px;
   }
 
+  .card.face-down {
+    border-radius: 12px;
+    border-width: 2px;
+  }
+
+  .card.face-down::before {
+    inset: 3px;
+    border-radius: 8px;
+  }
+
+  .card.face-down::after {
+    font-size: 1.3rem;
+  }
+
   .foundation {
     border-radius: 12px;
     border-width: 2px;
@@ -734,6 +804,10 @@ body::before {
 
   .stock-pile, .waste-pile {
     border-radius: 12px;
+  }
+
+  .stock-pile {
+    border-width: 2px;
   }
 
   .stock-pile.empty {
