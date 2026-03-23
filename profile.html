@@ -21,11 +21,12 @@
 
     /* ===== HERO ===== */
     .profile-hero {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(180deg, #66BB6A, #43A047, #388E3C);
+      border: 3px solid #2E7D32;
       border-radius: 20px;
       padding: 1.5rem 1.8rem;
       margin-bottom: 1rem;
-      color: #fff;
+      color: #FFFFFF;
       position: relative;
       overflow: hidden;
     }
@@ -34,7 +35,7 @@
       position: absolute;
       top: -40px; right: -40px;
       width: 160px; height: 160px;
-      background: radial-gradient(circle, rgba(255,107,53,0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
       border-radius: 50%;
     }
 
@@ -57,21 +58,21 @@
       font-weight: 800;
       color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 4px 0 #5D4037;
+      border: 3px solid #FFFFFF;
       position: relative;
     }
 
     .level-badge {
       position: absolute;
       bottom: -4px; right: -4px;
-      background: #ff6b35;
+      background: #FF5722;
       color: #fff;
       font-size: 0.6rem;
       font-weight: 800;
       padding: 1px 5px;
       border-radius: 999px;
-      border: 2px solid #fff;
+      border: 2px solid #E64A19;
       white-space: nowrap;
     }
 
@@ -79,7 +80,7 @@
     .hero-info h1 {
       font-size: 1.4rem;
       font-weight: 800;
-      color: #fff;
+      color: #FFFFFF;
       margin-bottom: 0.15rem;
       white-space: nowrap;
       overflow: hidden;
@@ -88,30 +89,31 @@
     .hero-info .hero-level-name {
       font-size: 0.85rem;
       font-weight: 700;
-      color: #ff8f5e;
+      color: #FFD54F;
       margin-bottom: 0.1rem;
     }
     .hero-info .hero-since {
       font-size: 0.78rem;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.7);
       font-weight: 600;
     }
 
     .btn-logout {
-      background: rgba(255,255,255,0.1);
-      border: 1.5px solid rgba(255,255,255,0.2);
-      border-radius: 999px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 14px;
       padding: 0.4rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.7);
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
       align-self: flex-start;
     }
-    .btn-logout:hover { background: rgba(255,107,53,0.3); color: #fff; border-color: #ff6b35; }
+    .btn-logout:hover { background: rgba(255,255,255,0.35); color: #fff; border-color: #FFFFFF; transform: translateY(-2px); }
+    .btn-logout:active { transform: translateY(2px); }
 
     /* XP Bar */
     .xp-section { }
@@ -122,18 +124,18 @@
       margin-bottom: 0.4rem;
       font-size: 0.78rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255,255,255,0.8);
     }
-    .xp-value { color: #ff8f5e; font-weight: 800; }
+    .xp-value { color: #FFD54F; font-weight: 800; }
     .xp-bar-wrap {
       height: 8px;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.25);
       border-radius: 999px;
       overflow: hidden;
     }
     .xp-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #ff6b35, #ff9f5e);
+      background: linear-gradient(90deg, #66BB6A, #A5D6A7);
       border-radius: 999px;
       transition: width 0.8s ease;
     }
@@ -146,23 +148,24 @@
       margin-bottom: 1.5rem;
     }
     .stat-card {
-      background: #fff;
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 16px;
       padding: 1rem 0.8rem;
       text-align: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      box-shadow: 0 4px 0 #5D4037;
     }
     .stat-value {
       font-size: 1.5rem;
       font-weight: 800;
-      color: #ff6b35;
+      color: #FF5722;
       line-height: 1.1;
       margin-bottom: 0.25rem;
     }
     .stat-label {
       font-size: 0.7rem;
       font-weight: 700;
-      color: #bbb;
+      color: #795548;
       text-transform: uppercase;
       letter-spacing: 0.4px;
     }
@@ -171,7 +174,7 @@
     .section-title {
       font-size: 1.1rem;
       font-weight: 800;
-      color: #333;
+      color: #3E2723;
       margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
@@ -180,7 +183,7 @@
     .section-title .trophy-count {
       font-size: 0.78rem;
       font-weight: 700;
-      color: #aaa;
+      color: #795548;
       margin-left: auto;
     }
 
@@ -190,7 +193,7 @@
     .trophy-category-label {
       font-size: 0.68rem;
       font-weight: 800;
-      color: #aaa;
+      color: #795548;
       text-transform: uppercase;
       letter-spacing: 1.2px;
       margin: 1rem 0 0.5rem;
@@ -203,47 +206,47 @@
     }
 
     .trophy-card {
-      background: #fff;
+      background: #F5E6D0;
       border-radius: 14px;
       padding: 0.9rem 0.7rem;
       text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      box-shadow: 0 4px 0 #5D4037;
       cursor: default;
       transition: transform 0.15s, box-shadow 0.15s;
       position: relative;
       border: 2px solid transparent;
     }
-    .trophy-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+    .trophy-card:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #5D4037; }
 
-    /* Rarity borders & glows */
-    .trophy-card.comum    { border-color: #e0e0e0; }
+    /* Rarity borders */
+    .trophy-card.comum    { border-color: #D7CCC8; }
     .trophy-card.incomum  { border-color: #4caf50; }
     .trophy-card.raro     { border-color: #2196f3; }
     .trophy-card.epico    { border-color: #9c27b0; }
-    .trophy-card.lendario { border-color: #ffd700; box-shadow: 0 2px 16px rgba(255,215,0,0.25); }
+    .trophy-card.lendario { border-color: #ffd700; box-shadow: 0 4px 0 #F9A825; }
 
     /* Locked state */
     .trophy-card.locked {
-      border-color: #f0f0f0 !important;
-      box-shadow: none !important;
+      border-color: #D7CCC8 !important;
+      box-shadow: 0 2px 0 #BCAAA4 !important;
     }
     .trophy-card.locked .trophy-icon { filter: grayscale(1); opacity: 0.35; }
-    .trophy-card.locked .trophy-name { color: #ccc; }
-    .trophy-card.locked .trophy-desc { color: #ddd; }
+    .trophy-card.locked .trophy-name { color: #BCAAA4; }
+    .trophy-card.locked .trophy-desc { color: #D7CCC8; }
     .trophy-card.locked .rarity-tag  { opacity: 0.3; }
 
     .trophy-icon { font-size: 2rem; margin-bottom: 0.4rem; display: block; }
     .trophy-name {
       font-size: 0.78rem;
       font-weight: 800;
-      color: #333;
+      color: #3E2723;
       margin-bottom: 0.2rem;
       line-height: 1.2;
     }
     .trophy-desc {
       font-size: 0.68rem;
       font-weight: 600;
-      color: #999;
+      color: #795548;
       line-height: 1.3;
       margin-bottom: 0.4rem;
     }
@@ -256,7 +259,7 @@
       padding: 0.15rem 0.45rem;
       border-radius: 999px;
     }
-    .rarity-tag.comum    { background: #f5f5f5;    color: #9e9e9e; }
+    .rarity-tag.comum    { background: #EFEBE9;    color: #8D6E63; }
     .rarity-tag.incomum  { background: #e8f5e9;    color: #2e7d32; }
     .rarity-tag.raro     { background: #e3f2fd;    color: #1565c0; }
     .rarity-tag.epico    { background: #f3e5f5;    color: #6a1b9a; }
@@ -267,15 +270,15 @@
       top: 6px; right: 8px;
       font-size: 0.6rem;
       font-weight: 800;
-      color: #ff6b35;
+      color: #FF5722;
       opacity: 0.7;
     }
     .trophy-card.locked .trophy-xp { opacity: 0.2; }
 
     .trophy-progress { margin-top: 6px; width: 100%; }
-    .trophy-progress-text { font-size: 0.65rem; color: #888; text-align: center; margin-bottom: 3px; font-weight: 700; }
-    .trophy-progress-bar { height: 5px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; }
-    .trophy-progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b35, #ffd700); border-radius: 3px; transition: width 0.6s ease; }
+    .trophy-progress-text { font-size: 0.65rem; color: #5D4037; text-align: center; margin-bottom: 3px; font-weight: 700; }
+    .trophy-progress-bar { height: 5px; background: rgba(141,110,99,0.15); border-radius: 3px; overflow: hidden; }
+    .trophy-progress-fill { height: 100%; background: linear-gradient(90deg, #66BB6A, #43A047); border-radius: 3px; transition: width 0.6s ease; }
 
     .unlock-badge {
       position: absolute;
@@ -288,14 +291,15 @@
       justify-content: center;
       font-size: 0.65rem;
       color: #fff;
-      box-shadow: 0 2px 6px rgba(76,175,80,0.4);
+      box-shadow: 0 2px 0 #2E7D32;
     }
 
     /* ===== RECORDS ===== */
     .records-wrap {
-      background: #fff;
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 18px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      box-shadow: 0 4px 0 #5D4037;
       overflow: hidden;
       margin-bottom: 2rem;
     }
@@ -303,33 +307,34 @@
       padding: 0.45rem 1.2rem;
       font-size: 0.68rem;
       font-weight: 800;
-      color: #aaa;
+      color: #795548;
       text-transform: uppercase;
       letter-spacing: 1px;
-      background: #fafafa;
-      border-bottom: 1px solid #f0f0f0;
+      background: #EDE0D4;
+      border-bottom: 1px solid #D7CCC8;
     }
     .record-row {
       display: flex;
       align-items: center;
       gap: 0.8rem;
       padding: 0.7rem 1.2rem;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid #E8D5C4;
       transition: background 0.15s;
     }
     .record-row:last-child { border-bottom: none; }
-    .record-row:hover { background: #fafafa; }
+    .record-row:hover { background: #EDE0D4; }
     .record-icon { font-size: 1.1rem; width: 26px; text-align: center; flex-shrink: 0; }
-    .record-name { flex: 1; font-weight: 700; font-size: 0.88rem; color: #333; }
-    .record-games { font-size: 0.78rem; color: #ccc; font-weight: 600; white-space: nowrap; }
+    .record-name { flex: 1; font-weight: 700; font-size: 0.88rem; color: #3E2723; }
+    .record-games { font-size: 0.78rem; color: #795548; font-weight: 600; white-space: nowrap; }
     .record-wins  { font-size: 0.8rem; font-weight: 700; color: #4caf50; white-space: nowrap; }
-    .record-best  { font-size: 0.85rem; font-weight: 800; color: #ff6b35; white-space: nowrap; }
+    .record-best  { font-size: 0.85rem; font-weight: 800; color: #FF5722; white-space: nowrap; }
 
     /* ===== ACTIVITY ===== */
     .activity-wrap {
-      background: #fff;
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 18px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      box-shadow: 0 4px 0 #5D4037;
       overflow: hidden;
       margin-bottom: 2rem;
     }
@@ -338,13 +343,13 @@
       align-items: center;
       gap: 0.8rem;
       padding: 0.65rem 1.2rem;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid #E8D5C4;
       transition: background 0.15s;
     }
     .activity-row:last-child { border-bottom: none; }
-    .activity-row:hover { background: #fafafa; }
+    .activity-row:hover { background: #EDE0D4; }
     .activity-icon { font-size: 1.1rem; width: 26px; text-align: center; flex-shrink: 0; }
-    .activity-game { flex: 1; font-weight: 700; font-size: 0.86rem; color: #333; }
+    .activity-game { flex: 1; font-weight: 700; font-size: 0.86rem; color: #3E2723; }
     .activity-result {
       font-size: 0.8rem; font-weight: 700;
       padding: 0.18rem 0.55rem;
@@ -352,19 +357,21 @@
     }
     .activity-result.win  { background: #e8f5e9; color: #2e7d32; }
     .activity-result.loss { background: #fce4ec; color: #c62828; }
-    .activity-meta { font-size: 0.75rem; color: #ccc; font-weight: 600; white-space: nowrap; }
+    .activity-meta { font-size: 0.75rem; color: #795548; font-weight: 600; white-space: nowrap; }
 
     /* ===== EMPTY / LOADING ===== */
-    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #aaa; }
+    .empty-state { text-align: center; padding: 2.5rem 1rem; color: #795548; }
     .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
     .empty-state p { font-size: 0.9rem; font-weight: 600; margin-bottom: 1rem; }
     .empty-state a {
-      display: inline-block; background: #ff6b35; color: #fff;
+      display: inline-block; background: linear-gradient(180deg, #66BB6A, #43A047); color: #fff;
       text-decoration: none; font-weight: 700; font-size: 0.88rem;
-      padding: 0.5rem 1.4rem; border-radius: 999px; transition: opacity 0.2s;
+      padding: 0.5rem 1.4rem; border-radius: 14px; border: 2px solid #2E7D32;
+      box-shadow: 0 4px 0 #2E7D32; transition: transform 0.2s;
     }
-    .empty-state a:hover { opacity: 0.85; }
-    .loading { text-align: center; padding: 2rem; color: #ccc; font-weight: 600; }
+    .empty-state a:hover { transform: translateY(-2px); }
+    .empty-state a:active { transform: translateY(2px); box-shadow: 0 1px 0 #2E7D32; }
+    .loading { text-align: center; padding: 2rem; color: #795548; font-weight: 600; }
 
     /* ===== MOBILE ===== */
     @media (max-width: 480px) {
@@ -411,12 +418,12 @@
         <div class="hero-info">
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
             <h1 id="profile-name">Carregando...</h1>
-            <button id="btn-edit-name" title="Editar nome" style="background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.85rem;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✏️</button>
+            <button id="btn-edit-name" title="Editar nome" style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.4);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.85rem;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✏️</button>
           </div>
           <div id="edit-name-form" style="display:none;margin-top:0.4rem;">
-            <input id="edit-name-input" type="text" maxlength="30" placeholder="Novo nome..." style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);border-radius:8px;color:#fff;padding:0.3rem 0.6rem;font-size:0.9rem;font-family:inherit;width:160px;">
-            <button id="btn-save-name" style="background:#ff6b35;border:none;border-radius:8px;color:#fff;padding:0.3rem 0.8rem;font-size:0.85rem;font-weight:700;cursor:pointer;margin-left:0.3rem;">Salvar</button>
-            <button id="btn-cancel-name" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:#fff;padding:0.3rem 0.7rem;font-size:0.85rem;cursor:pointer;margin-left:0.2rem;">✕</button>
+            <input id="edit-name-input" type="text" maxlength="30" placeholder="Novo nome..." style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.5);border-radius:10px;color:#fff;padding:0.3rem 0.6rem;font-size:0.9rem;font-family:inherit;width:160px;">
+            <button id="btn-save-name" style="background:#FF5722;border:2px solid #E64A19;border-radius:10px;color:#fff;padding:0.3rem 0.8rem;font-size:0.85rem;font-weight:700;cursor:pointer;margin-left:0.3rem;">Salvar</button>
+            <button id="btn-cancel-name" style="background:rgba(255,255,255,0.25);border:2px solid rgba(255,255,255,0.4);border-radius:10px;color:#fff;padding:0.3rem 0.7rem;font-size:0.85rem;cursor:pointer;margin-left:0.2rem;">✕</button>
           </div>
           <div class="hero-level-name" id="level-name">Novato</div>
           <div class="hero-since" id="profile-since"></div>

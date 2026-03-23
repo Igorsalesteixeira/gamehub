@@ -1,7 +1,7 @@
 /* ============================================
-   SUDOKU — Wabi-Sabi: The Ink Master's Scroll
-   Stitch Design System "The Living Parchment"
-   Light theme · Washi paper · Sumi ink palette
+   SUDOKU — Cartoon Puzzle Book Theme v2
+   Premium cartoon style - clean & inviting
+   Blues, beige, white palette
    ============================================ */
 
 
@@ -9,26 +9,35 @@
    DESIGN TOKENS — :root variables
    ============================================ */
 :root {
-  --wabi-bg: #fff9ec;
-  --wabi-surface: #fff9ec;
-  --wabi-surface-container: #f4eedb;
-  --wabi-surface-container-high: #efe8d5;
-  --wabi-surface-container-highest: #e9e2d0;
-  --wabi-primary: #000000;
-  --wabi-primary-container: #1c1b1b;
-  --wabi-secondary: #715b3e;
-  --wabi-secondary-container: #f9dbb7;
-  --wabi-tertiary: #ba1a1a;
-  --wabi-on-surface: #1e1c10;
-  --wabi-on-primary: #ffffff;
-  --wabi-outline: #747878;
-  --wabi-outline-variant: #c4c7c7;
-  --wabi-roundness: 4px;
-  --wabi-ink-wash: rgba(139, 115, 85, 0.15);
-  --wabi-lantern-shadow: 0 4px 40px rgba(113, 91, 62, 0.08);
-  --wabi-ghost-border: rgba(196, 199, 199, 0.15);
-  --wabi-font-display: 'Noto Serif JP', 'Georgia', serif;
-  --wabi-font-body: 'Newsreader', 'Georgia', serif;
+  --cartoon-bg: #42A5F5;
+  --cartoon-bg-dark: #1E88E5;
+  --cartoon-surface: #F5E6D0;
+  --cartoon-surface-light: #FFF8EE;
+  --cartoon-surface-hover: #EDD9C0;
+  --cartoon-primary: #1565C0;
+  --cartoon-primary-dark: #0D47A1;
+  --cartoon-on-surface: #3E2723;
+  --cartoon-on-primary: #ffffff;
+  --cartoon-secondary: #8D6E63;
+  --cartoon-secondary-dark: #6D4C41;
+  --cartoon-accent: #FF7043;
+  --cartoon-accent-dark: #E64A19;
+  --cartoon-error: #E53935;
+  --cartoon-error-bg: #FFEBEE;
+  --cartoon-success: #43A047;
+  --cartoon-border: #8D6E63;
+  --cartoon-border-light: #BCAAA4;
+  --cartoon-highlight: #BBDEFB;
+  --cartoon-highlight-strong: #90CAF9;
+  --cartoon-same-num: #C8E6C9;
+  --cartoon-given-bg: #EDE0D0;
+  --cartoon-radius: 16px;
+  --cartoon-radius-sm: 12px;
+  --cartoon-radius-lg: 20px;
+  --cartoon-radius-xl: 24px;
+  --cartoon-font: 'Nunito', sans-serif;
+  --cartoon-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  --cartoon-shadow-lg: 0 6px 0 rgba(0,0,0,0.12);
 }
 
 /* ============================================
@@ -41,12 +50,12 @@
 }
 
 /* ============================================
-   BODY — Washi paper canvas
+   BODY — Soft blue sky background
    ============================================ */
 body.sudoku-game {
-  font-family: var(--wabi-font-body);
-  background: var(--wabi-bg);
-  color: var(--wabi-on-surface);
+  font-family: var(--cartoon-font);
+  background: linear-gradient(180deg, #42A5F5 0%, #64B5F6 40%, #90CAF9 100%);
+  color: var(--cartoon-on-surface);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -54,24 +63,33 @@ body.sudoku-game {
   overflow-x: hidden;
 }
 
-/* Texture overlay removed */
+/* Subtle cloud-like decoration */
+body.sudoku-game::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 180px 80px at 10% 25%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(ellipse 150px 65px at 85% 12%, rgba(255,255,255,0.14) 0%, transparent 100%),
+    radial-gradient(ellipse 200px 70px at 55% 90%, rgba(255,255,255,0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 120px 50px at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-/* Warm ambient light wash */
+/* Subtle dot pattern for puzzle book texture */
 body.sudoku-game::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(
-    ellipse 80% 50% at 50% 0%,
-    rgba(249, 219, 183, 0.18) 0%,
-    transparent 70%
-  );
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
   pointer-events: none;
   z-index: 0;
 }
 
 /* ============================================
-   TOPBAR — Ink scroll header
+   TOPBAR — Cartoon header bar
    ============================================ */
 .sudoku-game .topbar,
 .topbar {
@@ -79,67 +97,71 @@ body.sudoku-game::after {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.2rem;
-  background: var(--wabi-surface-container);
-  color: var(--wabi-on-surface);
-  font-family: var(--wabi-font-display);
+  background: linear-gradient(180deg, #FFF8EE 0%, var(--cartoon-surface) 100%);
+  color: var(--cartoon-on-surface);
+  font-family: var(--cartoon-font);
   position: relative;
   z-index: 10;
-  box-shadow: var(--wabi-lantern-shadow);
-}
-
-/* Bottom bamboo accent line */
-.topbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 5%;
-  right: 5%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--wabi-secondary) 20%,
-    var(--wabi-secondary) 80%,
-    transparent
-  );
-  opacity: 0.3;
+  border-bottom: 3px solid var(--cartoon-border);
+  box-shadow: 0 4px 0 rgba(141,110,99,0.25);
 }
 
 .btn-back {
-  color: var(--wabi-secondary);
+  color: var(--cartoon-primary);
   text-decoration: none;
-  font-family: var(--wabi-font-body);
-  font-weight: 500;
+  font-family: var(--cartoon-font);
+  font-weight: 700;
   font-size: 0.9rem;
   padding: 0.4rem 0.9rem;
-  border-radius: var(--wabi-roundness);
-  background: var(--wabi-ghost-border);
-  border: none;
-  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
-  letter-spacing: 0.3px;
+  border-radius: var(--cartoon-radius-sm);
+  background: #fff;
+  border: 2px solid var(--cartoon-primary);
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 3px 0 var(--cartoon-primary-dark);
 }
 
 .btn-back:hover {
-  background: var(--wabi-ink-wash);
-  color: var(--wabi-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--cartoon-primary-dark);
+}
+
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--cartoon-primary-dark);
 }
 
 .game-title {
-  font-family: var(--wabi-font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--wabi-primary);
+  font-family: var(--cartoon-font);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--cartoon-primary);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.game-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  width: 80%;
+  height: 3px;
+  background: var(--cartoon-accent);
+  border-radius: 3px;
+  opacity: 0.6;
 }
 
 .stats {
-  font-family: var(--wabi-font-display);
-  font-weight: 600;
+  font-family: var(--cartoon-font);
+  font-weight: 700;
   font-size: 0.95rem;
-  color: var(--wabi-secondary);
-  padding: 0.3rem 0.8rem;
-  background: var(--wabi-ghost-border);
-  border-radius: var(--wabi-roundness);
+  color: var(--cartoon-on-surface);
+  padding: 0.35rem 0.85rem;
+  background: #fff;
+  border-radius: var(--cartoon-radius-sm);
+  border: 2px solid var(--cartoon-border-light);
+  box-shadow: 0 2px 0 rgba(141,110,99,0.15);
 }
 
 /* ============================================
@@ -174,27 +196,28 @@ body.sudoku-game::after {
 }
 
 .select-diff {
-  font-family: var(--wabi-font-body);
-  font-weight: 500;
+  font-family: var(--cartoon-font);
+  font-weight: 700;
   font-size: 0.9rem;
   padding: 0.5rem 1rem;
-  border-radius: var(--wabi-roundness);
-  border: 1.5px solid rgba(113, 91, 62, 0.2);
-  background: var(--wabi-surface);
+  border-radius: var(--cartoon-radius-sm);
+  border: 2px solid var(--cartoon-border);
+  background: var(--cartoon-surface);
   cursor: pointer;
-  color: var(--wabi-on-surface);
-  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  color: var(--cartoon-on-surface);
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 3px 0 var(--cartoon-secondary-dark);
   appearance: auto;
 }
 
 .select-diff:hover {
-  border-color: var(--wabi-secondary);
+  transform: translateY(-1px);
 }
 
 .select-diff:focus {
   outline: none;
-  border-color: var(--wabi-secondary);
-  box-shadow: 0 0 0 3px rgba(113, 91, 62, 0.1);
+  border-color: var(--cartoon-primary);
+  box-shadow: 0 3px 0 var(--cartoon-primary-dark);
 }
 
 .action-buttons {
@@ -204,15 +227,15 @@ body.sudoku-game::after {
 }
 
 .btn-icon {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: var(--wabi-roundness);
-  background: var(--wabi-surface-container);
+  width: 42px;
+  height: 42px;
+  border: 2px solid var(--cartoon-border);
+  border-radius: var(--cartoon-radius-sm);
+  background: var(--cartoon-surface);
   cursor: pointer;
-  color: var(--wabi-on-surface);
-  transition: all 0.3s ease-in-out;
-  box-shadow: var(--wabi-lantern-shadow);
+  color: var(--cartoon-on-surface);
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 3px 0 var(--cartoon-secondary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,42 +247,45 @@ body.sudoku-game::after {
 }
 
 .btn-icon:hover {
-  background: var(--wabi-surface-container-high);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--cartoon-secondary-dark);
 }
 
 .btn-icon:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--cartoon-secondary-dark);
 }
 
 .btn-icon.active {
-  background: var(--wabi-primary);
-  color: var(--wabi-on-primary);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  background: var(--cartoon-primary);
+  color: var(--cartoon-on-primary);
+  border-color: var(--cartoon-primary-dark);
+  box-shadow: 0 3px 0 var(--cartoon-primary-dark);
 }
 
 .btn-new {
-  font-family: var(--wabi-font-display);
-  font-weight: 600;
+  font-family: var(--cartoon-font);
+  font-weight: 800;
   font-size: 0.9rem;
   padding: 0.5rem 1.2rem;
-  border-radius: var(--wabi-roundness);
-  border: none;
-  background: var(--wabi-primary);
-  color: var(--wabi-on-primary);
+  border-radius: 14px;
+  border: 2px solid var(--cartoon-accent-dark);
+  background: var(--cartoon-accent);
+  color: #fff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease-in-out;
-  letter-spacing: 0.5px;
+  box-shadow: 0 4px 0 var(--cartoon-accent-dark);
+  transition: transform 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.3px;
 }
 
 .btn-new:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--cartoon-accent-dark);
 }
 
 .btn-new:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--cartoon-accent-dark);
 }
 
 /* ============================================
@@ -272,112 +298,104 @@ body.sudoku-game::after {
 }
 
 /* ============================================
-   BOARD — Floating scroll with bamboo grid
+   BOARD — Puzzle book grid
    ============================================ */
 .board {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   width: min(380px, 92vw);
   aspect-ratio: 1;
-  background: var(--wabi-secondary);
-  gap: 1px;
-  border: none;
-  border-radius: var(--wabi-roundness);
+  background: var(--cartoon-border);
+  gap: 1.5px;
+  border: 4px solid var(--cartoon-border);
+  border-radius: var(--cartoon-radius);
   box-shadow:
-    var(--wabi-lantern-shadow),
-    0 1px 3px rgba(113, 91, 62, 0.06);
+    0 6px 0 rgba(109,76,65,0.35),
+    0 12px 24px rgba(0,0,0,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
   position: relative;
   overflow: hidden;
-  animation: scroll-unfurl 0.5s ease-in-out;
+  animation: board-pop 0.4s ease-out;
 }
 
-@keyframes scroll-unfurl {
+@keyframes board-pop {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: scale(0.95) translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }
 
-/* Texture overlay removed */
-
 /* ============================================
-   CELLS — Sumi ink on washi
+   CELLS — Clean puzzle cells
    ============================================ */
 .cell {
-  background: var(--wabi-surface);
+  background: var(--cartoon-surface-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--wabi-font-display);
+  font-family: var(--cartoon-font);
   font-size: clamp(1rem, 4.5vw, 1.5rem);
-  font-weight: 400;
+  font-weight: 700;
   cursor: pointer;
   user-select: none;
-  transition: background 0.25s ease-in-out, color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
   aspect-ratio: 1;
   position: relative;
-  color: var(--wabi-on-surface);
+  color: var(--cartoon-on-surface);
 }
 
 .cell:hover {
-  background: var(--wabi-surface-container);
+  background: var(--cartoon-highlight);
 }
 
-/* Given numbers — bold sumi ink */
+/* Given numbers — bold and darker bg, puzzle book style */
 .cell.given {
-  color: var(--wabi-primary);
-  font-weight: 700;
-  background: var(--wabi-surface-container);
+  color: var(--cartoon-on-surface);
+  font-weight: 800;
+  background: linear-gradient(180deg, #F0DCC8 0%, var(--cartoon-given-bg) 100%);
   cursor: default;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
 }
 
 .cell.given:hover {
-  background: var(--wabi-surface-container);
+  background: linear-gradient(180deg, #F0DCC8 0%, var(--cartoon-given-bg) 100%);
 }
 
 /* User-entered numbers */
 .cell.user {
-  color: var(--wabi-secondary);
-  font-weight: 600;
+  color: var(--cartoon-primary);
+  font-weight: 700;
 }
 
-/* Selected cell — ink wash expanding effect */
+/* Selected cell — bright highlight with cartoon pop */
 .cell.selected {
-  background: var(--wabi-ink-wash);
-  box-shadow:
-    inset 0 0 0 2px var(--wabi-primary),
-    0 0 20px rgba(139, 115, 85, 0.12);
+  background: linear-gradient(180deg, #A8D8FF 0%, var(--cartoon-highlight-strong) 100%);
+  box-shadow: inset 0 0 0 3px var(--cartoon-primary);
   z-index: 3;
-  animation: ink-wash-breathe 3s ease-in-out infinite;
+  animation: cell-bounce 0.3s ease-out;
 }
 
-@keyframes ink-wash-breathe {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 0 2px var(--wabi-primary),
-      0 0 20px rgba(139, 115, 85, 0.12);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 0 2px var(--wabi-primary),
-      0 0 28px rgba(139, 115, 85, 0.18);
-  }
+@keyframes cell-bounce {
+  0% { transform: scale(0.92); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 /* Same number highlight */
 .cell.same-num {
-  background: var(--wabi-secondary-container);
-  color: var(--wabi-secondary);
+  background: var(--cartoon-same-num);
+  color: var(--cartoon-success);
+  font-weight: 800;
 }
 
 /* Same value highlight (alias) */
 .cell.same-value {
-  background: var(--wabi-secondary-container);
-  color: var(--wabi-secondary);
+  background: var(--cartoon-same-num);
+  color: var(--cartoon-success);
 }
 
 /* Row, column, box highlights */
@@ -387,34 +405,37 @@ body.sudoku-game::after {
 .cell.highlight-row,
 .cell.highlight-col,
 .cell.highlight-box {
-  background: var(--wabi-surface-container-high);
+  background: var(--cartoon-highlight);
 }
 
-/* Error / conflict — red lacquer accent */
+/* Error / conflict */
 .cell.error,
 .cell.conflict {
-  color: var(--wabi-tertiary);
-  background: rgba(186, 26, 26, 0.06);
-  box-shadow: inset 0 0 0 1.5px rgba(186, 26, 26, 0.25);
-  animation: lacquer-pulse 2s ease-in-out infinite;
+  color: var(--cartoon-error);
+  background: var(--cartoon-error-bg);
+  box-shadow: inset 0 0 0 2px var(--cartoon-error);
+  animation: error-shake 0.4s ease-out;
 }
 
-@keyframes lacquer-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.88; }
+@keyframes error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
 }
 
-/* 3x3 block bamboo borders — heavier weight */
+/* 3x3 block borders — thick cartoon style */
 .cell.border-right {
-  border-right: 2.5px solid var(--wabi-secondary);
+  border-right: 3px solid var(--cartoon-border);
 }
 
 .cell.border-bottom {
-  border-bottom: 2.5px solid var(--wabi-secondary);
+  border-bottom: 3px solid var(--cartoon-border);
 }
 
 /* ============================================
-   NOTES — Small Newsreader italic
+   NOTES — Small pencil marks
    ============================================ */
 .cell .notes,
 .cell.notes-mode {
@@ -436,16 +457,15 @@ body.sudoku-game::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--wabi-font-body);
-  font-style: italic;
+  font-family: var(--cartoon-font);
   font-size: clamp(0.45rem, 1.6vw, 0.6rem);
-  font-weight: 400;
-  color: var(--wabi-outline);
+  font-weight: 600;
+  color: var(--cartoon-secondary);
   line-height: 1;
 }
 
 /* ============================================
-   NUMPAD — Carved stone stamps
+   NUMPAD — Chunky cartoon buttons
    ============================================ */
 .numpad {
   display: grid;
@@ -458,68 +478,69 @@ body.sudoku-game::after {
 
 .num-btn {
   aspect-ratio: 1;
-  border: none;
-  border-radius: var(--wabi-roundness);
-  background: var(--wabi-surface-container);
-  font-family: var(--wabi-font-display);
-  font-weight: 700;
+  border: 3px solid var(--cartoon-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #FFF8EE 0%, var(--cartoon-surface) 60%);
+  font-family: var(--cartoon-font);
+  font-weight: 800;
   font-size: clamp(1rem, 4vw, 1.4rem);
   cursor: pointer;
-  color: var(--wabi-primary);
-  transition: all 0.25s ease-in-out;
-  box-shadow:
-    0 2px 6px rgba(113, 91, 62, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: var(--cartoon-on-surface);
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  box-shadow: 0 4px 0 var(--cartoon-secondary-dark);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
 }
 
-/* Carved stamp texture — top-left highlight */
+/* Cartoon highlight shine */
 .num-btn::before {
   content: '';
   position: absolute;
-  top: 15%;
+  top: 8%;
   left: 15%;
-  width: 30%;
-  height: 20%;
-  background: rgba(255, 255, 255, 0.35);
+  width: 40%;
+  height: 25%;
+  background: rgba(255, 255, 255, 0.45);
   border-radius: 50%;
-  filter: blur(3px);
   pointer-events: none;
 }
 
 .num-btn:hover {
-  background: var(--wabi-surface-container-high);
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 12px rgba(113, 91, 62, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--cartoon-secondary-dark);
+  background: var(--cartoon-surface-hover);
 }
 
 .num-btn:active {
-  transform: translateY(1px);
-  box-shadow:
-    0 1px 3px rgba(113, 91, 62, 0.1),
-    inset 0 2px 4px rgba(113, 91, 62, 0.08);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--cartoon-secondary-dark);
 }
 
 .num-btn.used {
-  opacity: 0.35;
-  transform: scale(0.96);
+  opacity: 0.3;
+  transform: scale(0.95);
+  box-shadow: 0 2px 0 var(--cartoon-secondary-dark);
 }
 
-/* Erase button — lacquer red stamp */
+/* Erase button — red accent */
 .erase-btn {
-  color: var(--wabi-tertiary);
-  background: rgba(186, 26, 26, 0.06);
+  color: #fff;
+  background: var(--cartoon-error);
+  border-color: #C62828;
+  box-shadow: 0 4px 0 #C62828;
 }
 
 .erase-btn:hover {
-  background: rgba(186, 26, 26, 0.1);
-  color: var(--wabi-tertiary);
+  background: #EF5350;
+  box-shadow: 0 6px 0 #C62828;
+}
+
+.erase-btn:active {
+  box-shadow: 0 1px 0 #C62828;
 }
 
 .erase-btn svg {
@@ -531,30 +552,29 @@ body.sudoku-game::after {
    HINT TEXT
    ============================================ */
 .hint-text {
-  font-family: var(--wabi-font-body);
-  font-style: italic;
+  font-family: var(--cartoon-font);
+  font-weight: 600;
   font-size: 0.85rem;
-  color: var(--wabi-outline);
+  color: rgba(255,255,255,0.85);
   text-align: center;
   margin-top: -0.3rem;
-  opacity: 0.75;
-  transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: color 0.2s, opacity 0.2s;
 }
 
 .hint-text.notes-active {
-  color: var(--wabi-secondary);
-  font-weight: 500;
-  opacity: 1;
+  color: #FFF9C4;
+  font-weight: 700;
 }
 
 /* ============================================
-   MODAL — Glassmorphism washi tint
+   MODAL — Cartoon popup
    ============================================ */
 .sudoku-game .modal-overlay,
 body.sudoku-game .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(30, 28, 16, 0.6);
+  background: rgba(13,71,161,0.65);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -562,9 +582,7 @@ body.sudoku-game .modal-overlay {
   padding: 1rem;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  transition: opacity 0.3s, visibility 0.3s;
 }
 
 .sudoku-game .modal-overlay.show,
@@ -575,21 +593,20 @@ body.sudoku-game .modal-overlay.show {
 
 .sudoku-game .modal,
 body.sudoku-game .modal {
-  background: rgba(255, 249, 236, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: calc(var(--wabi-roundness) * 3);
+  background: linear-gradient(180deg, #FFF8EE 0%, var(--cartoon-surface) 100%);
+  border: 3px solid var(--cartoon-border);
+  border-radius: var(--cartoon-radius-xl);
   padding: 2.5rem 2rem;
   text-align: center;
   max-width: 380px;
   width: 100%;
   box-shadow:
-    0 20px 60px rgba(113, 91, 62, 0.15),
-    0 0 0 1px var(--wabi-ghost-border);
+    0 8px 0 var(--cartoon-secondary-dark),
+    0 18px 44px rgba(0,0,0,0.22);
   position: relative;
   z-index: 2001;
-  transform: scale(0.92) translateY(12px);
-  transition: transform 0.4s ease-in-out;
+  transform: scale(0.8) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .sudoku-game .modal-overlay.show .modal,
@@ -600,37 +617,38 @@ body.sudoku-game .modal-overlay.show .modal {
 .modal-icon {
   font-size: 3.5rem;
   margin-bottom: 0.5rem;
-  animation: zen-float 3.5s ease-in-out infinite;
+  animation: icon-bounce 1s ease-in-out infinite;
 }
 
-@keyframes zen-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.1); }
 }
 
 .sudoku-game .modal h2,
 body.sudoku-game .modal h2 {
-  font-family: var(--wabi-font-display);
+  font-family: var(--cartoon-font);
   font-size: 1.8rem;
   margin-bottom: 0.8rem;
-  color: var(--wabi-primary);
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  color: var(--cartoon-primary);
+  font-weight: 800;
 }
 
 .sudoku-game .modal p,
 body.sudoku-game .modal p {
-  font-family: var(--wabi-font-body);
+  font-family: var(--cartoon-font);
   font-size: 1.05rem;
   margin-bottom: 1rem;
-  color: var(--wabi-outline);
-  line-height: 1.6;
+  color: var(--cartoon-secondary);
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .modal-stats {
-  font-family: var(--wabi-font-display);
+  font-family: var(--cartoon-font);
   font-size: 0.95rem;
-  color: var(--wabi-secondary);
+  font-weight: 700;
+  color: var(--cartoon-on-surface);
   margin-bottom: 1.5rem;
 }
 
@@ -644,26 +662,32 @@ body.sudoku-game .modal p {
    BUTTONS — Generic .btn base
    ============================================ */
 .btn {
-  font-family: var(--wabi-font-display);
-  font-weight: 600;
+  font-family: var(--cartoon-font);
+  font-weight: 800;
   border: none;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  letter-spacing: 0.4px;
+  transition: transform 0.12s, box-shadow 0.12s;
+  letter-spacing: 0.3px;
 }
 
 .btn-primary {
-  background: var(--wabi-primary);
-  color: var(--wabi-on-primary);
+  background: var(--cartoon-primary);
+  color: var(--cartoon-on-primary);
   padding: 0.9rem 2.5rem;
   font-size: 1.05rem;
-  border-radius: var(--wabi-roundness);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  border-radius: 14px;
+  border: 2px solid var(--cartoon-primary-dark);
+  box-shadow: 0 4px 0 var(--cartoon-primary-dark);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.24);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--cartoon-primary-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--cartoon-primary-dark);
 }
 
 .btn-whatsapp {
@@ -671,79 +695,68 @@ body.sudoku-game .modal p {
   color: #fff;
   padding: 0.9rem 2rem;
   font-size: 1rem;
-  border-radius: var(--wabi-roundness);
-  border: none;
+  border-radius: 14px;
+  border: 2px solid #1DA851;
   cursor: pointer;
-  font-family: var(--wabi-font-display);
-  font-weight: 600;
-  box-shadow: 0 3px 12px rgba(37, 211, 102, 0.25);
-  transition: all 0.3s ease-in-out;
+  font-family: var(--cartoon-font);
+  font-weight: 800;
+  box-shadow: 0 4px 0 #1DA851;
+  transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .btn-whatsapp:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 5px 18px rgba(37, 211, 102, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #1DA851;
+}
+
+.btn-whatsapp:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #1DA851;
 }
 
 /* ============================================
-   GAME INFO — Watercolor-edged container
+   GAME INFO — Puzzle book section
    ============================================ */
 .game-info {
   max-width: 780px;
   margin: 2rem auto;
   padding: 2rem 2.5rem;
-  background: var(--wabi-surface-container);
-  border-radius: calc(var(--wabi-roundness) * 2);
-  color: var(--wabi-on-surface);
-  font-family: var(--wabi-font-body);
+  background: linear-gradient(180deg, #FFF8EE 0%, var(--cartoon-surface) 100%);
+  border: 3px solid var(--cartoon-border);
+  border-radius: var(--cartoon-radius-lg);
+  color: var(--cartoon-on-surface);
+  font-family: var(--cartoon-font);
   font-size: 0.95rem;
+  font-weight: 600;
   line-height: 1.75;
-  box-shadow: var(--wabi-lantern-shadow);
+  box-shadow:
+    0 4px 0 var(--cartoon-secondary-dark),
+    0 10px 24px rgba(0,0,0,0.12);
   position: relative;
   z-index: 1;
 }
 
-/* Decorative ink brush marks */
-.game-info::before,
-.game-info::after {
-  content: '\2022';
-  position: absolute;
-  font-size: 2rem;
-  color: rgba(113, 91, 62, 0.15);
-  font-family: var(--wabi-font-display);
-}
-
-.game-info::before {
-  top: 0.5rem;
-  left: 1.2rem;
-}
-
-.game-info::after {
-  bottom: 0.5rem;
-  right: 1.2rem;
-}
-
 .game-info h2 {
-  font-family: var(--wabi-font-display);
+  font-family: var(--cartoon-font);
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.8rem;
-  color: var(--wabi-primary);
+  color: var(--cartoon-primary);
   padding-bottom: 0.5rem;
   display: inline-block;
-  border-bottom: 2px solid rgba(113, 91, 62, 0.2);
+  border-bottom: 3px solid var(--cartoon-primary);
 }
 
 .game-info h3 {
-  font-family: var(--wabi-font-display);
+  font-family: var(--cartoon-font);
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 800;
   margin: 1.2rem 0 0.5rem;
-  color: var(--wabi-secondary);
+  color: var(--cartoon-accent);
 }
 
 .game-info p {
-  color: var(--wabi-on-surface);
+  color: var(--cartoon-on-surface);
   margin-bottom: 0.5rem;
 }
 
@@ -754,39 +767,44 @@ body.sudoku-game .modal p {
 .game-info li {
   margin-bottom: 0.4rem;
   position: relative;
-  color: var(--wabi-on-surface);
+  color: var(--cartoon-on-surface);
 }
 
 .game-info li::marker {
-  color: var(--wabi-secondary);
+  color: var(--cartoon-accent);
 }
 
 /* ============================================
-   ANIMATIONS — Zen breathing
+   ANIMATIONS
    ============================================ */
 
 /* Completion ripple */
-@keyframes ink-ripple {
+@keyframes cartoon-pop {
   0% {
-    box-shadow: 0 0 0 0 rgba(113, 91, 62, 0.3);
+    box-shadow: 0 0 0 0 rgba(67,160,245,0.4);
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
   }
   100% {
-    box-shadow: 0 0 0 20px rgba(113, 91, 62, 0);
+    box-shadow: 0 0 0 15px rgba(67,160,245,0);
+    transform: scale(1);
   }
 }
 
 .cell.completed {
-  animation: ink-ripple 0.6s ease-in-out;
+  animation: cartoon-pop 0.5s ease-out;
 }
 
 /* Number entry */
-@keyframes sumi-stroke {
+@keyframes num-pop {
   0% {
-    transform: scale(0.6);
+    transform: scale(0.5);
     opacity: 0;
   }
   60% {
-    transform: scale(1.06);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
@@ -795,11 +813,11 @@ body.sudoku-game .modal p {
 }
 
 .cell.user:not(.notes-mode) {
-  animation: sumi-stroke 0.25s ease-in-out;
+  animation: num-pop 0.25s ease-out;
 }
 
 .cell.just-entered {
-  animation: sumi-stroke 0.25s ease-in-out;
+  animation: num-pop 0.25s ease-out;
 }
 
 /* ============================================
@@ -850,8 +868,9 @@ body.sudoku-game .modal p {
 
   .board {
     width: min(320px, 94vw);
-    border-radius: 3px;
-    gap: 0;
+    border-radius: 12px;
+    gap: 1px;
+    border-width: 2.5px;
   }
 
   .cell {
@@ -859,11 +878,11 @@ body.sudoku-game .modal p {
   }
 
   .cell.border-right {
-    border-right-width: 2px;
+    border-right-width: 2.5px;
   }
 
   .cell.border-bottom {
-    border-bottom-width: 2px;
+    border-bottom-width: 2.5px;
   }
 
   .numpad {
@@ -873,6 +892,9 @@ body.sudoku-game .modal p {
 
   .num-btn {
     font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    border-radius: 10px;
+    border-width: 2px;
+    box-shadow: 0 3px 0 var(--cartoon-secondary-dark);
   }
 
   .hint-text {
@@ -883,6 +905,7 @@ body.sudoku-game .modal p {
     margin: 0.8rem;
     padding: 1rem;
     font-size: 0.85rem;
+    border-radius: 14px;
   }
 }
 
@@ -915,15 +938,15 @@ body.sudoku-game .modal p {
 
   .board {
     width: min(350px, 95vw);
-    border-radius: 3px;
+    border-radius: 14px;
   }
 
   .cell.border-right {
-    border-right-width: 2px;
+    border-right-width: 2.5px;
   }
 
   .cell.border-bottom {
-    border-bottom-width: 2px;
+    border-bottom-width: 2.5px;
   }
 
   .numpad {

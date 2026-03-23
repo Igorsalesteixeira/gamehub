@@ -15,9 +15,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=2" />
+  <meta name="theme-color" content="#388E3C" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <style>
-    body { background: #0f0f1a; }
+    body { background: #4CAF50; }
 
     /* ===== HERO ===== */
     .rank-hero {
@@ -27,12 +28,12 @@
     .rank-hero h1 {
       font-size: 2rem;
       font-weight: 800;
-      color: #fff;
+      color: #3E2723;
       margin-bottom: 0.3rem;
     }
     .rank-timer {
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.4);
+      color: #5D4037;
       font-weight: 600;
     }
 
@@ -50,36 +51,45 @@
     }
     .main-tab {
       padding: 0.55rem 1.15rem;
-      border-radius: 999px;
-      border: 2px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.6);
+      border-radius: 14px;
+      border: 3px solid #8D6E63;
+      background: #F5E6D0;
+      color: #5D4037;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.88rem;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
+      box-shadow: 0 4px 0 #795548;
     }
     .main-tab:hover {
-      border-color: #ff6b35;
-      color: #ff8f5e;
-      background: rgba(255,107,53,0.1);
+      border-color: #FF5722;
+      color: #FF5722;
+      background: #FFF3E0;
+      transform: translateY(-2px);
+    }
+    .main-tab:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #795548;
     }
     .main-tab.active {
-      background: #ff6b35;
-      border-color: #ff6b35;
+      background: #FF5722;
+      border-color: #D84315;
       color: #fff;
+      box-shadow: 0 4px 0 #BF360C;
     }
     .main-tab[data-cat="semanal"].active {
-      background: #ffd700;
-      border-color: #ffd700;
-      color: #7a6200;
+      background: #FFD54F;
+      border-color: #F9A825;
+      color: #5D4037;
+      box-shadow: 0 4px 0 #F57F17;
     }
     .main-tab[data-cat="nivel"].active {
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border-color: #7c3aed;
+      background: #4CAF50;
+      border-color: #2E7D32;
       color: #fff;
+      box-shadow: 0 4px 0 #1B5E20;
     }
 
     /* ===== SUB TABS ===== */
@@ -97,10 +107,10 @@
     }
     .sub-tab {
       padding: 0.35rem 0.85rem;
-      border-radius: 999px;
-      border: 1.5px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.5);
+      border-radius: 14px;
+      border: 2px solid #8D6E63;
+      background: #F5E6D0;
+      color: #5D4037;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
@@ -108,11 +118,11 @@
       transition: all 0.18s;
       white-space: nowrap;
     }
-    .sub-tab:hover { border-color: #ff6b35; color: #ff8f5e; }
+    .sub-tab:hover { border-color: #FF5722; color: #FF5722; }
     .sub-tab.active {
-      background: rgba(255,107,53,0.18);
-      border-color: #ff6b35;
-      color: #ff8f5e;
+      background: #FF5722;
+      border-color: #D84315;
+      color: #fff;
     }
 
     /* ===== RANKING CARD ===== */
@@ -122,8 +132,8 @@
       padding: 0 1rem 3rem;
     }
     .ranking-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 20px;
       overflow: hidden;
     }
@@ -132,9 +142,9 @@
       padding: 0.65rem 1.2rem;
       font-size: 0.75rem;
       font-weight: 800;
-      color: rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: #795548;
+      background: #EFDDCA;
+      border-bottom: 2px solid #D7CCC8;
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 1.2px;
@@ -144,15 +154,15 @@
       display: flex;
       align-items: center;
       padding: 0.75rem 1.2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid #D7CCC8;
       gap: 0.8rem;
       transition: background 0.15s;
     }
     .ranking-row:last-child { border-bottom: none; }
-    .ranking-row:hover { background: rgba(255,255,255,0.03); }
-    .ranking-row.top-1 { background: rgba(255,215,0,0.07); }
-    .ranking-row.top-2 { background: rgba(192,192,192,0.05); }
-    .ranking-row.top-3 { background: rgba(205,127,50,0.07); }
+    .ranking-row:hover { background: #EDE0D0; }
+    .ranking-row.top-1 { background: rgba(255,213,79,0.25); }
+    .ranking-row.top-2 { background: rgba(189,189,189,0.2); }
+    .ranking-row.top-3 { background: rgba(255,138,101,0.2); }
 
     .rank-pos {
       width: 34px;
@@ -165,10 +175,10 @@
       font-size: 0.9rem;
       flex-shrink: 0;
     }
-    .pos-1 { background: #ffd700; color: #7a6200; }
-    .pos-2 { background: #c0c0c0; color: #444; }
-    .pos-3 { background: #cd7f32; color: #fff; }
-    .pos-other { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.35); font-size: 0.82rem; }
+    .pos-1 { background: #FFD54F; color: #5D4037; border: 2px solid #F9A825; }
+    .pos-2 { background: #BDBDBD; color: #3E2723; border: 2px solid #9E9E9E; }
+    .pos-3 { background: #FF8A65; color: #fff; border: 2px solid #E64A19; }
+    .pos-other { background: #EFDDCA; color: #795548; font-size: 0.82rem; border: 2px solid #D7CCC8; }
 
     .rank-avatar {
       width: 38px;
@@ -181,21 +191,22 @@
       font-size: 1rem;
       color: #fff;
       flex-shrink: 0;
+      border: 2px solid #8D6E63;
     }
 
     .rank-info { flex: 1; min-width: 0; }
     .rank-name {
       font-weight: 700;
       font-size: 0.93rem;
-      color: rgba(255,255,255,0.9);
+      color: #3E2723;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .rank-name.is-me { color: #ff8f5e; }
+    .rank-name.is-me { color: #FF5722; }
     .rank-sublabel {
       font-size: 0.72rem;
-      color: rgba(255,255,255,0.35);
+      color: #795548;
       font-weight: 600;
       margin-top: 1px;
     }
@@ -204,12 +215,12 @@
     .rank-main-val {
       font-weight: 800;
       font-size: 1rem;
-      color: #ff8f5e;
+      color: #FF5722;
       white-space: nowrap;
     }
     .rank-sub-val {
       font-size: 0.74rem;
-      color: rgba(255,255,255,0.3);
+      color: #795548;
       font-weight: 600;
       white-space: nowrap;
     }
@@ -221,18 +232,18 @@
       gap: 3px;
       padding: 2px 8px;
       border-radius: 999px;
-      background: rgba(124,58,237,0.25);
-      border: 1px solid rgba(168,85,247,0.4);
+      background: rgba(76,175,80,0.2);
+      border: 2px solid #4CAF50;
       font-size: 0.72rem;
       font-weight: 800;
-      color: #c084fc;
+      color: #2E7D32;
       white-space: nowrap;
     }
 
     .ranking-empty {
       text-align: center;
       padding: 3rem 1rem;
-      color: rgba(255,255,255,0.35);
+      color: #795548;
       font-size: 1rem;
     }
     .ranking-empty-icon { font-size: 3rem; margin-bottom: 0.5rem; }
@@ -245,20 +256,28 @@
 
     /* Botão adicionar amigo no ranking */
     .btn-add-friend {
-      background: rgba(255,107,53,0.2) !important;
-      border: 1px solid rgba(255,107,53,0.3) !important;
-      color: #ff6b35 !important;
+      background: #FF5722 !important;
+      border: 2px solid #D84315 !important;
+      color: #fff !important;
       transition: all 0.2s !important;
+      border-radius: 50% !important;
+      box-shadow: 0 3px 0 #BF360C;
     }
     .btn-add-friend:hover {
-      background: rgba(255,107,53,0.35) !important;
-      transform: scale(1.1);
+      background: #E64A19 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #BF360C;
+    }
+    .btn-add-friend:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #BF360C;
     }
     .btn-add-friend.added {
-      background: rgba(34,197,94,0.2) !important;
-      border-color: rgba(34,197,94,0.4) !important;
-      color: #22c55e !important;
+      background: #4CAF50 !important;
+      border-color: #2E7D32 !important;
+      color: #fff !important;
       cursor: default !important;
+      box-shadow: 0 3px 0 #1B5E20;
     }
   </style>
   <!-- Google tag (gtag.js) -->
@@ -283,7 +302,7 @@
       <h1>🏆 Ranking</h1>
       <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
         <p class="rank-timer" id="timer">Semanal reseta em: --</p>
-        <button id="btn-refresh" title="Atualizar ranking" style="background:rgba(255,255,255,0.15);border:none;border-radius:999px;color:#fff;padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">🔄 Atualizar</button>
+        <button id="btn-refresh" title="Atualizar ranking" style="background:#F5E6D0;border:2px solid #8D6E63;border-radius:14px;color:#5D4037;padding:0.25rem 0.75rem;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 0 #795548;">🔄 Atualizar</button>
       </div>
     </div>
 

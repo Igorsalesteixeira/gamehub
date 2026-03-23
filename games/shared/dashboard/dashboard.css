@@ -40,17 +40,17 @@
 }
 
 .game-dashboard::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: #F5E6D0;
   border-radius: 4px;
 }
 
 .game-dashboard::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 53, 0.5);
+  background: rgba(255, 87, 34, 0.5);
   border-radius: 4px;
 }
 
 .game-dashboard::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 107, 53, 0.8);
+  background: rgba(255, 87, 34, 0.8);
 }
 
 /* ============================================
@@ -84,7 +84,7 @@
   height: 36px;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E8D5BA;
   color: var(--color-text);
   font-size: 1.5rem;
   cursor: pointer;
@@ -95,7 +95,7 @@
 }
 
 .dashboard-close:hover {
-  background: rgba(255, 68, 68, 0.3);
+  background: #E53935; color: #fff;
   transform: rotate(90deg);
 }
 
@@ -129,9 +129,9 @@
   display: flex;
   justify-content: center;
   padding: var(--space-6);
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(78, 205, 196, 0.1));
+  background: #FFF8F0;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 107, 53, 0.3);
+  border: 3px solid #D7CCC8;
 }
 
 .streak-display {
@@ -143,26 +143,26 @@
 .streak-flame {
   font-size: 4rem;
   animation: flicker 2s ease-in-out infinite;
-  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.8));
+  filter: drop-shadow(0 0 10px rgba(255, 87, 34, 0.8));
   transition: transform 0.3s ease;
 }
 
 @keyframes flicker {
   0%, 100% {
     transform: scale(1) rotate(-5deg);
-    filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.8));
+    filter: drop-shadow(0 0 10px rgba(255, 87, 34, 0.8));
   }
   25% {
     transform: scale(1.05) rotate(5deg);
-    filter: drop-shadow(0 0 15px rgba(255, 107, 53, 1));
+    filter: drop-shadow(0 0 15px rgba(255, 87, 34, 1));
   }
   50% {
     transform: scale(1) rotate(-3deg);
-    filter: drop-shadow(0 0 12px rgba(255, 107, 53, 0.9));
+    filter: drop-shadow(0 0 12px rgba(255, 87, 34, 0.9));
   }
   75% {
     transform: scale(1.03) rotate(3deg);
-    filter: drop-shadow(0 0 14px rgba(255, 107, 53, 0.85));
+    filter: drop-shadow(0 0 14px rgba(255, 87, 34, 0.85));
   }
 }
 
@@ -198,7 +198,7 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: #F5E6D0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
@@ -222,7 +222,7 @@
 
 .stat-card:hover {
   transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.08);
+  background: #ECDCC6;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -274,7 +274,7 @@
 
 .progress-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: #E8D5BA;
   stroke-width: 3;
 }
 
@@ -291,7 +291,7 @@
    ============================================ */
 
 .chart-container {
-  background: rgba(255, 255, 255, 0.03);
+  background: #FFF8F0;
   border-radius: var(--radius-md);
   padding: var(--space-4);
   position: relative;
@@ -361,7 +361,7 @@
 .heatmap-cell:hover {
   transform: scale(1.2);
   z-index: 1;
-  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
 }
 
 /* ============================================
@@ -379,13 +379,13 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: rgba(255, 255, 255, 0.05);
+  background: #F5E6D0;
   border-radius: var(--radius-md);
   transition: all 0.3s ease;
 }
 
 .achievement-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: #ECDCC6;
 }
 
 .achievement-item.unlocked {
@@ -404,12 +404,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E8D5BA;
   border-radius: var(--radius-md);
 }
 
 .achievement-item.unlocked .achievement-icon {
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.3), rgba(78, 205, 196, 0.3));
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  border: 2px solid #4CAF50;
 }
 
 .achievement-info {
@@ -449,9 +450,10 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(78, 205, 196, 0.9));
+  background: linear-gradient(180deg, #66BB6A, #43A047);
+  border: 3px solid #2E7D32;
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 #2E7D32, 0 6px 16px rgba(0,0,0,0.2);
   z-index: 10000;
   max-width: 350px;
 }

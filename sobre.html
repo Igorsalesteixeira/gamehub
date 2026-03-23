@@ -18,23 +18,24 @@
      crossorigin="anonymous"></script>
   <style>
     .about-section {
-      background: #fff;
-      border-radius: 18px;
+      background: #FFF8F0;
+      border-radius: 20px;
       padding: 2rem;
       margin-bottom: 1.5rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      border: 2px solid transparent;
+      box-shadow: 0 4px 0 #5D4037;
+      border: 3px solid #8D6E63;
       transition: box-shadow 0.2s ease;
     }
 
     .about-section:hover {
-      box-shadow: 0 6px 24px rgba(255, 107, 53, 0.15);
+      box-shadow: 0 6px 0 #5D4037, 0 8px 16px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
     }
 
     .about-section h3 {
       font-size: 1.2rem;
       font-weight: 800;
-      color: #ff6b35;
+      color: #2E7D32;
       margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
@@ -58,42 +59,48 @@
     }
 
     .about-section ul li {
-      background: linear-gradient(135deg, #ff6b35, #f7c59f);
+      background: linear-gradient(180deg, #66BB6A, #43A047);
       color: #fff;
       font-weight: 700;
       font-size: 0.85rem;
       padding: 0.4rem 1rem;
-      border-radius: 999px;
+      border-radius: 12px;
+      border: 2px solid #2E7D32;
+      box-shadow: 0 2px 0 #2E7D32;
     }
 
     .back-link {
-      background: rgba(255,255,255,0.25);
+      background: #8D6E63;
       color: #fff;
       text-decoration: none;
       font-weight: 800;
       font-size: 0.9rem;
       padding: 0.5rem 1.2rem;
-      border-radius: 999px;
-      border: 2px solid rgba(255,255,255,0.5);
-      transition: background 0.2s;
+      border-radius: 12px;
+      border: 2px solid #5D4037;
+      box-shadow: 0 3px 0 #5D4037;
+      transition: all 0.2s;
       white-space: nowrap;
     }
 
     .back-link:hover {
-      background: rgba(255,255,255,0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #5D4037, 0 5px 8px rgba(0,0,0,0.1);
     }
 
     .github-link {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: #ff6b35;
+      background: linear-gradient(180deg, #66BB6A, #43A047);
       color: #fff;
       text-decoration: none;
       font-weight: 700;
       font-size: 0.95rem;
       padding: 0.6rem 1.4rem;
-      border-radius: 999px;
+      border-radius: 14px;
+      border: 2px solid #2E7D32;
+      box-shadow: 0 3px 0 #2E7D32;
       margin-top: 0.8rem;
       transition: background 0.2s, transform 0.2s;
     }

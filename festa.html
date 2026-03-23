@@ -15,10 +15,10 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Modo Festa - Games Hub" />
   <meta name="twitter:description" content="Crie uma festa com amigos e disputem mini-games em tempo real!" />
-  <meta name="theme-color" content="#0d0d19" />
+  <meta name="theme-color" content="#388E3C" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
   <script>
@@ -30,9 +30,9 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #0d0d19;
-      color: #fff;
-      font-family: 'Space Grotesk', sans-serif;
+      background: #4CAF50;
+      color: #3E2723;
+      font-family: 'Nunito', sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
@@ -54,17 +54,14 @@
       margin-bottom: 0.5rem;
     }
     .festa-hero h1 {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 2.4rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #81ecff, #ff51fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-weight: 800;
+      color: #FFFFFF;
       margin-bottom: 0.3rem;
     }
     .festa-hero p {
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.8);
       font-size: 0.92rem;
     }
 
@@ -77,26 +74,26 @@
       width: 100%;
       padding: 0.85rem 1.1rem;
       border-radius: 12px;
-      border: 2px solid rgba(129,236,255,0.15);
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      font-family: 'Space Grotesk', sans-serif;
+      border: 2px solid #D7CCC8;
+      background: #FFF8F0;
+      color: #3E2723;
+      font-family: 'Nunito', sans-serif;
       font-size: 1rem;
       font-weight: 500;
       outline: none;
       transition: border-color 0.2s;
     }
     .festa-input:focus {
-      border-color: #81ecff;
+      border-color: #FF5722;
     }
     .festa-input::placeholder {
-      color: rgba(255,255,255,0.3);
+      color: #795548;
     }
     .festa-input.code-input {
       text-align: center;
       letter-spacing: 4px;
       text-transform: uppercase;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 1.2rem;
     }
@@ -104,19 +101,24 @@
     .btn-primary {
       width: 100%;
       padding: 0.9rem 1.5rem;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #81ecff, #51c4ff);
-      color: #0d0d19;
-      font-family: 'Rajdhani', sans-serif;
+      border-radius: 14px;
+      border: 3px solid #2E7D32;
+      background: linear-gradient(180deg, #66BB6A, #43A047, #388E3C);
+      color: #FFFFFF;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
+      box-shadow: 0 4px 0 #2E7D32;
       transition: transform 0.15s, box-shadow 0.2s;
     }
     .btn-primary:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 24px rgba(129,236,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #2E7D32;
+    }
+    .btn-primary:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #2E7D32;
     }
     .btn-primary:disabled {
       opacity: 0.4;
@@ -127,19 +129,24 @@
     .btn-secondary {
       width: 100%;
       padding: 0.9rem 1.5rem;
-      border-radius: 12px;
-      border: 2px solid rgba(255,81,250,0.3);
-      background: rgba(255,81,250,0.08);
-      color: #ff51fa;
-      font-family: 'Rajdhani', sans-serif;
+      border-radius: 14px;
+      border: 2px solid #5D4037;
+      background: #8D6E63;
+      color: #FFFFFF;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 1.1rem;
       cursor: pointer;
+      box-shadow: 0 3px 0 #5D4037;
       transition: all 0.2s;
     }
     .btn-secondary:hover {
-      border-color: #ff51fa;
-      background: rgba(255,81,250,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #5D4037;
+    }
+    .btn-secondary:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #5D4037;
     }
 
     .form-group {
@@ -151,7 +158,7 @@
 
     .form-divider {
       text-align: center;
-      color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.7);
       font-size: 0.85rem;
       font-weight: 600;
       padding: 0.5rem 0;
@@ -167,35 +174,35 @@
     /* ===== LOBBY ===== */
     .lobby-code-box {
       text-align: center;
-      background: rgba(129,236,255,0.06);
-      border: 2px solid rgba(129,236,255,0.2);
-      border-radius: 16px;
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
+      border-radius: 18px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       cursor: pointer;
       transition: border-color 0.2s;
     }
     .lobby-code-box:hover {
-      border-color: #81ecff;
+      border-color: #FF5722;
     }
     .lobby-code-label {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
+      color: #795548;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-bottom: 0.4rem;
     }
     .lobby-code {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 3rem;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 8px;
-      color: #81ecff;
+      color: #FF5722;
     }
     .lobby-code-hint {
       font-size: 0.75rem;
-      color: rgba(255,255,255,0.3);
+      color: #795548;
       margin-top: 0.3rem;
     }
 
@@ -204,7 +211,7 @@
     }
     .lobby-players-title {
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.85);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -220,25 +227,25 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.7rem 1rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
+      background: #F5E6D0;
+      border: 2px solid #8D6E63;
+      border-radius: 12px;
     }
     .player-name {
       font-weight: 600;
-      color: rgba(255,255,255,0.85);
+      color: #3E2723;
     }
     .player-host {
       font-size: 0.75rem;
-      color: #ff51fa;
+      color: #FF5722;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
     .player-score {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
-      color: #81ecff;
+      color: #FF5722;
     }
 
     .lobby-actions {
@@ -250,35 +257,36 @@
     .btn-whatsapp {
       width: 100%;
       padding: 0.75rem;
-      border-radius: 12px;
-      border: 2px solid rgba(37,211,102,0.3);
-      background: rgba(37,211,102,0.08);
-      color: #25d366;
-      font-family: 'Rajdhani', sans-serif;
+      border-radius: 14px;
+      border: 2px solid #1B9E3E;
+      background: #25d366;
+      color: #FFFFFF;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
+      box-shadow: 0 3px 0 #1B9E3E;
       transition: all 0.2s;
     }
     .btn-whatsapp:hover {
-      border-color: #25d366;
-      background: rgba(37,211,102,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 0 #1B9E3E;
     }
 
     .btn-leave {
       width: 100%;
       padding: 0.6rem;
       border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: transparent;
-      color: rgba(255,255,255,0.35);
-      font-family: 'Space Grotesk', sans-serif;
+      border: 2px solid #D7CCC8;
+      background: #F5E6D0;
+      color: #795548;
+      font-family: 'Nunito', sans-serif;
       font-weight: 500;
       font-size: 0.85rem;
       cursor: pointer;
       transition: color 0.2s;
     }
-    .btn-leave:hover { color: rgba(255,255,255,0.6); }
+    .btn-leave:hover { color: #3E2723; }
 
     /* ===== MINI-GAME AREA ===== */
     .game-header {
@@ -290,46 +298,46 @@
       margin-bottom: 0.3rem;
     }
     .game-header h2 {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.6rem;
       font-weight: 700;
-      color: #fff;
+      color: #FFFFFF;
     }
     .game-header p {
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.75);
     }
 
     .game-timer {
       text-align: center;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 2.5rem;
-      font-weight: 700;
-      color: #81ecff;
+      font-weight: 800;
+      color: #FFD54F;
       margin-bottom: 1rem;
     }
     .game-timer.warning { color: #ff6b6b; }
 
     .game-score-live {
       text-align: center;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.2rem;
       font-weight: 600;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.8);
       margin-bottom: 1.5rem;
     }
     .game-score-live span {
-      color: #ff51fa;
+      color: #FFD54F;
       font-size: 1.5rem;
     }
 
     /* Speed Math */
     .math-question {
       text-align: center;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 3rem;
-      font-weight: 700;
-      color: #fff;
+      font-weight: 800;
+      color: #FFFFFF;
       margin-bottom: 1rem;
       min-height: 4rem;
       display: flex;
@@ -346,12 +354,12 @@
       flex: 1;
       text-align: center;
       font-size: 1.5rem;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-weight: 700;
     }
     .math-progress {
       text-align: center;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.7);
       font-size: 0.85rem;
       margin-top: 1rem;
     }
@@ -362,8 +370,8 @@
       min-height: 2rem;
       margin-top: 0.5rem;
     }
-    .math-feedback.correct { color: #4ade80; }
-    .math-feedback.wrong { color: #ff6b6b; }
+    .math-feedback.correct { color: #FFFFFF; }
+    .math-feedback.wrong { color: #FFD54F; }
 
     /* Click Frenzy */
     .click-area {
@@ -376,12 +384,12 @@
       width: 200px;
       height: 200px;
       border-radius: 50%;
-      border: 4px solid #ff51fa;
-      background: radial-gradient(circle, rgba(255,81,250,0.2), rgba(255,81,250,0.05));
-      color: #ff51fa;
-      font-family: 'Rajdhani', sans-serif;
+      border: 4px solid #FF5722;
+      background: radial-gradient(circle, rgba(255,87,34,0.3), rgba(255,87,34,0.08));
+      color: #FF5722;
+      font-family: 'Nunito', sans-serif;
       font-size: 3rem;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       transition: transform 0.08s, background 0.08s;
       user-select: none;
@@ -390,7 +398,7 @@
     }
     .click-btn:active {
       transform: scale(0.92);
-      background: radial-gradient(circle, rgba(255,81,250,0.4), rgba(255,81,250,0.1));
+      background: radial-gradient(circle, rgba(255,87,34,0.5), rgba(255,87,34,0.15));
     }
 
     /* Reaction */
@@ -414,32 +422,35 @@
       background: #27ae60;
     }
     .reaction-box.idle {
-      background: rgba(255,255,255,0.06);
-      border: 2px solid rgba(255,255,255,0.1);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
     }
     .reaction-box.too-early {
       background: #e67e22;
     }
     .reaction-text {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
       color: #fff;
       text-align: center;
       padding: 1rem;
     }
+    .reaction-box.idle .reaction-text {
+      color: #3E2723;
+    }
     .reaction-round-info {
       text-align: center;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.7);
       font-size: 0.85rem;
       margin-top: 1rem;
     }
     .reaction-result {
       text-align: center;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.8rem;
       font-weight: 700;
-      color: #81ecff;
+      color: #FFD54F;
       margin-top: 0.5rem;
       min-height: 2.5rem;
     }
@@ -450,51 +461,51 @@
     }
     .scoreboard-title {
       text-align: center;
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.6rem;
       font-weight: 700;
-      color: #fff;
+      color: #FFFFFF;
       margin-bottom: 0.3rem;
     }
     .scoreboard-round {
       text-align: center;
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.7);
       margin-bottom: 1.2rem;
     }
     .score-row {
       display: flex;
       align-items: center;
       padding: 0.8rem 1rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
+      background: #F5E6D0;
+      border: 2px solid #8D6E63;
+      border-radius: 12px;
       margin-bottom: 0.5rem;
       gap: 0.8rem;
     }
     .score-row.first {
-      border-color: rgba(255,81,250,0.3);
-      background: rgba(255,81,250,0.06);
+      border-color: #FF5722;
+      background: #FFF3E0;
     }
     .score-rank {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
-      color: rgba(255,255,255,0.3);
+      color: #795548;
       min-width: 2rem;
       text-align: center;
     }
-    .score-row.first .score-rank { color: #ff51fa; }
+    .score-row.first .score-rank { color: #FF5722; }
     .score-name {
       flex: 1;
       font-weight: 600;
-      color: rgba(255,255,255,0.8);
+      color: #3E2723;
     }
     .score-pts {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1.3rem;
       font-weight: 700;
-      color: #81ecff;
+      color: #FF5722;
     }
 
     /* ===== FINAL ===== */
@@ -511,18 +522,15 @@
       50% { transform: translateY(-10px); }
     }
     .final-winner {
-      font-family: 'Rajdhani', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #81ecff, #ff51fa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-weight: 800;
+      color: #FFFFFF;
       margin: 0.5rem 0;
     }
     .final-score {
       font-size: 1rem;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.75);
       margin-bottom: 2rem;
     }
     .confetti {
@@ -551,11 +559,11 @@
       bottom: 5rem;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: rgba(129,236,255,0.15);
-      border: 1px solid rgba(129,236,255,0.3);
-      color: #81ecff;
+      background: #F5E6D0;
+      border: 2px solid #8D6E63;
+      color: #3E2723;
       padding: 0.6rem 1.4rem;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 0.9rem;
       font-weight: 600;
       opacity: 0;

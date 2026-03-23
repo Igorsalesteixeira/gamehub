@@ -28,11 +28,12 @@
 
     /* ===== HEADER SOCIAL ===== */
     .social-header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: linear-gradient(180deg, #66BB6A, #43A047, #388E3C);
+      border: 3px solid #2E7D32;
       border-radius: 20px;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
-      color: #fff;
+      color: #FFFFFF;
       position: relative;
       overflow: hidden;
     }
@@ -42,7 +43,7 @@
       position: absolute;
       top: -50px; right: -50px;
       width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(255,107,53,0.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
       border-radius: 50%;
     }
 
@@ -65,49 +66,53 @@
     .header-icon {
       width: 56px;
       height: 56px;
-      background: linear-gradient(135deg, #ff6b35, #e85d2a);
+      background: linear-gradient(180deg, #FF5722, #E64A19);
+      border: 3px solid #BF360C;
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.8rem;
       flex-shrink: 0;
+      box-shadow: 0 3px 0 #BF360C;
     }
 
     .header-title h1 {
       font-size: 1.6rem;
       font-weight: 800;
-      color: #fff;
+      color: #FFFFFF;
       margin-bottom: 0.15rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
     .header-title p {
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.85);
       font-weight: 600;
     }
 
     .btn-back {
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
+      background: #8D6E63;
+      border: 2px solid #5D4037;
       border-radius: 999px;
       padding: 0.5rem 1.1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.2s;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      box-shadow: 0 3px 0 #5D4037;
     }
 
     .btn-back:hover {
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      border-color: rgba(255,255,255,0.25);
+      background: #795548;
+      color: #FFFFFF;
+      border-color: #4E342E;
     }
 
     /* ===== TABS ===== */
@@ -115,7 +120,7 @@
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1.5rem;
-      border-bottom: 2px solid rgba(255,255,255,0.08);
+      border-bottom: 3px solid #D7CCC8;
       padding-bottom: 0;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -129,26 +134,28 @@
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.95rem;
-      color: rgba(255,255,255,0.5);
+      color: #795548;
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
       position: relative;
-      margin-bottom: -2px;
+      margin-bottom: -3px;
     }
 
     .tab-btn:hover {
-      color: rgba(255,255,255,0.8);
+      color: #3E2723;
     }
 
     .tab-btn.active {
-      color: #ff6b35;
-      border-bottom-color: #ff6b35;
+      color: #2E7D32;
+      border-bottom-color: #43A047;
+      background: rgba(102, 187, 106, 0.1);
+      border-radius: 12px 12px 0 0;
     }
 
     .tab-btn .badge {
-      background: #ff6b35;
-      color: #fff;
+      background: #FF5722;
+      color: #FFFFFF;
       font-size: 0.7rem;
       font-weight: 800;
       padding: 2px 7px;
@@ -171,7 +178,7 @@
     .section-title {
       font-size: 0.85rem;
       font-weight: 800;
-      color: rgba(255,255,255,0.4);
+      color: #795548;
       text-transform: uppercase;
       letter-spacing: 1.5px;
       margin-bottom: 1rem;
@@ -183,8 +190,8 @@
     .section-title::after {
       content: '';
       flex: 1;
-      height: 1px;
-      background: rgba(255,255,255,0.08);
+      height: 2px;
+      background: #D7CCC8;
       margin-left: 0.5rem;
     }
 
@@ -196,32 +203,35 @@
     }
 
     .friend-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 16px;
       padding: 1rem 1.2rem;
       display: flex;
       align-items: center;
       gap: 1rem;
       transition: all 0.2s;
+      box-shadow: 0 4px 0 #5D4037;
     }
 
     .friend-card:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: rgba(255,255,255,0.1);
+      background: #FFF8F0;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #5D4037;
     }
 
     .friend-avatar {
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(180deg, #66BB6A, #43A047);
+      border: 3px solid #2E7D32;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.3rem;
       font-weight: 800;
-      color: #fff;
+      color: #FFFFFF;
       flex-shrink: 0;
       position: relative;
     }
@@ -236,19 +246,19 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      border: 2px solid #1a1a2e;
+      border: 2px solid #F5E6D0;
     }
 
     .friend-avatar.online::after {
-      background: #22c55e;
+      background: #43A047;
     }
 
     .friend-avatar.playing::after {
-      background: #f97316;
+      background: #FF5722;
     }
 
     .friend-avatar.offline::after {
-      background: #6b7280;
+      background: #BDBDBD;
     }
 
     .friend-info {
@@ -259,7 +269,7 @@
     .friend-name {
       font-size: 1rem;
       font-weight: 700;
-      color: #fff;
+      color: #3E2723;
       margin-bottom: 0.2rem;
       white-space: nowrap;
       overflow: hidden;
@@ -274,9 +284,9 @@
       gap: 0.4rem;
     }
 
-    .friend-status.online { color: #22c55e; }
-    .friend-status.playing { color: #f97316; }
-    .friend-status.offline { color: rgba(255,255,255,0.4); }
+    .friend-status.online { color: #2E7D32; }
+    .friend-status.playing { color: #E64A19; }
+    .friend-status.offline { color: #795548; }
 
     .friend-actions {
       display: flex;
@@ -285,43 +295,52 @@
     }
 
     .btn-challenge {
-      background: linear-gradient(135deg, #8b5cf6, #6366f1);
-      border: none;
-      border-radius: 10px;
+      background: linear-gradient(180deg, #66BB6A, #43A047);
+      border: 3px solid #2E7D32;
+      border-radius: 14px;
       padding: 0.5rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
-      color: #fff;
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 0.3rem;
+      box-shadow: 0 4px 0 #2E7D32;
     }
 
     .btn-challenge:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+      box-shadow: 0 6px 0 #2E7D32;
+    }
+
+    .btn-challenge:disabled {
+      background: #D7CCC8;
+      border-color: #BDBDBD;
+      color: #9E9E9E;
+      box-shadow: 0 2px 0 #BDBDBD;
+      cursor: not-allowed;
     }
 
     .btn-remove {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px;
+      background: #F5E6D0;
+      border: 2px solid #D7CCC8;
+      border-radius: 14px;
       padding: 0.5rem 0.9rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
-      color: rgba(255,255,255,0.6);
+      color: #795548;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-remove:hover {
-      background: rgba(239, 68, 68, 0.15);
-      color: #ef4444;
-      border-color: rgba(239, 68, 68, 0.3);
+      background: #FFCCBC;
+      color: #BF360C;
+      border-color: #FF5722;
     }
 
     /* ===== REQUESTS ===== */
@@ -332,13 +351,14 @@
     }
 
     .request-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 16px;
       padding: 1rem 1.2rem;
       display: flex;
       align-items: center;
       gap: 1rem;
+      box-shadow: 0 4px 0 #5D4037;
     }
 
     .request-actions {
@@ -348,38 +368,39 @@
     }
 
     .btn-accept {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      border: none;
-      border-radius: 10px;
+      background: linear-gradient(180deg, #66BB6A, #43A047);
+      border: 3px solid #2E7D32;
+      border-radius: 14px;
       padding: 0.5rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
-      color: #fff;
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.2s;
+      box-shadow: 0 4px 0 #2E7D32;
     }
 
     .btn-accept:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 6px 0 #2E7D32;
     }
 
     .btn-decline {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 10px;
+      background: #FFCCBC;
+      border: 2px solid #FF5722;
+      border-radius: 14px;
       padding: 0.5rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
-      color: #ef4444;
+      color: #BF360C;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-decline:hover {
-      background: rgba(239, 68, 68, 0.2);
+      background: #FFAB91;
     }
 
     /* ===== SEARCH ===== */
@@ -391,10 +412,10 @@
     .search-input-social {
       width: 100%;
       padding: 1rem 1rem 1rem 3rem;
-      background: rgba(255,255,255,0.05);
-      border: 2px solid rgba(255,255,255,0.08);
+      background: #FFF8F0;
+      border: 2px solid #D7CCC8;
       border-radius: 14px;
-      color: #fff;
+      color: #3E2723;
       font-family: 'Nunito', sans-serif;
       font-size: 1rem;
       transition: all 0.2s;
@@ -402,13 +423,13 @@
 
     .search-input-social:focus {
       outline: none;
-      border-color: #ff6b35;
-      background: rgba(255,255,255,0.07);
-      box-shadow: 0 0 0 3px rgba(255,107,53,0.15);
+      border-color: #FF5722;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(255,87,34,0.15);
     }
 
     .search-input-social::placeholder {
-      color: rgba(255,255,255,0.3);
+      color: #A1887F;
     }
 
     .search-icon-social {
@@ -417,7 +438,7 @@
       top: 50%;
       transform: translateY(-50%);
       font-size: 1.1rem;
-      color: rgba(255,255,255,0.4);
+      color: #8D6E63;
       pointer-events: none;
     }
 
@@ -428,43 +449,46 @@
     }
 
     .result-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 16px;
       padding: 1rem 1.2rem;
       display: flex;
       align-items: center;
       gap: 1rem;
+      box-shadow: 0 4px 0 #5D4037;
     }
 
     .btn-add {
-      background: linear-gradient(135deg, #ff6b35, #e85d2a);
-      border: none;
-      border-radius: 10px;
+      background: linear-gradient(180deg, #FF5722, #E64A19);
+      border: 3px solid #BF360C;
+      border-radius: 14px;
       padding: 0.5rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
-      color: #fff;
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
       gap: 0.3rem;
       flex-shrink: 0;
+      box-shadow: 0 4px 0 #BF360C;
     }
 
     .btn-add:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255,107,53,0.4);
+      box-shadow: 0 6px 0 #BF360C;
     }
 
     .btn-add:disabled {
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.4);
+      background: #D7CCC8;
+      border-color: #BDBDBD;
+      color: #9E9E9E;
       cursor: not-allowed;
       transform: none;
-      box-shadow: none;
+      box-shadow: 0 2px 0 #BDBDBD;
     }
 
     /* ===== SUGGESTIONS ===== */
@@ -475,37 +499,40 @@
     }
 
     .suggestion-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #F5E6D0;
+      border: 3px solid #8D6E63;
       border-radius: 16px;
       padding: 1.2rem 1rem;
       text-align: center;
       transition: all 0.2s;
+      box-shadow: 0 4px 0 #5D4037;
     }
 
     .suggestion-card:hover {
-      background: rgba(255,255,255,0.07);
-      border-color: rgba(255,255,255,0.1);
+      background: #FFF8F0;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #5D4037;
     }
 
     .suggestion-avatar {
       width: 56px;
       height: 56px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b, #d97706);
+      background: linear-gradient(180deg, #FFD54F, #FFB300);
+      border: 3px solid #FF8F00;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.5rem;
       font-weight: 800;
-      color: #fff;
+      color: #3E2723;
       margin: 0 auto 0.8rem;
     }
 
     .suggestion-name {
       font-size: 0.95rem;
       font-weight: 700;
-      color: #fff;
+      color: #3E2723;
       margin-bottom: 0.3rem;
       white-space: nowrap;
       overflow: hidden;
@@ -514,68 +541,69 @@
 
     .suggestion-games {
       font-size: 0.75rem;
-      color: rgba(255,255,255,0.4);
+      color: #795548;
       margin-bottom: 0.8rem;
       font-weight: 600;
     }
 
     .btn-add-small {
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.15);
+      background: #FFF8F0;
+      border: 2px solid #D7CCC8;
       border-radius: 999px;
       padding: 0.4rem 1rem;
       font-family: 'Nunito', sans-serif;
       font-weight: 700;
       font-size: 0.78rem;
-      color: rgba(255,255,255,0.8);
+      color: #5D4037;
       cursor: pointer;
       transition: all 0.2s;
       width: 100%;
     }
 
     .btn-add-small:hover {
-      background: rgba(255,107,53,0.15);
-      border-color: rgba(255,107,53,0.4);
-      color: #ff8f5e;
+      background: linear-gradient(180deg, #66BB6A, #43A047);
+      border-color: #2E7D32;
+      color: #FFFFFF;
     }
 
     /* ===== EMPTY STATE ===== */
     .empty-state {
       text-align: center;
       padding: 3rem 1.5rem;
-      color: rgba(255,255,255,0.35);
+      color: #795548;
     }
 
     .empty-state-icon {
       font-size: 3rem;
       margin-bottom: 1rem;
-      opacity: 0.5;
+      opacity: 0.6;
     }
 
     .empty-state h3 {
       font-size: 1.1rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
-      color: rgba(255,255,255,0.6);
+      color: #5D4037;
     }
 
     .empty-state p {
       font-size: 0.9rem;
       font-weight: 500;
+      color: #795548;
     }
 
     /* ===== LOADING STATE ===== */
     .loading-state {
       text-align: center;
       padding: 3rem;
-      color: rgba(255,255,255,0.4);
+      color: #795548;
     }
 
     .spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(255,255,255,0.1);
-      border-top-color: #ff6b35;
+      border: 3px solid #D7CCC8;
+      border-top-color: #43A047;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       margin: 0 auto 1rem;
