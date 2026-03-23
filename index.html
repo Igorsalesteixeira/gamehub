@@ -87,8 +87,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" /></noscript>
 
   <!-- CSS não-crítico carregado assíncronamente -->
-  <link rel="preload" href="style.css?v=8" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="style.css?v=8" /></noscript>
+  <link rel="preload" href="style.css?v=9" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=9" /></noscript>
 
   <!-- Dados estruturados -->
   <script type="application/ld+json">
@@ -120,6 +120,14 @@
     <div class="header-inner">
       <div class="logo">🎮 Games Hub</div>
       <p class="tagline">Seus jogos favoritos, de graca e online!</p>
+    </div>
+    <div class="streak-badge" id="streak-badge" title="Sua sequência diária">
+      <span class="streak-fire">🔥</span>
+      <span id="streak-count">0</span>
+    </div>
+    <div class="coin-display" id="coin-display" title="Suas moedas">
+      <span class="coin-icon">🪙</span>
+      <span id="coin-balance">0</span>
     </div>
     <div class="header-auth" id="header-auth"></div>
   </header>
@@ -156,6 +164,33 @@
     </div>
     <div class="live-rooms-grid" id="live-rooms-grid"></div>
   </div>
+
+  <!-- Daily Challenge Widget -->
+  <section class="daily-challenge-widget" id="daily-widget">
+    <div class="daily-widget-inner">
+      <div class="daily-widget-info">
+        <span class="daily-widget-badge">&#127942; DESAFIO DO DIA</span>
+        <span class="daily-widget-game" id="daily-widget-game"></span>
+      </div>
+      <a href="desafio-diario.html" class="daily-widget-btn" id="daily-widget-btn">Jogar</a>
+    </div>
+  </section>
+
+  <!-- Recently Played -->
+  <section class="recent-section" id="recent-section" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title">&#x1F579;&#xFE0F; Continue Jogando</h2>
+    </div>
+    <div class="recent-grid" id="recent-grid"></div>
+  </section>
+
+  <!-- Favorites -->
+  <section class="favorites-section" id="favorites-section" style="display:none">
+    <div class="section-header">
+      <h2 class="section-title">&#x2764;&#xFE0F; Favoritos</h2>
+    </div>
+    <div class="favorites-grid" id="favorites-grid"></div>
+  </section>
 
   <main class="main" id="main-content" role="main">
     <div class="games-grid" id="games-grid" role="list">
@@ -1175,5 +1210,144 @@
     loadActivityFeed();
   </script>
   <script src="toast-notification.js"></script>
+  <script type="module">
+    import { coinManager } from './games/shared/coin-manager.js';
+
+    // Update display
+    function updateCoinDisplay() {
+      const el = document.getElementById('coin-balance');
+      if (el) el.textContent = coinManager.getBalance().toLocaleString('pt-BR');
+    }
+
+    // Listen for changes
+    window.addEventListener('coins-changed', updateCoinDisplay);
+
+    // Initial display
+    updateCoinDisplay();
+
+    // Try to sync with cloud
+    coinManager.loadFromCloud().then(updateCoinDisplay);
+  </script>
+
+  <!-- Recently Played + Favorites -->
+  <script type="module">
+    import { getRecentlyPlayed, getFavorites, toggleFavorite, isFavorite } from './games/shared/recently-played.js';
+
+    // Build a map of game info from existing DOM cards
+    const gameCardMap = {};
+    document.querySelectorAll('.game-card[data-game]').forEach(card => {
+      const gameId = card.dataset.game;
+      const icon = card.querySelector('.game-icon')?.textContent?.trim() || '';
+      const name = card.querySelector('.game-info h3')?.textContent?.trim() || gameId;
+      const href = card.getAttribute('href') || '#';
+      gameCardMap[gameId] = { icon, name, href };
+    });
+
+    function timeAgo(ts) {
+      const diff = Date.now() - ts;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'agora';
+      if (mins < 60) return mins + ' min atras';
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return hours + 'h atras';
+      const days = Math.floor(hours / 24);
+      return days + 'd atras';
+    }
+
+    function renderRecent() {
+      const recent = getRecentlyPlayed(5);
+      const section = document.getElementById('recent-section');
+      const grid = document.getElementById('recent-grid');
+      if (!recent.length) { section.style.display = 'none'; return; }
+      section.style.display = '';
+      grid.innerHTML = recent.map(r => {
+        const info = gameCardMap[r.gameId];
+        if (!info) return '';
+        return `<a href="${info.href}" class="recent-card">
+          <span class="game-icon">${info.icon}</span>
+          <div>
+            <div class="game-name">${info.name}</div>
+            <div class="game-last-played">${timeAgo(r.lastPlayed)}</div>
+          </div>
+        </a>`;
+      }).join('');
+    }
+
+    function renderFavorites() {
+      const favs = getFavorites();
+      const section = document.getElementById('favorites-section');
+      const grid = document.getElementById('favorites-grid');
+      if (!favs.length) { section.style.display = 'none'; return; }
+      section.style.display = '';
+      grid.innerHTML = favs.map(gameId => {
+        const info = gameCardMap[gameId];
+        if (!info) return '';
+        return `<a href="${info.href}" class="fav-card">
+          <span class="game-icon">${info.icon}</span>
+          <div>
+            <div class="game-name">${info.name}</div>
+          </div>
+        </a>`;
+      }).filter(Boolean).join('');
+    }
+
+    // Inject fav-btn into every game card
+    document.querySelectorAll('.game-card[data-game]').forEach(card => {
+      const gameId = card.dataset.game;
+      const btn = document.createElement('button');
+      btn.className = 'fav-btn' + (isFavorite(gameId) ? ' active' : '');
+      btn.setAttribute('data-fav', gameId);
+      btn.setAttribute('aria-label', 'Favoritar');
+      btn.textContent = isFavorite(gameId) ? '\u2764\uFE0F' : '\u2661';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const added = toggleFavorite(gameId);
+        btn.classList.toggle('active', added);
+        btn.textContent = added ? '\u2764\uFE0F' : '\u2661';
+        // Update all fav-btns for this game
+        document.querySelectorAll(`.fav-btn[data-fav="${gameId}"]`).forEach(b => {
+          b.classList.toggle('active', added);
+          b.textContent = added ? '\u2764\uFE0F' : '\u2661';
+        });
+        renderFavorites();
+      });
+      card.prepend(btn);
+    });
+
+    renderRecent();
+    renderFavorites();
+  </script>
+  <script type="module">
+    import { streakManager } from './games/shared/streak-manager.js';
+    import { showStreakModal } from './games/shared/streak-modal.js';
+
+    // Check in and update display
+    const result = streakManager.checkIn();
+
+    const streakEl = document.getElementById('streak-count');
+    if (streakEl) streakEl.textContent = streakManager.getStreak();
+
+    // Show modal if new day
+    if (result.isNewDay) {
+      setTimeout(() => showStreakModal(result), 500);
+    }
+  </script>
+  <script type="module">
+    import { dailyChallenge } from './games/shared/daily-challenge.js';
+
+    const info = dailyChallenge.getTodayInfo();
+    const gameEl = document.getElementById('daily-widget-game');
+    const btnEl = document.getElementById('daily-widget-btn');
+    const widgetEl = document.getElementById('daily-widget');
+
+    if (gameEl) gameEl.textContent = `${info.game.icon} ${info.game.name}`;
+    if (btnEl) btnEl.href = 'desafio-diario.html';
+
+    if (info.completed && widgetEl) {
+      widgetEl.classList.add('daily-widget-completed');
+      if (btnEl) btnEl.textContent = '\u2705 Conclu\u00EDdo';
+    }
+  </script>
 </body>
 </html>

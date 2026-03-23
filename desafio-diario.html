@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Desafio Di&#225;rio - Games Hub</title>
+  <meta name="description" content="Complete o desafio di&#225;rio do Games Hub! Todo dia um puzzle diferente para todos os jogadores." />
+  <link rel="canonical" href="https://gameshub.com.br/desafio-diario.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Desafio Di&#225;rio - Games Hub" />
+  <meta property="og:description" content="Complete o desafio di&#225;rio! Todo dia um puzzle diferente para todos os jogadores." />
+  <meta property="og:url" content="https://gameshub.com.br/desafio-diario.html" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Desafio Di&#225;rio - Games Hub" />
+  <meta name="twitter:description" content="Complete o desafio di&#225;rio! Todo dia um puzzle diferente." />
+  <meta name="theme-color" content="#0d0d19" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #0d0d19;
+      color: #e9e6f8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: rgba(24,24,39,0.8);
+      backdrop-filter: blur(12px);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid rgba(71,70,85,0.15);
+    }
+
+    .btn-back {
+      color: #81ecff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .page-title {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .challenge-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+      text-align: center;
+    }
+
+    .challenge-date {
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      color: #757484;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .challenge-card {
+      background: linear-gradient(180deg, rgba(36,36,54,0.8), rgba(24,24,39,0.6));
+      border: 1px solid rgba(129,236,255,0.15);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .challenge-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .challenge-game-name {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .challenge-desc {
+      color: #aba9ba;
+      margin-bottom: 1.5rem;
+    }
+
+    .challenge-play-btn {
+      display: inline-block;
+      padding: 0.9rem 2.5rem;
+      background: linear-gradient(135deg, #81ecff, #ff51fa);
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .challenge-play-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(129,236,255,0.3);
+    }
+
+    .challenge-completed {
+      background: rgba(0, 255, 100, 0.1);
+      border-color: rgba(0, 255, 100, 0.3);
+    }
+
+    .challenge-completed .challenge-play-btn {
+      background: rgba(255,255,255,0.1);
+      cursor: default;
+    }
+
+    .challenge-streak {
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 1.1rem;
+      color: #ff6b35;
+      margin-top: 1.5rem;
+    }
+
+    .schedule {
+      margin-top: 2rem;
+    }
+
+    .schedule h2 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.8rem;
+    }
+
+    .schedule-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 0.8rem;
+      text-align: center;
+    }
+
+    .schedule-item.today {
+      border-color: rgba(129,236,255,0.3);
+      background: rgba(129,236,255,0.05);
+    }
+
+    .schedule-day {
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-size: 0.8rem;
+      color: #757484;
+      text-transform: uppercase;
+    }
+
+    .schedule-icon {
+      font-size: 1.5rem;
+      margin: 0.3rem 0;
+    }
+
+    .schedule-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .share-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.5rem;
+      background: #25d366;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+
+    .share-btn:hover { transform: translateY(-2px); }
+
+    .footer {
+      text-align: center;
+      padding: 1.2rem;
+      font-size: 0.85rem;
+      color: #757484;
+      border-top: 1px solid rgba(71,70,85,0.12);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a href="index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="page-title">&#127942; Desafio Di&#225;rio</h1>
+  </header>
+
+  <div class="challenge-container">
+    <p class="challenge-date" id="challenge-date"></p>
+
+    <div class="challenge-card" id="challenge-card">
+      <div class="challenge-icon" id="challenge-icon"></div>
+      <h2 class="challenge-game-name" id="challenge-game-name"></h2>
+      <p class="challenge-desc">Mesmo puzzle para todos os jogadores. Uma chance s&#243;!</p>
+      <a class="challenge-play-btn" id="challenge-play-btn" href="#">Jogar Desafio</a>
+      <div class="challenge-streak" id="challenge-streak"></div>
+    </div>
+
+    <div class="schedule">
+      <h2>Calend&#225;rio Semanal</h2>
+      <div class="schedule-grid" id="schedule-grid"></div>
+    </div>
+  </div>
+
+  <footer class="footer">Games Hub &copy; 2024-2026</footer>
+
+  <script type="module">
+    import { dailyChallenge, DAILY_GAMES } from './games/shared/daily-challenge.js';
+
+    const info = dailyChallenge.getTodayInfo();
+    const dayNames = ['Domingo', 'Segunda', 'Ter\u00E7a', 'Quarta', 'Quinta', 'Sexta', 'S\u00E1bado'];
+
+    // Format date
+    const dateObj = new Date(info.date + 'T12:00:00');
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    document.getElementById('challenge-date').textContent =
+      dateObj.toLocaleDateString('pt-BR', options);
+
+    // Today's challenge
+    document.getElementById('challenge-icon').textContent = info.game.icon;
+    document.getElementById('challenge-game-name').textContent = info.game.name;
+
+    const playBtn = document.getElementById('challenge-play-btn');
+    playBtn.href = info.game.path + '?daily=' + info.seed;
+
+    if (info.completed) {
+      document.getElementById('challenge-card').classList.add('challenge-completed');
+      playBtn.textContent = '\u2705 Conclu\u00EDdo!';
+      playBtn.removeAttribute('href');
+      playBtn.style.pointerEvents = 'none';
+    }
+
+    // Challenge streak
+    const challengeStreak = dailyChallenge.getChallengeStreak();
+    if (challengeStreak > 0) {
+      document.getElementById('challenge-streak').textContent =
+        `\u{1F525} ${challengeStreak} desafio${challengeStreak > 1 ? 's' : ''} consecutivo${challengeStreak > 1 ? 's' : ''}`;
+    }
+
+    // Schedule
+    const grid = document.getElementById('schedule-grid');
+    const today = new Date();
+    const brt = new Date(today.getTime() - 3 * 60 * 60 * 1000);
+    const currentDay = brt.getDay();
+
+    const orderedDays = [1, 2, 3, 4, 5, 6, 0]; // Mon to Sun
+    orderedDays.forEach(dayNum => {
+      const game = DAILY_GAMES.find(g => g.day === dayNum);
+      if (!game) return;
+
+      const item = document.createElement('div');
+      item.className = 'schedule-item' + (dayNum === currentDay ? ' today' : '');
+      item.innerHTML = `
+        <div class="schedule-day">${dayNames[dayNum]}</div>
+        <div class="schedule-icon">${game.icon}</div>
+        <div class="schedule-name">${game.name}</div>
+      `;
+      grid.appendChild(item);
+    });
+  </script>
+
+  <script type="module">
+    import { initSidebar } from './sidebar.js?v=7';
+    initSidebar({ active: 'daily' });
+  </script>
+  <script type="module" src="games/shared/pwa-register.js?v=1"></script>
+</body>
+</html>
