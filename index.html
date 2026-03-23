@@ -618,6 +618,33 @@
         <span class="badge badge-play">Jogar</span>
       </a>
 
+      <a href="games/digitacao/index.html" class="game-card" data-category="palavras" data-name="Digitação Turbo Typing Race" data-game="digitacao">
+        <div class="game-icon">⌨️</div>
+        <div class="game-info"><h3>Digitação Turbo</h3><p>Corrida de digitação em PT-BR</p></div>
+        <span class="game-category-tag" data-cat="palavras">Palavras</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-digitacao"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <a href="games/ritmo/index.html" class="game-card" data-category="arcade" data-name="Ritmo Brasileiro Rhythm Game" data-game="ritmo">
+        <div class="game-icon">🎵</div>
+        <div class="game-info"><h3>Ritmo Brasileiro</h3><p>Guitar Hero com samba, funk e forró</p></div>
+        <span class="game-category-tag" data-cat="arcade">Arcade</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-ritmo"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
+      <a href="games/desenhando/index.html" class="game-card" data-category="casual" data-name="Desenhando Draw Guess" data-game="desenhando">
+        <div class="game-icon">🎨</div>
+        <div class="game-info"><h3>Desenhando</h3><p>Desenhe e adivinhe palavras</p></div>
+        <span class="game-category-tag" data-cat="casual">Casual</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-desenhando"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
     </div>
 
     <!-- No results message -->
@@ -1061,6 +1088,9 @@
       pyramid:    { icon: '🔺', name: 'Pirâmide' },
       uno:        { icon: '🎴', name: 'Uno' },
       quiz:       { icon: '🧠', name: 'Quiz Battle' },
+      digitacao:  { icon: '⌨️', name: 'Digitação Turbo' },
+      ritmo:      { icon: '🎵', name: 'Ritmo Brasileiro' },
+      desenhando: { icon: '🎨', name: 'Desenhando' },
     };
 
     async function loadLiveRooms() {

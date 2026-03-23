@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Ritmo Brasileiro Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Ritmo Brasileiro online gratis. Um jogo de ritmo com batidas de samba, bossa nova, funk e forro!" />
+  <meta name="keywords" content="ritmo brasileiro, rhythm game, guitar hero, jogo de ritmo, samba, bossa nova, funk, forro" />
+  <link rel="canonical" href="https://gameshub.com.br/games/ritmo/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Ritmo Brasileiro Online Gratis - Games Hub" />
+  <meta property="og:description" content="Jogue Ritmo Brasileiro online gratis. Samba, Bossa Nova, Funk, Forro e Baiao!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/ritmo/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ritmo Brasileiro Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Jogue Ritmo Brasileiro online gratis!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#1a0a2e" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Ritmo Brasileiro",
+    "description": "Jogue Ritmo Brasileiro online gratis. Um jogo de ritmo estilo Guitar Hero com batidas de samba, bossa nova, funk e forro!",
+    "url": "https://gameshub.com.br/games/ritmo/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🎵 Ritmo Brasileiro</h1>
+    <div class="stats">
+      <div class="score-box">
+        <span class="score-icon">🎯</span>
+        <span id="score-display" class="score-value neon-text">0</span>
+      </div>
+      <div class="score-box best">
+        <span class="score-icon">🏆</span>
+        <span id="best-display" class="score-value">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD superior -->
+    <div class="hud-top">
+      <div class="combo-display" id="combo-display" style="display:none;">
+        <span class="combo-count" id="combo-count">0</span>
+        <span class="combo-label">COMBO</span>
+        <span class="combo-mult" id="combo-mult">x1</span>
+      </div>
+      <div class="progress-bar-container" id="progress-container" style="display:none;">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Feedback de timing -->
+    <div class="timing-feedback" id="timing-feedback"></div>
+
+    <!-- Overlay de inicio -->
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="overlay-icon">🎵</div>
+        <h2 id="overlay-title" class="modal-title">Ritmo Brasileiro</h2>
+        <p id="overlay-msg" class="modal-subtitle">Sinta o ritmo! Escolha um genero e toque no ritmo da musica.</p>
+        <div id="overlay-score" class="overlay-score neon-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-start">Escolher Musica</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">📱 Compartilhar</button>
+      </div>
+    </div>
+
+    <!-- Modal de selecao de genero -->
+    <div class="modal-overlay glass-overlay" id="genre-modal" style="display:none;">
+      <div class="modal glass-modal genre-select-modal">
+        <h2 class="modal-title">Escolha o Ritmo</h2>
+
+        <!-- Seletor de dificuldade -->
+        <div class="difficulty-selector">
+          <button class="diff-btn" data-diff="easy">Facil</button>
+          <button class="diff-btn active" data-diff="normal">Normal</button>
+          <button class="diff-btn" data-diff="hard">Dificil</button>
+        </div>
+
+        <div class="genre-grid">
+          <button class="genre-card" data-genre="samba">
+            <span class="genre-emoji">🥁</span>
+            <span class="genre-name">Samba</span>
+            <span class="genre-bpm">100 BPM</span>
+            <span class="genre-desc">Percussao forte</span>
+          </button>
+          <button class="genre-card" data-genre="bossa">
+            <span class="genre-emoji">🎸</span>
+            <span class="genre-name">Bossa Nova</span>
+            <span class="genre-bpm">80 BPM</span>
+            <span class="genre-desc">Suave e melodico</span>
+          </button>
+          <button class="genre-card" data-genre="funk">
+            <span class="genre-emoji">🔊</span>
+            <span class="genre-name">Funk Carioca</span>
+            <span class="genre-bpm">130 BPM</span>
+            <span class="genre-desc">Beat pesado</span>
+          </button>
+          <button class="genre-card" data-genre="forro">
+            <span class="genre-emoji">🪗</span>
+            <span class="genre-name">Forro</span>
+            <span class="genre-bpm">120 BPM</span>
+            <span class="genre-desc">Triangulo + Zabumba</span>
+          </button>
+          <button class="genre-card" data-genre="baiao">
+            <span class="genre-emoji">🪘</span>
+            <span class="genre-name">Baiao</span>
+            <span class="genre-bpm">110 BPM</span>
+            <span class="genre-desc">Triangulo + Sanfona</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles mobile -->
+  <div class="mobile-controls" id="mobile-controls">
+    <button class="lane-btn lane-0" data-lane="0" aria-label="Pista 1">D</button>
+    <button class="lane-btn lane-1" data-lane="1" aria-label="Pista 2">F</button>
+    <button class="lane-btn lane-2" data-lane="2" aria-label="Pista 3">J</button>
+    <button class="lane-btn lane-3" data-lane="3" aria-label="Pista 4">K</button>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'ritmo' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+</body>
+</html>

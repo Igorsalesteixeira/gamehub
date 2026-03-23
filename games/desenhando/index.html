@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Desenhando Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Desenhando online gratis. Desenhe e adivinhe palavras no estilo Gartic!" />
+  <meta name="keywords" content="desenhando online, gartic, desenho, adivinhar desenho, jogo de desenhar gratis" />
+  <link rel="canonical" href="https://gameshub.com.br/games/desenhando/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Desenhando Online Gratis - Games Hub" />
+  <meta property="og:description" content="Desenhe e adivinhe palavras! Jogo no estilo Gartic, gratis e online." />
+  <meta property="og:url" content="https://gameshub.com.br/games/desenhando/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Desenhando Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Desenhe e adivinhe palavras! Jogo gratis online." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#0a1628" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Desenhando",
+    "description": "Jogue Desenhando online gratis. Desenhe e adivinhe palavras no estilo Gartic!",
+    "url": "https://gameshub.com.br/games/desenhando/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="game-title">&#127912; Desenhando</h1>
+    <div class="stats">
+      <div class="score-box">
+        <span class="score-icon">&#11088;</span>
+        <span id="score-display" class="score-value neon-text">0</span>
+      </div>
+      <div class="score-box best">
+        <span class="score-icon">&#127942;</span>
+        <span id="best-display" class="score-value">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <!-- Game Info Bar -->
+    <div class="game-info-bar" id="game-info-bar" style="display:none;">
+      <div class="round-info">
+        <span id="round-display">Rodada 1/10</span>
+      </div>
+      <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 44 44">
+          <circle class="timer-bg" cx="22" cy="22" r="20" />
+          <circle class="timer-fg" id="timer-circle" cx="22" cy="22" r="20" />
+        </svg>
+        <span class="timer-text" id="timer-display">60</span>
+      </div>
+      <div class="hint-info">
+        <span id="hint-display" class="hint-text">_ _ _ _ _</span>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-wrapper" id="canvas-wrapper">
+      <canvas id="draw-canvas" width="600" height="600"></canvas>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar" id="toolbar" style="display:none;">
+      <div class="tool-group colors" id="color-palette">
+        <button class="color-btn active" data-color="#000000" style="background:#000000" title="Preto"></button>
+        <button class="color-btn" data-color="#ffffff" style="background:#ffffff" title="Branco"></button>
+        <button class="color-btn" data-color="#e74c3c" style="background:#e74c3c" title="Vermelho"></button>
+        <button class="color-btn" data-color="#3498db" style="background:#3498db" title="Azul"></button>
+        <button class="color-btn" data-color="#2ecc71" style="background:#2ecc71" title="Verde"></button>
+        <button class="color-btn" data-color="#f1c40f" style="background:#f1c40f" title="Amarelo"></button>
+        <button class="color-btn" data-color="#e67e22" style="background:#e67e22" title="Laranja"></button>
+        <button class="color-btn" data-color="#9b59b6" style="background:#9b59b6" title="Roxo"></button>
+        <button class="color-btn" data-color="#fd79a8" style="background:#fd79a8" title="Rosa"></button>
+        <button class="color-btn" data-color="#795548" style="background:#795548" title="Marrom"></button>
+        <button class="color-btn" data-color="#95a5a6" style="background:#95a5a6" title="Cinza"></button>
+        <button class="color-btn" data-color="#00cec9" style="background:#00cec9" title="Ciano"></button>
+      </div>
+      <div class="tool-group tools">
+        <button class="tool-btn active" id="btn-brush" title="Pincel">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a.996.996 0 00-1.41 0L9 12.25 11.75 15l8.96-8.96a.996.996 0 000-1.41z"/></svg>
+        </button>
+        <button class="tool-btn" id="btn-eraser" title="Borracha">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.008 4.008 0 01-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0zM4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53-4.95-4.95-4.95 4.95z"/></svg>
+        </button>
+        <button class="tool-btn" id="btn-undo" title="Desfazer">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+        </button>
+        <button class="tool-btn" id="btn-clear" title="Limpar tudo">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+      </div>
+      <div class="tool-group sizes">
+        <button class="size-btn" data-size="3" title="Fino">
+          <span class="size-dot size-s"></span>
+        </button>
+        <button class="size-btn active" data-size="8" title="Medio">
+          <span class="size-dot size-m"></span>
+        </button>
+        <button class="size-btn" data-size="16" title="Grosso">
+          <span class="size-dot size-l"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Guess Input -->
+    <div class="guess-area" id="guess-area" style="display:none;">
+      <div class="guess-input-wrapper">
+        <input type="text" id="guess-input" class="guess-input" placeholder="Digite seu palpite..." autocomplete="off" maxlength="40" />
+        <button class="btn btn-guess" id="btn-guess">Enviar</button>
+      </div>
+      <div class="guess-feedback" id="guess-feedback"></div>
+    </div>
+
+    <!-- Main Menu Overlay -->
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
+        <div class="modal-icon">&#127912;</div>
+        <h2 class="modal-title">Desenhando</h2>
+        <p class="modal-subtitle">Desenhe e adivinhe!</p>
+        <div class="mode-buttons">
+          <button type="button" class="btn btn-primary btn-mode" id="btn-guess-mode">
+            &#128269; Modo Adivinhe
+          </button>
+          <button type="button" class="btn btn-secondary btn-mode" id="btn-draw-mode">
+            &#9999;&#65039; Modo Desenhe
+          </button>
+          <button type="button" class="btn btn-tertiary btn-mode" id="btn-free-mode">
+            &#127912; Modo Livre
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Round Result Overlay -->
+    <div class="modal-overlay glass-overlay" id="round-overlay" style="display:none;">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="round-icon">&#9989;</div>
+        <h2 class="modal-title" id="round-title">Acertou!</h2>
+        <p class="modal-subtitle" id="round-msg">A palavra era: cachorro</p>
+        <div id="round-score-display" class="overlay-score neon-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-next-round">Continuar</button>
+      </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div class="modal-overlay glass-overlay" id="gameover-overlay" style="display:none;">
+      <div class="modal glass-modal">
+        <div class="modal-icon">&#127942;</div>
+        <h2 class="modal-title">Fim de Jogo!</h2>
+        <p class="modal-subtitle" id="gameover-msg">Pontuacao total: 0</p>
+        <div id="gameover-score" class="overlay-score neon-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-play-again">Jogar Novamente</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="margin-top:12px;">&#128241; Compartilhar</button>
+      </div>
+    </div>
+
+    <!-- Draw Mode Word Overlay -->
+    <div class="modal-overlay glass-overlay" id="word-overlay" style="display:none;">
+      <div class="modal glass-modal">
+        <div class="modal-icon">&#9999;&#65039;</div>
+        <h2 class="modal-title">Desenhe:</h2>
+        <p class="modal-subtitle word-reveal" id="word-to-draw"></p>
+        <p class="modal-hint" id="word-category"></p>
+        <button type="button" class="btn btn-primary" id="btn-start-drawing">Comecar!</button>
+      </div>
+    </div>
+
+    <!-- Draw Result Overlay -->
+    <div class="modal-overlay glass-overlay" id="draw-result-overlay" style="display:none;">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="draw-result-icon">&#129302;</div>
+        <h2 class="modal-title" id="draw-result-title">IA adivinhou!</h2>
+        <p class="modal-subtitle" id="draw-result-msg"></p>
+        <button type="button" class="btn btn-primary" id="btn-draw-next">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'desenhando' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+</body>
+</html>

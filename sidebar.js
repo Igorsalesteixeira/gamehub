@@ -320,6 +320,7 @@ export function initSidebar(options = {}) {
       <a href="${base}games/pong/index.html" class="sidebar-link ${isActive('pong')}"><span class="sidebar-icon">🏓</span><span>Pong</span></a>
       <a href="${base}games/spaceinvaders/index.html" class="sidebar-link ${isActive('invaders')}"><span class="sidebar-icon">👾</span><span>Space Invaders</span></a>
       <a href="${base}games/tetris/index.html" class="sidebar-link ${isActive('tetris')}"><span class="sidebar-icon">🧱</span><span>Tetris</span></a>
+      <a href="${base}games/ritmo/index.html" class="sidebar-link ${isActive('ritmo')}"><span class="sidebar-icon">🎵</span><span>Ritmo Brasileiro</span></a>
       <span class="sidebar-section-label">Tabuleiro</span>
       <a href="${base}games/battleship/index.html" class="sidebar-link ${isActive('batalha')}"><span class="sidebar-icon">🚢</span><span>Batalha Naval</span></a>
       <a href="${base}games/connect4/index.html" class="sidebar-link ${isActive('connect4')}"><span class="sidebar-icon">🔴</span><span>Conecte 4</span></a>
@@ -336,9 +337,11 @@ export function initSidebar(options = {}) {
       <a href="${base}games/hangman/index.html" class="sidebar-link ${isActive('forca')}"><span class="sidebar-icon">🔤</span><span>Forca</span></a>
       <a href="${base}games/stopgame/index.html" class="sidebar-link ${isActive('stop')}"><span class="sidebar-icon">✋</span><span>Stop!</span></a>
       <a href="${base}games/termo/index.html" class="sidebar-link ${isActive('termo')}"><span class="sidebar-icon">📝</span><span>Termo</span></a>
+      <a href="${base}games/digitacao/index.html" class="sidebar-link ${isActive('digitacao')}"><span class="sidebar-icon">⌨️</span><span>Digitação Turbo</span></a>
       <span class="sidebar-section-label">Casual</span>
       <a href="${base}games/cookieclicker/index.html" class="sidebar-link ${isActive('cookie')}"><span class="sidebar-icon">🍪</span><span>Cookie Clicker</span></a>
       <a href="${base}games/quiz/index.html" class="sidebar-link ${isActive('quiz')}"><span class="sidebar-icon">🧠</span><span>Quiz Battle</span></a>
+      <a href="${base}games/desenhando/index.html" class="sidebar-link ${isActive('desenhando')}"><span class="sidebar-icon">🎨</span><span>Desenhando</span></a>
       <a href="${base}games/sinuca/index.html" class="sidebar-link ${isActive('sinuca')}"><span class="sidebar-icon">🎱</span><span>Sinuca</span></a>
       <div class="sidebar-divider"></div>
       <a href="${base}sobre.html" class="sidebar-link ${isActive('sobre')}">

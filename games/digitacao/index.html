@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Digitacao Turbo Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Digitacao Turbo online e de graca. Teste sua velocidade de digitacao em PT-BR! Modos Classico, Maratona e Chuva de Palavras." />
+  <meta name="keywords" content="digitacao online, typing race, jogo de digitacao gratis, typing game, WPM" />
+  <link rel="canonical" href="https://gameshub.com.br/games/digitacao/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Digitacao Turbo Online Gratis - Games Hub" />
+  <meta property="og:description" content="Teste sua velocidade de digitacao em PT-BR! Modos Classico, Maratona e Chuva de Palavras." />
+  <meta property="og:url" content="https://gameshub.com.br/games/digitacao/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Digitacao Turbo Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Teste sua velocidade de digitacao em PT-BR!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#0a0a1a" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Digitacao Turbo",
+    "description": "Jogue Digitacao Turbo online gratis. Teste sua velocidade de digitacao em PT-BR com varios modos de jogo.",
+    "url": "https://gameshub.com.br/games/digitacao/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">Digitacao Turbo</h1>
+    <div class="stats">
+      <div class="score-box">
+        <span class="score-label">WPM</span>
+        <span id="wpm-display" class="score-value neon-text">0</span>
+      </div>
+      <div class="score-box best">
+        <span class="score-label">Melhor</span>
+        <span id="best-display" class="score-value">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <!-- Pista de corrida canvas -->
+    <canvas id="race-canvas"></canvas>
+
+    <!-- Area de texto para digitacao -->
+    <div class="typing-area" id="typing-area">
+      <div class="phrase-display" id="phrase-display"></div>
+      <input type="text" id="typing-input" class="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Digite aqui..." />
+      <div class="typing-stats" id="typing-stats">
+        <span id="timer-display">00:00</span>
+        <span id="accuracy-display">100%</span>
+        <span id="progress-display">0/10</span>
+      </div>
+    </div>
+
+    <!-- Chuva de palavras container -->
+    <div class="rain-container" id="rain-container" style="display:none;">
+      <canvas id="rain-canvas"></canvas>
+      <input type="text" id="rain-input" class="typing-input rain-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Digite a palavra..." />
+    </div>
+
+    <!-- Modal overlay -->
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="overlay-icon">&#9000;</div>
+        <h2 id="overlay-title" class="modal-title">Digitacao Turbo</h2>
+        <p id="overlay-msg" class="modal-subtitle">Teste sua velocidade de digitacao!</p>
+
+        <!-- Selecao de modo -->
+        <div class="mode-select" id="mode-select">
+          <button type="button" class="btn btn-mode active" data-mode="classic">Classico</button>
+          <button type="button" class="btn btn-mode" data-mode="marathon">Maratona</button>
+          <button type="button" class="btn btn-mode" data-mode="rain">Chuva de Palavras</button>
+        </div>
+        <p class="mode-desc" id="mode-desc">10 frases. Digite cada uma o mais rapido possivel.</p>
+
+        <div id="overlay-score" class="overlay-score neon-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-start">Jogar</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">Compartilhar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'digitacao' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+</body>
+</html>
