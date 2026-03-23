@@ -1,42 +1,121 @@
-/* =============================================
-   Sueca - Games Hub
-   Jogo de cartas português
-   ============================================= */
+/* ============================================================
+   SUECA — "Azulejos de Lisboa ao Meio-Dia"
+   "The Sun-Drenched Atelier" · Stitch Design System · LIGHT THEME
+   Palette: azulejo cobalt, cream, terracotta, antique gold
+   Fonts: Playfair Display (display), Lora (body), Space Grotesk (labels)
+   ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
-
+/* — Design Tokens — */
 :root {
-  --table-bg: #1a5f3c;
-  --table-border: #0d3d26;
-  --card-bg: #fff;
-  --card-red: #e74c3c;
-  --card-black: #2c3e50;
-  --accent: #f39c12;
-  --text-light: #ecf0f1;
+  /* Lisbon Sunlight Foundation */
+  --bg-parchment:       #fff9ee;
+  --bg-linen:           #faf3e5;
+  --bg-cream:           #f4eddf;
+  --bg-warm:            #efe7d9;
+  --bg-deep:            #e9e2d4;
+  --surface-bright:     #ffffff;
+
+  /* Azulejo Cobalt — Primary */
+  --cobalt:             #1e3a5f;
+  --cobalt-deep:        #022448;
+  --cobalt-light:       #2d5a8a;
+  --cobalt-glow:        rgba(30,58,95,0.12);
+
+  /* Terracotta — Secondary */
+  --terracotta:         #a0522d;
+  --terracotta-dark:    #8b4513;
+  --terracotta-warm:    #fe9e72;
+  --terracotta-glow:    rgba(160,82,45,0.12);
+
+  /* Antique Gold — Accent */
+  --gold:               #c9a84c;
+  --gold-bright:        #e6c364;
+  --gold-glow:          rgba(201,168,76,0.25);
+
+  /* Card Red */
+  --card-red:           #c0392b;
+
+  /* Text */
+  --text-dark:          #1e1b13;
+  --text-body:          #333027;
+  --text-muted:         #6b5d4f;
+  --text-faint:         #8a7e70;
+  --text-on-cobalt:     #ffffff;
+  --text-on-gold:       #241a00;
+
+  /* Outlines */
+  --outline:            #c4b8a8;
+  --outline-faint:      rgba(196,184,168,0.3);
+
+  /* Typography */
+  --font-display:       'Playfair Display', 'Noto Serif', serif;
+  --font-body:          'Lora', 'Newsreader', serif;
+  --font-mono:          'Space Grotesk', sans-serif;
+
+  /* Shape */
+  --radius-card:        6px;
+  --radius-btn:         4px;
+  --radius-panel:       8px;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* — Reset — */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* — Body: Sun-Drenched Cream — */
 body {
-  font-family: 'Nunito', sans-serif;
-  background: var(--table-bg);
+  font-family: var(--font-body);
+  background: var(--bg-parchment);
+  color: var(--text-dark);
   min-height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
+/* Azulejo tile pattern overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(30,58,95,0.02) 0px,
+      transparent 1px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(30,58,95,0.02) 0px,
+      transparent 1px,
+      transparent 40px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm sunlight from top + subtle vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% -5%, rgba(201,168,76,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(30,58,95,0.04) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* — Game Container — */
 #game-container {
   width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
+  z-index: 1;
 }
 
-/* Mesa de jogo */
+/* — Table Area — */
 #table-area {
   flex: 1;
   position: relative;
@@ -44,9 +123,10 @@ body {
   justify-content: center;
   align-items: center;
   padding: 1rem;
+  background: radial-gradient(ellipse at 50% 50%, var(--bg-linen), var(--bg-parchment));
 }
 
-/* Jogadores oponentes */
+/* — Player Hands (Opponents) — */
 .player-hand {
   position: absolute;
   display: flex;
@@ -55,81 +135,87 @@ body {
   gap: 0.5rem;
 }
 
-.player-hand.opponent {
-  opacity: 0.9;
-}
+.player-hand.opponent { opacity: 0.9; }
 
 .player-name {
-  color: var(--text-light);
-  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   font-weight: 600;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .cards-back {
   width: 40px;
   height: 56px;
-  background: linear-gradient(135deg, #c0392b 0%, #8e281d 100%);
-  border-radius: 6px;
-  border: 2px solid #fff;
+  background: linear-gradient(145deg, var(--cobalt), var(--cobalt-deep));
+  border-radius: var(--radius-card);
   position: relative;
+  box-shadow: 0 2px 8px rgba(30,58,95,0.2);
 }
 
 .cards-back::after {
-  content: '🂠';
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.2rem;
-  opacity: 0.3;
+  inset: 3px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  pointer-events: none;
 }
 
+/* Opponent positions */
 #opponent-top {
   top: 1rem;
   left: 50%;
   transform: translateX(-50%);
 }
-
 #opponent-left {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%) rotate(90deg);
 }
-
 #opponent-right {
   right: 1rem;
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
 }
 
-/* Área de jogo central */
+/* — Central Play Area — */
 #play-area {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-  padding: 2rem;
+  background: var(--bg-cream);
+  border-radius: 16px;
+  padding: 1.5rem;
   min-width: 280px;
   min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  box-shadow:
+    0 4px 16px rgba(30,58,95,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.6);
 }
 
+/* — Trump Indicator — */
 #trump-indicator {
-  color: var(--text-light);
-  font-size: 1.1rem;
-  font-weight: 700;
-  background: rgba(0,0,0,0.3);
+  color: var(--text-body);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--surface-bright);
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: var(--radius-btn);
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(30,58,95,0.06);
 }
 
 #trump-suit {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  color: var(--cobalt);
 }
 
-/* Área das cartas jogadas */
+/* — Trick Area (Played Cards) — */
 #trick-area {
   position: relative;
   width: 200px;
@@ -140,74 +226,53 @@ body {
   position: absolute;
   width: 50px;
   height: 70px;
-  background: var(--card-bg);
-  border-radius: 8px;
+  background: var(--surface-bright);
+  border-radius: var(--radius-card);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-display);
   font-size: 1.2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 3px 10px rgba(30,58,95,0.12);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
-.played-card.visible {
-  opacity: 1;
-}
+.played-card.visible { opacity: 1; }
 
 .played-card .rank {
   font-weight: 700;
   font-size: 1rem;
+  color: var(--text-dark);
 }
 
-.played-card .suit {
-  font-size: 1.2rem;
-}
+.played-card .suit { font-size: 1.2rem; }
+.played-card .red { color: var(--card-red); }
 
-.played-card .red {
-  color: var(--card-red);
-}
+#card-top    { top: 0; left: 50%; transform: translateX(-50%); }
+#card-left   { left: 0; top: 50%; transform: translateY(-50%); }
+#card-right  { right: 0; top: 50%; transform: translateY(-50%); }
+#card-bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
 
-#card-top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-#card-left {
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#card-right {
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#card-bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Placar */
+/* — Score Board — */
 #score-board {
   display: flex;
   gap: 2rem;
-  color: var(--text-light);
-  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
   font-weight: 600;
+  color: var(--text-body);
 }
 
 #score-board span {
-  color: var(--accent);
+  color: var(--cobalt);
+  font-family: var(--font-display);
   font-size: 1.3rem;
+  font-weight: 700;
 }
 
-/* Mão do jogador */
+/* — Player Hand (Bottom) — */
 #player-hand {
   display: flex;
   justify-content: center;
@@ -216,73 +281,97 @@ body {
   flex-wrap: wrap;
   max-height: 30vh;
   overflow-y: auto;
+  background: linear-gradient(0deg, var(--bg-linen) 0%, transparent 100%);
 }
 
+/* — Cards — */
 .card {
   width: 60px;
   height: 84px;
-  background: var(--card-bg);
-  border-radius: 8px;
+  background: linear-gradient(170deg, #ffffff, #faf5ed);
+  border-radius: var(--radius-card);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(30,58,95,0.1);
   user-select: none;
+  font-family: var(--font-display);
 }
 
 .card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  box-shadow:
+    0 8px 20px rgba(30,58,95,0.15),
+    0 0 0 2px var(--gold);
 }
 
-.card:active {
-  transform: translateY(-5px);
-}
+.card:active { transform: translateY(-5px); }
 
 .card .rank {
   font-weight: 700;
   font-size: 1.1rem;
+  color: var(--text-dark);
 }
+.card .suit { font-size: 1.5rem; }
+.card .red { color: var(--card-red); }
 
-.card .suit {
-  font-size: 1.5rem;
-}
-
-.card .red {
-  color: var(--card-red);
-}
-
-/* Overlay */
+/* — Overlay (Start Screen) — */
 #overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(30,58,95,0.92), rgba(2,36,72,0.95));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  z-index: 1000;
-  color: var(--text-light);
+  z-index: 2000;
+  color: var(--text-on-cobalt);
   text-align: center;
   padding: 2rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Tile pattern on overlay */
+#overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.03) 0px,
+      transparent 1px,
+      transparent 30px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0px,
+      transparent 1px,
+      transparent 30px
+    );
+  pointer-events: none;
 }
 
 #overlay h1 {
+  font-family: var(--font-display);
   font-size: 3rem;
-  color: var(--accent);
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-weight: 700;
+  color: var(--gold-bright);
+  text-shadow: 0 2px 12px rgba(201,168,76,0.4);
+  position: relative;
 }
 
 #overlay p {
-  font-size: 1.2rem;
-  opacity: 0.9;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  opacity: 0.85;
+  position: relative;
 }
 
 #game-modes {
@@ -290,49 +379,75 @@ body {
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
+  position: relative;
 }
 
+/* — Buttons — */
 .mode-btn, #btn-start, #btn-new-game {
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
+  padding: 0.9rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 700;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-btn);
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Nunito', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sweep animation */
+.mode-btn::before, #btn-start::before, #btn-new-game::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: left 0.4s ease;
+}
+.mode-btn:hover::before, #btn-start:hover::before, #btn-new-game:hover::before {
+  left: 100%;
 }
 
 .mode-btn {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
+  background: linear-gradient(145deg, var(--cobalt-light), var(--cobalt));
+  color: var(--text-on-cobalt);
+  box-shadow: 0 4px 12px rgba(30,58,95,0.3);
 }
-
 .mode-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(30,58,95,0.4);
 }
+.mode-btn:active { transform: scale(0.97); }
 
 #btn-start, #btn-new-game {
-  background: linear-gradient(135deg, #27ae60, #219a52);
-  color: white;
+  background: linear-gradient(145deg, var(--gold), var(--terracotta));
+  color: var(--text-on-cobalt);
+  box-shadow: 0 4px 12px rgba(201,168,76,0.3);
 }
-
 #btn-start:hover, #btn-new-game:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(201,168,76,0.4);
 }
 
+/* — Game Rules Panel — */
 #game-rules {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   max-width: 400px;
+  position: relative;
 }
 
 #game-rules h3 {
-  color: var(--accent);
+  font-family: var(--font-display);
+  color: var(--gold-bright);
   margin-bottom: 0.5rem;
+  font-size: 1.1rem;
 }
 
 #game-rules ul {
@@ -343,97 +458,96 @@ body {
 
 #game-rules li {
   margin: 0.5rem 0;
-  opacity: 0.9;
+  opacity: 0.85;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
 }
 
-/* Indicador de vez */
+/* — Turn Indicator — */
 #turn-indicator {
   position: fixed;
   bottom: 35%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--accent);
-  color: #1a1a2e;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
+  background: linear-gradient(145deg, var(--gold), var(--gold-bright));
+  color: var(--text-on-gold);
+  padding: 0.7rem 1.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1.1rem;
-  animation: pulse 1.5s infinite;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: turn-pulse 1.5s infinite;
   z-index: 100;
+  box-shadow: 0 4px 16px var(--gold-glow);
 }
 
-@keyframes pulse {
+@keyframes turn-pulse {
   0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
-  50% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+  50% { opacity: 0.85; transform: translateX(-50%) scale(1.03); }
 }
 
-/* Tela final */
+/* — End Screen — */
 #end-screen {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
+  inset: 0;
+  background: rgba(30,58,95,0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  z-index: 1001;
-  color: var(--text-light);
+  z-index: 2001;
+  color: var(--text-on-cobalt);
 }
 
 #end-screen h2 {
-  font-size: 2.5rem;
-  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--gold-bright);
+  text-shadow: 0 2px 10px rgba(201,168,76,0.3);
 }
 
-#final-scores {
-  text-align: center;
-}
+#final-scores { text-align: center; }
 
 .score-row {
-  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
   margin: 0.5rem 0;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
 }
 
 .score-row.winner {
-  background: rgba(39, 174, 96, 0.3);
-  color: #2ecc71;
+  background: rgba(201,168,76,0.2);
+  color: var(--gold-bright);
 }
 
 .result {
+  font-family: var(--font-display);
   font-size: 2rem;
   margin-top: 1rem;
   font-weight: 700;
+  color: var(--gold-bright);
 }
 
-/* Utilidades */
-.hidden {
-  display: none !important;
-}
+/* — Utilities — */
+.hidden { display: none !important; }
 
-/* Mobile */
+/* — Responsive — */
 @media (max-width: 600px) {
-  #overlay h1 {
-    font-size: 2rem;
-  }
+  #overlay h1 { font-size: 2rem; }
 
   .card {
     width: 50px;
     height: 70px;
   }
-
-  .card .rank {
-    font-size: 0.9rem;
-  }
-
-  .card .suit {
-    font-size: 1.2rem;
-  }
+  .card .rank { font-size: 0.9rem; }
+  .card .suit { font-size: 1.2rem; }
 
   #play-area {
     padding: 1rem;
@@ -451,7 +565,7 @@ body {
   }
 
   #score-board {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     gap: 1rem;
   }
 }

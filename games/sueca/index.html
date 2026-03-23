@@ -8,9 +8,19 @@
   <meta property="og:title" content="Sueca - Games Hub">
   <meta property="og:description" content="Jogue Sueca online grátis. Jogo de cartas clássico português.">
   <meta property="og:image" content="/games/sueca/assets/icon.svg">
+  <meta name="theme-color" content="#1e3a5f" />
   <title>Sueca - Games Hub</title>
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());gtag('config','G-LNTD0KNJ6T');
+  </script>
 </head>
 <body>
   <div id="game-container">
@@ -79,6 +89,10 @@
     </div>
   </div>
 
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=6';
+    initSidebar({ active: 'sueca' });
+  </script>
   <script type="module" src="game.js?v=1"></script>
 </body>
 </html>
