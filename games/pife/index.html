@@ -17,6 +17,7 @@
   <meta name="twitter:title" content="Pife Online Gratis - Games Hub" />
   <meta name="twitter:description" content="Jogue Pife online gratis contra o computador!" />
   <meta name="theme-color" content="#3a2218" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Newsreader:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -120,7 +121,7 @@
   </div>
 
   <script type="module">
-    import { initSidebar } from '../../sidebar.js?v=6';
+    import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'pife' });
   </script>
   <script type="module" src="game.js?v=4"></script>
@@ -153,5 +154,6 @@
       <li>Se tiver 2 sequencias prontas, procure bater rapido!</li>
     </ul>
   </section>
+<script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>

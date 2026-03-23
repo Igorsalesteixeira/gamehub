@@ -17,6 +17,7 @@
   <meta name="twitter:title" content="Cacheta - Games Hub" />
   <meta name="twitter:description" content="Jogue Cacheta online gratis. Troque cartas para formar a melhor mao!" />
   <meta name="theme-color" content="#1f1002" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&family=Newsreader:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -134,7 +135,7 @@
   </div>
 
   <script type="module">
-    import { initSidebar } from '../../sidebar.js?v=6';
+    import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'cacheta' });
   </script>
   <script type="module" src="game.js?v=1"></script>
@@ -173,5 +174,6 @@
       <li>Pares altos e cartas conectadas sao boas para manter na mao</li>
     </ul>
   </section>
+<script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>

@@ -5,11 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tetris Online Gratis - Games Hub</title>
   <meta name="description" content="Jogue Tetris online e de graca. Encaixe as pecas, complete linhas e alcance a maior pontuacao!" />
+  <link rel="canonical" href="https://gameshub.com.br/games/tetris/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=15" />
   <meta name="theme-color" content="#00d4ff" />
+  <link rel="manifest" href="/manifest.json" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Tetris",
+    "description": "Jogue Tetris online gratis. Encaixe os blocos e complete linhas!",
+    "url": "https://gameshub.com.br/games/tetris/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
   <script>
@@ -77,5 +96,6 @@
 
   <script type="module">import { initSidebar } from '../../sidebar.js?v=7'; initSidebar({ active: 'tetris' });</script>
   <script type="module" src="game.js?v=14"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
 </body>
 </html>
