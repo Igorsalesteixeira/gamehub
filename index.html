@@ -18,8 +18,8 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
   <!-- Theme Color -->
-  <meta name="theme-color" content="#1a1a2e" />
-  <meta name="msapplication-TileColor" content="#1a1a2e" />
+  <meta name="theme-color" content="#0d0d19" />
+  <meta name="msapplication-TileColor" content="#0d0d19" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -45,54 +45,54 @@
 
   <!-- Critical CSS inline para eliminar render-blocking -->
   <style>
-    /* Critical CSS - apenas o necessário para first paint */
+    /* Critical CSS - Neon Sanctum first paint */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    .skip-link{position:absolute;top:-100%;left:0;padding:0.75rem 1.25rem;background:#ff6b35;color:#fff;font-weight:700;text-decoration:none;z-index:9999;transition:top 0.3s;border-radius:0 0 8px 0}
+    .skip-link{position:absolute;top:-100%;left:0;padding:0.75rem 1.25rem;background:#81ecff;color:#005762;font-weight:700;text-decoration:none;z-index:10000;transition:top 0.3s;border-radius:0 0 8px 0}
     .skip-link:focus{top:0;outline:2px solid #fff;outline-offset:2px}
-    :focus-visible{outline:2px solid #ff6b35;outline-offset:2px}
-    button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ff6b35;outline-offset:2px}
-    body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a1a;color:#e0e0e0;min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
-    .header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);padding:1.2rem 1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;border-bottom:1px solid rgba(255,107,53,0.2)}
-    .logo{font-size:2.2rem;font-weight:800;color:#fff;text-shadow:0 0 20px rgba(255,107,53,0.4);letter-spacing:1px}
-    .tagline{color:rgba(255,255,255,0.6);font-size:0.95rem;margin-top:0.3rem;font-weight:600}
-    .hero{text-align:center;padding:2rem 1.5rem 1rem;max-width:700px;margin:0 auto;width:100%}
-    .hero-title{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:0.4rem}
-    .hero-title span{color:#ff6b35}
+    :focus-visible{outline:2px solid #81ecff;outline-offset:2px}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #81ecff;outline-offset:2px}
+    body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:#0d0d19;color:#e9e6f8;min-height:100vh;display:flex;flex-direction:column;line-height:1.5;overflow-x:hidden}
+    .header{background:rgba(24,24,39,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(71,70,85,0.15)}
+    .logo{font-family:'Space Grotesk',system-ui,sans-serif;font-size:2.2rem;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(129,236,255,0.8),0 0 30px rgba(129,236,255,0.4),0 0 10px rgba(255,81,250,0.5),0 0 30px rgba(255,81,250,0.25);letter-spacing:1.5px}
+    .tagline{color:#aba9ba;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.95rem;margin-top:0.3rem;font-weight:500;letter-spacing:1px}
+    .hero{text-align:center;padding:2.5rem 1.5rem 1rem;max-width:700px;margin:0 auto;width:100%;position:relative;z-index:1}
+    .hero-title{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:0.4rem}
+    .hero-title span{background:linear-gradient(135deg,#81ecff,#ff51fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .search-box{position:relative;max-width:500px;margin:0 auto}
-    .search-input{width:100%;padding:0.8rem 1rem 0.8rem 2.8rem;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);border-radius:14px;color:#fff;font-size:1rem;transition:all 0.2s}
-    .search-input:focus{outline:none;border-color:#ff6b35;background:rgba(255,255,255,0.08);box-shadow:0 0 0 3px rgba(255,107,53,0.15)}
-    .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;color:rgba(255,255,255,0.3);pointer-events:none}
-    .category-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:0.5rem;padding:0 1.5rem 1.5rem;max-width:900px;margin:0 auto}
-    .category-btn{padding:0.45rem 1rem;border-radius:999px;border:2px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6);font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap}
-    .category-btn.active{background:linear-gradient(135deg,#ff6b35,#e85d2a);color:#fff;border-color:transparent}
-    .game-count{text-align:center;color:rgba(255,255,255,0.3);font-size:0.82rem;font-weight:600;margin-bottom:1rem;padding:0 1.5rem}
-    .main{flex:1;max-width:1200px;margin:0 auto;padding:0 1.5rem 2.5rem;width:100%}
+    .search-input{width:100%;padding:0.85rem 1rem 0.85rem 2.8rem;background:rgba(24,24,39,0.6);border:1px solid rgba(71,70,85,0.15);border-radius:14px;color:#fff;font-family:'Manrope',system-ui,sans-serif;font-size:1rem}
+    .search-input:focus{outline:none;border-color:#81ecff;background:rgba(24,24,39,0.8);box-shadow:0 0 8px rgba(129,236,255,0.5),0 0 24px rgba(129,236,255,0.2)}
+    .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;color:#757484;pointer-events:none}
+    .category-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:0.5rem;padding:0 1.5rem 1.5rem;max-width:900px;margin:0 auto;position:relative;z-index:1}
+    .category-btn{padding:0.45rem 1rem;border-radius:999px;border:1px solid rgba(71,70,85,0.15);background:rgba(233,230,248,0.04);color:#aba9ba;font-family:'Rajdhani',system-ui,sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;white-space:nowrap}
+    .category-btn.active{background:linear-gradient(135deg,rgba(129,236,255,0.15),rgba(255,81,250,0.1));color:#fff;border-color:rgba(129,236,255,0.3);box-shadow:0 0 5px #00e5ff,0 0 15px rgba(0,229,255,0.4)}
+    .game-count{text-align:center;color:#757484;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.85rem;font-weight:500;margin-bottom:1rem;padding:0 1.5rem;position:relative;z-index:1}
+    .main{flex:1;max-width:1200px;margin:0 auto;padding:0 1.5rem 2.5rem;width:100%;position:relative;z-index:1}
     .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-    .game-card{background:linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border-radius:16px;padding:1.3rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.6rem;box-shadow:0 4px 16px rgba(0,0,0,0.2);text-decoration:none;color:inherit;border:1px solid rgba(255,255,255,0.06);transition:transform 0.25s,box-shadow 0.25s}
-    .game-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(255,107,53,0.2)}
+    .game-card{background:linear-gradient(180deg,rgba(36,36,54,0.7),rgba(24,24,39,0.5));border-radius:16px;padding:1.3rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.6rem;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-decoration:none;color:inherit;border:1px solid rgba(71,70,85,0.1);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),box-shadow 0.35s}
+    .game-card:hover{transform:translateY(-6px)}
     .game-icon{font-size:2.6rem;line-height:1}
-    .game-info h3{font-size:1rem;font-weight:800;color:#fff;margin-bottom:0.2rem}
-    .game-info p{font-size:0.78rem;color:rgba(255,255,255,0.4)}
+    .game-info h3{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem}
+    .game-info p{font-size:0.78rem;color:#aba9ba}
     .game-card.hidden{display:none}
-    .badge-play{display:inline-block;padding:0.25rem 0.8rem;border-radius:999px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;background:linear-gradient(135deg,#ff6b35,#e85d2a);color:#fff}
-    .no-results{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.3);display:none}
+    .badge-play{display:inline-block;padding:0.25rem 0.8rem;border-radius:999px;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;background:linear-gradient(135deg,#81ecff,#ff51fa);color:#fff}
+    .no-results{text-align:center;padding:3rem 1rem;color:#757484;display:none}
     .no-results.visible{display:block}
-    .footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:rgba(255,255,255,0.3);border-top:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.2);margin-top:auto}
+    .footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#757484;border-top:1px solid rgba(71,70,85,0.12);background:#000;position:relative;z-index:1}
     /* Skeleton loading */
-    @keyframes skeleton-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-    .skeleton{background:linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%);background-size:200% 100%;animation:skeleton-pulse 1.5s ease-in-out infinite}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .skeleton{background:linear-gradient(90deg,rgba(233,230,248,0.03) 25%,rgba(233,230,248,0.08) 50%,rgba(233,230,248,0.03) 75%);background-size:200% 100%;animation:shimmer 2s ease-in-out infinite}
     /* Mobile optimizations */
     @media (max-width:768px){.hero-title{font-size:1.4rem}.games-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.8rem}}
     @media (max-width:480px){.logo{font-size:1.6rem}.games-grid{grid-template-columns:1fr 1fr;gap:0.6rem}.game-card{padding:0.8rem}}
   </style>
 
-  <!-- Preload da fonte Nunito -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" /></noscript>
+  <!-- Preload das fontes Space Grotesk + Manrope + Rajdhani -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" /></noscript>
 
   <!-- CSS não-crítico carregado assíncronamente -->
-  <link rel="preload" href="style.css?v=4" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="style.css?v=4" /></noscript>
+  <link rel="preload" href="style.css?v=8" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=8" /></noscript>
 
   <!-- Dados estruturados -->
   <script type="application/ld+json">
