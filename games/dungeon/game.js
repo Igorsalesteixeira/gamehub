@@ -1212,13 +1212,115 @@ function gameLoop(ticker) {
   updateParticles(dt);
   updateCamera(false);
 
-  // NEW: Compute visibility, then draw world + entities with lighting baked in
+  // Compute visibility, then draw world + entities with lighting baked in
   computeVisibility();
   drawVisibleWorld();
   drawEntities();
   drawParticles();
   updateMinimap();
   drawHUD();
+  drawDebug();
+}
+
+// ── DEBUG OVERLAY (temporary) ──
+let debugContainer;
+function drawDebug() {
+  if (!debugContainer) {
+    debugContainer = new PIXI.Container();
+    app.stage.addChild(debugContainer);
+  }
+  debugContainer.removeChildren();
+
+  const sw = app.screen.width;
+  const sh = app.screen.height;
+  const camX = -worldContainer.x / worldScale;
+  const camY = -worldContainer.y / worldScale;
+  const viewW = sw / worldScale;
+  const viewH = sh / worldScale;
+  const startTX = Math.max(0, Math.floor(camX / TILE) - 1);
+  const startTY = Math.max(0, Math.floor(camY / TILE) - 1);
+  const endTX = Math.min(mapW, Math.ceil((camX + viewW) / TILE) + 1);
+  const endTY = Math.min(mapH, Math.ceil((camY + viewH) / TILE) + 1);
+
+  // Count how many tiles are floor/wall in range
+  let floorCount = 0, wallCount = 0;
+  for (let y = startTY; y < endTY; y++) {
+    for (let x = startTX; x < endTX; x++) {
+      const t = tiles[y * mapW + x];
+      if (t === TILE_FLOOR) floorCount++;
+      else if (t === TILE_WALL) wallCount++;
+    }
+  }
+
+  // Sample a visible floor tile color
+  let sampleColor = 'N/A';
+  if (visibleSet.size > 0) {
+    for (const idx of visibleSet) {
+      if (tiles[idx] === TILE_FLOOR) {
+        const tx = idx % mapW;
+        const ty = Math.floor(idx / mapW);
+        const cx = player.px + TILE / 2;
+        const cy = player.py + TILE / 2;
+        const tileCX = tx * TILE + TILE / 2;
+        const tileCY = ty * TILE + TILE / 2;
+        const dist = Math.sqrt((tileCX - cx) ** 2 + (tileCY - cy) ** 2);
+        const lr = lightRadius * TILE;
+        const brightness = Math.max(0.08, 1 - (dist / lr));
+        const warmth = Math.max(0, 1 - dist / (lr * 0.5));
+        const c = tintColor(COLORS.floor, brightness, warmth);
+        sampleColor = `#${c.toString(16).padStart(6, '0')} (b=${brightness.toFixed(2)})`;
+        break;
+      }
+    }
+  }
+
+  const lines = [
+    `screen: ${sw}x${sh}`,
+    `worldScale: ${worldScale.toFixed(2)}`,
+    `wc.x: ${worldContainer.x.toFixed(0)}, wc.y: ${worldContainer.y.toFixed(0)}`,
+    `wc.scale: ${worldContainer.scale.x.toFixed(2)}`,
+    `player.px: ${player.px.toFixed(0)}, py: ${player.py.toFixed(0)}`,
+    `player tile: ${player.x},${player.y}`,
+    `visibleSet.size: ${visibleSet.size}`,
+    `tileRange: TX ${startTX}-${endTX}, TY ${startTY}-${endTY}`,
+    `floor/wall in range: ${floorCount}/${wallCount}`,
+    `mapSize: ${mapW}x${mapH}`,
+    `sampleFloorColor: ${sampleColor}`,
+    `rooms: ${rooms.length}`,
+    `tile at player: ${tiles[player.y * mapW + player.x]}`,
+    `TILE: ${TILE}, lightRadius: ${lightRadius}`,
+  ];
+
+  // Draw background
+  const bg = new PIXI.Graphics();
+  bg.beginFill(0x000000, 0.85);
+  bg.drawRect(5, sh - 20 - lines.length * 18, 420, lines.length * 18 + 10);
+  bg.endFill();
+  debugContainer.addChild(bg);
+
+  for (let i = 0; i < lines.length; i++) {
+    const t = new PIXI.Text(lines[i], {
+      fontFamily: 'monospace',
+      fontSize: 14,
+      fill: 0x00ff00,
+    });
+    t.x = 10;
+    t.y = sh - 15 - (lines.length - i) * 18;
+    debugContainer.addChild(t);
+  }
+
+  // Draw a BRIGHT test rectangle to verify rendering works
+  const testGfx = new PIXI.Graphics();
+  testGfx.beginFill(0xff0000);
+  testGfx.drawRect(sw - 60, sh - 60, 50, 50);
+  testGfx.endFill();
+  testGfx.beginFill(0x00ff00);
+  testGfx.drawRect(sw - 60, sh - 120, 50, 50);
+  testGfx.endFill();
+  testGfx.beginFill(0x4a4a7e); // Floor color at full brightness
+  testGfx.drawRect(sw - 60, sh - 180, 50, 50);
+  testGfx.endFill();
+  debugContainer.addChild(testGfx);
 }
 
 function easeOut(t) {
