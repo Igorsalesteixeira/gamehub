@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Fuga - Escape Room Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Fuga, o escape room online e de graca! Resolva enigmas em 5 salas tematicas brasileiras. Sem download." />
+  <meta name="keywords" content="escape room online, jogo escape room gratis, fuga, enigmas, puzzles, brasileiro" />
+  <link rel="canonical" href="https://gameshub.com.br/games/fuga/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Fuga - Escape Room Online Gratis - Games Hub" />
+  <meta property="og:description" content="Resolva enigmas em 5 salas tematicas brasileiras!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/fuga/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Fuga - Escape Room Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Resolva enigmas em 5 salas tematicas brasileiras!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#131313" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Fuga - Escape Room",
+    "description": "Jogue Fuga, o escape room online gratis com 5 salas tematicas brasileiras. Resolva enigmas e escape!",
+    "url": "https://gameshub.com.br/games/fuga/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="game-title">&#128274; Fuga</h1>
+    <div class="stats">
+      <span>Sala: <span id="room-display">-</span></span>
+      <span>Tempo: <span id="time-display">0:00</span></span>
+      <span>Dicas: <span id="hints-display">3</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="modal-overlay" id="overlay">
+      <div class="modal">
+        <div class="modal-icon" id="overlay-icon">&#128274;</div>
+        <h2 id="overlay-title">Fuga - Escape Room</h2>
+        <p id="overlay-msg">Explore as salas, colete itens e resolva enigmas para escapar!</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-primary" id="btn-start">Jogar</button>
+        <button class="btn btn-whatsapp" id="btn-share">&#128241; Compartilhar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'fuga' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Fuga - Escape Room Online</h2>
+    <p>Fuga e um escape room virtual com 5 salas tematicas inspiradas no Brasil. Em cada sala, voce precisa encontrar objetos, resolver enigmas e combinar itens para abrir a porta e avancar. Quanto mais rapido escapar e menos dicas usar, maior sua pontuacao!</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique ou toque nos objetos para examinar ou coletar.</li>
+      <li>Arraste itens do inventario ate objetos na sala para combinar.</li>
+      <li>Resolva todos os puzzles da sala para destravar a porta de saida.</li>
+      <li>Use o botao de dica se estiver travado (3 dicas por sala).</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Examine tudo! Alguns objetos escondem pistas quando clicados.</li>
+      <li>Preste atencao nas cores e sequencias — elas sao a chave dos enigmas.</li>
+      <li>Combine itens do inventario com objetos interativos na sala.</li>
+    </ul>
+  </section>
+</body>
+</html>

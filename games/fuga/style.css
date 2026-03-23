@@ -1,0 +1,316 @@
+/* =============================================================
+   Fuga — Escape Room "Neon Noir: Mystery Brazil"
+   Theme: Dark noir with amber/gold neon accents
+   ============================================================= */
+
+/* ===== THEME TOKENS ===== */
+:root {
+  --bg: #131313;
+  --surface: #131313;
+  --surface-container: #1f1f1f;
+  --surface-high: #2a2a2a;
+  --primary: #ffb347;
+  --primary-container: #ffb347;
+  --tertiary: #ff4757;
+  --secondary: #70a1ff;
+  --on-surface: #e2e2e2;
+  --outline: #8a7a5d;
+
+  --font-display: 'Press Start 2P', monospace;
+  --font-terminal: 'VT323', monospace;
+  --font-body: 'Space Grotesk', sans-serif;
+
+  --glow-primary: 0 0 8px #ffb34766, 0 0 20px #ffb34733;
+  --glow-primary-strong: 0 0 10px #ffb34788, 0 0 30px #ffb34755, 0 0 60px #ffb34722;
+  --glow-tertiary: 0 0 8px #ff475766, 0 0 20px #ff475733;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== BODY ===== */
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  min-height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  color: var(--on-surface);
+  user-select: none;
+  touch-action: none;
+  position: relative;
+}
+
+/* --- Vignette --- */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.45) 80%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--surface-container);
+  border-bottom: 1px solid var(--outline);
+  gap: 8px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.btn-back {
+  color: var(--primary);
+  text-decoration: none;
+  font-family: var(--font-terminal);
+  font-weight: 400;
+  font-size: 1.1rem;
+  background: transparent;
+  border: 1px solid var(--outline);
+  padding: 4px 12px;
+  border-radius: 4px;
+  transition: background 150ms ease, border-color 150ms ease;
+  white-space: nowrap;
+  text-shadow: 0 0 6px #ffb34744;
+  letter-spacing: 0.5px;
+}
+.btn-back:hover {
+  background: #ffb3470d;
+  border-color: var(--primary);
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  color: var(--primary);
+  text-shadow: 0 0 8px #ffb34766, 0 0 20px #ffb34733;
+  text-transform: uppercase;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 400;
+  color: var(--primary);
+  text-shadow: 0 0 6px #ffb34744;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+/* ===== GAME CONTAINER ===== */
+.game-container {
+  flex: 0 0 auto;
+  height: calc(100dvh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 8px;
+  min-height: 300px;
+}
+
+#game-canvas {
+  border-radius: 4px;
+  border: 2px solid var(--primary);
+  background: #0a0a0a;
+  box-shadow:
+    0 0 12px #ffb34722,
+    0 0 40px #ffb34711,
+    inset 0 0 60px rgba(0, 0, 0, 0.5);
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: auto;
+}
+
+/* ===== OVERLAY / MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  opacity: 1;
+  visibility: visible;
+}
+.modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal {
+  text-align: center;
+  background: var(--surface-container);
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 90vw;
+  width: 400px;
+  transform: scale(1);
+  transition: transform 250ms ease;
+  box-shadow:
+    0 0 20px #ffb34722,
+    0 0 60px #ffb34711,
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.modal-overlay.hidden .modal {
+  transform: scale(0.9);
+}
+
+.modal-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  animation: bounceIn 0.6s ease-out;
+}
+
+.modal h2 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--primary);
+  text-shadow: 0 0 10px #ffb34766, 0 0 25px #ffb34733;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.modal p {
+  font-family: var(--font-terminal);
+  font-size: 1.25rem;
+  color: var(--on-surface);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.overlay-score {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--primary);
+  text-shadow: 0 0 8px #ffb34766;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  margin-top: 12px;
+  font-family: var(--font-terminal);
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.btn-primary {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: var(--glow-primary);
+  padding: 10px 28px;
+}
+.btn-primary:hover {
+  background: #ffb3470d;
+  box-shadow: var(--glow-primary-strong);
+  text-shadow: 0 0 8px #ffb34766;
+}
+.btn-primary:active {
+  background: #ffb3471a;
+}
+
+.btn-whatsapp {
+  background: transparent;
+  color: var(--on-surface);
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  padding: 8px 20px;
+}
+.btn-whatsapp:hover {
+  border-color: var(--on-surface);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .game-title { font-size: 0.55rem; }
+  .stats { font-size: 0.5rem; gap: 8px; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .topbar { padding: 4px 8px; }
+  .game-title { display: none; }
+}
+
+@media (max-width: 380px) {
+  .stats { gap: 6px; font-size: 0.45rem; }
+}
+
+/* ===== SEO GAME INFO SECTION ===== */
+.game-info {
+  max-width: 780px;
+  margin: 16px auto;
+  padding: 16px;
+  background: var(--surface-container);
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  color: rgba(226, 226, 226, 0.7);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.game-info h2 {
+  font-family: var(--font-terminal);
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: var(--primary);
+  text-shadow: 0 0 6px #ffb34744;
+}
+.game-info h3 {
+  font-family: var(--font-terminal);
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin: 12px 0 4px;
+  color: var(--primary);
+  text-shadow: 0 0 4px #ffb34722;
+}
+.game-info ul { padding-left: 1.2rem; }
+.game-info li { margin-bottom: 4px; }
+
+/* ===== ANIMATIONS ===== */
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-icon { animation: none; }
+}

@@ -66,7 +66,6 @@ const playerSpeed = 4;
 let mobileLeft = false;
 let mobileRight = false;
 let mobileShoot = false;
-let mouseShoot = false;
 
 // Bullets
 let playerBullets = [];
@@ -320,7 +319,7 @@ function update(dt) {
 
   // Player shoot
   const now = performance.now();
-  if ((keys.get(' ') || keys.get('ArrowUp') || mobileShoot || mouseShoot) && now - lastShotTime > PLAYER_SHOOT_CD) {
+  if ((keys.get(' ') || keys.get('ArrowUp') || mobileShoot) && now - lastShotTime > PLAYER_SHOOT_CD) {
     lastShotTime = now;
     playerBullets.push({ x: playerX, y: playerY - PLAYER_H / 2 - 8 });
     playSound('shoot');
@@ -646,15 +645,6 @@ ctrlBtns.forEach(btn => {
   btn.addEventListener('mouseup', onUp);
   btn.addEventListener('mouseleave', onUp);
 });
-
-// ===== MOUSE/TOUCH SHOOT (click anywhere on canvas to shoot) =====
-canvas.addEventListener('mousedown', (e) => {
-  if (state !== 'playing') return;
-  e.preventDefault();
-  mouseShoot = true;
-});
-canvas.addEventListener('mouseup', () => { mouseShoot = false; });
-canvas.addEventListener('mouseleave', () => { mouseShoot = false; });
 
 // ===== START BUTTON =====
 btnStart.addEventListener('click', () => {

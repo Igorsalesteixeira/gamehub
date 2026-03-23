@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Combina 3 - Joias do Brasil Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Combina 3 online e de graca! Combine joias brasileiras em um puzzle match-3 viciante com 27 fases temáticas dos estados do Brasil. Sem download!" />
+  <meta name="keywords" content="combina 3 online, match 3 gratis, jogo de joias, puzzle brasileiro, ametista, esmeralda, topazio" />
+  <link rel="canonical" href="https://gameshub.com.br/games/combina3/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Combina 3 - Joias do Brasil Online Gratis - Games Hub" />
+  <meta property="og:description" content="Combine joias brasileiras em um puzzle match-3 viciante com 27 fases dos estados do Brasil!" />
+  <meta property="og:url" content="https://gameshub.com.br/games/combina3/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Combina 3 - Joias do Brasil Online Gratis - Games Hub" />
+  <meta name="twitter:description" content="Combine joias brasileiras em um puzzle match-3 viciante!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#131313" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Combina 3 - Joias do Brasil",
+    "description": "Jogue Combina 3 online grátis. Combine joias brasileiras como Ametista, Esmeralda e Topázio Imperial em um puzzle match-3 com 27 fases temáticas.",
+    "url": "https://gameshub.com.br/games/combina3/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609"
+     crossorigin="anonymous"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&#8592; Voltar</a>
+    <h1 class="game-title">&#128142; Combina 3</h1>
+    <div class="stats">
+      <span>Pts: <span id="score-display">0</span></span>
+      <span>N&#237;vel: <span id="level-display">1</span></span>
+      <span>Mov: <span id="moves-display">0</span></span>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div class="modal-overlay" id="overlay">
+      <div class="modal">
+        <div class="modal-icon" id="overlay-icon">&#128142;</div>
+        <h2 id="overlay-title">Combina 3</h2>
+        <p id="overlay-msg">Combine joias brasileiras e conquiste todos os estados!</p>
+        <p id="overlay-score" class="overlay-score"></p>
+        <button class="btn btn-primary" id="btn-start">Jogar</button>
+        <button class="btn btn-share" id="btn-share" style="display:none">Compartilhar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'combina3' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+
+  <section class="game-info" aria-label="Sobre o jogo">
+    <h2>Como jogar Combina 3 - Joias do Brasil</h2>
+    <p>Combina 3 é um jogo de puzzle match-3 com joias preciosas brasileiras. Troque joias adjacentes para formar linhas ou colunas de 3 ou mais joias iguais. Combine 4 para criar joias relâmpago, 5 para joias arco-íris e formas em L/T para bombas!</p>
+    <h3>Regras</h3>
+    <ul>
+      <li>Clique em uma joia e depois em uma adjacente para trocá-las.</li>
+      <li>Ou arraste uma joia para a posição adjacente desejada.</li>
+      <li>Combine 3 ou mais joias iguais em linha ou coluna para eliminá-las.</li>
+      <li>Joias especiais são criadas com combinações maiores (4+, 5+, L/T).</li>
+      <li>Complete o objetivo de cada fase para avançar ao próximo estado.</li>
+      <li>Cada fase tem um objetivo diferente: pontuação, coletar joias ou quebrar bloqueadores.</li>
+    </ul>
+    <h3>Joias Especiais</h3>
+    <ul>
+      <li><strong>Relâmpago (4 em linha)</strong>: Elimina toda a linha ou coluna.</li>
+      <li><strong>Arco-íris (5 em linha)</strong>: Elimina todas as joias de um tipo.</li>
+      <li><strong>Bomba (L ou T)</strong>: Explode uma área 3x3 ao redor.</li>
+    </ul>
+    <h3>Dicas</h3>
+    <ul>
+      <li>Planeje cascatas para multiplicar sua pontuação!</li>
+      <li>Priorize criar joias especiais para combos devastadores.</li>
+      <li>Foque nos objetivos da fase — nem sempre a maior pontuação é o caminho.</li>
+      <li>Quebre bloqueadores de gelo e pedra com combinações adjacentes.</li>
+    </ul>
+  </section>
+
+</body>
+</html>

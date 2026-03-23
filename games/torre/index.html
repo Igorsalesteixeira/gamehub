@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Torre Brasil - Tower Defense Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Torre Brasil online gratis! Tower Defense estrategico com fauna brasileira. Defenda biomas com araras, oncas e jacarés!" />
+  <meta name="keywords" content="tower defense online, torre brasil, jogo defesa torre, td game gratis, fauna brasileira jogo" />
+  <link rel="canonical" href="https://gameshub.com.br/games/torre/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Torre Brasil - Tower Defense Online Gratis - Games Hub" />
+  <meta property="og:description" content="Tower Defense estrategico com fauna brasileira! Defenda 5 biomas com 6 torres unicas." />
+  <meta property="og:url" content="https://gameshub.com.br/games/torre/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#131313" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Torre Brasil",
+    "description": "Tower Defense estrategico com fauna brasileira. Defenda 5 biomas unicos!",
+    "url": "https://gameshub.com.br/games/torre/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser",
+    "genre": ["Tower Defense", "Strategy"]
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">← Voltar</a>
+    <h1 class="game-title">🏰 Torre Brasil</h1>
+    <div class="stats">
+      <div class="score-box"><span class="score-icon">❤️</span><span id="lives-display" class="score-value">20</span></div>
+      <div class="score-box"><span class="score-icon">🪙</span><span id="coins-display" class="score-value">100</span></div>
+      <div class="score-box"><span class="score-icon">🌊</span><span id="wave-display" class="score-value">0/20</span></div>
+    </div>
+  </header>
+
+  <div class="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="tower-panel" class="tower-panel">
+      <div class="tower-option" data-tower="tucano" title="Tucano - Barato e rapido">
+        <div class="tower-icon tucano-icon"></div>
+        <span class="tower-cost">15</span>
+      </div>
+      <div class="tower-option" data-tower="arara" title="Arara - Longo alcance">
+        <div class="tower-icon arara-icon"></div>
+        <span class="tower-cost">40</span>
+      </div>
+      <div class="tower-option" data-tower="onca" title="Onca - Ataque rapido">
+        <div class="tower-icon onca-icon"></div>
+        <span class="tower-cost">50</span>
+      </div>
+      <div class="tower-option" data-tower="jacare" title="Jacare - Dano em area">
+        <div class="tower-icon jacare-icon"></div>
+        <span class="tower-cost">60</span>
+      </div>
+      <div class="tower-option" data-tower="capivara" title="Capivara - Desacelera">
+        <div class="tower-icon capivara-icon"></div>
+        <span class="tower-cost">45</span>
+      </div>
+      <div class="tower-option" data-tower="sucuri" title="Sucuri - Paralisa">
+        <div class="tower-icon sucuri-icon"></div>
+        <span class="tower-cost">70</span>
+      </div>
+    </div>
+
+    <div id="tower-info" class="tower-info" style="display:none;">
+      <span id="info-name" class="info-name"></span>
+      <span id="info-level" class="info-level"></span>
+      <button id="btn-upgrade" class="btn-action btn-upgrade">⬆ Melhorar</button>
+      <button id="btn-sell" class="btn-action btn-sell">💰 Vender</button>
+      <button id="btn-close-info" class="btn-action btn-close">✕</button>
+    </div>
+
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="overlay-icon">🏰</div>
+        <h2 id="overlay-title" class="modal-title">Torre Brasil</h2>
+        <p id="overlay-msg" class="modal-subtitle">Defenda os biomas brasileiros! Posicione torres da fauna para impedir os invasores.</p>
+        <div id="overlay-score" class="overlay-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-start">Defender!</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">Compartilhar</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="game-info">
+    <h2>Como Jogar Torre Brasil</h2>
+    <p>Torre Brasil e um jogo de Tower Defense estrategico com tematica da fauna brasileira!</p>
+    <ul>
+      <li><strong>Posicione torres</strong> nas celulas adjacentes ao caminho para atacar os inimigos.</li>
+      <li><strong>6 torres unicas</strong>: Tucano, Arara, Onca, Jacare, Capivara e Sucuri — cada uma com habilidades especiais.</li>
+      <li><strong>Melhore suas torres</strong> ate 3 vezes para aumentar dano, alcance e velocidade.</li>
+      <li><strong>5 biomas</strong>: Amazonia, Cerrado, Pantanal, Mata Atlantica e Caatinga.</li>
+      <li><strong>20 ondas por bioma</strong> com dificuldade crescente e chefes a cada 5 ondas.</li>
+      <li>Ganhe moedas ao eliminar inimigos e completar ondas. Nao deixe inimigos passarem!</li>
+    </ul>
+  </section>
+
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'torre' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+</body>
+</html>

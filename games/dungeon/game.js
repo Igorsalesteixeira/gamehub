@@ -12,6 +12,7 @@ const storage = new GameStorage('dungeon');
 const TILE = 32;
 const LIGHT_BASE_RADIUS = 6;
 const FOG_DIM = 0.15;
+let worldScale = 1;
 
 const TILE_FLOOR = 0;
 const TILE_WALL = 1;
@@ -111,13 +112,26 @@ function boot() {
 
   app.ticker.add(gameLoop);
 
+  // Calculate scale so visible area fills screen
+  function recalcWorldScale() {
+    const sw = app.screen.width;
+    const sh = app.screen.height;
+    const minDim = Math.min(sw, sh);
+    // Visible area = 2 * lightRadius tiles + some buffer
+    const visibleTiles = (lightRadius * 2 + 4) * TILE;
+    worldScale = Math.max(1, minDim / visibleTiles);
+    worldContainer.scale.set(worldScale);
+  }
+
   // Resize
   const resize = () => {
     const r = DOM.container.getBoundingClientRect();
     app.renderer.resize(r.width, r.height);
     if (lightRT) lightRT.resize(r.width, r.height);
+    recalcWorldScale();
   };
   window.addEventListener('resize', resize);
+  recalcWorldScale();
 
   // Controls
   setupControls();
@@ -548,16 +562,17 @@ function drawEntities() {
 function updateLighting() {
   const sw = app.screen.width;
   const sh = app.screen.height;
-  const camX = -worldContainer.x;
-  const camY = -worldContainer.y;
+  // Camera offset in world coordinates (accounting for scale)
+  const camXWorld = -worldContainer.x / worldScale;
+  const camYWorld = -worldContainer.y / worldScale;
 
   const cx = player.px + TILE / 2;
   const cy = player.py + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
   const lr = (lightRadius + flicker) * TILE;
 
-  const screenPX = cx - camX;
-  const screenPY = cy - camY;
+  const screenPX = (cx - camXWorld) * worldScale;
+  const screenPY = (cy - camYWorld) * worldScale;
 
   // Raycast to determine visible tiles
   const visibleSet = new Set();
@@ -587,17 +602,18 @@ function updateLighting() {
   gfx.drawRect(0, 0, sw, sh);
   gfx.endFill();
 
-  // Tile range on screen
-  const startTX = Math.max(0, Math.floor(camX / TILE) - 1);
-  const startTY = Math.max(0, Math.floor(camY / TILE) - 1);
-  const endTX = Math.min(mapW, Math.ceil((camX + sw) / TILE) + 1);
-  const endTY = Math.min(mapH, Math.ceil((camY + sh) / TILE) + 1);
+  // Tile range on screen (accounting for scale)
+  const startTX = Math.max(0, Math.floor(camXWorld / TILE) - 1);
+  const startTY = Math.max(0, Math.floor(camYWorld / TILE) - 1);
+  const endTX = Math.min(mapW, Math.ceil((camXWorld + sw / worldScale) / TILE) + 1);
+  const endTY = Math.min(mapH, Math.ceil((camYWorld + sh / worldScale) / TILE) + 1);
+  const scaledTile = Math.ceil(TILE * worldScale) + 1;
 
   for (let ty = startTY; ty < endTY; ty++) {
     for (let tx = startTX; tx < endTX; tx++) {
       const idx = ty * mapW + tx;
-      const sx = tx * TILE - camX;
-      const sy = ty * TILE - camY;
+      const sx = (tx * TILE - camXWorld) * worldScale;
+      const sy = (ty * TILE - camYWorld) * worldScale;
 
       if (visibleSet.has(idx)) {
         const tileCX = tx * TILE + TILE / 2;
@@ -611,11 +627,11 @@ function updateLighting() {
         const b = Math.min(255, Math.floor(brightness * (170 - warmth * 40)));
         const color = (r << 16) | (g << 8) | b;
         gfx.beginFill(color);
-        gfx.drawRect(sx, sy, TILE, TILE);
+        gfx.drawRect(sx, sy, scaledTile, scaledTile);
         gfx.endFill();
       } else if (explored[idx]) {
         gfx.beginFill(0x1a1a1a);
-        gfx.drawRect(sx, sy, TILE, TILE);
+        gfx.drawRect(sx, sy, scaledTile, scaledTile);
         gfx.endFill();
       }
       // Unexplored tiles stay black from the base fill
@@ -624,11 +640,12 @@ function updateLighting() {
 
   // Warm torch glow at player center
   const glowAlpha = 0.15 + Math.sin(flickerTime * 5) * 0.05;
+  const lrScaled = lr * worldScale;
   gfx.beginFill(0xffcc88, glowAlpha);
-  gfx.drawCircle(screenPX, screenPY, lr * 0.35);
+  gfx.drawCircle(screenPX, screenPY, lrScaled * 0.35);
   gfx.endFill();
   gfx.beginFill(0xffddaa, 0.08);
-  gfx.drawCircle(screenPX, screenPY, lr * 0.15);
+  gfx.drawCircle(screenPX, screenPY, lrScaled * 0.15);
   gfx.endFill();
 
   // Render light map to texture
@@ -640,8 +657,8 @@ function updateLighting() {
 function updateCamera(instant) {
   const sw = app.screen.width;
   const sh = app.screen.height;
-  const targetX = -(player.px + TILE / 2) + sw / 2;
-  const targetY = -(player.py + TILE / 2) + sh / 2;
+  const targetX = -(player.px + TILE / 2) * worldScale + sw / 2;
+  const targetY = -(player.py + TILE / 2) * worldScale + sh / 2;
 
   if (instant) {
     worldContainer.x = targetX;
@@ -1116,9 +1133,9 @@ function setupControls() {
     const mx = (e.clientX - rect.left) * (app.screen.width / rect.width);
     const my = (e.clientY - rect.top) * (app.screen.height / rect.height);
 
-    // World coordinates
-    const wx = mx - worldContainer.x;
-    const wy = my - worldContainer.y;
+    // World coordinates (accounting for scale)
+    const wx = (mx - worldContainer.x) / worldScale;
+    const wy = (my - worldContainer.y) / worldScale;
     const tx = Math.floor(wx / TILE);
     const ty = Math.floor(wy / TILE);
 
