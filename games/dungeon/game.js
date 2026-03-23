@@ -399,43 +399,42 @@ function buildWorld() {
   worldContainer.addChild(fogGfx); // Fog on top of everything in world
 }
 
-// ── LIGHTING: Raycast visibility ──
-function computeVisibility() {
-  visibleSet = new Set();
-  const cx = player.px + TILE / 2;
-  const cy = player.py + TILE / 2;
-  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
-  const lr = (lightRadius + flicker) * TILE;
-
-  const rayCount = 180;
-  for (let r = 0; r < rayCount; r++) {
-    const angle = (r / rayCount) * Math.PI * 2;
-    const rdx = Math.cos(angle);
-    const rdy = Math.sin(angle);
-    for (let dist = 0; dist < lr; dist += TILE * 0.4) {
-      const wx = cx + rdx * dist;
-      const wy = cy + rdy * dist;
-      const tx = Math.floor(wx / TILE);
-      const ty = Math.floor(wy / TILE);
-      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
-      const idx = ty * mapW + tx;
-      visibleSet.add(idx);
-      explored[idx] = true;
-      if (tiles[idx] === TILE_WALL) break;
-    }
-  }
-}
-
 // ── Draw visible tiles with lighting baked in ──
+// Visibility is computed INLINE here — no separate Set, no raycast indirection
+let debugTilesDrawn = 0;
+
 function drawVisibleWorld() {
   tileGfx.clear();
+  debugTilesDrawn = 0;
 
-  const cx = player.px + TILE / 2;
-  const cy = player.py + TILE / 2;
+  const playerCX = player.px + TILE / 2;
+  const playerCY = player.py + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
   const lr = (lightRadius + flicker) * TILE;
+  const lrSq = lr * lr;
 
-  // Only draw tiles in camera viewport (optimization)
+  // Mark tiles within light radius as visible+explored (simple distance check)
+  visibleSet = new Set();
+  const ptx = player.x;
+  const pty = player.y;
+  const tileRadius = lightRadius + 2;
+  for (let dy = -tileRadius; dy <= tileRadius; dy++) {
+    for (let dx = -tileRadius; dx <= tileRadius; dx++) {
+      const tx = ptx + dx;
+      const ty = pty + dy;
+      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) continue;
+      const tileCX = tx * TILE + TILE / 2;
+      const tileCY = ty * TILE + TILE / 2;
+      const distSq = (tileCX - playerCX) ** 2 + (tileCY - playerCY) ** 2;
+      if (distSq <= lrSq) {
+        const idx = ty * mapW + tx;
+        visibleSet.add(idx);
+        explored[idx] = true;
+      }
+    }
+  }
+
+  // Draw tiles in camera viewport
   const sw = app.screen.width;
   const sh = app.screen.height;
   const camX = -worldContainer.x / worldScale;
@@ -458,7 +457,9 @@ function drawVisibleWorld() {
       const isVisible = visibleSet.has(idx);
       const isExplored = explored[idx];
 
-      if (!isVisible && !isExplored) continue; // Don't draw unexplored tiles
+      if (!isVisible && !isExplored) continue;
+
+      debugTilesDrawn++;
 
       // Calculate brightness
       let brightness;
@@ -466,21 +467,19 @@ function drawVisibleWorld() {
       if (isVisible) {
         const tileCX = px + TILE / 2;
         const tileCY = py + TILE / 2;
-        const dist = Math.sqrt((tileCX - cx) ** 2 + (tileCY - cy) ** 2);
-        brightness = Math.max(0.08, 1 - (dist / lr));
+        const dist = Math.sqrt((tileCX - playerCX) ** 2 + (tileCY - playerCY) ** 2);
+        brightness = Math.max(0.15, 1 - (dist / lr));
         warmth = Math.max(0, 1 - dist / (lr * 0.5));
       } else {
-        brightness = 0.1; // Explored but not visible
+        brightness = 0.12;
       }
 
       if (t === TILE_WALL) {
-        const wallColor = tintColor(COLORS.wall, brightness, warmth);
-        tileGfx.beginFill(wallColor);
+        tileGfx.beginFill(tintColor(COLORS.wall, brightness, warmth));
         tileGfx.drawRect(px, py, TILE, TILE);
         tileGfx.endFill();
 
         if (isVisible && brightness > 0.3) {
-          // Brick lines (only when visible enough)
           tileGfx.lineStyle(1, tintColor(COLORS.wallLine, brightness * 0.6, warmth), 0.3);
           tileGfx.moveTo(px, py + TILE / 2);
           tileGfx.lineTo(px + TILE, py + TILE / 2);
@@ -492,7 +491,6 @@ function drawVisibleWorld() {
             tileGfx.lineTo(px + TILE / 2, py + TILE);
           }
           tileGfx.lineStyle(0);
-          // Top highlight
           tileGfx.beginFill(tintColor(COLORS.wallTop, brightness, warmth), 0.3);
           tileGfx.drawRect(px, py, TILE, 3);
           tileGfx.endFill();
@@ -530,10 +528,10 @@ function drawVisibleWorld() {
   if (gameRunning) {
     const glowAlpha = 0.12 + Math.sin(flickerTime * 5) * 0.04;
     tileGfx.beginFill(0x664422, glowAlpha);
-    tileGfx.drawCircle(cx, cy, lr * 0.5);
+    tileGfx.drawCircle(playerCX, playerCY, lr * 0.5);
     tileGfx.endFill();
     tileGfx.beginFill(0x886633, glowAlpha * 0.5);
-    tileGfx.drawCircle(cx, cy, lr * 0.25);
+    tileGfx.drawCircle(playerCX, playerCY, lr * 0.25);
     tileGfx.endFill();
   }
 }
@@ -1212,8 +1210,7 @@ function gameLoop(ticker) {
   updateParticles(dt);
   updateCamera(false);
 
-  // Compute visibility, then draw world + entities with lighting baked in
-  computeVisibility();
+  // Draw world with inline visibility computation
   drawVisibleWorld();
   drawEntities();
   drawParticles();
@@ -1289,6 +1286,7 @@ function drawDebug() {
     `rooms: ${rooms.length}`,
     `tile at player: ${tiles[player.y * mapW + player.x]}`,
     `TILE: ${TILE}, lightRadius: ${lightRadius}`,
+    `tilesDrawn: ${debugTilesDrawn}`,
   ];
 
   // Draw background
