@@ -19,12 +19,13 @@ const TILE_DOOR = 2;
 const TILE_STAIRS = 3;
 
 const COLORS = {
-  floor: 0x1a1a2e,
-  floorAlt: 0x16162a,
-  wall: 0x2a2a44,
-  wallTop: 0x3a3a55,
-  wallLine: 0x444466,
-  door: 0x555577,
+  // Bright base colors for direct rendering (no MULTIPLY overlay)
+  floor: 0x4a4a7e,
+  floorAlt: 0x424274,
+  wall: 0x6a6a9a,
+  wallTop: 0x8888bb,
+  wallLine: 0x9999cc,
+  door: 0x8888aa,
   stairs: 0xffcc00,
   stairsGlow: 0xffaa00,
   player: 0xaa66ff,
@@ -38,7 +39,7 @@ const COLORS = {
   shield: 0xffcc00,
   torch: 0xff8800,
   gold: 0xffdd44,
-  darkness: 0x000008,
+  darkness: 0x050510,
 };
 
 // ── Helpers ──
@@ -525,11 +526,14 @@ function drawVisibleWorld() {
     }
   }
 
-  // Warm glow around player (additive circle in worldContainer)
+  // Warm torch glow around player
   if (gameRunning) {
-    const glowAlpha = 0.06 + Math.sin(flickerTime * 5) * 0.02;
-    tileGfx.beginFill(0x442200, glowAlpha);
-    tileGfx.drawCircle(cx, cy, lr * 0.4);
+    const glowAlpha = 0.12 + Math.sin(flickerTime * 5) * 0.04;
+    tileGfx.beginFill(0x664422, glowAlpha);
+    tileGfx.drawCircle(cx, cy, lr * 0.5);
+    tileGfx.endFill();
+    tileGfx.beginFill(0x886633, glowAlpha * 0.5);
+    tileGfx.drawCircle(cx, cy, lr * 0.25);
     tileGfx.endFill();
   }
 }
