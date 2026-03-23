@@ -158,8 +158,13 @@ async function init() {
   portalLayer = new PIXI.Container();
   sourceLayer = new PIXI.Container();
   hudLayer = new PIXI.Container();
+  hudLayer.eventMode = 'static';
 
   app.stage.addChild(bgLayer, wallLayer, fieldLayer, trailLayer, particleLayer, wellLayer, portalLayer, sourceLayer, hudLayer);
+
+  // PixiJS 7: enable event system on stage for HUD button clicks
+  app.stage.eventMode = 'static';
+  app.stage.hitArea = app.screen;
 
   createStarfield();
   setupInput();
@@ -1044,9 +1049,9 @@ function buildHUD() {
     const btnY = H - (isMobile ? 45 : 55);
 
     if (phase === 'placement') {
-      // PLAY button
+      // PLAY button — always available, even without wells placed
       drawHUDButton(W / 2 - 50, btnY, 100, isMobile ? 32 : 38, '▶ JOGAR', COL.attractor, () => {
-        if (wells.length > 0) startSimulation();
+        startSimulation();
       });
 
       // Instruction
@@ -1111,8 +1116,9 @@ function drawHUDButton(x, y, w, h, label, color, onClick) {
   const btn = new PIXI.Container();
   btn.x = x;
   btn.y = y;
-  btn.interactive = true;
+  btn.eventMode = 'static';
   btn.cursor = 'pointer';
+  btn.hitArea = new PIXI.Rectangle(0, 0, w, h);
 
   const bg = new PIXI.Graphics();
   bg.beginFill(color, 0.2);

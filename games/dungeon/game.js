@@ -10,7 +10,7 @@ const storage = new GameStorage('dungeon');
 
 // ── Constants ──
 const TILE = 32;
-const LIGHT_BASE_RADIUS = 5;
+const LIGHT_BASE_RADIUS = 6;
 const FOG_DIM = 0.15;
 
 const TILE_FLOOR = 0;
@@ -544,9 +544,8 @@ function drawEntities() {
 function updateLighting() {
   lightingLayer.clear();
 
-  const scale = app.stage.scale.x || 1;
-  const sw = app.renderer.width / scale;
-  const sh = app.renderer.height / scale;
+  const sw = app.screen.width;
+  const sh = app.screen.height;
   const camX = -worldContainer.x;
   const camY = -worldContainer.y;
 
@@ -648,8 +647,8 @@ function updateLighting() {
 
 // ── Camera ──
 function updateCamera(instant) {
-  const sw = app.renderer.width / app.stage.scale.x;
-  const sh = app.renderer.height / app.stage.scale.y;
+  const sw = app.screen.width;
+  const sh = app.screen.height;
   const targetX = -(player.px + TILE / 2) + sw / 2;
   const targetY = -(player.py + TILE / 2) + sh / 2;
 
@@ -666,7 +665,7 @@ function updateCamera(instant) {
 function drawHUD() {
   hudContainer.removeChildren();
 
-  const sw = app.renderer.width / app.stage.scale.x;
+  const sw = app.screen.width;
 
   // HP bar
   const hpBarW = 120;
@@ -738,8 +737,8 @@ function updateHUD() {
 // ── Minimap ──
 function updateMinimap() {
   minimapGfx.clear();
-  const sw = app.renderer.width / app.stage.scale.x;
-  const sh = app.renderer.height / app.stage.scale.y;
+  const sw = app.screen.width;
+  const sh = app.screen.height;
   const mmScale = 2;
   const mmW = mapW * mmScale;
   const mmH = mapH * mmScale;
@@ -1123,10 +1122,8 @@ function setupControls() {
   app.view.addEventListener('pointerdown', (e) => {
     if (!gameRunning || animating) return;
     const rect = app.view.getBoundingClientRect();
-    const scaleX = app.renderer.width / rect.width;
-    const scaleY = app.renderer.height / rect.height;
-    const mx = (e.clientX - rect.left) * scaleX / app.renderer.resolution;
-    const my = (e.clientY - rect.top) * scaleY / app.renderer.resolution;
+    const mx = (e.clientX - rect.left) * (app.screen.width / rect.width);
+    const my = (e.clientY - rect.top) * (app.screen.height / rect.height);
 
     // World coordinates
     const wx = mx - worldContainer.x;
