@@ -14,8 +14,8 @@
   <link rel="apple-touch-icon" href="/og-image.svg" />
 
   <!-- Theme Color -->
-  <meta name="theme-color" content="#0d0d19" />
-  <meta name="msapplication-TileColor" content="#0d0d19" />
+  <meta name="theme-color" content="#4CAF50" />
+  <meta name="msapplication-TileColor" content="#4CAF50" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -41,54 +41,54 @@
 
   <!-- Critical CSS inline para eliminar render-blocking -->
   <style>
-    /* Critical CSS - Neon Sanctum first paint */
+    /* Critical CSS - Cartoon Games Hub first paint */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    .skip-link{position:absolute;top:-100%;left:0;padding:0.75rem 1.25rem;background:#81ecff;color:#005762;font-weight:700;text-decoration:none;z-index:10000;transition:top 0.3s;border-radius:0 0 8px 0}
-    .skip-link:focus{top:0;outline:2px solid #fff;outline-offset:2px}
-    :focus-visible{outline:2px solid #81ecff;outline-offset:2px}
-    button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #81ecff;outline-offset:2px}
-    body{font-family:'Manrope',system-ui,-apple-system,sans-serif;background:#0d0d19;color:#e9e6f8;min-height:100vh;display:flex;flex-direction:column;line-height:1.5;overflow-x:hidden}
-    .header{background:rgba(24,24,39,0.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(71,70,85,0.15)}
-    .logo{font-family:'Space Grotesk',system-ui,sans-serif;font-size:2.2rem;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(129,236,255,0.8),0 0 30px rgba(129,236,255,0.4),0 0 10px rgba(255,81,250,0.5),0 0 30px rgba(255,81,250,0.25);letter-spacing:1.5px}
-    .tagline{color:#aba9ba;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.95rem;margin-top:0.3rem;font-weight:500;letter-spacing:1px}
-    .hero{text-align:center;padding:2.5rem 1.5rem 1rem;max-width:700px;margin:0 auto;width:100%;position:relative;z-index:1}
-    .hero-title{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1.8rem;font-weight:700;color:#fff;margin-bottom:0.4rem}
-    .hero-title span{background:linear-gradient(135deg,#81ecff,#ff51fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .skip-link{position:absolute;top:-100%;left:0;padding:0.75rem 1.25rem;background:#FFD54F;color:#3E2723;font-weight:700;text-decoration:none;z-index:10000;transition:top 0.3s;border-radius:0 0 12px 0}
+    .skip-link:focus{top:0;outline:3px solid #5D4037;outline-offset:2px}
+    :focus-visible{outline:3px solid #FF5722;outline-offset:2px}
+    button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #FF5722;outline-offset:2px}
+    body{font-family:'Nunito',system-ui,-apple-system,sans-serif;background:#4CAF50;color:#3E2723;min-height:100vh;display:flex;flex-direction:column;line-height:1.5;overflow-x:hidden}
+    .header{background:linear-gradient(180deg,#388E3C,#2E7D32);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;position:sticky;top:0;z-index:100;border-bottom:3px solid #5D4037;box-shadow:0 3px 0 #8D6E63,0 6px 15px rgba(0,0,0,0.2)}
+    .logo{font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:800;color:#fff;text-shadow:3px 3px 0 #5D4037,-1px -1px 0 #5D4037,1px -1px 0 #5D4037,-1px 1px 0 #5D4037;letter-spacing:1px}
+    .tagline{color:rgba(255,255,255,0.85);font-family:'Nunito',sans-serif;font-size:0.9rem;margin-top:0.2rem;font-weight:600;letter-spacing:0.5px}
+    .hero{text-align:center;padding:2rem 1.5rem 1rem;max-width:700px;margin:0 auto;width:100%;position:relative;z-index:1}
+    .hero-title{font-family:'Nunito',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:0.4rem;text-shadow:2px 2px 0 #5D4037}
+    .hero-title span{color:#FFD54F;-webkit-text-fill-color:#FFD54F}
     .search-box{position:relative;max-width:500px;margin:0 auto}
-    .search-input{width:100%;padding:0.85rem 1rem 0.85rem 2.8rem;background:rgba(24,24,39,0.6);border:1px solid rgba(71,70,85,0.15);border-radius:14px;color:#fff;font-family:'Manrope',system-ui,sans-serif;font-size:1rem}
-    .search-input:focus{outline:none;border-color:#81ecff;background:rgba(24,24,39,0.8);box-shadow:0 0 8px rgba(129,236,255,0.5),0 0 24px rgba(129,236,255,0.2)}
-    .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;color:#757484;pointer-events:none}
+    .search-input{width:100%;padding:0.85rem 1rem 0.85rem 2.8rem;background:#FFF8F0;border:3px solid #8D6E63;border-radius:16px;color:#3E2723;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:600;box-shadow:0 3px 0 #5D4037,0 5px 10px rgba(0,0,0,0.1)}
+    .search-input:focus{outline:none;border-color:#FF5722;box-shadow:0 3px 0 #E64A19,0 5px 10px rgba(0,0,0,0.15)}
+    .search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem;color:#8D6E63;pointer-events:none}
     .category-filters{display:flex;justify-content:center;flex-wrap:wrap;gap:0.5rem;padding:0 1.5rem 1.5rem;max-width:900px;margin:0 auto;position:relative;z-index:1}
-    .category-btn{padding:0.45rem 1rem;border-radius:999px;border:1px solid rgba(71,70,85,0.15);background:rgba(233,230,248,0.04);color:#aba9ba;font-family:'Rajdhani',system-ui,sans-serif;font-weight:600;font-size:0.85rem;cursor:pointer;white-space:nowrap}
-    .category-btn.active{background:linear-gradient(135deg,rgba(129,236,255,0.15),rgba(255,81,250,0.1));color:#fff;border-color:rgba(129,236,255,0.3);box-shadow:0 0 5px #00e5ff,0 0 15px rgba(0,229,255,0.4)}
-    .game-count{text-align:center;color:#757484;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.85rem;font-weight:500;margin-bottom:1rem;padding:0 1.5rem;position:relative;z-index:1}
+    .category-btn{padding:0.5rem 1.1rem;border-radius:12px;border:2px solid #8D6E63;background:#F5E6D0;color:#3E2723;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 #5D4037}
+    .category-btn.active{background:#FF5722;color:#fff;border-color:#E64A19;box-shadow:0 2px 0 #E64A19}
+    .game-count{text-align:center;color:rgba(255,255,255,0.8);font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:600;margin-bottom:1rem;padding:0 1.5rem;position:relative;z-index:1}
     .main{flex:1;max-width:1200px;margin:0 auto;padding:0 1.5rem 2.5rem;width:100%;position:relative;z-index:1}
     .games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
-    .game-card{background:linear-gradient(180deg,rgba(36,36,54,0.7),rgba(24,24,39,0.5));border-radius:16px;padding:1.3rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.6rem;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-decoration:none;color:inherit;border:1px solid rgba(71,70,85,0.1);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),box-shadow 0.35s}
-    .game-card:hover{transform:translateY(-6px)}
-    .game-icon{font-size:2.6rem;line-height:1}
-    .game-info h3{font-family:'Space Grotesk',system-ui,sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.2rem}
-    .game-info p{font-size:0.78rem;color:#aba9ba}
+    .game-card{background:#F5E6D0;border-radius:18px;padding:1.3rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0.5rem;box-shadow:0 4px 0 #5D4037,0 6px 12px rgba(0,0,0,0.15);text-decoration:none;color:#3E2723;border:3px solid #8D6E63;transition:transform 0.2s ease,box-shadow 0.2s ease;position:relative;overflow:hidden}
+    .game-card:hover{transform:translateY(-4px);box-shadow:0 6px 0 #5D4037,0 10px 20px rgba(0,0,0,0.2)}
+    .game-icon{font-size:2.8rem;line-height:1}
+    .game-info h3{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:#3E2723;margin-bottom:0.15rem}
+    .game-info p{font-size:0.78rem;color:#795548;font-weight:600}
     .game-card.hidden{display:none}
-    .badge-play{display:inline-block;padding:0.25rem 0.8rem;border-radius:999px;font-family:'Rajdhani',system-ui,sans-serif;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;background:linear-gradient(135deg,#81ecff,#ff51fa);color:#fff}
-    .no-results{text-align:center;padding:3rem 1rem;color:#757484;display:none}
+    .badge-play{display:inline-block;padding:0.3rem 0.9rem;border-radius:10px;font-family:'Nunito',sans-serif;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:#FF5722;color:#fff;border:2px solid #E64A19;box-shadow:0 2px 0 #E64A19}
+    .no-results{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,0.8);display:none}
     .no-results.visible{display:block}
-    .footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#757484;border-top:1px solid rgba(71,70,85,0.12);background:#000;position:relative;z-index:1}
+    .footer{text-align:center;padding:1.2rem;font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.8);border-top:3px solid #5D4037;background:#2E7D32;position:relative;z-index:1}
     /* Skeleton loading */
     @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    .skeleton{background:linear-gradient(90deg,rgba(233,230,248,0.03) 25%,rgba(233,230,248,0.08) 50%,rgba(233,230,248,0.03) 75%);background-size:200% 100%;animation:shimmer 2s ease-in-out infinite}
+    .skeleton{background:linear-gradient(90deg,rgba(141,110,99,0.1) 25%,rgba(141,110,99,0.2) 50%,rgba(141,110,99,0.1) 75%);background-size:200% 100%;animation:shimmer 2s ease-in-out infinite}
     /* Mobile optimizations */
     @media (max-width:768px){.hero-title{font-size:1.4rem}.games-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:0.8rem}}
-    @media (max-width:480px){.logo{font-size:1.6rem}.games-grid{grid-template-columns:1fr 1fr;gap:0.6rem}.game-card{padding:0.8rem}}
+    @media (max-width:480px){.logo{font-size:1.6rem}.games-grid{grid-template-columns:1fr 1fr;gap:0.6rem}.game-card{padding:0.8rem;border-width:2px;border-radius:14px}}
   </style>
 
-  <!-- Preload das fontes Space Grotesk + Manrope + Rajdhani -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" /></noscript>
+  <!-- Preload da fonte Nunito -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" /></noscript>
 
   <!-- CSS não-crítico carregado assíncronamente -->
-  <link rel="preload" href="style.css?v=9" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript><link rel="stylesheet" href="style.css?v=9" /></noscript>
+  <link rel="preload" href="style.css?v=10" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="style.css?v=10" /></noscript>
 
   <!-- Dados estruturados -->
   <script type="application/ld+json">
@@ -726,9 +726,10 @@
       .activity-feed-section {
         margin-top: 2.5rem;
         padding: 1.5rem;
-        background: rgba(255,255,255,0.03);
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.06);
+        background: var(--surface, #F5E6D0);
+        border-radius: 18px;
+        border: 3px solid var(--wood, #8D6E63);
+        box-shadow: 0 4px 0 var(--wood-dark, #5D4037), 0 6px 12px rgba(0,0,0,0.15);
       }
       .activity-feed-header {
         display: flex;
@@ -748,14 +749,14 @@
       }
       .activity-feed-title h3 {
         font-size: 1.1rem;
-        font-weight: 700;
-        color: #fff;
+        font-weight: 800;
+        color: var(--text, #3E2723);
         margin: 0;
       }
       .activity-feed-link {
-        color: #ff6b35;
+        color: var(--primary, #FF5722);
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.9rem;
         transition: opacity 0.2s;
       }
@@ -772,50 +773,55 @@
         align-items: center;
         gap: 0.75rem;
         padding: 0.75rem 1rem;
-        background: rgba(255,255,255,0.05);
+        background: var(--surface-high, #FFF8F0);
         border-radius: 12px;
-        transition: background 0.2s;
+        border: 2px solid var(--outline-variant, #D7CCC8);
+        transition: background 0.2s, transform 0.2s;
       }
       .activity-item:hover {
-        background: rgba(255,255,255,0.08);
+        transform: translateY(-1px);
       }
       .activity-avatar {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #ff6b35, #e85d2a);
+        background: var(--primary, #FF5722);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
+        font-weight: 800;
         color: #fff;
         font-size: 1rem;
         flex-shrink: 0;
+        border: 2px solid var(--wood, #8D6E63);
       }
       .activity-content {
         flex: 1;
         min-width: 0;
       }
       .activity-text {
-        color: rgba(255,255,255,0.9);
+        color: var(--text, #3E2723);
         font-size: 0.9rem;
         line-height: 1.4;
+        font-weight: 600;
       }
       .activity-text strong {
-        color: #fff;
-        font-weight: 700;
+        color: var(--text, #3E2723);
+        font-weight: 800;
       }
       .activity-text a {
-        color: #ff6b35;
+        color: var(--primary, #FF5722);
         text-decoration: none;
+        font-weight: 700;
       }
       .activity-text a:hover {
         text-decoration: underline;
       }
       .activity-time {
-        color: rgba(255,255,255,0.4);
+        color: var(--text-muted, #795548);
         font-size: 0.75rem;
         margin-top: 0.15rem;
+        font-weight: 600;
       }
       .activity-game-icon {
         font-size: 1.5rem;
@@ -824,13 +830,14 @@
       .activity-feed-loading {
         text-align: center;
         padding: 2rem;
-        color: rgba(255,255,255,0.4);
+        color: var(--text-muted, #795548);
         font-size: 0.9rem;
+        font-weight: 600;
       }
       .activity-feed-empty {
         text-align: center;
         padding: 2rem;
-        color: rgba(255,255,255,0.5);
+        color: var(--text-muted, #795548);
       }
       .activity-feed-empty-icon {
         font-size: 2.5rem;
@@ -839,6 +846,7 @@
       @media (max-width: 480px) {
         .activity-feed-section {
           padding: 1rem;
+          border-width: 2px;
         }
         .activity-feed-title h3 {
           font-size: 1rem;
