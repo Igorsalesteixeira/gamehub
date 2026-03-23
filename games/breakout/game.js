@@ -29,7 +29,7 @@ const BRICK_PAD     = 4;
 const BRICK_HEIGHT  = 18;
 const PADDLE_HEIGHT = 14;
 const BALL_RADIUS   = 7;
-const BRICK_COLORS  = ['#ff6b6b','#ffa502','#ffd32a','#0be881','#18dcff','#a55eea'];
+const BRICK_COLORS  = ['#F44336','#FF9800','#FFEB3B','#4CAF50','#2196F3','#9C27B0'];
 
 // ---- Stats e Best Score ----
 const stats = new GameStats('breakout');
@@ -49,7 +49,7 @@ let wideTimer = 0;
 // ---- Power-ups ----
 let powerUps = [];
 const POWERUP_TYPES = ['wide', 'multi', 'life'];
-const POWERUP_COLORS = { wide: '#0be881', multi: '#a55eea', life: '#ff6b6b' };
+const POWERUP_COLORS = { wide: '#4CAF50', multi: '#9C27B0', life: '#F44336' };
 let extraBalls = [];
 
 // ---- Game Loop ----
@@ -136,6 +136,8 @@ function initGame() {
   powerUps = [];
   extraBalls = [];
   wideTimer = 0;
+  particles = [];
+  ballTrail = [];
   resetBall();
   createBricks();
 }
@@ -198,6 +200,11 @@ function update() {
       b.dy = Math.sin(angle) * spd;
       b.y = H - 30 - PADDLE_HEIGHT - BALL_RADIUS;
       playSound('move');
+      // Paddle hit sparks
+      emitParticles(b.x, b.y + BALL_RADIUS, 3, {
+        color: '#FFD54F', type: 'spark', speed: 2, size: 2,
+        gravity: 0.05, decay: 0.04, angle: -Math.PI / 2 + (Math.random() - 0.5) * 1.5,
+      });
     }
 
     // Brick collision
@@ -211,6 +218,7 @@ function update() {
           score += brick.points;
           scoreDisplay.textContent = score;
           playSound('explosion');
+          emitBrickDestroy(brick);
           // chance to spawn power-up
           if (Math.random() < 0.15) {
             const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
@@ -297,142 +305,473 @@ function applyPowerUp(type) {
 }
 
 // =============================================
-//  DRAW - TEMA NEON ARCADE
+//  PARTICLE SYSTEM — Cartoon VFX
 // =============================================
-function draw() {
-  // Fundo com gradiente escuro
-  ctx.fillStyle = '#0a0a12';
-  ctx.fillRect(0, 0, W, H);
+let particles = [];
+let ballTrail = [];
+let frameCount = 0;
 
-  // Grade de fundo sutil
-  ctx.strokeStyle = 'rgba(233, 69, 96, 0.05)';
-  ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 30) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, H);
-    ctx.stroke();
+class CartoonParticle {
+  constructor(x, y, opts = {}) {
+    this.x = x;
+    this.y = y;
+    const angle = opts.angle ?? Math.random() * Math.PI * 2;
+    const spd = (opts.speed ?? 3) * (0.5 + Math.random());
+    this.vx = Math.cos(angle) * spd;
+    this.vy = Math.sin(angle) * spd;
+    this.life = 1;
+    this.decay = opts.decay ?? (0.02 + Math.random() * 0.02);
+    this.size = opts.size ?? (3 + Math.random() * 4);
+    this.color = opts.color ?? '#FFD54F';
+    this.gravity = opts.gravity ?? 0.1;
+    this.friction = opts.friction ?? 0.96;
+    this.type = opts.type ?? 'star'; // 'star', 'chunk', 'circle', 'spark'
+    this.rot = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - 0.5) * 0.2;
   }
-  for (let y = 0; y < H; y += 30) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(W, y);
-    ctx.stroke();
+
+  update() {
+    this.vx *= this.friction;
+    this.vy *= this.friction;
+    this.vy += this.gravity;
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+    this.rot += this.rotSpeed;
   }
 
-  // Bricks com glow
-  for (let brick of bricks) {
-    if (!brick.alive) continue;
+  draw(ctx) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rot);
+    ctx.globalAlpha = Math.max(0, this.life);
+    const s = this.size * Math.max(0.2, this.life);
 
-    // Glow externo
-    ctx.shadowColor = brick.color;
-    ctx.shadowBlur = 8;
-
-    // Bloco com gradiente
-    const grad = ctx.createLinearGradient(brick.x, brick.y, brick.x, brick.y + brick.h);
-    if (brick.hits > 1) {
-      grad.addColorStop(0, '#888');
-      grad.addColorStop(1, '#555');
-    } else {
-      grad.addColorStop(0, brick.color);
-      grad.addColorStop(1, shadeColor(brick.color, -20));
-    }
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.roundRect(brick.x, brick.y, brick.w, brick.h, 3);
-    ctx.fill();
-
-    // Borda brilhante
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = brick.hits > 1 ? '#aaa' : brick.color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Hit indicator para blocos resistentes
-    if (brick.hits > 1) {
-      ctx.fillStyle = brick.color;
-      ctx.globalAlpha = 0.4;
+    if (this.type === 'star') {
+      drawStar(ctx, 0, 0, 4, s, s * 0.4, this.color);
+    } else if (this.type === 'chunk') {
+      // Brick chunk
+      ctx.fillStyle = this.color;
+      ctx.strokeStyle = shadeColor(this.color, -40);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-s / 2, -s / 2, s, s * 0.7, 2);
       ctx.fill();
-      ctx.globalAlpha = 1;
+      ctx.stroke();
+    } else if (this.type === 'spark') {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, s, 0, Math.PI * 2);
+      ctx.fill();
     }
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
   }
-
-  // Paddle com glow neon
-  const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
-  ctx.shadowColor = wideTimer > 0 ? '#ffd32a' : '#ff6b6b';
-  ctx.shadowBlur = wideTimer > 0 ? 20 : 15;
-
-  const paddleGrad = ctx.createLinearGradient(paddleX, H - 30 - PADDLE_HEIGHT, paddleX, H - 30);
-  paddleGrad.addColorStop(0, '#ff6b6b');
-  paddleGrad.addColorStop(0.5, '#e94560');
-  paddleGrad.addColorStop(1, '#ff4757');
-  ctx.fillStyle = paddleGrad;
-  ctx.beginPath();
-  ctx.roundRect(paddleX, H - 30 - PADDLE_HEIGHT, pw, PADDLE_HEIGHT, 7);
-  ctx.fill();
-
-  // Borda do paddle
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = '#ffd32a';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Bola principal com glow forte
-  ctx.shadowColor = '#fff';
-  ctx.shadowBlur = 12;
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(ballX, ballY, BALL_RADIUS, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Borda da bola
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = '#ffd32a';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // Extra balls com cor diferente
-  ctx.shadowColor = '#18dcff';
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = '#18dcff';
-  for (let b of extraBalls) {
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.shadowBlur = 0;
-
-  // Power-ups com glow e ícones claros
-  for (let p of powerUps) {
-    // Glow do power-up
-    ctx.shadowColor = POWERUP_COLORS[p.type];
-    ctx.shadowBlur = 15;
-
-    // Círculo externo
-    ctx.fillStyle = POWERUP_COLORS[p.type];
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Círculo interno
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Ícone central
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 9px "Press Start 2P", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const label = p.type === 'wide' ? '<>' : p.type === 'multi' ? '*' : '+';
-    ctx.fillText(label, p.x, p.y + 1);
-  }
-  ctx.shadowBlur = 0;
 }
 
-// Helper para escurecer cores
+function emitParticles(x, y, count, opts = {}) {
+  for (let i = 0; i < count; i++) {
+    particles.push(new CartoonParticle(x, y, {
+      ...opts,
+      angle: opts.angle ?? Math.random() * Math.PI * 2,
+    }));
+  }
+}
+
+function emitBrickDestroy(brick) {
+  const cx = brick.x + brick.w / 2;
+  const cy = brick.y + brick.h / 2;
+  // Brick chunks
+  emitParticles(cx, cy, 4, {
+    color: brick.color,
+    type: 'chunk',
+    speed: 3,
+    size: 5 + Math.random() * 3,
+    gravity: 0.15,
+    decay: 0.018,
+  });
+  // Stars
+  emitParticles(cx, cy, 3, {
+    color: '#FFD54F',
+    type: 'star',
+    speed: 2.5,
+    size: 4,
+    gravity: 0.05,
+    decay: 0.025,
+  });
+  // Sparks
+  emitParticles(cx, cy, 5, {
+    color: '#FFFFFF',
+    type: 'spark',
+    speed: 4,
+    size: 2,
+    gravity: 0.08,
+    decay: 0.04,
+  });
+}
+
+function drawStar(ctx, x, y, points, outerR, innerR, color) {
+  ctx.fillStyle = color;
+  ctx.strokeStyle = shadeColor(color, -30);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const px = x + Math.cos(angle) * r;
+    const py = y + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+// =============================================
+//  DRAW — TEMA DEMOLICAO CARTOON
+// =============================================
+function draw() {
+  frameCount++;
+
+  // ---- Sky background gradient ----
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+  skyGrad.addColorStop(0, '#87CEEB');
+  skyGrad.addColorStop(0.6, '#5BA3D9');
+  skyGrad.addColorStop(1, '#4A90C4');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // ---- Cartoon clouds ----
+  drawCloud(ctx, W * 0.15, 18, 28);
+  drawCloud(ctx, W * 0.55, 12, 22);
+  drawCloud(ctx, W * 0.85, 22, 20);
+
+  // ---- Ground area (below paddle) ----
+  const groundY = H - 18;
+  const groundGrad = ctx.createLinearGradient(0, groundY, 0, H);
+  groundGrad.addColorStop(0, '#8D6E63');
+  groundGrad.addColorStop(0.5, '#6D4C41');
+  groundGrad.addColorStop(1, '#5D4037');
+  ctx.fillStyle = groundGrad;
+  ctx.beginPath();
+  ctx.roundRect(0, groundY, W, H - groundY, 0);
+  ctx.fill();
+  // Ground top line
+  ctx.strokeStyle = '#4E342E';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, groundY);
+  ctx.lineTo(W, groundY);
+  ctx.stroke();
+
+  // ---- Bricks — Lego/construction blocks cartoon ----
+  for (let brick of bricks) {
+    if (!brick.alive) continue;
+    drawCartoonBrick(ctx, brick);
+  }
+
+  // ---- Paddle — wooden plank cartoon ----
+  const pw = wideTimer > 0 ? paddleW * 1.5 : paddleW;
+  drawCartoonPaddle(ctx, paddleX, H - 30 - PADDLE_HEIGHT, pw, PADDLE_HEIGHT);
+
+  // ---- Ball shadow on ground ----
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.beginPath();
+  ctx.ellipse(ballX, groundY + 2, BALL_RADIUS * 1.2, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ---- Ball trail ----
+  ballTrail.push({ x: ballX, y: ballY });
+  if (ballTrail.length > 6) ballTrail.shift();
+  for (let i = 0; i < ballTrail.length - 1; i++) {
+    const t = ballTrail[i];
+    const alpha = (i / ballTrail.length) * 0.25;
+    const size = BALL_RADIUS * (i / ballTrail.length) * 0.6;
+    ctx.fillStyle = `rgba(200,200,200,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ---- Main ball — shiny cartoon ----
+  drawCartoonBall(ctx, ballX, ballY, BALL_RADIUS, '#E0E0E0', '#BDBDBD', '#424242');
+
+  // ---- Extra balls ----
+  for (let b of extraBalls) {
+    drawCartoonBall(ctx, b.x, b.y, BALL_RADIUS, '#81D4FA', '#4FC3F7', '#01579B');
+  }
+
+  // ---- Power-ups — cartoon icons with outlines ----
+  for (let p of powerUps) {
+    drawCartoonPowerUp(ctx, p);
+  }
+
+  // ---- Update & draw particles ----
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw(ctx);
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+}
+
+// ---- Draw helpers ----
+
+function drawCloud(ctx, x, y, size) {
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.beginPath();
+  ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
+  ctx.arc(x - size * 0.5, y + size * 0.1, size * 0.45, 0, Math.PI * 2);
+  ctx.arc(x + size * 0.5, y + size * 0.1, size * 0.5, 0, Math.PI * 2);
+  ctx.arc(x - size * 0.25, y - size * 0.2, size * 0.4, 0, Math.PI * 2);
+  ctx.arc(x + size * 0.2, y - size * 0.15, size * 0.35, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawCartoonBrick(ctx, brick) {
+  const { x, y, w, h, color, hits } = brick;
+  const r = 4; // corner radius
+
+  // Shadow under brick
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.beginPath();
+  ctx.roundRect(x + 2, y + 2, w, h, r);
+  ctx.fill();
+
+  // Main brick body — gradient
+  const grad = ctx.createLinearGradient(x, y, x, y + h);
+  if (hits > 1) {
+    // Reinforced brick — metallic look
+    grad.addColorStop(0, '#BDBDBD');
+    grad.addColorStop(0.3, '#9E9E9E');
+    grad.addColorStop(1, '#757575');
+  } else {
+    grad.addColorStop(0, shadeColor(color, 25));
+    grad.addColorStop(0.4, color);
+    grad.addColorStop(1, shadeColor(color, -20));
+  }
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+  ctx.fill();
+
+  // Thick dark outline
+  ctx.strokeStyle = hits > 1 ? '#424242' : shadeColor(color, -50);
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 3D highlight on top — white shine
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath();
+  ctx.roundRect(x + 3, y + 1.5, w - 6, h * 0.35, [r, r, 0, 0]);
+  ctx.fill();
+
+  // Small specular dot
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.beginPath();
+  ctx.arc(x + 6, y + 4, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Lego-style nubs on top
+  const nubCount = Math.max(2, Math.floor(w / 18));
+  const nubSpacing = w / (nubCount + 1);
+  for (let i = 1; i <= nubCount; i++) {
+    const nx = x + i * nubSpacing;
+    const ny = y + 1;
+    // Nub shadow
+    ctx.fillStyle = hits > 1 ? 'rgba(0,0,0,0.2)' : shadeColor(color, -30);
+    ctx.beginPath();
+    ctx.arc(nx, ny + 1, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    // Nub body
+    ctx.fillStyle = hits > 1 ? '#BDBDBD' : shadeColor(color, 15);
+    ctx.beginPath();
+    ctx.arc(nx, ny, 3, 0, Math.PI * 2);
+    ctx.fill();
+    // Nub outline
+    ctx.strokeStyle = hits > 1 ? '#616161' : shadeColor(color, -40);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Nub highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath();
+    ctx.arc(nx - 0.5, ny - 1, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Reinforced brick X mark
+  if (hits > 1) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + 4);
+    ctx.lineTo(x + w - 4, y + h - 4);
+    ctx.moveTo(x + w - 4, y + 4);
+    ctx.lineTo(x + 4, y + h - 4);
+    ctx.stroke();
+    // Tint with original color
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.25;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawCartoonPaddle(ctx, px, py, pw, ph) {
+  const r = 8;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.roundRect(px + 2, py + 3, pw, ph, r);
+  ctx.fill();
+
+  // Main body — wood gradient
+  const grad = ctx.createLinearGradient(px, py, px, py + ph);
+  grad.addColorStop(0, '#D7A86E');
+  grad.addColorStop(0.3, '#C49B5E');
+  grad.addColorStop(0.7, '#A1887F');
+  grad.addColorStop(1, '#8D6E63');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, r);
+  ctx.fill();
+
+  // Wood grain lines
+  ctx.strokeStyle = 'rgba(93,64,55,0.2)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    const gy = py + 3 + i * (ph / 4);
+    ctx.beginPath();
+    ctx.moveTo(px + 5, gy);
+    ctx.quadraticCurveTo(px + pw / 2, gy + (i % 2 === 0 ? 1.5 : -1.5), px + pw - 5, gy);
+    ctx.stroke();
+  }
+
+  // Thick dark outline
+  ctx.strokeStyle = '#4E342E';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(px, py, pw, ph, r);
+  ctx.stroke();
+
+  // Top highlight (specular shine)
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath();
+  ctx.roundRect(px + 4, py + 1.5, pw - 8, ph * 0.3, [r, r, 0, 0]);
+  ctx.fill();
+
+  // Metal bolts on edges
+  const boltR = 3;
+  [px + 8, px + pw - 8].forEach(bx => {
+    ctx.fillStyle = '#9E9E9E';
+    ctx.strokeStyle = '#616161';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(bx, py + ph / 2, boltR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath();
+    ctx.arc(bx - 0.5, py + ph / 2 - 1, 1, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Wide power-up glow effect
+  if (wideTimer > 0) {
+    ctx.strokeStyle = '#FFD54F';
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.4 + Math.sin(frameCount * 0.1) * 0.2;
+    ctx.beginPath();
+    ctx.roundRect(px - 2, py - 2, pw + 4, ph + 4, r + 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawCartoonBall(ctx, bx, by, radius, lightColor, mainColor, outlineColor) {
+  // Cartoon ball with 3D shading
+  const grad = ctx.createRadialGradient(
+    bx - radius * 0.3, by - radius * 0.3, radius * 0.1,
+    bx, by, radius
+  );
+  grad.addColorStop(0, '#FFFFFF');
+  grad.addColorStop(0.4, lightColor);
+  grad.addColorStop(0.8, mainColor);
+  grad.addColorStop(1, shadeColor(mainColor, -25));
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(bx, by, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Thick outline
+  ctx.strokeStyle = outlineColor;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Specular highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.beginPath();
+  ctx.arc(bx - radius * 0.25, by - radius * 0.25, radius * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawCartoonPowerUp(ctx, p) {
+  const r = 13;
+  const bobY = Math.sin(frameCount * 0.08 + p.x) * 3;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.beginPath();
+  ctx.arc(p.x + 1, p.y + bobY + 2, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Outer circle — gradient
+  const grad = ctx.createRadialGradient(
+    p.x - 3, p.y + bobY - 3, 2,
+    p.x, p.y + bobY, r
+  );
+  grad.addColorStop(0, shadeColor(POWERUP_COLORS[p.type], 40));
+  grad.addColorStop(0.7, POWERUP_COLORS[p.type]);
+  grad.addColorStop(1, shadeColor(POWERUP_COLORS[p.type], -30));
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y + bobY, r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Thick outline
+  ctx.strokeStyle = shadeColor(POWERUP_COLORS[p.type], -50);
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath();
+  ctx.arc(p.x - 3, p.y + bobY - 4, r * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Icon
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 1;
+  ctx.font = 'bold 12px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const label = p.type === 'wide' ? '<<>>' : p.type === 'multi' ? 'x3' : '+1';
+  ctx.strokeText(label, p.x, p.y + bobY + 1);
+  ctx.fillText(label, p.x, p.y + bobY + 1);
+}
+
+// Helper para escurecer/clarear cores
 function shadeColor(color, percent) {
   const num = parseInt(color.replace('#', ''), 16);
   const amt = Math.round(2.55 * percent);
