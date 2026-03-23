@@ -164,17 +164,17 @@ function initPixi() {
   trailGraphics = new PIXI.Graphics();
   gameContainer.addChild(trailGraphics);
 
-  // Food layer
-  foodGraphics = new PIXI.Graphics();
-  gameContainer.addChild(foodGraphics);
-
-  // Particle layer
-  particleContainer = new PIXI.Container();
-  gameContainer.addChild(particleContainer);
-
   // Snake layer
   snakeGraphics = new PIXI.Graphics();
   gameContainer.addChild(snakeGraphics);
+
+  // Food layer (ABOVE snake so it's always visible)
+  foodGraphics = new PIXI.Graphics();
+  gameContainer.addChild(foodGraphics);
+
+  // Particle layer (on top of everything)
+  particleContainer = new PIXI.Container();
+  gameContainer.addChild(particleContainer);
 
   // Apply CRT filter
   try {
@@ -333,9 +333,21 @@ function createLight(x, y, color, radius, alpha = 0.3) {
   light.x = x;
   light.y = y;
   light.blendMode = PIXI.BLEND_MODES.ADD;
-  light.filters = [new PIXI.BlurFilter(radius * 0.6)];
+  try {
+    light.filters = [new PIXI.BlurFilter(Math.min(radius * 0.5, 30))];
+  } catch (e) { /* blur not supported */ }
   lightContainer.addChild(light);
   return light;
+}
+
+function destroyLight(light) {
+  if (!light) return;
+  if (light.filters) {
+    light.filters.forEach(f => f.destroy && f.destroy());
+    light.filters = null;
+  }
+  if (light.parent) light.parent.removeChild(light);
+  light.destroy();
 }
 
 let snakeLight = null;
@@ -370,11 +382,15 @@ function initGame() {
   // Clear trail
   trailPoints = [];
 
-  // Clear lights
+  // Clear lights properly
+  destroyLight(snakeLight);
+  destroyLight(foodLight);
   lightContainer.removeChildren();
+  snakeLight = null;
+  foodLight = null;
 
   // Create snake light (follows head)
-  snakeLight = createLight(mid * cellSize, mid * cellSize, 0x00ff44, cellSize * 4, 0.15);
+  snakeLight = createLight(mid * cellSize, mid * cellSize, 0x00ff44, cellSize * 5, 0.25);
 
   spawnFood();
 }
@@ -388,9 +404,9 @@ function spawnFood() {
   food = pos;
   initFoodOrbiters();
 
-  // Food light
-  if (foodLight && foodLight.parent) foodLight.parent.removeChild(foodLight);
-  foodLight = createLight(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, 0xff3355, cellSize * 3, 0.2);
+  // Food light — destroy old one properly, create brighter new one
+  destroyLight(foodLight);
+  foodLight = createLight(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, 0xff4466, cellSize * 4, 0.4);
 }
 
 function tick() {
@@ -553,43 +569,53 @@ function render(dt) {
   });
   trailPoints = trailPoints.filter(tp => tp.life > 0);
 
-  // ---- Food ----
+  // ---- Food (bright and visible!) ----
   foodGraphics.clear();
   if (food) {
     const fx = food.x * cs + cs / 2;
     const fy = food.y * cs + cs / 2;
-    const pulse = 1 + Math.sin(t * 4) * 0.12;
+    const pulse = 1 + Math.sin(t * 4) * 0.15;
+
+    // Outer glow ring (pulsating)
+    foodGraphics.beginFill(0xff2244, 0.25);
+    foodGraphics.drawCircle(fx, fy, cs * 0.9 * pulse);
+    foodGraphics.endFill();
+
+    // Middle aura
+    foodGraphics.beginFill(0xff4466, 0.35);
+    foodGraphics.drawCircle(fx, fy, cs * 0.6 * pulse);
+    foodGraphics.endFill();
 
     // Orbiters
     foodOrbiters.forEach(orb => {
       orb.angle += orb.speed;
       const ox = fx + Math.cos(orb.angle) * cs * orb.radius;
       const oy = fy + Math.sin(orb.angle) * cs * orb.radius;
-      foodGraphics.beginFill(0xff6688, 0.6);
-      foodGraphics.drawCircle(ox, oy, orb.size);
+      foodGraphics.beginFill(0xff88aa, 0.8);
+      foodGraphics.drawCircle(ox, oy, orb.size * 1.2);
       foodGraphics.endFill();
     });
 
-    // Aura
-    foodGraphics.beginFill(0xff4466, 0.08);
-    foodGraphics.drawCircle(fx, fy, cs * 1.3);
+    // Body (bright red)
+    foodGraphics.beginFill(0xff3355);
+    foodGraphics.drawCircle(fx, fy, cs * 0.42 * pulse);
     foodGraphics.endFill();
 
-    // Body
-    foodGraphics.beginFill(0xff4466);
-    foodGraphics.drawCircle(fx, fy, cs * 0.38 * pulse);
+    // Inner bright core
+    foodGraphics.beginFill(0xff8899, 0.9);
+    foodGraphics.drawCircle(fx, fy, cs * 0.25 * pulse);
     foodGraphics.endFill();
 
-    // Highlight
-    foodGraphics.beginFill(0xffffff, 0.45);
-    foodGraphics.drawCircle(fx - cs * 0.08, fy - cs * 0.1, cs * 0.12);
+    // Specular highlight
+    foodGraphics.beginFill(0xffffff, 0.6);
+    foodGraphics.drawCircle(fx - cs * 0.1, fy - cs * 0.12, cs * 0.13);
     foodGraphics.endFill();
 
     // Update food light
     if (foodLight) {
       foodLight.x = fx;
       foodLight.y = fy;
-      foodLight.alpha = 0.15 + Math.sin(t * 4) * 0.05;
+      foodLight.alpha = 0.3 + Math.sin(t * 4) * 0.1;
     }
   }
 
