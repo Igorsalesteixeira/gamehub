@@ -1,140 +1,272 @@
 /* =============================================
-   Cookie Clicker - Redesign
-   Usando variáveis do design-system
+   Cookie Clicker — "Artisan Bakery: The Golden Oven"
+   Steampowered Hearth Dark Theme
    ============================================= */
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --ck-primary: #f2c08d;
+  --ck-primary-container: #d4a574;
+  --ck-on-primary: #472a03;
+  --ck-secondary: #ffb59d;
+  --ck-secondary-container: #b83900;
+  --ck-tertiary: #ffba93;
+  --ck-surface: #210f07;
+  --ck-surface-container: #2f1a12;
+  --ck-surface-container-high: #3b251c;
+  --ck-surface-container-highest: #472f26;
+  --ck-on-surface: #ffdbce;
+  --ck-outline: #9c8e82;
+  --ck-outline-variant: #50453b;
+  --ck-roundness: 4px;
+  --ck-font-display: 'Caveat', cursive;
+  --ck-font-body: 'Plus Jakarta Sans', sans-serif;
+  --ck-glow-gold: 0 0 8px rgba(242, 192, 141, 0.4),
+                   0 0 24px rgba(242, 192, 141, 0.2),
+                   0 0 48px rgba(184, 57, 0, 0.15);
+  --ck-glow-hearth: 0 0 6px rgba(255, 181, 157, 0.5),
+                     0 0 20px rgba(184, 57, 0, 0.35),
+                     0 0 40px rgba(184, 57, 0, 0.15);
+  --ck-glow-cookie: 0 0 12px rgba(242, 192, 141, 0.6),
+                     0 0 36px rgba(255, 186, 147, 0.35),
+                     0 0 64px rgba(184, 57, 0, 0.2),
+                     0 2px 4px rgba(0, 0, 0, 0.4);
+  --ck-transition-fast: 0.15s ease;
+  --ck-transition-base: 0.25s ease;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== BODY + ATMOSPHERIC OVERLAY ===== */
 body {
-  font-family: var(--font-family);
-  background: var(--color-bg);
-  color: var(--color-text);
+  font-family: var(--ck-font-body);
+  background: var(--ck-surface);
+  color: var(--ck-on-surface);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    /* brick mortar pattern */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 38px,
+      rgba(156, 142, 130, 0.04) 38px,
+      rgba(156, 142, 130, 0.04) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 78px,
+      rgba(156, 142, 130, 0.03) 78px,
+      rgba(156, 142, 130, 0.03) 80px
+    ),
+    /* warm oven ambient glow from bottom center */
+    radial-gradient(
+      ellipse 60% 40% at 50% 85%,
+      rgba(184, 57, 0, 0.12) 0%,
+      transparent 70%
+    ),
+    /* flour dust particles */
+    radial-gradient(1px 1px at 15% 25%, rgba(255, 219, 206, 0.12) 50%, transparent 100%),
+    radial-gradient(1px 1px at 42% 18%, rgba(255, 186, 147, 0.1) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 73% 35%, rgba(255, 219, 206, 0.08) 50%, transparent 100%),
+    radial-gradient(1px 1px at 88% 55%, rgba(242, 192, 141, 0.1) 50%, transparent 100%),
+    radial-gradient(1px 1px at 28% 72%, rgba(255, 219, 206, 0.07) 50%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 60% 60%, rgba(255, 186, 147, 0.06) 50%, transparent 100%),
+    radial-gradient(1px 1px at 5% 90%, rgba(242, 192, 141, 0.09) 50%, transparent 100%);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ===== TOPBAR ===== */
 .topbar {
   width: 100%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  padding: var(--space-3) var(--space-6);
+  background: linear-gradient(135deg, var(--ck-surface-container-high) 0%, var(--ck-surface-container) 100%);
+  padding: 10px min(24px, 5vw);
   display: flex;
   align-items: center;
-  gap: var(--space-4);
-  box-shadow: var(--shadow-md);
+  gap: 16px;
+  box-shadow:
+    0 1px 0 var(--ck-outline-variant),
+    0 4px 16px rgba(0, 0, 0, 0.4);
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid var(--ck-outline-variant);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .topbar h1 {
-  font-size: var(--font-size-xl);
-  font-weight: 800;
+  font-family: var(--ck-font-display);
+  font-size: min(1.6rem, 6vw);
+  font-weight: 700;
+  color: var(--ck-primary);
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 6px rgba(242, 192, 141, 0.25);
 }
 
 .back-btn {
-  color: var(--color-text);
+  color: var(--ck-on-surface);
   text-decoration: none;
-  font-weight: 700;
-  font-size: var(--font-size-sm);
-  transition: opacity var(--transition-fast);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 6px 14px;
+  border-radius: var(--ck-roundness);
+  background: var(--ck-surface-container-highest);
+  border: 1px solid var(--ck-outline-variant);
+  transition: all var(--ck-transition-fast);
+  white-space: nowrap;
 }
 
 .back-btn:hover {
-  opacity: 0.8;
+  background: var(--ck-outline-variant);
+  color: var(--ck-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn:active {
+  transform: translateY(0);
 }
 
 /* ===== GAME CONTAINER ===== */
 #game-container {
-  padding: var(--space-6);
+  padding: min(32px, 5vw);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
-  max-width: 500px;
+  gap: 16px;
+  max-width: 520px;
   width: 100%;
 }
 
 /* ===== COOKIE STATS ===== */
 .cookie-count {
-  font-size: var(--font-size-3xl);
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffd700 0%, #ffb347 50%, #ff8c00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 2px 20px rgba(255, 215, 0, 0.3);
+  font-family: var(--ck-font-display);
+  font-size: min(2.8rem, 10vw);
+  font-weight: 700;
+  color: var(--ck-primary);
+  text-shadow:
+    0 0 10px rgba(242, 192, 141, 0.4),
+    0 0 30px rgba(184, 57, 0, 0.2);
+  text-align: center;
+  line-height: 1.1;
 }
 
 .cps {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.05);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  color: var(--ck-outline);
+  background: var(--ck-surface-container);
+  padding: 4px 16px;
+  border-radius: calc(var(--ck-roundness) * 5);
+  border: 1px solid var(--ck-outline-variant);
+  letter-spacing: 0.02em;
 }
 
 /* ===== COOKIE BUTTON ===== */
 .cookie-btn {
-  font-size: 8rem;
+  font-size: min(8rem, 30vw);
   cursor: pointer;
   user-select: none;
-  transition: transform var(--transition-fast);
-  filter: drop-shadow(0 4px 20px rgba(255, 215, 0, 0.4));
+  transition: transform var(--ck-transition-fast), filter var(--ck-transition-fast);
+  filter: drop-shadow(0 4px 12px rgba(242, 192, 141, 0.35))
+          drop-shadow(0 0 24px rgba(184, 57, 0, 0.2));
   position: relative;
   -webkit-tap-highlight-color: transparent;
   background: none;
   border: none;
   padding: 0;
-  margin: 0;
+  margin: 12px 0;
   display: block;
+  line-height: 1;
 }
 
 .cookie-btn:hover {
   transform: scale(1.08);
+  filter: drop-shadow(0 6px 16px rgba(242, 192, 141, 0.5))
+          drop-shadow(0 0 32px rgba(184, 57, 0, 0.3))
+          drop-shadow(0 0 48px rgba(255, 186, 147, 0.15));
 }
 
 .cookie-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.92);
+  filter: drop-shadow(0 2px 8px rgba(242, 192, 141, 0.6))
+          drop-shadow(0 0 20px rgba(184, 57, 0, 0.4));
 }
 
 .cookie-btn:focus {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 4px;
+  outline: 3px solid var(--ck-secondary);
+  outline-offset: 6px;
   border-radius: 50%;
 }
 
-/* Pulse animation for cookie */
+/* Oven glow pulse behind cookie */
 .cookie-btn::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: -24px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
-  animation: cookieGlow 2s ease-in-out infinite;
+  background: radial-gradient(
+    circle,
+    rgba(184, 57, 0, 0.2) 0%,
+    rgba(242, 192, 141, 0.1) 40%,
+    transparent 70%
+  );
+  animation: ovenGlow 2.5s ease-in-out infinite;
   pointer-events: none;
+  z-index: -1;
 }
 
-@keyframes cookieGlow {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 0.8; }
+@keyframes ovenGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+}
+
+/* Click pulse ring */
+@keyframes cookiePress {
+  0% { transform: scale(0.92); }
+  40% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 /* ===== FLOAT TEXT ANIMATION ===== */
 .float-text {
   position: fixed;
   pointer-events: none;
-  font-size: var(--font-size-xl);
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--ck-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ck-primary);
+  text-shadow:
+    0 0 8px rgba(242, 192, 141, 0.6),
+    0 0 16px rgba(184, 57, 0, 0.3);
   animation: floatUp 1s ease-out forwards;
   z-index: 50;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 @keyframes floatUp {
@@ -148,40 +280,40 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
+  gap: 8px;
+  margin-top: 16px;
   max-height: 50vh;
   overflow-y: auto;
-  padding-right: var(--space-2);
+  padding-right: 6px;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-surface);
+  scrollbar-color: var(--ck-primary-container) var(--ck-surface-container);
 }
 
 .shop::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .shop::-webkit-scrollbar-track {
-  background: var(--color-surface);
-  border-radius: var(--radius-full);
+  background: var(--ck-surface-container);
+  border-radius: calc(var(--ck-roundness) * 2);
 }
 
 .shop::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
+  background: var(--ck-primary-container);
+  border-radius: calc(var(--ck-roundness) * 2);
 }
 
 /* ===== SHOP ITEM ===== */
 .shop-item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ck-surface-container);
+  border-radius: var(--ck-roundness);
   cursor: pointer;
-  transition: all var(--transition-base);
-  border: 2px solid transparent;
+  transition: all var(--ck-transition-base);
+  border: 1px solid var(--ck-outline-variant);
   position: relative;
   overflow: hidden;
 }
@@ -190,9 +322,13 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(242, 192, 141, 0.06) 0%,
+    transparent 60%
+  );
   opacity: 0;
-  transition: opacity var(--transition-base);
+  transition: opacity var(--ck-transition-base);
 }
 
 .shop-item:hover::before {
@@ -200,37 +336,40 @@ body {
 }
 
 .shop-item:hover {
-  background: var(--color-surface-light);
-  border-color: var(--color-primary);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-glow);
+  background: var(--ck-surface-container-high);
+  border-color: var(--ck-primary-container);
+  transform: translateY(-2px);
+  box-shadow: var(--ck-glow-gold);
 }
 
 .shop-item:active {
-  transform: scale(0.98) translateX(4px);
+  transform: translateY(0) scale(0.985);
+  box-shadow: 0 0 6px rgba(242, 192, 141, 0.3);
 }
 
 .shop-item:focus {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--ck-secondary);
   outline-offset: 2px;
 }
 
 .shop-item.locked {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
+  filter: grayscale(0.3);
 }
 
 .shop-item.locked:hover {
-  background: var(--color-surface);
-  border-color: transparent;
+  background: var(--ck-surface-container);
+  border-color: var(--ck-outline-variant);
   transform: none;
   box-shadow: none;
 }
 
 .shop-icon {
-  font-size: 2rem;
-  min-width: 48px;
+  font-size: 1.8rem;
+  min-width: 44px;
   text-align: center;
+  filter: drop-shadow(0 0 4px rgba(242, 192, 141, 0.3));
 }
 
 .shop-info {
@@ -239,15 +378,17 @@ body {
 }
 
 .shop-name {
-  font-weight: 800;
-  font-size: var(--font-size-base);
-  color: var(--color-text);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ck-on-surface);
+  letter-spacing: 0.01em;
 }
 
 .shop-desc {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  color: var(--ck-outline);
   margin-top: 2px;
+  line-height: 1.4;
 }
 
 .shop-meta {
@@ -257,49 +398,95 @@ body {
 
 .shop-cost {
   font-weight: 800;
-  font-size: var(--font-size-base);
-  color: #ffd700;
+  font-size: 0.95rem;
+  color: var(--ck-primary);
   white-space: nowrap;
+  text-shadow: 0 0 8px rgba(242, 192, 141, 0.3);
 }
 
 .shop-owned {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  background: rgba(255, 215, 0, 0.1);
+  font-size: 0.7rem;
+  color: var(--ck-outline);
+  background: rgba(242, 192, 141, 0.08);
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: calc(var(--ck-roundness) * 5);
   margin-top: 4px;
   display: inline-block;
+  border: 1px solid rgba(242, 192, 141, 0.1);
 }
 
 /* Purchase animation */
 .shop-item.purchasing {
-  animation: purchaseFlash 0.3s ease;
+  animation: purchaseFlash 0.35s ease;
 }
 
 @keyframes purchaseFlash {
-  0% { background: var(--color-surface); }
-  50% { background: rgba(255, 215, 0, 0.3); }
-  100% { background: var(--color-surface); }
+  0% { background: var(--ck-surface-container); }
+  40% { background: rgba(184, 57, 0, 0.25); box-shadow: var(--ck-glow-hearth); }
+  100% { background: var(--ck-surface-container); }
+}
+
+/* ===== SEO GAME INFO SECTION ===== */
+.game-info {
+  max-width: 780px;
+  margin: 32px auto;
+  padding: 24px min(32px, 5vw);
+  background: var(--ck-surface-container);
+  border-radius: var(--ck-roundness);
+  color: var(--ck-outline);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  border: 1px solid var(--ck-outline-variant);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.game-info h2 {
+  font-family: var(--ck-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ck-primary);
+  margin-bottom: 12px;
+  text-shadow: 0 0 12px rgba(242, 192, 141, 0.2);
+}
+
+.game-info h3 {
+  font-family: var(--ck-font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ck-secondary);
+  margin: 20px 0 8px;
+}
+
+.game-info ul {
+  padding-left: 24px;
+}
+
+.game-info li {
+  margin-bottom: 4px;
+}
+
+.game-info li::marker {
+  color: var(--ck-primary-container);
 }
 
 /* ===== RESPONSIVIDADE MOBILE ===== */
 @media (max-width: 600px) {
   #game-container {
-    padding: var(--space-4);
-    gap: var(--space-3);
+    padding: 20px 16px;
+    gap: 12px;
   }
 
   .cookie-count {
-    font-size: var(--font-size-2xl);
+    font-size: min(2.2rem, 9vw);
   }
 
   .cookie-btn {
-    font-size: 6rem;
+    font-size: min(6rem, 28vw);
   }
 
   .cookie-btn::before {
-    inset: -10px;
+    inset: -12px;
   }
 
   .shop {
@@ -307,17 +494,17 @@ body {
   }
 
   .shop-item {
-    padding: var(--space-2) var(--space-3);
-    gap: var(--space-2);
+    padding: 10px 12px;
+    gap: 10px;
   }
 
   .shop-icon {
     font-size: 1.5rem;
-    min-width: 40px;
+    min-width: 36px;
   }
 
   .shop-name {
-    font-size: var(--font-size-sm);
+    font-size: 0.85rem;
   }
 
   .shop-desc {
@@ -325,31 +512,36 @@ body {
   }
 
   .shop-cost {
-    font-size: var(--font-size-sm);
+    font-size: 0.85rem;
   }
 
   .topbar {
-    padding: var(--space-2) var(--space-4);
+    padding: 8px min(16px, 4vw);
   }
 
   .topbar h1 {
-    font-size: var(--font-size-base);
+    font-size: min(1.25rem, 5vw);
   }
 }
 
 /* ===== LANDSCAPE MOBILE ===== */
 @media (max-height: 500px) and (orientation: landscape) {
   #game-container {
-    padding: var(--space-2);
-    gap: var(--space-2);
+    padding: 8px;
+    gap: 8px;
   }
 
   .cookie-count {
-    font-size: var(--font-size-xl);
+    font-size: 1.4rem;
   }
 
   .cookie-btn {
     font-size: 4rem;
+    margin: 4px 0;
+  }
+
+  .cookie-btn::before {
+    inset: -8px;
   }
 
   .shop {
@@ -360,47 +552,12 @@ body {
 /* ===== TOUCH FEEDBACK ===== */
 @media (hover: none) and (pointer: coarse) {
   .cookie-btn:active {
-    transform: scale(0.9);
+    transform: scale(0.88);
   }
 
   .shop-item:active {
     transform: scale(0.97);
   }
-}
-
-/* ===== SEO GAME INFO SECTION ===== */
-.game-info {
-  max-width: 780px;
-  margin: var(--space-4) auto;
-  padding: var(--space-4) var(--space-6);
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  line-height: 1.6;
-  border: 1px solid var(--color-border);
-}
-
-.game-info h2 {
-  font-size: var(--font-size-xl);
-  font-weight: 800;
-  color: var(--color-text);
-  margin-bottom: var(--space-3);
-}
-
-.game-info h3 {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--color-text);
-  margin: var(--space-4) 0 var(--space-2);
-}
-
-.game-info ul {
-  padding-left: var(--space-6);
-}
-
-.game-info li {
-  margin-bottom: var(--space-1);
 }
 
 /* ===== ACCESSIBILITY ===== */
@@ -417,7 +574,7 @@ body {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .shop-item {
-    border-width: 3px;
+    border-width: 2px;
   }
 
   .shop-item.locked {
@@ -426,5 +583,10 @@ body {
 
   .cookie-btn:focus {
     outline-width: 4px;
+  }
+
+  .cookie-count {
+    text-shadow: none;
+    color: #fff;
   }
 }

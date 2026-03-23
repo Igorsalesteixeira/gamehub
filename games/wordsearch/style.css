@@ -1,98 +1,158 @@
-/* ===== WORD SEARCH - PREMIUM PUZZLE THEME ===== */
-/* Tema Premium para Caça-Palavras */
+/* ===== WORD SEARCH — "The Analog Investigator" ===== */
+/* Detective's Evidence Board — Cork, Red String, Thumbtacks */
+
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@400;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ===== CSS VARIABLES ===== */
 :root {
-  /* Cores do tema puzzle */
-  --puzzle-bg: #1a1a2e;
-  --puzzle-surface: #16213e;
-  --puzzle-accent: #ff6b35;
+  /* Primary palette — red string */
+  --ev-primary: #ffb3b3;
+  --ev-primary-container: #ff525f;
+  --ev-on-primary: #680014;
 
-  /* Grid */
-  --grid-bg: #0f1626;
-  --grid-border: rgba(255,255,255,0.12);
-  --cell-bg: #16213e;
-  --cell-hover: #1e3a5f;
-  --cell-selected: rgba(255,107,53,0.3);
-  --cell-found: rgba(74,222,128,0.25);
+  /* Secondary — highlighter yellow */
+  --ev-secondary: #f3df2e;
+  --ev-secondary-container: #d5c300;
 
-  /* Palavras */
-  --word-found: #4ade80;
-  --word-pending: rgba(255,255,255,0.6);
+  /* Tertiary — thumbtack metal */
+  --ev-tertiary: #adcbda;
 
-  /* UI */
-  --ui-text: #f5f0e6;
-  --ui-text-muted: #a8a8a8;
+  /* Surface layers */
+  --ev-surface: #18120e;
+  --ev-surface-container: #251e1a;
+  --ev-surface-container-high: #302924;
+  --ev-surface-container-highest: #3b332f;
 
-  /* Sombras */
-  --shadow-grid: 0 4px 20px rgba(0,0,0,0.4);
+  /* Text */
+  --ev-on-surface: #ede0d9;
+  --ev-on-surface-muted: #9e8e85;
+
+  /* Outline */
+  --ev-outline: #ae8787;
+  --ev-outline-variant: #5e3f3e;
+
+  /* Functional */
+  --ev-found-glow: rgba(255, 82, 95, 0.45);
+  --ev-string-red: #ff525f;
+  --ev-cork: #6b4c30;
+  --ev-shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --ev-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --ev-roundness: 0px;
+  --ev-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===== Reset & Base ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Nunito', sans-serif;
-  background: linear-gradient(135deg, var(--puzzle-bg) 0%, #0f0f23 50%, var(--puzzle-bg) 100%);
-  background-image:
-    radial-gradient(circle at 15% 85%, rgba(74,222,128,0.05) 0%, transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(255,107,53,0.05) 0%, transparent 40%);
-  color: var(--ui-text);
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--ev-surface);
+  color: var(--ev-on-surface);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  position: relative;
 }
+
+/* Cork board atmospheric overlay — pin holes, texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    /* Cork board grain */
+    radial-gradient(ellipse 1px 1px at 12% 8%, rgba(174, 135, 135, 0.15) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 45% 22%, rgba(174, 135, 135, 0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 78% 15%, rgba(174, 135, 135, 0.1) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 33% 67%, rgba(174, 135, 135, 0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 88% 72%, rgba(174, 135, 135, 0.1) 0%, transparent 100%),
+    radial-gradient(ellipse 1px 1px at 55% 90%, rgba(174, 135, 135, 0.08) 0%, transparent 100%),
+    /* Red string traces crossing the board */
+    linear-gradient(28deg, transparent 30%, rgba(255, 82, 95, 0.03) 31%, rgba(255, 82, 95, 0.03) 31.3%, transparent 32%),
+    linear-gradient(155deg, transparent 55%, rgba(255, 82, 95, 0.025) 55.5%, rgba(255, 82, 95, 0.025) 55.8%, transparent 56.3%),
+    linear-gradient(72deg, transparent 42%, rgba(255, 82, 95, 0.02) 42.3%, rgba(255, 82, 95, 0.02) 42.6%, transparent 43%),
+    /* Cork board base warmth */
+    radial-gradient(ellipse at 20% 50%, rgba(107, 76, 48, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(107, 76, 48, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+body > * { position: relative; z-index: 2; }
 
 /* ===== Topbar ===== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 1rem;
-  background: linear-gradient(180deg, rgba(22,33,62,0.95) 0%, rgba(22,33,62,0.8) 100%);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
+  padding: min(0.7rem, 2vw) min(1.2rem, 3vw);
+  background: var(--ev-surface-container);
+  border-bottom: 2px solid var(--ev-outline-variant);
+  color: var(--ev-on-surface);
   position: relative;
+  z-index: 10;
 }
 
+/* Red string accent under topbar */
 .topbar::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -2px;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--puzzle-accent), transparent);
-  opacity: 0.5;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    var(--ev-string-red) 15%,
+    var(--ev-primary) 50%,
+    var(--ev-string-red) 85%,
+    transparent 95%
+  );
+  opacity: 0.6;
 }
 
 .btn-back {
-  color: #fff;
+  color: var(--ev-primary);
   text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.15);
-  transition: all 0.2s;
+  font-size: min(0.85rem, 3.5vw);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--ev-roundness);
+  background: var(--ev-surface-container-high);
+  border: 1px solid var(--ev-outline-variant);
+  transition: all var(--ev-transition);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
+
 .btn-back:hover {
-  background: rgba(255,255,255,0.2);
-  border-color: var(--puzzle-accent);
+  background: var(--ev-surface-container-highest);
+  border-color: var(--ev-primary);
+  box-shadow: 0 0 12px rgba(255, 179, 179, 0.15);
 }
 
 .game-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  font-family: 'Epilogue', sans-serif;
+  font-size: min(1.3rem, 4.5vw);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--ev-on-surface);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .stats {
+  font-family: 'Space Grotesk', monospace;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: min(1rem, 3.5vw);
+  color: var(--ev-secondary);
+  background: var(--ev-surface-container-high);
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--ev-outline-variant);
+  border-radius: var(--ev-roundness);
+  letter-spacing: 0.08em;
 }
 
 /* ===== Game Container ===== */
@@ -101,139 +161,307 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  padding: min(1.2rem, 3vw);
   width: 100%;
 }
 
 .game-layout {
   display: flex;
-  gap: 1.5rem;
+  gap: min(1.5rem, 3vw);
   align-items: flex-start;
-  max-width: 900px;
+  max-width: 920px;
   width: 100%;
 }
 
+/* ===== Grid — Evidence Photo / Pinned Document ===== */
 .grid-wrapper {
   flex-shrink: 0;
+  position: relative;
+  background: var(--ev-surface-container);
+  border: 2px solid var(--ev-outline-variant);
+  border-radius: var(--ev-roundness);
+  padding: 6px;
+  box-shadow:
+    var(--ev-shadow-heavy),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
+
+/* Thumbtack pins on grid corners */
+.grid-wrapper::before,
+.grid-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d4e4ee, var(--ev-tertiary), #7a9bac);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+    0 0 6px rgba(173, 203, 218, 0.3);
+  z-index: 5;
+}
+.grid-wrapper::before { top: -5px; left: -5px; }
+.grid-wrapper::after { top: -5px; right: -5px; }
 
 #grid-canvas {
-  border-radius: 16px;
-  background: var(--grid-bg);
-  border: 2px solid var(--grid-border);
+  border-radius: var(--ev-roundness);
+  background: var(--ev-surface-container-high);
+  border: 1px solid var(--ev-outline-variant);
   touch-action: none;
   cursor: crosshair;
-  box-shadow: var(--shadow-grid);
+  display: block;
 }
 
-/* ===== Word Panel ===== */
+/* ===== Word Panel — Case File ===== */
 .word-panel {
-  background: linear-gradient(145deg, var(--puzzle-surface), rgba(22,33,62,0.8));
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  padding: 1rem;
+  background: var(--ev-surface-container);
+  border: 2px solid var(--ev-outline-variant);
+  border-radius: var(--ev-roundness);
+  padding: min(1rem, 2.5vw);
   min-width: 160px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: var(--ev-shadow-card);
+  position: relative;
+}
+
+/* Case file tape at top */
+.word-panel::before {
+  content: 'EVIDENCE';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ev-secondary);
+  color: #18120e;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 2px 12px;
+  border-radius: var(--ev-roundness);
+  text-transform: uppercase;
 }
 
 .word-panel h3 {
   text-align: center;
   margin-bottom: 0.75rem;
-  color: var(--puzzle-accent);
-  font-size: 1.1rem;
+  color: var(--ev-primary);
+  font-family: 'Epilogue', sans-serif;
+  font-size: min(1.05rem, 3.8vw);
   font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px dashed var(--ev-outline-variant);
+  padding-bottom: 0.5rem;
 }
 
 #word-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
   margin-bottom: 1rem;
 }
 
 #word-list li {
-  font-size: 0.95rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: min(0.9rem, 3.2vw);
   font-weight: 600;
-  padding: 0.4rem 0.7rem;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.05);
-  transition: all 0.3s;
-  border: 1px solid transparent;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--ev-roundness);
+  background: var(--ev-surface-container-high);
+  border: 1px solid var(--ev-outline-variant);
+  transition: all 0.35s ease;
+  color: var(--ev-on-surface);
+  position: relative;
+  letter-spacing: 0.04em;
 }
 
+/* Pending words: newspaper clipping style */
+#word-list li::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 60%;
+  transform: translateY(-50%);
+  background: var(--ev-outline-variant);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Found words — red string crossed, glow stack */
 #word-list li.found {
   text-decoration: line-through;
-  color: var(--word-found);
-  background: rgba(74,222,128,0.1);
-  border-color: rgba(74,222,128,0.3);
+  text-decoration-color: var(--ev-string-red);
+  text-decoration-thickness: 2px;
+  color: var(--ev-primary);
+  background: rgba(255, 82, 95, 0.08);
+  border-color: rgba(255, 82, 95, 0.3);
+  box-shadow:
+    0 0 8px rgba(255, 82, 95, 0.15),
+    0 0 20px rgba(255, 82, 95, 0.05);
 }
 
-/* ===== Buttons ===== */
+#word-list li.found::before {
+  background: var(--ev-string-red);
+  box-shadow: 0 0 6px rgba(255, 82, 95, 0.4);
+}
+
+/* ===== Buttons — Evidence Tags ===== */
 .btn {
   border: none;
-  padding: 0.7rem 1.3rem;
-  border-radius: 10px;
-  font-family: 'Nunito', sans-serif;
+  padding: 0.65rem 1.2rem;
+  border-radius: var(--ev-roundness);
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: min(0.95rem, 3.5vw);
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.2s;
+  transition: transform 0.15s, box-shadow var(--ev-transition), background var(--ev-transition);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  position: relative;
 }
 
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: scale(0.97); }
 
-.btn-orange {
-  background: linear-gradient(135deg, var(--puzzle-accent), #e85d2a);
+.btn-primary {
+  background: var(--ev-primary-container);
   color: #fff;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+  border: 1px solid rgba(255, 179, 179, 0.2);
+  box-shadow:
+    0 4px 12px rgba(255, 82, 95, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover {
+  background: #ff6a75;
+  box-shadow:
+    0 6px 24px rgba(255, 82, 95, 0.35),
+    0 0 12px rgba(255, 82, 95, 0.15);
+}
+
+/* Legacy class support */
+.btn-orange {
+  background: var(--ev-primary-container);
+  color: #fff;
+  width: 100%;
+  border: 1px solid rgba(255, 179, 179, 0.2);
+  box-shadow: 0 4px 12px rgba(255, 82, 95, 0.25);
 }
 
 .btn-orange:hover {
-  box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+  box-shadow: 0 6px 20px rgba(255, 82, 95, 0.35);
 }
 
-/* ===== Modal ===== */
+.btn-whatsapp {
+  background: var(--ev-surface-container-high);
+  color: var(--ev-on-surface);
+  width: 100%;
+  border: 1px solid var(--ev-outline-variant);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: min(0.85rem, 3.2vw);
+  padding: 0.55rem 1rem;
+  border-radius: var(--ev-roundness);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all var(--ev-transition);
+}
+
+.btn-whatsapp:hover {
+  background: var(--ev-surface-container-highest);
+  border-color: var(--ev-outline);
+}
+
+/* ===== Modal — Classified Case File ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0, 0, 0, 0.8);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 .modal-overlay.active { display: flex; }
 
 .modal {
-  background: linear-gradient(145deg, #1e2a4a, #0f1626);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 20px;
-  padding: 2rem;
+  background: linear-gradient(
+    160deg,
+    rgba(37, 30, 26, 0.92) 0%,
+    rgba(24, 18, 14, 0.96) 100%
+  );
+  border: 1px solid var(--ev-outline-variant);
+  border-radius: var(--ev-roundness);
+  padding: min(2rem, 6vw);
   text-align: center;
-  max-width: 340px;
+  max-width: 380px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  animation: modalPop 0.3s ease-out;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 179, 179, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  animation: modalSlide 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-@keyframes modalPop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+/* CLASSIFIED stamp on modal */
+.modal::before {
+  content: 'CASE CLOSED';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: 'Epilogue', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--ev-string-red);
+  border: 2px solid var(--ev-string-red);
+  padding: 2px 8px;
+  opacity: 0.5;
+  transform: rotate(3deg);
+  text-transform: uppercase;
+}
+
+@keyframes modalSlide {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-icon {
+  font-size: 2.5rem;
+  margin: 0.5rem 0;
 }
 
 .modal h2 {
-  color: var(--word-found);
+  font-family: 'Epilogue', sans-serif;
+  color: var(--ev-primary);
   margin-bottom: 0.5rem;
-  font-size: 1.5rem;
+  font-size: min(1.5rem, 5.5vw);
+  font-weight: 900;
+  letter-spacing: -0.01em;
 }
 
 .modal p {
   margin-bottom: 1rem;
-  color: var(--ui-text-muted);
+  color: var(--ev-on-surface-muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: min(0.95rem, 3.5vw);
+  line-height: 1.5;
 }
 
 /* ===== Responsive ===== */
@@ -255,23 +483,80 @@ body {
   }
 
   #word-list li {
-    font-size: 0.85rem;
+    font-size: min(0.8rem, 3vw);
+  }
+
+  #word-list li::before {
+    display: none;
+  }
+
+  .grid-wrapper::before { top: -4px; left: -4px; width: 8px; height: 8px; }
+  .grid-wrapper::after { top: -4px; right: -4px; width: 8px; height: 8px; }
+}
+
+@media (max-width: 400px) {
+  .topbar {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .game-container {
+    padding: 0.6rem;
+  }
+
+  .word-panel {
+    padding: 0.7rem;
+  }
+
+  .modal {
+    padding: 1.5rem;
+    width: 94%;
   }
 }
 
 /* ===== SEO GAME INFO SECTION ===== */
 .game-info {
   max-width: 780px;
-  margin: 1rem auto;
-  padding: 1rem 1.2rem;
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  color: var(--ui-text-muted);
-  font-size: 0.88rem;
-  line-height: 1.6;
+  margin: min(1.2rem, 3vw) auto;
+  padding: min(1.2rem, 3vw);
+  background: var(--ev-surface-container);
+  border: 1px solid var(--ev-outline-variant);
+  border-radius: var(--ev-roundness);
+  color: var(--ev-on-surface-muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: min(0.88rem, 3.2vw);
+  line-height: 1.7;
 }
 
-.game-info h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--ui-text); }
-.game-info h3 { font-size: 0.95rem; font-weight: 700; margin: 0.8rem 0 0.3rem; color: var(--ui-text); }
+.game-info h2 {
+  font-family: 'Epilogue', sans-serif;
+  font-size: min(1.1rem, 4vw);
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--ev-on-surface);
+}
+
+.game-info h3 {
+  font-family: 'Epilogue', sans-serif;
+  font-size: min(0.95rem, 3.5vw);
+  font-weight: 700;
+  margin: 0.8rem 0 0.3rem;
+  color: var(--ev-on-surface);
+}
+
 .game-info ul { padding-left: 1.2rem; }
 .game-info li { margin-bottom: 0.2rem; }
+
+/* ===== Scrollbar styling ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--ev-surface); }
+::-webkit-scrollbar-thumb {
+  background: var(--ev-outline-variant);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ev-outline); }
+
+/* ===== Selection ===== */
+::selection {
+  background: rgba(255, 82, 95, 0.3);
+  color: var(--ev-on-surface);
+}

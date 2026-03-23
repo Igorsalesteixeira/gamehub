@@ -1,53 +1,72 @@
-/* ===== Sinuca Premium - Estilos Excepcionais ===== */
-/* Design: Salão de Bilhar Profissional */
+/* ===== Sinuca — The Championship Room: British Green ===== */
+/* Design: The Silent Steward — British Billiards Club */
 
-/* ===== CSS Variables Premium ===== */
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;0,6..72,800;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ===== CSS Variables — Championship Palette ===== */
 :root {
-  /* Cores do Salão */
-  --salao-bg-dark: #0f1419;
-  --salao-bg-mid: #1a1f2e;
-  --salao-bg-light: #252b3d;
+  /* Core Surfaces */
+  --surface: #041706;
+  --surface-container: #102411;
+  --surface-container-high: #1b2f1b;
+  --surface-container-highest: #253a25;
+  --on-surface: #d0e9cb;
+  --on-surface-dim: rgba(208, 233, 203, 0.6);
 
-  /* Cores da Mesa */
-  --feltro-dark: #1b4d3e;
-  --feltro-mid: #2d6a4f;
-  --feltro-light: #3d8b6b;
-  --borracha: #d4c4a8;
-  --borracha-dark: #b8a890;
-  --borracha-light: #e8dcc8;
+  /* Primary — Felt Green */
+  --primary: #a1d2ab;
+  --primary-container: #1a472a;
+  --on-primary: #08381d;
 
-  /* Cores Metálicas */
-  --metal-dark: #6b7280;
-  --metal-mid: #9ca3af;
-  --metal-light: #c0c0c0;
-  --metal-shine: #e8e8e8;
-  --chrome: linear-gradient(180deg, #e8e8e8 0%, #c0c0c0 50%, #9ca3af 100%);
+  /* Secondary — Brass / Gold */
+  --secondary: #e9c349;
+  --secondary-container: #af8d11;
+  --on-secondary: #3a2e00;
+  --secondary-glow: rgba(233, 195, 73, 0.35);
 
-  /* Cores Douradas */
-  --gold-dark: #b8941f;
-  --gold-mid: #d4af37;
-  --gold-light: #f0d878;
-  --gold-shine: #fff8dc;
-  --gold-gradient: linear-gradient(135deg, #d4af37 0%, #f0d878 50%, #c9a227 100%);
+  /* Tertiary — Aged Mahogany */
+  --tertiary: #ffb68c;
+  --tertiary-dim: rgba(255, 182, 140, 0.5);
 
-  /* Cores do Medidor */
-  --power-green: #22c55e;
-  --power-yellow: #fbbf24;
-  --power-red: #ef4444;
-  --power-gradient: linear-gradient(180deg, #22c55e 0%, #fbbf24 50%, #ef4444 100%);
+  /* Outline */
+  --outline: #8b938a;
+  --outline-variant: #414942;
 
-  /* Sombras */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-gold: 0 0 20px rgba(212, 175, 55, 0.3);
-  --shadow-gold-lg: 0 0 40px rgba(212, 175, 55, 0.5);
+  /* Roundness */
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.15);
+  /* Typography */
+  --font-headline: 'Newsreader', Georgia, serif;
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+
+  /* Mahogany frame */
+  --mahogany: #5c2a0e;
+  --mahogany-light: #7a3b18;
+  --mahogany-dark: #3e1a06;
+
+  /* Power gauge */
+  --gauge-low: #a1d2ab;
+  --gauge-mid: #e9c349;
+  --gauge-high: #e85d4a;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.7);
+  --shadow-brass: 0 0 20px var(--secondary-glow);
+  --shadow-brass-lg: 0 0 40px var(--secondary-glow);
+  --shadow-felt: 0 0 30px rgba(161, 210, 171, 0.15);
+
+  /* Glass */
+  --glass-bg: rgba(16, 36, 17, 0.55);
+  --glass-border: rgba(161, 210, 171, 0.12);
+  --glass-highlight: rgba(161, 210, 171, 0.08);
+
+  /* Tiffany Lamp */
+  --lamp-glow: radial-gradient(ellipse 600px 300px at 50% -40px, rgba(233, 195, 73, 0.12) 0%, rgba(161, 210, 171, 0.04) 50%, transparent 100%);
 }
 
 /* ===== Reset & Base ===== */
@@ -62,71 +81,92 @@ html {
 }
 
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-body);
   min-height: 100vh;
   min-height: 100dvh;
-  color: #fff;
+  color: var(--on-surface);
   overflow-x: hidden;
   touch-action: manipulation;
+  background: var(--surface);
+  position: relative;
+}
 
-  /* Fundo do Salão de Bilhar */
+/* Atmospheric overlay — dim room with wood panel texture, Tiffany lamp cone */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    /* Piso de madeira sutil */
+    /* Tiffany lamp overhead glow */
+    var(--lamp-glow),
+    /* Wood panel vertical lines */
     repeating-linear-gradient(
       90deg,
       transparent 0px,
-      transparent 48px,
-      rgba(0, 0, 0, 0.03) 48px,
-      rgba(0, 0, 0, 0.03) 50px
+      transparent 80px,
+      rgba(92, 42, 14, 0.04) 80px,
+      rgba(92, 42, 14, 0.04) 82px
     ),
-    /* Gradiente principal */
-    radial-gradient(ellipse at 50% 0%, var(--salao-bg-light) 0%, var(--salao-bg-mid) 50%, var(--salao-bg-dark) 100%);
-  background-attachment: fixed;
+    /* Horizontal wainscoting */
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 200px,
+      rgba(92, 42, 14, 0.03) 200px,
+      rgba(92, 42, 14, 0.03) 202px
+    ),
+    /* Vignette */
+    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
 }
 
-/* ===== Topbar Premium - Glassmorphism ===== */
+/* ===== Topbar — Mahogany Rail ===== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.875rem 1.25rem;
+  padding: min(1rem, 3vw) min(1.25rem, 4vw);
   flex-wrap: wrap;
   gap: 0.75rem;
-
-  /* Glassmorphism */
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
-
-  /* Sombra sutil */
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 var(--glass-highlight);
-
-  /* Posição fixa opcional */
   position: relative;
   z-index: 100;
+
+  background: linear-gradient(180deg, var(--surface-container-high) 0%, var(--surface-container) 100%);
+  border-bottom: 2px solid var(--outline-variant);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 0 rgba(233, 195, 73, 0.1),
+    inset 0 1px 0 rgba(161, 210, 171, 0.05);
 }
 
-/* Botão Voltar - Estilo Metal Premium */
+/* Brass accent line at bottom of topbar */
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  opacity: 0.4;
+}
+
+/* ===== Back Button — Brass Fitting ===== */
 .btn-back {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #fff;
+  color: var(--on-surface);
   text-decoration: none;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
   padding: 0.5rem 1rem;
-
-  /* Fundo metal escuro */
-  background: linear-gradient(135deg, rgba(107, 114, 128, 0.3) 0%, rgba(75, 85, 99, 0.4) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-
-  /* Transição suave */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 }
@@ -138,15 +178,16 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(233, 195, 73, 0.15), transparent);
   transition: left 0.5s;
 }
 
 .btn-back:hover {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(180, 148, 31, 0.4) 100%);
-  border-color: var(--gold-mid);
-  box-shadow: var(--shadow-gold);
-  transform: translateY(-2px);
+  background: var(--primary-container);
+  border-color: var(--secondary);
+  color: var(--secondary);
+  box-shadow: var(--shadow-brass);
+  transform: translateY(-1px);
 }
 
 .btn-back:hover::before {
@@ -157,81 +198,78 @@ body {
   transform: translateY(0);
 }
 
-/* Ícone de seta */
+/* Arrow icon */
 .btn-back::after {
-  content: '←';
-  font-size: 1.1rem;
-  transition: transform 0.3s;
+  content: '';
 }
 
-.btn-back:hover::after {
-  transform: translateX(-3px);
-}
-
-/* Título do Jogo - Estilo Cassino */
+/* ===== Game Title — Championship Serif ===== */
 .game-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #fff;
+  font-family: var(--font-headline);
+  font-size: min(1.6rem, 5vw);
+  font-weight: 700;
+  color: var(--secondary);
   text-transform: uppercase;
-  letter-spacing: 2px;
-
-  /* Efeito de texto dourado */
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  /* Sombra sutil */
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-
-  /* Brilho animado */
+  letter-spacing: 3px;
   position: relative;
+  text-shadow:
+    0 0 20px var(--secondary-glow),
+    0 2px 4px rgba(0, 0, 0, 0.6);
 }
 
+/* Subtle brass underline */
 .game-title::after {
-  content: attr(data-text);
+  content: '';
   position: absolute;
+  bottom: -4px;
   left: 0;
-  top: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  background-size: 200% 100%;
-  animation: shine 3s ease-in-out infinite;
-  pointer-events: none;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  opacity: 0.5;
 }
 
-@keyframes shine {
-  0%, 100% { background-position: -200% 0; }
-  50% { background-position: 200% 0; }
-}
-
-/* Stats - Placar Estilo Cassino */
+/* ===== Stats — Brass Scoreplate ===== */
 .stats {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
+  gap: min(1.25rem, 3vw);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--on-surface-dim);
 }
 
-.stats > div {
+.stats > div,
+.stats > span {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 0.2rem;
+  padding: 0.4rem 0.875rem;
+  background: var(--surface-container);
+  border-radius: var(--radius);
+  border: 1px solid var(--outline-variant);
+  position: relative;
+}
+
+/* Brass top edge on score cards */
+.stats > div::before,
+.stats > span::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  opacity: 0.5;
 }
 
 .stats strong {
-  color: var(--gold-light);
+  color: var(--secondary);
+  font-family: var(--font-headline);
   font-size: 1.3rem;
-  font-weight: 800;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  font-weight: 700;
+  text-shadow: 0 0 12px var(--secondary-glow);
 }
 
 /* ===== Game Container ===== */
@@ -239,66 +277,120 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
+  padding: min(1.5rem, 4vw);
   gap: 1.5rem;
   max-width: 1000px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  animation: fade-in-up 0.6s ease-out;
 }
 
-/* ===== Game Area - Mesa de Sinuca ===== */
+/* ===== Game Area — Championship Table ===== */
 .game-area {
   position: relative;
   width: 100%;
   max-width: 800px;
   aspect-ratio: 2 / 1;
 
-  /* Sombra da mesa */
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6));
+  /* Mahogany outer frame */
+  background: linear-gradient(145deg, var(--mahogany-light) 0%, var(--mahogany) 40%, var(--mahogany-dark) 100%);
+  border-radius: var(--radius-lg);
+  padding: min(14px, 2vw);
+
+  /* Brass corner fittings effect */
+  box-shadow:
+    /* Outer shadow */
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 10px 20px rgba(0, 0, 0, 0.4),
+    /* Brass rim glow */
+    inset 0 0 0 2px rgba(233, 195, 73, 0.25),
+    /* Wood highlight */
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* Felt glow from above (Tiffany lamp) */
+  filter: drop-shadow(0 0 40px rgba(161, 210, 171, 0.08));
 }
 
-/* Canvas do Jogo */
+/* Brass rail inset */
+.game-area::before {
+  content: '';
+  position: absolute;
+  inset: min(10px, 1.5vw);
+  border-radius: var(--radius);
+  border: 2px solid rgba(233, 195, 73, 0.2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Corner brass dots (decorative) */
+.game-area::after {
+  content: '';
+  position: absolute;
+  inset: min(6px, 1vw);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle 4px at 8px 8px, rgba(233, 195, 73, 0.4) 0%, transparent 100%),
+    radial-gradient(circle 4px at calc(100% - 8px) 8px, rgba(233, 195, 73, 0.4) 0%, transparent 100%),
+    radial-gradient(circle 4px at 8px calc(100% - 8px), rgba(233, 195, 73, 0.4) 0%, transparent 100%),
+    radial-gradient(circle 4px at calc(100% - 8px) calc(100% - 8px), rgba(233, 195, 73, 0.4) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ===== Canvas — The Felt ===== */
 #game-canvas {
   width: 100%;
   height: 100%;
-  border-radius: 16px;
+  border-radius: var(--radius);
   cursor: crosshair;
   touch-action: none;
+  display: block;
 
-  /* Borda da mesa - emborrachada */
-  border: 12px solid var(--borracha);
+  /* Felt surface */
+  border: none;
   box-shadow:
-    /* Sombra interna do feltro */
-    inset 0 0 60px rgba(0, 0, 0, 0.4),
-    /* Sombra da borda */
-    0 0 0 2px var(--borracha-dark),
-    /* Sombra externa */
-    0 20px 60px rgba(0, 0, 0, 0.5);
+    inset 0 0 80px rgba(0, 0, 0, 0.35),
+    inset 0 0 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.3);
 
-  /* Gradiente do feltro */
-  background: radial-gradient(ellipse at 30% 30%, var(--feltro-light) 0%, var(--feltro-mid) 50%, var(--feltro-dark) 100%);
+  /* Glow stack — Tiffany lamp illumination */
+  filter:
+    drop-shadow(0 0 8px rgba(161, 210, 171, 0.1))
+    drop-shadow(0 0 20px rgba(161, 210, 171, 0.05));
+
+  background: radial-gradient(ellipse at 40% 35%, #2d6a4f 0%, #1b4d3e 60%, #143d30 100%);
 }
 
-/* ===== Medidor de Força Vertical Premium ===== */
+#game-canvas:focus {
+  outline: none;
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.35),
+    inset 0 0 20px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(233, 195, 73, 0.3),
+    0 0 20px rgba(233, 195, 73, 0.15);
+}
+
+/* ===== Power Meter — Vintage Brass Gauge ===== */
 .power-meter {
   position: absolute;
-  right: -50px;
+  right: min(-55px, -7vw);
   top: 50%;
   transform: translateY(-50%);
   width: 36px;
   height: 200px;
 
-  /* Fundo glass */
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  padding: 8px;
+  /* Brass gauge housing */
+  background: linear-gradient(180deg, var(--surface-container-highest) 0%, var(--surface-container) 100%);
+  border: 2px solid rgba(233, 195, 73, 0.3);
+  border-radius: var(--radius-xl);
+  padding: 6px;
 
-  /* Sombra */
   box-shadow:
     var(--shadow-md),
-    inset 0 1px 0 var(--glass-highlight);
+    inset 0 1px 0 rgba(233, 195, 73, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 0 12px rgba(233, 195, 73, 0.08);
 }
 
 .power-label {
@@ -307,26 +399,25 @@ body {
   bottom: -30px;
   transform: translateX(-50%) rotate(-90deg);
   white-space: nowrap;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--on-surface-dim);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
 }
 
 .power-bar {
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;
-
-  /* Borda sutil */
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(233, 195, 73, 0.1);
 }
 
-/* Marcadores de força */
+/* Gauge tick marks */
 .power-bar::before {
   content: '';
   position: absolute;
@@ -334,8 +425,9 @@ body {
   right: 0;
   top: 33%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(233, 195, 73, 0.25);
   z-index: 1;
+  box-shadow: 0 0 4px rgba(233, 195, 73, 0.1);
 }
 
 .power-bar::after {
@@ -345,8 +437,9 @@ body {
   right: 0;
   top: 66%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(233, 195, 73, 0.25);
   z-index: 1;
+  box-shadow: 0 0 4px rgba(233, 195, 73, 0.1);
 }
 
 .power-fill {
@@ -355,55 +448,56 @@ body {
   left: 0;
   width: 100%;
   height: 0%;
-
-  /* Gradiente vertical */
-  background: var(--power-gradient);
-
-  /* Brilho neon */
+  background: linear-gradient(180deg, var(--gauge-low) 0%, var(--gauge-mid) 50%, var(--gauge-high) 100%);
   box-shadow:
-    0 0 10px rgba(34, 197, 94, 0.5),
-    0 0 20px rgba(251, 191, 36, 0.3),
-    inset 0 0 10px rgba(255, 255, 255, 0.3);
-
-  /* Transição suave */
+    0 0 8px rgba(161, 210, 171, 0.4),
+    0 0 16px rgba(233, 195, 73, 0.2),
+    inset 0 0 8px rgba(255, 255, 255, 0.15);
   transition: height 0.05s linear;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
-/* Brilho animado no fill */
+/* Mercury-like shine on fill top */
 .power-fill::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
-  animation: power-shine 1s ease-in-out infinite alternate;
+  height: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
+  animation: gauge-pulse 1.2s ease-in-out infinite alternate;
 }
 
-@keyframes power-shine {
+@keyframes gauge-pulse {
   from { opacity: 0.3; }
-  to { opacity: 0.7; }
+  to { opacity: 0.6; }
 }
 
-/* ===== Controls Info - Card Glassmorphism ===== */
+/* ===== Controls Info — Engraved Plate ===== */
 .controls-info {
   text-align: center;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  color: var(--on-surface-dim);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
   margin-top: 1rem;
-
-  /* Card glass */
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-
-  /* Sombra */
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
+  padding: 0.875rem 1.5rem;
   box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+/* Brass accent top */
+.controls-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(233, 195, 73, 0.3), transparent);
 }
 
 .controls-info p {
@@ -414,52 +508,39 @@ body {
   gap: 0.5rem;
 }
 
-/* Destaque para teclas */
 .controls-info p::before {
   content: '●';
-  color: var(--gold-mid);
-  font-size: 0.5rem;
+  color: var(--secondary);
+  font-size: 0.4rem;
 }
 
-/* ===== Botões Premium - Efeito 3D Metal ===== */
+/* ===== Buttons — Brass & Mahogany ===== */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 2rem;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #fff;
-
-  /* Fundo metal */
-  background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  background: linear-gradient(180deg, var(--surface-container-highest) 0%, var(--surface-container-high) 50%, var(--surface-container) 100%);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
   cursor: pointer;
-
-  /* Transições */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   user-select: none;
-
-  /* Sombra 3D */
   box-shadow:
-    0 4px 0 rgba(0, 0, 0, 0.3),
-    0 6px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-
+    0 3px 0 rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(161, 210, 171, 0.08);
   position: relative;
   overflow: hidden;
+  letter-spacing: 0.5px;
 }
 
-/* Brilho no hover */
 .btn::before {
   content: '';
   position: absolute;
@@ -467,7 +548,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(233, 195, 73, 0.15), transparent);
   transition: left 0.6s;
 }
 
@@ -477,80 +558,78 @@ body {
 
 .btn:hover {
   transform: translateY(-2px);
+  border-color: var(--outline);
   box-shadow:
-    0 6px 0 rgba(0, 0, 0, 0.3),
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 5px 0 rgba(0, 0, 0, 0.4),
+    0 6px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(161, 210, 171, 0.12);
 }
 
 .btn:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
   box-shadow:
-    0 2px 0 rgba(0, 0, 0, 0.3),
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(161, 210, 171, 0.06);
 }
 
-/* Botão Primário - Dourado Premium */
+/* Primary Button — Brass Championship */
 .btn-primary {
-  background: linear-gradient(180deg,
-    var(--gold-mid) 0%,
-    var(--gold-dark) 50%,
-    #9a7b1a 100%
-  );
-  border-color: var(--gold-light);
-  color: #1a1a1a;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-
+  background: linear-gradient(180deg, #f0d060 0%, var(--secondary) 40%, var(--secondary-container) 100%);
+  border-color: var(--secondary);
+  color: var(--on-secondary);
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.15);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
   box-shadow:
-    0 4px 0 var(--gold-dark),
-    0 6px 20px rgba(212, 175, 55, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 3px 0 var(--secondary-container),
+    0 4px 16px rgba(233, 195, 73, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg,
-    var(--gold-light) 0%,
-    var(--gold-mid) 50%,
-    var(--gold-dark) 100%
-  );
+  background: linear-gradient(180deg, #f5dc78 0%, #f0d060 40%, var(--secondary) 100%);
   box-shadow:
-    0 6px 0 var(--gold-dark),
-    0 8px 30px rgba(212, 175, 55, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 5px 0 var(--secondary-container),
+    0 6px 24px rgba(233, 195, 73, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 20px var(--secondary-glow);
 }
 
 .btn-primary:active {
   box-shadow:
-    0 2px 0 var(--gold-dark),
-    0 4px 10px rgba(212, 175, 55, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 1px 0 var(--secondary-container),
+    0 2px 8px rgba(233, 195, 73, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* Botão WhatsApp */
+/* WhatsApp Button */
 .btn-whatsapp {
-  background: linear-gradient(180deg, #25d366 0%, #128c7e 100%);
-  border-color: #4ade80;
+  background: linear-gradient(180deg, #2dd272 0%, #25d366 40%, #1da855 100%);
+  border-color: #34e07a;
+  color: #fff;
   box-shadow:
-    0 4px 0 #128c7e,
-    0 6px 20px rgba(37, 211, 102, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 3px 0 #1a9c4a,
+    0 4px 16px rgba(37, 211, 102, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-whatsapp:hover {
   box-shadow:
-    0 6px 0 #128c7e,
-    0 8px 30px rgba(37, 211, 102, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 5px 0 #1a9c4a,
+    0 6px 24px rgba(37, 211, 102, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* ===== Modal Premium - Vitória ===== */
+/* ===== Modal — Glassmorphism Championship Trophy ===== */
 .modal-overlay {
   position: fixed !important;
   inset: 0 !important;
-  background: rgba(15, 20, 25, 0.95) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  background: rgba(4, 23, 6, 0.9) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -566,48 +645,47 @@ body {
 }
 
 .modal {
-  background: linear-gradient(135deg, var(--salao-bg-mid) 0%, var(--salao-bg-dark) 100%) !important;
-  border: 2px solid var(--gold-mid) !important;
-  border-radius: 24px !important;
+  background: linear-gradient(145deg,
+    rgba(27, 47, 27, 0.95) 0%,
+    rgba(16, 36, 17, 0.98) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(233, 195, 73, 0.35) !important;
+  border-radius: var(--radius-xl) !important;
   padding: 2.5rem !important;
   max-width: 90vw !important;
-  width: 400px !important;
+  width: min(400px, 92vw) !important;
   text-align: center !important;
-
-  /* Sombra dourada */
   box-shadow:
-    0 0 0 1px rgba(212, 175, 55, 0.3),
-    0 20px 60px rgba(0, 0, 0, 0.6),
-    var(--shadow-gold-lg) !important;
-
-  /* Animação */
+    0 0 0 1px rgba(233, 195, 73, 0.15),
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    0 0 40px var(--secondary-glow) !important;
   transform: scale(0.9) translateY(20px) !important;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-
   position: relative !important;
   overflow: hidden !important;
 }
 
-/* Brilho no topo do modal */
+/* Brass accent line at top of modal */
 .modal::before {
   content: '' !important;
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  height: 4px !important;
-  background: var(--gold-gradient) !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, var(--secondary-container), var(--secondary), var(--secondary-container)) !important;
 }
 
-/* Efeito de luz */
+/* Warm lamp light */
 .modal::after {
   content: '' !important;
   position: absolute !important;
-  top: -50% !important;
-  left: -50% !important;
-  width: 200% !important;
-  height: 200% !important;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%) !important;
+  top: -60% !important;
+  left: -30% !important;
+  width: 160% !important;
+  height: 160% !important;
+  background: radial-gradient(ellipse at 50% 20%, rgba(233, 195, 73, 0.06) 0%, transparent 60%) !important;
   pointer-events: none !important;
 }
 
@@ -615,41 +693,44 @@ body {
   transform: scale(1) translateY(0) !important;
 }
 
-/* Ícone de Troféu */
 .modal h2::before {
   content: '🏆';
   display: block;
   font-size: 3rem;
   margin-bottom: 1rem;
-  animation: trophy-bounce 1s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.8));
+  animation: trophy-float 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 16px rgba(233, 195, 73, 0.6));
 }
 
-@keyframes trophy-bounce {
-  from { transform: scale(1) rotate(-5deg); }
-  to { transform: scale(1.1) rotate(5deg); }
+@keyframes trophy-float {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-6px) scale(1.05); }
 }
 
 .modal h2 {
-  font-size: 1.75rem !important;
-  font-weight: 800 !important;
+  font-family: var(--font-headline) !important;
+  font-size: 1.6rem !important;
+  font-weight: 700 !important;
   margin-bottom: 1rem !important;
-  color: #fff !important;
+  color: var(--secondary) !important;
   text-transform: uppercase !important;
-  letter-spacing: 2px !important;
+  letter-spacing: 3px !important;
+  text-shadow: 0 0 20px var(--secondary-glow) !important;
 }
 
 .modal p {
-  font-size: 1.1rem !important;
-  color: rgba(255, 255, 255, 0.85) !important;
+  font-family: var(--font-body) !important;
+  font-size: 1rem !important;
+  color: var(--on-surface) !important;
   margin-bottom: 2rem !important;
-  line-height: 1.6 !important;
+  line-height: 1.7 !important;
+  opacity: 0.85 !important;
 }
 
-/* Destaque no texto do modal */
 .modal p strong {
-  color: var(--gold-light) !important;
-  font-size: 1.3rem !important;
+  color: var(--secondary) !important;
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
 }
 
 .modal .btn {
@@ -657,29 +738,23 @@ body {
   margin: 0.5rem 0 !important;
 }
 
-/* ===== Game Info - Card Glassmorphism Premium ===== */
+/* ===== Game Info — Leather-Bound Rules Card ===== */
 .game-info {
-  max-width: 800px;
+  max-width: min(800px, 92vw);
   margin: 2rem auto;
-  padding: 2rem;
-  color: rgba(255, 255, 255, 0.9);
-
-  /* Glassmorphism */
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-
-  /* Sombra */
+  padding: min(2rem, 5vw);
+  color: var(--on-surface);
+  background: var(--surface-container);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
   box-shadow:
     var(--shadow-lg),
     inset 0 1px 0 var(--glass-highlight);
-
-  /* Borda dourada sutil */
   position: relative;
+  z-index: 1;
 }
 
+/* Brass accent rule */
 .game-info::before {
   content: '';
   position: absolute;
@@ -687,29 +762,27 @@ body {
   left: 20px;
   right: 20px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-mid), transparent);
+  background: linear-gradient(90deg, transparent, var(--secondary), transparent);
+  opacity: 0.35;
 }
 
 .game-info h2 {
-  font-size: 1.6rem;
-  font-weight: 800;
+  font-family: var(--font-headline);
+  font-size: min(1.5rem, 5vw);
+  font-weight: 700;
   margin-bottom: 1.25rem;
-  color: #fff;
+  color: var(--secondary);
   text-transform: uppercase;
-  letter-spacing: 1px;
-
-  /* Gradiente dourado */
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: 2px;
+  text-shadow: 0 0 16px var(--secondary-glow);
 }
 
 .game-info h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-family: var(--font-headline);
+  font-size: 1.15rem;
+  font-weight: 600;
   margin: 1.75rem 0 1rem;
-  color: var(--gold-light);
+  color: var(--primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -717,16 +790,19 @@ body {
 
 .game-info h3::before {
   content: '';
-  width: 4px;
-  height: 20px;
-  background: var(--gold-gradient);
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(180deg, var(--secondary), var(--secondary-container));
   border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .game-info p {
-  line-height: 1.7;
+  font-family: var(--font-body);
+  line-height: 1.75;
   margin-bottom: 1rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--on-surface);
+  opacity: 0.85;
 }
 
 .game-info ul {
@@ -736,38 +812,41 @@ body {
 }
 
 .game-info li {
-  margin: 0.75rem 0;
-  line-height: 1.6;
+  margin: 0.65rem 0;
+  line-height: 1.65;
   padding-left: 1.5rem;
   position: relative;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--on-surface);
+  opacity: 0.8;
+  font-family: var(--font-body);
 }
 
 .game-info li::before {
   content: '▸';
   position: absolute;
   left: 0;
-  color: var(--gold-mid);
+  color: var(--secondary);
   font-weight: bold;
 }
 
-/* ===== Responsivo ===== */
+/* ===== Responsive — Mobile-First Adjustments ===== */
 @media (max-width: 768px) {
   .topbar {
     padding: 0.75rem 1rem;
   }
 
   .game-title {
-    font-size: 1.2rem;
-    letter-spacing: 1px;
+    font-size: min(1.2rem, 4.5vw);
+    letter-spacing: 1.5px;
   }
 
   .stats {
     gap: 0.75rem;
   }
 
-  .stats > div {
-    padding: 0.4rem 0.75rem;
+  .stats > div,
+  .stats > span {
+    padding: 0.35rem 0.65rem;
   }
 
   .stats strong {
@@ -778,7 +857,11 @@ body {
     padding: 1rem;
   }
 
-  /* Medidor de força em mobile - horizontal no bottom */
+  .game-area {
+    padding: min(10px, 1.5vw);
+  }
+
+  /* Power meter — horizontal on mobile */
   .power-meter {
     position: absolute;
     right: auto;
@@ -786,7 +869,7 @@ body {
     top: auto;
     bottom: -60px;
     transform: translateX(-50%);
-    width: 180px;
+    width: min(180px, 50vw);
     height: 32px;
   }
 
@@ -794,7 +877,7 @@ body {
     left: 50%;
     bottom: -25px;
     transform: translateX(-50%);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .power-fill {
@@ -803,29 +886,30 @@ body {
     top: 0;
     width: 0%;
     height: 100%;
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     transition: width 0.05s linear;
   }
 
   .power-fill::after {
-    width: 20px;
+    width: 16px;
     height: 100%;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
   }
 
   .controls-info {
     margin-top: 3.5rem;
-    padding: 0.875rem 1rem;
+    padding: 0.75rem 1rem;
     font-size: 0.8rem;
   }
 
   .modal {
     padding: 1.75rem !important;
-    width: 92vw !important;
+    width: min(92vw, 380px) !important;
   }
 
   .modal h2 {
-    font-size: 1.4rem !important;
+    font-size: 1.35rem !important;
+    letter-spacing: 2px !important;
   }
 
   .modal h2::before {
@@ -834,7 +918,7 @@ body {
 
   .btn {
     padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .game-info {
@@ -843,11 +927,11 @@ body {
   }
 
   .game-info h2 {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
 
   .game-info h3 {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 }
 
@@ -864,7 +948,7 @@ body {
 
   .game-title {
     text-align: center;
-    font-size: 1.1rem;
+    font-size: min(1.1rem, 5vw);
   }
 
   .stats {
@@ -872,12 +956,12 @@ body {
     width: 100%;
   }
 
-  #game-canvas {
-    border-width: 8px;
+  .game-area {
+    padding: min(8px, 1.2vw);
   }
 
   .power-meter {
-    width: 150px;
+    width: min(150px, 45vw);
     height: 28px;
     bottom: -50px;
   }
@@ -894,13 +978,14 @@ body {
     justify-content: center;
   }
 
-  .stats > div {
+  .stats > div,
+  .stats > span {
     flex: 1;
     min-width: 80px;
   }
 }
 
-/* ===== Animações ===== */
+/* ===== Animations ===== */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
@@ -910,7 +995,6 @@ body {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Animação de entrada suave */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -922,47 +1006,33 @@ body {
   }
 }
 
-.game-container {
-  animation: fade-in-up 0.6s ease-out;
-}
-
-/* Animação de brilho para elementos dourados */
 @keyframes gold-shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-/* Efeito de brilho para o canvas quando em foco */
-#game-canvas:focus {
-  outline: none;
-  box-shadow:
-    inset 0 0 60px rgba(0, 0, 0, 0.4),
-    0 0 0 2px var(--borracha-dark),
-    0 0 30px rgba(212, 175, 55, 0.3);
-}
-
-/* ===== Scrollbar Personalizada ===== */
+/* ===== Scrollbar — Brass Trim ===== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--salao-bg-dark);
+  background: var(--surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--metal-mid), var(--metal-dark));
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, var(--surface-container-highest), var(--surface-container-high));
+  border-radius: var(--radius);
+  border: 1px solid var(--outline-variant);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--gold-mid), var(--gold-dark));
+  background: linear-gradient(180deg, var(--secondary), var(--secondary-container));
 }
 
-/* ===== Seleção de Texto ===== */
+/* ===== Selection ===== */
 ::selection {
-  background: rgba(212, 175, 55, 0.3);
+  background: rgba(233, 195, 73, 0.25);
   color: #fff;
 }
