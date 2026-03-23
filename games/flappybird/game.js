@@ -32,14 +32,15 @@ function resizeCanvas() {
   // Aspect ratio: 2:3 (width:height)
   const aspectRatio = 2 / 3;
 
-  let newWidth = Math.min(rect.width, 400);
-  let newHeight = newWidth / aspectRatio;
+  // Use available container space (no arbitrary 400px cap)
+  const maxHeight = Math.max(rect.height - 10, 200);
+  let newHeight = maxHeight;
+  let newWidth = newHeight * aspectRatio;
 
-  // Limit by container height
-  const maxHeight = rect.height - 20;
-  if (newHeight > maxHeight) {
-    newHeight = maxHeight;
-    newWidth = newHeight * aspectRatio;
+  // Limit by container width
+  if (newWidth > rect.width - 10) {
+    newWidth = rect.width - 10;
+    newHeight = newWidth / aspectRatio;
   }
 
   W = Math.floor(newWidth);
@@ -1106,6 +1107,20 @@ gameOverModal.addEventListener('click', () => {
   if (gameState === 'dead') {
     init();
   }
+});
+
+// ===== Start Overlay Click (fallback) =====
+startOverlay.addEventListener('click', () => {
+  if (gameState === 'waiting') flap();
+});
+startOverlay.addEventListener('touchstart', (e) => {
+  if (gameState === 'waiting') { e.preventDefault(); flap(); }
+}, { passive: false });
+
+// ===== Canvas click fallback =====
+canvas.addEventListener('click', () => {
+  if (gameState === 'waiting') flap();
+  else if (gameState === 'dead') init();
 });
 
 // ===== Save Stats =====
