@@ -1,5 +1,6 @@
 /**
  * Dungeon Neon — Roguelike with Dynamic Lighting (PixiJS 7 WebGL)
+ * REWRITE: Iluminação direta nos tiles (sem RenderTexture/MULTIPLY)
  */
 
 import { onGameEnd } from '../shared/game-integration.js';
@@ -11,8 +12,6 @@ const storage = new GameStorage('dungeon');
 // ── Constants ──
 const TILE = 32;
 const LIGHT_BASE_RADIUS = 6;
-const FOG_DIM = 0.15;
-let worldScale = 1;
 
 const TILE_FLOOR = 0;
 const TILE_WALL = 1;
@@ -42,8 +41,27 @@ const COLORS = {
   darkness: 0x000008,
 };
 
+// ── Helpers ──
+function darkenColor(hex, factor) {
+  const r = ((hex >> 16) & 0xff) * factor;
+  const g = ((hex >> 8) & 0xff) * factor;
+  const b = (hex & 0xff) * factor;
+  return (Math.floor(r) << 16) | (Math.floor(g) << 8) | Math.floor(b);
+}
+
+function tintColor(hex, factor, warmth) {
+  let r = ((hex >> 16) & 0xff) * factor;
+  let g = ((hex >> 8) & 0xff) * factor;
+  let b = (hex & 0xff) * factor;
+  // Warm torch tint
+  r = Math.min(255, r * (1 + warmth * 0.2));
+  g = Math.min(255, g * (1 + warmth * 0.05));
+  b = Math.max(0, b * (1 - warmth * 0.15));
+  return (Math.floor(r) << 16) | (Math.floor(g) << 8) | Math.floor(b);
+}
+
 // ── State ──
-let app, worldContainer, lightRT, lightSprite, hudContainer, minimapGfx;
+let app, worldContainer, fogGfx, hudContainer, minimapGfx;
 let mapW, mapH, tiles, explored, rooms;
 let player, enemies, items;
 let floor = 1;
@@ -54,7 +72,11 @@ let gameRunning = false;
 let lightRadius = LIGHT_BASE_RADIUS;
 let flickerTime = 0;
 let animating = false;
-let pendingEnemyMove = false;
+let playerDamageFlash = 0;
+let worldScale = 1;
+
+// Visibility cache (updated each frame)
+let visibleSet = new Set();
 
 const DOM = {
   container: null,
@@ -86,61 +108,62 @@ function boot() {
 
   DOM.bestDisplay.textContent = bestScore;
 
-  const rect = DOM.container.getBoundingClientRect();
-  app = new PIXI.Application({
-    width: rect.width,
-    height: rect.height,
-    backgroundColor: COLORS.darkness,
-    antialias: false,
-    resolution: Math.min(window.devicePixelRatio || 1, 2),
-    autoDensity: true,
-  });
-  DOM.container.appendChild(app.view);
+  // Wait one frame to ensure layout is computed
+  requestAnimationFrame(() => {
+    const rect = DOM.container.getBoundingClientRect();
+    const w = rect.width || window.innerWidth;
+    const h = rect.height || (window.innerHeight - 50);
 
-  worldContainer = new PIXI.Container();
-  const rect2 = DOM.container.getBoundingClientRect();
-  lightRT = PIXI.RenderTexture.create({ width: rect2.width, height: rect2.height });
-  lightSprite = new PIXI.Sprite(lightRT);
-  lightSprite.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-  hudContainer = new PIXI.Container();
-  minimapGfx = new PIXI.Graphics();
+    app = new PIXI.Application({
+      width: w,
+      height: h,
+      backgroundColor: COLORS.darkness,
+      antialias: false,
+      resolution: 1, // Force resolution 1 to avoid coordinate mismatches
+      autoDensity: false,
+    });
+    DOM.container.appendChild(app.view);
 
-  app.stage.addChild(worldContainer);
-  app.stage.addChild(lightSprite);
-  app.stage.addChild(hudContainer);
-  app.stage.addChild(minimapGfx);
+    // Style canvas to fill container
+    app.view.style.width = '100%';
+    app.view.style.height = '100%';
 
-  app.ticker.add(gameLoop);
+    worldContainer = new PIXI.Container();
+    fogGfx = new PIXI.Graphics(); // Fog of war overlay (inside worldContainer)
+    hudContainer = new PIXI.Container();
+    minimapGfx = new PIXI.Graphics();
 
-  // Calculate scale so visible area fills screen
-  function recalcWorldScale() {
-    const sw = app.screen.width;
-    const sh = app.screen.height;
-    const minDim = Math.min(sw, sh);
-    // Visible area = 2 * lightRadius tiles + some buffer
-    const visibleTiles = (lightRadius * 2 + 4) * TILE;
-    worldScale = Math.max(1, minDim / visibleTiles);
-    worldContainer.scale.set(worldScale);
-  }
+    app.stage.addChild(worldContainer);
+    app.stage.addChild(hudContainer);
+    app.stage.addChild(minimapGfx);
 
-  // Resize
-  const resize = () => {
-    const r = DOM.container.getBoundingClientRect();
-    app.renderer.resize(r.width, r.height);
-    if (lightRT) lightRT.resize(r.width, r.height);
+    app.ticker.add(gameLoop);
+
     recalcWorldScale();
-  };
-  window.addEventListener('resize', resize);
-  recalcWorldScale();
 
-  // Controls
-  setupControls();
+    const resize = () => {
+      const r = DOM.container.getBoundingClientRect();
+      const rw = r.width || window.innerWidth;
+      const rh = r.height || (window.innerHeight - 50);
+      app.renderer.resize(rw, rh);
+      recalcWorldScale();
+    };
+    window.addEventListener('resize', resize);
 
-  // Start button
-  DOM.btnStart.addEventListener('click', startGame);
-  DOM.btnShare.addEventListener('click', shareResult);
+    setupControls();
+    DOM.btnStart.addEventListener('click', startGame);
+    DOM.btnShare.addEventListener('click', shareResult);
+    showOverlay('start');
+  });
+}
 
-  showOverlay('start');
+function recalcWorldScale() {
+  const sw = app.screen.width;
+  const sh = app.screen.height;
+  const minDim = Math.min(sw, sh);
+  const visibleTiles = (lightRadius * 2 + 4) * TILE;
+  worldScale = Math.max(1, minDim / visibleTiles);
+  worldContainer.scale.set(worldScale);
 }
 
 // ── Overlay ──
@@ -184,6 +207,7 @@ function startGame() {
     fromPX: 0, fromPY: 0,
     toPX: 0, toPY: 0,
   };
+  recalcWorldScale();
   generateFloor();
   gameRunning = true;
   updateHUD();
@@ -209,8 +233,6 @@ function generateFloor() {
   spawnItems();
   buildWorld();
   updateCamera(true);
-  updateLighting();
-  updateMinimap();
 }
 
 function generateRooms(count) {
@@ -246,7 +268,6 @@ function connectRooms() {
     const b = rooms[i];
     carveCorridor(a.cx, a.cy, b.cx, b.cy);
   }
-  // Extra connections for loops
   if (rooms.length > 4) {
     const a = rooms[0];
     const b = rooms[rooms.length - 1];
@@ -259,7 +280,6 @@ function carveCorridor(x1, y1, x2, y2) {
   while (x !== x2) {
     if (x >= 0 && x < mapW && y >= 0 && y < mapH) {
       tiles[y * mapW + x] = TILE_FLOOR;
-      // widen corridor
       if (y + 1 < mapH) tiles[(y + 1) * mapW + x] = TILE_FLOOR;
     }
     x += x < x2 ? 1 : -1;
@@ -275,9 +295,7 @@ function carveCorridor(x1, y1, x2, y2) {
 
 function placeStairs() {
   const lastRoom = rooms[rooms.length - 1];
-  const sx = lastRoom.cx;
-  const sy = lastRoom.cy;
-  tiles[sy * mapW + sx] = TILE_STAIRS;
+  tiles[lastRoom.cy * mapW + lastRoom.cx] = TILE_STAIRS;
 }
 
 function placePlayer() {
@@ -311,7 +329,6 @@ function spawnEnemies() {
     } else {
       enemy = { x: ex, y: ey, type: 'skeleton', hp: 5, maxHp: 5, atk: 2, def: 1, color: COLORS.skeleton, score: 30, speed: 0.5 };
     }
-    // Scale with floor
     enemy.hp += Math.floor(floor * 0.3);
     enemy.maxHp = enemy.hp;
     enemy.atk += Math.floor(floor * 0.2);
@@ -363,7 +380,7 @@ function spawnItems() {
   }
 }
 
-// ── Build World Sprites ──
+// ── Build World Container ──
 let tileGfx, entityGfx, particleContainer;
 const particles = [];
 const floatingTexts = [];
@@ -372,116 +389,210 @@ function buildWorld() {
   worldContainer.removeChildren();
   tileGfx = new PIXI.Graphics();
   entityGfx = new PIXI.Graphics();
+  fogGfx = new PIXI.Graphics();
   particleContainer = new PIXI.Container();
 
   worldContainer.addChild(tileGfx);
   worldContainer.addChild(entityGfx);
   worldContainer.addChild(particleContainer);
-
-  drawTiles();
+  worldContainer.addChild(fogGfx); // Fog on top of everything in world
 }
 
-function drawTiles() {
-  tileGfx.clear();
-  for (let y = 0; y < mapH; y++) {
-    for (let x = 0; x < mapW; x++) {
-      const t = tiles[y * mapW + x];
-      const px = x * TILE;
-      const py = y * TILE;
+// ── LIGHTING: Raycast visibility ──
+function computeVisibility() {
+  visibleSet = new Set();
+  const cx = player.px + TILE / 2;
+  const cy = player.py + TILE / 2;
+  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
+  const lr = (lightRadius + flicker) * TILE;
 
-      if (t === TILE_WALL) {
-        tileGfx.beginFill(COLORS.wall);
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-        // Brick lines
-        tileGfx.lineStyle(1, COLORS.wallLine, 0.3);
-        tileGfx.moveTo(px, py + TILE / 2);
-        tileGfx.lineTo(px + TILE, py + TILE / 2);
-        if ((x + y) % 2 === 0) {
-          tileGfx.moveTo(px + TILE / 2, py);
-          tileGfx.lineTo(px + TILE / 2, py + TILE / 2);
-        } else {
-          tileGfx.moveTo(px + TILE / 2, py + TILE / 2);
-          tileGfx.lineTo(px + TILE / 2, py + TILE);
-        }
-        tileGfx.lineStyle(0);
-        // Top highlight
-        tileGfx.beginFill(COLORS.wallTop, 0.3);
-        tileGfx.drawRect(px, py, TILE, 3);
-        tileGfx.endFill();
-      } else if (t === TILE_FLOOR) {
-        const c = (x + y) % 2 === 0 ? COLORS.floor : COLORS.floorAlt;
-        tileGfx.beginFill(c);
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-      } else if (t === TILE_DOOR) {
-        tileGfx.beginFill(COLORS.door);
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-      } else if (t === TILE_STAIRS) {
-        tileGfx.beginFill(COLORS.floor);
-        tileGfx.drawRect(px, py, TILE, TILE);
-        tileGfx.endFill();
-        tileGfx.beginFill(COLORS.stairs, 0.8);
-        tileGfx.drawRect(px + 4, py + 4, TILE - 8, TILE - 8);
-        tileGfx.endFill();
-        // Stair lines
-        tileGfx.lineStyle(2, COLORS.stairsGlow, 0.6);
-        for (let s = 0; s < 3; s++) {
-          const sy = py + 8 + s * 6;
-          tileGfx.moveTo(px + 8, sy);
-          tileGfx.lineTo(px + TILE - 8, sy);
-        }
-        tileGfx.lineStyle(0);
-      }
+  const rayCount = 180;
+  for (let r = 0; r < rayCount; r++) {
+    const angle = (r / rayCount) * Math.PI * 2;
+    const rdx = Math.cos(angle);
+    const rdy = Math.sin(angle);
+    for (let dist = 0; dist < lr; dist += TILE * 0.4) {
+      const wx = cx + rdx * dist;
+      const wy = cy + rdy * dist;
+      const tx = Math.floor(wx / TILE);
+      const ty = Math.floor(wy / TILE);
+      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
+      const idx = ty * mapW + tx;
+      visibleSet.add(idx);
+      explored[idx] = true;
+      if (tiles[idx] === TILE_WALL) break;
     }
   }
 }
 
-// ── Draw Entities ──
+// ── Draw visible tiles with lighting baked in ──
+function drawVisibleWorld() {
+  tileGfx.clear();
+
+  const cx = player.px + TILE / 2;
+  const cy = player.py + TILE / 2;
+  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
+  const lr = (lightRadius + flicker) * TILE;
+
+  // Only draw tiles in camera viewport (optimization)
+  const sw = app.screen.width;
+  const sh = app.screen.height;
+  const camX = -worldContainer.x / worldScale;
+  const camY = -worldContainer.y / worldScale;
+  const viewW = sw / worldScale;
+  const viewH = sh / worldScale;
+
+  const startTX = Math.max(0, Math.floor(camX / TILE) - 1);
+  const startTY = Math.max(0, Math.floor(camY / TILE) - 1);
+  const endTX = Math.min(mapW, Math.ceil((camX + viewW) / TILE) + 1);
+  const endTY = Math.min(mapH, Math.ceil((camY + viewH) / TILE) + 1);
+
+  for (let y = startTY; y < endTY; y++) {
+    for (let x = startTX; x < endTX; x++) {
+      const idx = y * mapW + x;
+      const t = tiles[idx];
+      const px = x * TILE;
+      const py = y * TILE;
+
+      const isVisible = visibleSet.has(idx);
+      const isExplored = explored[idx];
+
+      if (!isVisible && !isExplored) continue; // Don't draw unexplored tiles
+
+      // Calculate brightness
+      let brightness;
+      let warmth = 0;
+      if (isVisible) {
+        const tileCX = px + TILE / 2;
+        const tileCY = py + TILE / 2;
+        const dist = Math.sqrt((tileCX - cx) ** 2 + (tileCY - cy) ** 2);
+        brightness = Math.max(0.08, 1 - (dist / lr));
+        warmth = Math.max(0, 1 - dist / (lr * 0.5));
+      } else {
+        brightness = 0.1; // Explored but not visible
+      }
+
+      if (t === TILE_WALL) {
+        const wallColor = tintColor(COLORS.wall, brightness, warmth);
+        tileGfx.beginFill(wallColor);
+        tileGfx.drawRect(px, py, TILE, TILE);
+        tileGfx.endFill();
+
+        if (isVisible && brightness > 0.3) {
+          // Brick lines (only when visible enough)
+          tileGfx.lineStyle(1, tintColor(COLORS.wallLine, brightness * 0.6, warmth), 0.3);
+          tileGfx.moveTo(px, py + TILE / 2);
+          tileGfx.lineTo(px + TILE, py + TILE / 2);
+          if ((x + y) % 2 === 0) {
+            tileGfx.moveTo(px + TILE / 2, py);
+            tileGfx.lineTo(px + TILE / 2, py + TILE / 2);
+          } else {
+            tileGfx.moveTo(px + TILE / 2, py + TILE / 2);
+            tileGfx.lineTo(px + TILE / 2, py + TILE);
+          }
+          tileGfx.lineStyle(0);
+          // Top highlight
+          tileGfx.beginFill(tintColor(COLORS.wallTop, brightness, warmth), 0.3);
+          tileGfx.drawRect(px, py, TILE, 3);
+          tileGfx.endFill();
+        }
+      } else if (t === TILE_FLOOR) {
+        const c = (x + y) % 2 === 0 ? COLORS.floor : COLORS.floorAlt;
+        tileGfx.beginFill(tintColor(c, brightness, warmth));
+        tileGfx.drawRect(px, py, TILE, TILE);
+        tileGfx.endFill();
+      } else if (t === TILE_DOOR) {
+        tileGfx.beginFill(tintColor(COLORS.door, brightness, warmth));
+        tileGfx.drawRect(px, py, TILE, TILE);
+        tileGfx.endFill();
+      } else if (t === TILE_STAIRS) {
+        tileGfx.beginFill(tintColor(COLORS.floor, brightness, warmth));
+        tileGfx.drawRect(px, py, TILE, TILE);
+        tileGfx.endFill();
+        if (isVisible) {
+          tileGfx.beginFill(tintColor(COLORS.stairs, brightness, warmth), 0.8);
+          tileGfx.drawRect(px + 4, py + 4, TILE - 8, TILE - 8);
+          tileGfx.endFill();
+          tileGfx.lineStyle(2, tintColor(COLORS.stairsGlow, brightness, warmth), 0.6);
+          for (let s = 0; s < 3; s++) {
+            const sy = py + 8 + s * 6;
+            tileGfx.moveTo(px + 8, sy);
+            tileGfx.lineTo(px + TILE - 8, sy);
+          }
+          tileGfx.lineStyle(0);
+        }
+      }
+    }
+  }
+
+  // Warm glow around player (additive circle in worldContainer)
+  if (gameRunning) {
+    const glowAlpha = 0.06 + Math.sin(flickerTime * 5) * 0.02;
+    tileGfx.beginFill(0x442200, glowAlpha);
+    tileGfx.drawCircle(cx, cy, lr * 0.4);
+    tileGfx.endFill();
+  }
+}
+
+// ── Draw Entities (only visible ones) ──
 function drawEntities() {
   entityGfx.clear();
 
-  // Items
+  const cx = player.px + TILE / 2;
+  const cy = player.py + TILE / 2;
+  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
+  const lr = (lightRadius + flicker) * TILE;
+
+  // Items (only visible)
   for (const item of items) {
+    const idx = item.y * mapW + item.x;
+    if (!visibleSet.has(idx)) continue;
+
     const px = item.x * TILE + TILE / 2;
     const py = item.y * TILE + TILE / 2;
     const glow = Math.sin(performance.now() * 0.004 + item.x * 3) * 0.3 + 0.7;
 
-    entityGfx.beginFill(item.color, glow);
+    // Calculate brightness for this item
+    const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+    const bright = Math.max(0.2, 1 - dist / lr);
+
+    entityGfx.beginFill(darkenColor(item.color, bright), glow);
     if (item.type === 'gold') {
       entityGfx.drawCircle(px, py, 4);
     } else {
       entityGfx.drawRoundedRect(px - 6, py - 6, 12, 12, 3);
     }
     entityGfx.endFill();
-    // Glow ring
-    entityGfx.lineStyle(1, item.color, glow * 0.4);
+    entityGfx.lineStyle(1, darkenColor(item.color, bright), glow * 0.4);
     entityGfx.drawCircle(px, py, 10);
     entityGfx.lineStyle(0);
   }
 
-  // Enemies
+  // Enemies (only visible)
   for (const e of enemies) {
     if (e.hp <= 0) continue;
+    const idx = e.y * mapW + e.x;
+    if (!visibleSet.has(idx)) continue;
+
     const px = e.x * TILE + TILE / 2;
     const py = e.y * TILE + TILE / 2;
+    const dist = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+    const bright = Math.max(0.3, 1 - dist / lr);
+    const col = darkenColor(e.color, bright);
 
-    // Body
-    entityGfx.beginFill(e.color, 0.9);
+    entityGfx.beginFill(col, 0.9);
     if (e.type === 'slime') {
       entityGfx.drawEllipse(px, py + 2, 10, 8);
     } else if (e.type === 'bat') {
-      // Wings
       entityGfx.drawCircle(px, py, 6);
       entityGfx.endFill();
-      entityGfx.beginFill(e.color, 0.6);
+      entityGfx.beginFill(col, 0.6);
       entityGfx.moveTo(px - 6, py);
       entityGfx.lineTo(px - 14, py - 6);
       entityGfx.lineTo(px - 4, py + 2);
       entityGfx.closePath();
       entityGfx.endFill();
-      entityGfx.beginFill(e.color, 0.6);
+      entityGfx.beginFill(col, 0.6);
       entityGfx.moveTo(px + 6, py);
       entityGfx.lineTo(px + 14, py - 6);
       entityGfx.lineTo(px + 4, py + 2);
@@ -490,29 +601,26 @@ function drawEntities() {
     } else if (e.type === 'skeleton') {
       entityGfx.drawCircle(px, py - 3, 7);
       entityGfx.drawRect(px - 3, py + 2, 6, 10);
-      // Eyes
-      entityGfx.beginFill(0xff0000, 0.8);
+      entityGfx.beginFill(darkenColor(0xff0000, bright), 0.8);
       entityGfx.drawCircle(px - 3, py - 4, 2);
       entityGfx.drawCircle(px + 3, py - 4, 2);
     } else if (e.type === 'boss') {
       entityGfx.drawCircle(px, py, 13);
-      entityGfx.beginFill(0xff0000, 0.5);
+      entityGfx.beginFill(darkenColor(0xff0000, bright), 0.5);
       entityGfx.drawCircle(px, py, 16);
-      // Horns
-      entityGfx.beginFill(e.color);
+      entityGfx.beginFill(col);
       entityGfx.moveTo(px - 8, py - 10);
       entityGfx.lineTo(px - 12, py - 20);
       entityGfx.lineTo(px - 4, py - 10);
       entityGfx.closePath();
       entityGfx.endFill();
-      entityGfx.beginFill(e.color);
+      entityGfx.beginFill(col);
       entityGfx.moveTo(px + 8, py - 10);
       entityGfx.lineTo(px + 12, py - 20);
       entityGfx.lineTo(px + 4, py - 10);
       entityGfx.closePath();
       entityGfx.endFill();
-      // Eyes
-      entityGfx.beginFill(0xffcc00);
+      entityGfx.beginFill(darkenColor(0xffcc00, bright));
       entityGfx.drawCircle(px - 5, py - 3, 3);
       entityGfx.drawCircle(px + 5, py - 3, 3);
     }
@@ -543,7 +651,8 @@ function drawEntities() {
   entityGfx.endFill();
 
   // Player body
-  entityGfx.beginFill(COLORS.player);
+  const playerColor = playerDamageFlash > 0 && playerDamageFlash % 2 === 0 ? 0xff0000 : COLORS.player;
+  entityGfx.beginFill(playerColor);
   entityGfx.drawCircle(ppx, ppy, 10);
   entityGfx.endFill();
 
@@ -556,101 +665,6 @@ function drawEntities() {
   entityGfx.beginFill(0xffffff, 0.9);
   entityGfx.drawCircle(ppx + player.dirX * 7, ppy + player.dirY * 7, 3);
   entityGfx.endFill();
-}
-
-// ── Dynamic Lighting ──
-function updateLighting() {
-  const sw = app.screen.width;
-  const sh = app.screen.height;
-  // Camera offset in world coordinates (accounting for scale)
-  const camXWorld = -worldContainer.x / worldScale;
-  const camYWorld = -worldContainer.y / worldScale;
-
-  const cx = player.px + TILE / 2;
-  const cy = player.py + TILE / 2;
-  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
-  const lr = (lightRadius + flicker) * TILE;
-
-  const screenPX = (cx - camXWorld) * worldScale;
-  const screenPY = (cy - camYWorld) * worldScale;
-
-  // Raycast to determine visible tiles
-  const visibleSet = new Set();
-  const rayCount = 150;
-  for (let r = 0; r < rayCount; r++) {
-    const angle = (r / rayCount) * Math.PI * 2;
-    const rdx = Math.cos(angle);
-    const rdy = Math.sin(angle);
-    for (let dist = 0; dist < lr; dist += TILE * 0.45) {
-      const wx = cx + rdx * dist;
-      const wy = cy + rdy * dist;
-      const tx = Math.floor(wx / TILE);
-      const ty = Math.floor(wy / TILE);
-      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
-      const idx = ty * mapW + tx;
-      visibleSet.add(idx);
-      explored[idx] = true;
-      if (tiles[idx] === TILE_WALL) break;
-    }
-  }
-
-  // Build light map
-  const gfx = new PIXI.Graphics();
-
-  // Full darkness base
-  gfx.beginFill(0x000000);
-  gfx.drawRect(0, 0, sw, sh);
-  gfx.endFill();
-
-  // Tile range on screen (accounting for scale)
-  const startTX = Math.max(0, Math.floor(camXWorld / TILE) - 1);
-  const startTY = Math.max(0, Math.floor(camYWorld / TILE) - 1);
-  const endTX = Math.min(mapW, Math.ceil((camXWorld + sw / worldScale) / TILE) + 1);
-  const endTY = Math.min(mapH, Math.ceil((camYWorld + sh / worldScale) / TILE) + 1);
-  const scaledTile = Math.ceil(TILE * worldScale) + 1;
-
-  for (let ty = startTY; ty < endTY; ty++) {
-    for (let tx = startTX; tx < endTX; tx++) {
-      const idx = ty * mapW + tx;
-      const sx = (tx * TILE - camXWorld) * worldScale;
-      const sy = (ty * TILE - camYWorld) * worldScale;
-
-      if (visibleSet.has(idx)) {
-        const tileCX = tx * TILE + TILE / 2;
-        const tileCY = ty * TILE + TILE / 2;
-        const dist = Math.sqrt((tileCX - cx) ** 2 + (tileCY - cy) ** 2);
-        const brightness = Math.max(0.05, 1 - (dist / lr));
-        // Warm torch tint near center
-        const warmth = Math.max(0, 1 - dist / (lr * 0.5));
-        const r = Math.min(255, Math.floor(brightness * (210 + warmth * 45)));
-        const g = Math.min(255, Math.floor(brightness * (195 + warmth * 25)));
-        const b = Math.min(255, Math.floor(brightness * (170 - warmth * 40)));
-        const color = (r << 16) | (g << 8) | b;
-        gfx.beginFill(color);
-        gfx.drawRect(sx, sy, scaledTile, scaledTile);
-        gfx.endFill();
-      } else if (explored[idx]) {
-        gfx.beginFill(0x1a1a1a);
-        gfx.drawRect(sx, sy, scaledTile, scaledTile);
-        gfx.endFill();
-      }
-      // Unexplored tiles stay black from the base fill
-    }
-  }
-
-  // Warm torch glow at player center
-  const glowAlpha = 0.15 + Math.sin(flickerTime * 5) * 0.05;
-  const lrScaled = lr * worldScale;
-  gfx.beginFill(0xffcc88, glowAlpha);
-  gfx.drawCircle(screenPX, screenPY, lrScaled * 0.35);
-  gfx.endFill();
-  gfx.beginFill(0xffddaa, 0.08);
-  gfx.drawCircle(screenPX, screenPY, lrScaled * 0.15);
-  gfx.endFill();
-
-  // Render light map to texture
-  app.renderer.render(gfx, { renderTexture: lightRT, clear: true });
-  gfx.destroy();
 }
 
 // ── Camera ──
@@ -693,7 +707,6 @@ function drawHUD() {
   hpBg.lineStyle(0);
   hudContainer.addChild(hpBg);
 
-  // HP text
   const hpText = new PIXI.Text(`HP ${player.hp}/${player.maxHp}`, {
     fontFamily: 'VT323',
     fontSize: 14,
@@ -703,7 +716,6 @@ function drawHUD() {
   hpText.y = hpY - 1;
   hudContainer.addChild(hpText);
 
-  // Stats
   const statsText = new PIXI.Text(`ATK:${player.atk}  DEF:${player.def}`, {
     fontFamily: 'VT323',
     fontSize: 16,
@@ -713,7 +725,6 @@ function drawHUD() {
   statsText.y = hpY + hpBarH + 6;
   hudContainer.addChild(statsText);
 
-  // Floor center
   const floorText = new PIXI.Text(`ANDAR ${floor}`, {
     fontFamily: 'VT323',
     fontSize: 20,
@@ -724,7 +735,6 @@ function drawHUD() {
   floorText.y = 10;
   hudContainer.addChild(floorText);
 
-  // Score
   const scoreText = new PIXI.Text(`${score} pts`, {
     fontFamily: 'VT323',
     fontSize: 16,
@@ -753,10 +763,8 @@ function updateMinimap() {
   const mmX = sw - mmW - 10;
   const mmY = sh - mmH - 10;
 
-  // Clamp minimap size
-  if (mmW > 150 || mmH > 150) return; // Too big, skip
+  if (mmW > 150 || mmH > 150) return;
 
-  // Background
   minimapGfx.beginFill(0x000000, 0.6);
   minimapGfx.drawRect(mmX - 2, mmY - 2, mmW + 4, mmH + 4);
   minimapGfx.endFill();
@@ -868,8 +876,6 @@ function attackPlayer(enemy) {
   updateHUD();
 }
 
-let playerDamageFlash = 0;
-
 function tryAttackAdjacent() {
   if (!gameRunning || animating) return;
   const tx = player.x + player.dirX;
@@ -879,7 +885,6 @@ function tryAttackAdjacent() {
     attackEnemy(target);
     moveEnemies();
   } else {
-    // Try any adjacent
     for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
       const adj = enemies.find(e => e.hp > 0 && e.x === player.x + dx && e.y === player.y + dy);
       if (adj) {
@@ -900,18 +905,15 @@ function moveEnemies() {
 
     const dist = Math.abs(e.x - player.x) + Math.abs(e.y - player.y);
 
-    // Skip movement randomly based on speed
     if (Math.random() > e.speed) continue;
 
     let mx = 0, my = 0;
 
     if (e.type === 'slime') {
-      // Random movement
       const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
       const d = dirs[Math.floor(Math.random() * 4)];
       mx = d[0]; my = d[1];
     } else if (e.type === 'bat') {
-      // Chase player when close
       if (dist <= lightRadius + 2) {
         mx = Math.sign(player.x - e.x);
         my = Math.sign(player.y - e.y);
@@ -922,13 +924,11 @@ function moveEnemies() {
         mx = d[0]; my = d[1];
       }
     } else if (e.type === 'skeleton' || e.type === 'boss') {
-      // Chase player when in range
       if (dist <= lightRadius + 3) {
         mx = Math.sign(player.x - e.x);
         my = Math.sign(player.y - e.y);
         if (Math.random() < 0.5) mx = 0; else my = 0;
       } else {
-        // Patrol
         const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
         const d = dirs[Math.floor(Math.random() * 4)];
         mx = d[0]; my = d[1];
@@ -941,13 +941,11 @@ function moveEnemies() {
     if (nx < 0 || nx >= mapW || ny < 0 || ny >= mapH) continue;
     if (tiles[ny * mapW + nx] === TILE_WALL) continue;
 
-    // Check collision with player
     if (nx === player.x && ny === player.y) {
       attackPlayer(e);
       continue;
     }
 
-    // Check collision with other enemies
     if (enemies.some(o => o !== e && o.hp > 0 && o.x === nx && o.y === ny)) continue;
 
     e.x = nx;
@@ -976,6 +974,7 @@ function pickupItems() {
         case 'light':
           lightRadius += 1;
           spawnFloatingText(player.px + TILE / 2, player.py, '+1 LUZ', 0xff8800);
+          recalcWorldScale();
           break;
         case 'score':
           score += 5;
@@ -1056,7 +1055,6 @@ function spawnFloatingText(x, y, text, color) {
 }
 
 function updateParticles(dt) {
-  // Particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx;
@@ -1065,7 +1063,6 @@ function updateParticles(dt) {
     if (p.life <= 0) particles.splice(i, 1);
   }
 
-  // Floating texts
   for (let i = floatingTexts.length - 1; i >= 0; i--) {
     const ft = floatingTexts[i];
     ft.y += ft.vy;
@@ -1075,7 +1072,6 @@ function updateParticles(dt) {
 }
 
 function drawParticles() {
-  // Remove old particle sprites
   while (particleContainer.children.length > 0) {
     particleContainer.removeChildAt(0);
   }
@@ -1088,7 +1084,6 @@ function drawParticles() {
   }
   particleContainer.addChild(g);
 
-  // Floating texts
   for (const ft of floatingTexts) {
     const t = new PIXI.Text(ft.text, {
       fontFamily: 'VT323',
@@ -1126,7 +1121,7 @@ function setupControls() {
     keys[e.key] = false;
   });
 
-  // Click/tap to attack
+  // Click/tap to move or attack
   app.view.addEventListener('pointerdown', (e) => {
     if (!gameRunning || animating) return;
     const rect = app.view.getBoundingClientRect();
@@ -1151,7 +1146,6 @@ function setupControls() {
         moveEnemies();
         updateHUD();
       } else {
-        // Move to clicked tile
         tryMove(dx, dy);
       }
     }
@@ -1213,9 +1207,12 @@ function gameLoop(ticker) {
 
   updateParticles(dt);
   updateCamera(false);
+
+  // NEW: Compute visibility, then draw world + entities with lighting baked in
+  computeVisibility();
+  drawVisibleWorld();
   drawEntities();
   drawParticles();
-  updateLighting();
   updateMinimap();
   drawHUD();
 }
