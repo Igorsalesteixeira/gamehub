@@ -1,9 +1,7 @@
 import '../../auth-check.js';
 // =============================================
-//  COBRINHA — PIXI.JS WebGL EDITION
-//  GPU-accelerated rendering, real bloom shader,
-//  CRT effect, chromatic aberration, dynamic lighting,
-//  thousands of particles at 60fps
+//  COBRINHA — Redesign 3.0 "Cartoon Garden"
+//  Estilo Poki: cobra fofa, maçã cartoon, cenário verde
 // =============================================
 import { launchConfetti, playSound, shareOnWhatsApp, initAudio } from '../shared/game-design-utils.js?v=2';
 import { GameStats, GameStorage } from '../shared/game-core.js';
@@ -26,9 +24,8 @@ const setBest = s  => storage.set('bestScore', s);
 let overlay, overlayIcon, overlayTitle, overlayMsg, overlayScore, btnStart, scoreDisplay, bestDisplay;
 
 // ---- PixiJS ----
-let app, gameContainer, bloomContainer;
-let snakeGraphics, foodGraphics, gridGraphics, trailGraphics, particleContainer, lightContainer;
-let crtFilter, bloomFilter;
+let app, gameContainer;
+let bgGraphics, snakeGraphics, foodGraphics, particleContainer, decoContainer;
 
 // ---- State ----
 let snake = [], food = null, score = 0, cellSize = 0, canvasSize = 0;
@@ -39,74 +36,45 @@ let prevSnake = [], lerpT = 0;
 
 // ---- VFX state ----
 let particles = [];
-let trailPoints = [];
 let screenShake = { x: 0, y: 0, intensity: 0 };
-let eatFlash = 0, comboGlow = 0;
+let eatBump = 0; // bump traveling through snake body when eating
+let eatBumpPos = 0;
 let deathTimer = -1;
-let foodOrbiters = [];
-let bgStars = [];
 let timeElapsed = 0;
+let foodSpawnScale = 0; // for pop-in animation
+let snakeExpression = 'normal'; // 'normal', 'happy', 'dead'
+let expressionTimer = 0;
 
-// =============================================
-//  CRT SHADER (scanlines + curvature + vignette + flicker)
-// =============================================
-const CRT_FRAG = `
-precision mediump float;
-varying vec2 vTextureCoord;
-uniform sampler2D uSampler;
-uniform float uTime;
-uniform vec2 uResolution;
+// ---- Decoration positions (generated once per game) ----
+let decorations = [];
 
-void main() {
-  vec2 uv = vTextureCoord;
-
-  // Barrel distortion (CRT curvature)
-  vec2 cc = uv - 0.5;
-  float dist = dot(cc, cc) * 0.06;
-  uv = uv + cc * dist;
-
-  // Chromatic aberration
-  float aberr = 0.0015 + sin(uTime * 2.0) * 0.0003;
-  float r = texture2D(uSampler, vec2(uv.x + aberr, uv.y)).r;
-  float g = texture2D(uSampler, uv).g;
-  float b = texture2D(uSampler, vec2(uv.x - aberr, uv.y)).b;
-  vec4 color = vec4(r, g, b, 1.0);
-
-  // Scanlines
-  float scanline = sin(uv.y * uResolution.y * 1.5) * 0.04 + 0.96;
-  color.rgb *= scanline;
-
-  // Subtle flicker
-  float flicker = 1.0 - sin(uTime * 8.0) * 0.008;
-  color.rgb *= flicker;
-
-  // Vignette
-  float vig = 1.0 - dot(cc * 1.6, cc * 1.6);
-  vig = clamp(vig, 0.0, 1.0);
-  color.rgb *= vig;
-
-  // Slight green tint for matrix feel
-  color.g *= 1.05;
-
-  // Clamp UVs (black outside barrel)
-  if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-    color = vec4(0.0);
-  }
-
-  gl_FragColor = color;
-}
-`;
-
-const CRT_VERT = `
-attribute vec2 aVertexPosition;
-attribute vec2 aTextureCoord;
-uniform mat3 projectionMatrix;
-varying vec2 vTextureCoord;
-void main() {
-  gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
-  vTextureCoord = aTextureCoord;
-}
-`;
+// ---- Colors ----
+const C = {
+  bgOuter:    0x4CAF50,
+  bgInner1:   0xE8D5B7,
+  bgInner2:   0xDEC9A8,
+  border:     0x3E8E41,
+  borderDark: 0x2E7D32,
+  snakeBody:  0x4CAF50,
+  snakeLight: 0x66BB6A,
+  snakeDark:  0x388E3C,
+  snakeBelly: 0x81C784,
+  eyeWhite:   0xFFFFFF,
+  eyePupil:   0x1B5E20,
+  cheek:      0xFF8A80,
+  tongue:     0xE53935,
+  apple:      0xE53935,
+  appleLight: 0xEF5350,
+  appleDark:  0xC62828,
+  appleShine: 0xFFFFFF,
+  leaf:       0x4CAF50,
+  leafDark:   0x388E3C,
+  stem:       0x5D4037,
+  starYellow: 0xFFD54F,
+  particle:   0xFFD54F,
+  decoLeaf:   0x66BB6A,
+  decoBush:   0x43A047,
+};
 
 // =============================================
 //  INIT PIXI
@@ -115,7 +83,6 @@ function initPixi() {
   const container = document.querySelector('.game-container');
   const canvasEl = document.getElementById('game-canvas');
 
-  // Calculate size
   const rect = container.getBoundingClientRect();
   const maxW = Math.max(rect.width - 16, 100);
   const maxH = Math.max(rect.height - 16, 100);
@@ -123,116 +90,123 @@ function initPixi() {
   cellSize = Math.max(maxCell, 10);
   canvasSize = cellSize * GRID;
 
-  // Remove old canvas
   if (canvasEl) canvasEl.style.display = 'none';
-
-  // Remove old glow canvas from previous version
   const oldGlow = container.querySelector('canvas:not(#game-canvas)');
   if (oldGlow && !oldGlow._pixi) oldGlow.remove();
 
-  // Create Pixi app
   app = new PIXI.Application({
-    width: canvasSize,
-    height: canvasSize,
-    backgroundColor: 0x050a05,
+    width: canvasSize + cellSize * 4, // extra space for decorations
+    height: canvasSize + cellSize * 4,
+    backgroundColor: C.bgOuter,
     antialias: true,
     resolution: Math.min(window.devicePixelRatio || 1, 2),
     autoDensity: true,
   });
   app.view._pixi = true;
-  app.view.style.width = canvasSize + 'px';
-  app.view.style.height = canvasSize + 'px';
-  app.view.style.borderRadius = '0px';
+  const totalSize = canvasSize + cellSize * 4;
+  app.view.style.width = totalSize + 'px';
+  app.view.style.height = totalSize + 'px';
+  app.view.style.borderRadius = '16px';
 
-  // Insert Pixi canvas into container (before overlay)
   const overlayEl = container.querySelector('.modal-overlay');
   container.insertBefore(app.view, overlayEl);
 
-  // Create layers
   gameContainer = new PIXI.Container();
+  gameContainer.x = cellSize * 2;
+  gameContainer.y = cellSize * 2;
   app.stage.addChild(gameContainer);
 
-  // Grid layer
-  gridGraphics = new PIXI.Graphics();
-  gameContainer.addChild(gridGraphics);
+  // Layers
+  bgGraphics = new PIXI.Graphics();
+  gameContainer.addChild(bgGraphics);
 
-  // Light layer (dynamic lighting)
-  lightContainer = new PIXI.Container();
-  gameContainer.addChild(lightContainer);
+  decoContainer = new PIXI.Container();
+  app.stage.addChild(decoContainer); // decorations outside game area
 
-  // Trail layer
-  trailGraphics = new PIXI.Graphics();
-  gameContainer.addChild(trailGraphics);
-
-  // Snake layer
-  snakeGraphics = new PIXI.Graphics();
-  gameContainer.addChild(snakeGraphics);
-
-  // Food layer (ABOVE snake so it's always visible)
   foodGraphics = new PIXI.Graphics();
   gameContainer.addChild(foodGraphics);
 
-  // Particle layer (on top of everything)
+  snakeGraphics = new PIXI.Graphics();
+  gameContainer.addChild(snakeGraphics);
+
   particleContainer = new PIXI.Container();
   gameContainer.addChild(particleContainer);
 
-  // Apply CRT filter
-  try {
-    crtFilter = new PIXI.Filter(CRT_VERT, CRT_FRAG, {
-      uTime: 0,
-      uResolution: [canvasSize, canvasSize],
-    });
-    app.stage.filters = [crtFilter];
-  } catch (e) {
-    console.warn('[Snake] CRT shader failed, running without:', e);
-  }
-
-  // Init background stars
-  initStars();
-
-  // Game loop
+  generateDecorations();
   app.ticker.add(gameFrame);
 }
 
 // =============================================
-//  BACKGROUND STARS (GPU sprites)
+//  DECORATIONS (leaves, bushes around board)
 // =============================================
-function initStars() {
-  bgStars = [];
-  for (let i = 0; i < 100; i++) {
-    const star = new PIXI.Graphics();
-    const size = 0.5 + Math.random() * 1.5;
-    star.beginFill(0x00fc40, 0.2 + Math.random() * 0.4);
-    star.drawCircle(0, 0, size);
-    star.endFill();
-    star.x = Math.random() * canvasSize;
-    star.y = Math.random() * canvasSize;
-    star._phase = Math.random() * Math.PI * 2;
-    star._baseAlpha = 0.15 + Math.random() * 0.35;
-    gameContainer.addChildAt(star, 1); // above grid
-    bgStars.push(star);
-  }
+function generateDecorations() {
+  decoContainer.removeChildren();
+  decorations = [];
+
+  const offset = cellSize * 2; // gameContainer offset
+  const W = canvasSize;
+  const cs = cellSize;
+
+  // Place bushes and leaves around the board edges
+  const positions = [];
+  // Top edge
+  for (let i = 0; i < 8; i++) positions.push({ x: offset + Math.random() * W, y: offset - cs * 0.5 + Math.random() * cs, side: 'top' });
+  // Bottom edge
+  for (let i = 0; i < 8; i++) positions.push({ x: offset + Math.random() * W, y: offset + W - cs * 0.5 + Math.random() * cs, side: 'bottom' });
+  // Left edge
+  for (let i = 0; i < 5; i++) positions.push({ x: offset - cs * 0.5 + Math.random() * cs, y: offset + Math.random() * W, side: 'left' });
+  // Right edge
+  for (let i = 0; i < 5; i++) positions.push({ x: offset + W - cs * 0.5 + Math.random() * cs, y: offset + Math.random() * W, side: 'right' });
+
+  positions.forEach(pos => {
+    const g = new PIXI.Graphics();
+    const type = Math.random();
+    if (type < 0.4) {
+      // Bush - cluster of circles
+      const size = cs * (0.6 + Math.random() * 0.4);
+      g.beginFill(C.decoBush);
+      g.drawCircle(0, 0, size);
+      g.endFill();
+      g.beginFill(C.decoLeaf);
+      g.drawCircle(-size * 0.3, -size * 0.2, size * 0.7);
+      g.drawCircle(size * 0.3, -size * 0.1, size * 0.6);
+      g.endFill();
+    } else if (type < 0.7) {
+      // Leaf
+      drawLeafDecoration(g, 0, 0, cs * 0.5, Math.random() * Math.PI * 2);
+    } else {
+      // Small flower
+      const r = cs * 0.2;
+      g.beginFill(0xFFFFFF, 0.9);
+      for (let p = 0; p < 5; p++) {
+        const angle = (p / 5) * Math.PI * 2;
+        g.drawCircle(Math.cos(angle) * r, Math.sin(angle) * r, r * 0.6);
+      }
+      g.endFill();
+      g.beginFill(C.starYellow);
+      g.drawCircle(0, 0, r * 0.5);
+      g.endFill();
+    }
+    g.x = pos.x;
+    g.y = pos.y;
+    g.alpha = 0.85;
+    decoContainer.addChild(g);
+    decorations.push(g);
+  });
+}
+
+function drawLeafDecoration(g, x, y, size, angle) {
+  g.beginFill(C.decoLeaf);
+  // Simple leaf shape using ellipse rotated
+  g.drawEllipse(x, y, size, size * 0.4);
+  g.endFill();
+  g.rotation = angle;
 }
 
 // =============================================
-//  FOOD ORBITERS
+//  PARTICLE SYSTEM (cartoon stars & leaves)
 // =============================================
-function initFoodOrbiters() {
-  foodOrbiters = [];
-  for (let i = 0; i < 6; i++) {
-    foodOrbiters.push({
-      angle: (Math.PI * 2 / 6) * i,
-      radius: 0.5 + Math.random() * 0.4,
-      speed: 0.025 + Math.random() * 0.025,
-      size: 1.5 + Math.random() * 2,
-    });
-  }
-}
-
-// =============================================
-//  PARTICLE SYSTEM (GPU-accelerated)
-// =============================================
-class GPUParticle {
+class CartoonParticle {
   constructor(x, y, opts = {}) {
     this.gfx = new PIXI.Graphics();
     this.x = x; this.y = y;
@@ -241,12 +215,14 @@ class GPUParticle {
     this.vx = Math.cos(angle) * spd;
     this.vy = Math.sin(angle) * spd;
     this.life = 1;
-    this.decay = opts.decay ?? (0.012 + Math.random() * 0.02);
-    this.size = opts.size ?? (2 + Math.random() * 4);
-    this.color = opts.color ?? 0x00fc40;
-    this.gravity = opts.gravity ?? 0.06;
-    this.friction = opts.friction ?? 0.98;
-    this.type = opts.type ?? 'circle';
+    this.decay = opts.decay ?? (0.015 + Math.random() * 0.02);
+    this.size = opts.size ?? (3 + Math.random() * 4);
+    this.color = opts.color ?? C.starYellow;
+    this.gravity = opts.gravity ?? 0.08;
+    this.friction = opts.friction ?? 0.97;
+    this.type = opts.type ?? 'star'; // 'star', 'circle', 'leaf'
+    this.rotSpeed = (Math.random() - 0.5) * 0.2;
+    this.rot = Math.random() * Math.PI * 2;
 
     this.gfx.x = x;
     this.gfx.y = y;
@@ -256,13 +232,31 @@ class GPUParticle {
 
   _draw() {
     this.gfx.clear();
-    this.gfx.beginFill(this.color, this.life);
-    if (this.type === 'circle') {
-      this.gfx.drawCircle(0, 0, this.size);
+    if (this.type === 'star') {
+      this._drawStar();
+    } else if (this.type === 'leaf') {
+      this.gfx.beginFill(C.decoLeaf, this.life);
+      this.gfx.drawEllipse(0, 0, this.size, this.size * 0.4);
+      this.gfx.endFill();
     } else {
-      // spark — elongated
-      this.gfx.drawEllipse(0, 0, this.size * 2, this.size * 0.5);
+      this.gfx.beginFill(this.color, this.life);
+      this.gfx.drawCircle(0, 0, this.size);
+      this.gfx.endFill();
     }
+  }
+
+  _drawStar() {
+    const s = this.size;
+    const pts = 4;
+    this.gfx.beginFill(this.color, this.life);
+    this.gfx.moveTo(0, -s);
+    for (let i = 0; i < pts; i++) {
+      const a1 = ((i * 2 + 1) / (pts * 2)) * Math.PI * 2 - Math.PI / 2;
+      const a2 = ((i * 2 + 2) / (pts * 2)) * Math.PI * 2 - Math.PI / 2;
+      this.gfx.lineTo(Math.cos(a1) * s * 0.4, Math.sin(a1) * s * 0.4);
+      this.gfx.lineTo(Math.cos(a2) * s, Math.sin(a2) * s);
+    }
+    this.gfx.closePath();
     this.gfx.endFill();
   }
 
@@ -273,14 +267,12 @@ class GPUParticle {
     this.x += this.vx;
     this.y += this.vy;
     this.life -= this.decay;
+    this.rot += this.rotSpeed;
     this.gfx.x = this.x;
     this.gfx.y = this.y;
     this.gfx.alpha = Math.max(0, this.life);
     this.gfx.scale.set(Math.max(0.1, this.life));
-
-    if (this.type === 'spark') {
-      this.gfx.rotation = Math.atan2(this.vy, this.vx);
-    }
+    this.gfx.rotation = this.rot;
   }
 
   destroy() {
@@ -291,70 +283,15 @@ class GPUParticle {
 
 function emit(x, y, count, opts = {}) {
   for (let i = 0; i < count; i++) {
-    particles.push(new GPUParticle(x, y, {
+    particles.push(new CartoonParticle(x, y, {
       ...opts,
       angle: opts.angle ?? Math.random() * Math.PI * 2,
     }));
   }
 }
 
-function emitRing(x, y, color = 0xff4466) {
-  const ring = new PIXI.Graphics();
-  ring.x = x; ring.y = y;
-  ring._life = 1;
-  ring._color = color;
-  particleContainer.addChild(ring);
-  particles.push({
-    isRing: true, gfx: ring, life: 1, decay: 0.025,
-    update() {
-      this.life -= this.decay;
-      this.gfx.clear();
-      this.gfx.lineStyle(2 * this.life, this._color, this.life);
-      const r = (1 - this.life) * cellSize * 2 + cellSize * 0.5;
-      this.gfx.drawCircle(0, 0, r);
-      this.gfx.alpha = this.life;
-    },
-    destroy() {
-      if (this.gfx.parent) this.gfx.parent.removeChild(this.gfx);
-      this.gfx.destroy();
-    },
-    _color: color,
-  });
-}
-
 // =============================================
-//  DYNAMIC LIGHT
-// =============================================
-function createLight(x, y, color, radius, alpha = 0.3) {
-  const light = new PIXI.Graphics();
-  light.beginFill(color, alpha);
-  light.drawCircle(0, 0, radius);
-  light.endFill();
-  light.x = x;
-  light.y = y;
-  light.blendMode = PIXI.BLEND_MODES.ADD;
-  try {
-    light.filters = [new PIXI.BlurFilter(Math.min(radius * 0.5, 30))];
-  } catch (e) { /* blur not supported */ }
-  lightContainer.addChild(light);
-  return light;
-}
-
-function destroyLight(light) {
-  if (!light) return;
-  if (light.filters) {
-    light.filters.forEach(f => f.destroy && f.destroy());
-    light.filters = null;
-  }
-  if (light.parent) light.parent.removeChild(light);
-  light.destroy();
-}
-
-let snakeLight = null;
-let foodLight = null;
-
-// =============================================
-//  GAME LOGIC
+//  GAME LOGIC (unchanged from original)
 // =============================================
 function initGame() {
   const mid = Math.floor(GRID / 2);
@@ -368,29 +305,18 @@ function initGame() {
   nextDirection = { x: 1, y: 0 };
   score = 0;
   scoreDisplay.textContent = '0';
-  eatFlash = 0;
-  comboGlow = 0;
+  eatBump = 0;
+  eatBumpPos = 0;
   deathTimer = -1;
   screenShake = { x: 0, y: 0, intensity: 0 };
   tickAccum = 0;
   lerpT = 0;
+  snakeExpression = 'normal';
+  expressionTimer = 0;
+  foodSpawnScale = 0;
 
-  // Clear particles
   particles.forEach(p => p.destroy());
   particles = [];
-
-  // Clear trail
-  trailPoints = [];
-
-  // Clear lights properly
-  destroyLight(snakeLight);
-  destroyLight(foodLight);
-  lightContainer.removeChildren();
-  snakeLight = null;
-  foodLight = null;
-
-  // Create snake light (follows head)
-  snakeLight = createLight(mid * cellSize, mid * cellSize, 0x00ff44, cellSize * 5, 0.25);
 
   spawnFood();
 }
@@ -402,11 +328,7 @@ function spawnFood() {
     pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
   } while (occ.has(`${pos.x},${pos.y}`));
   food = pos;
-  initFoodOrbiters();
-
-  // Food light — destroy old one properly, create brighter new one
-  destroyLight(foodLight);
-  foodLight = createLight(food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2, 0xff4466, cellSize * 4, 0.4);
+  foodSpawnScale = 0; // triggers pop-in animation
 }
 
 function tick() {
@@ -421,29 +343,37 @@ function tick() {
 
   snake.unshift(head);
 
-  const cs = cellSize;
-  trailPoints.push({ x: head.x * cs + cs / 2, y: head.y * cs + cs / 2, life: 1 });
-  if (trailPoints.length > 50) trailPoints.shift();
-
   if (head.x === food.x && head.y === food.y) {
     score++;
     scoreDisplay.textContent = score;
-    eatFlash = 1;
-    comboGlow = 1;
 
+    const cs = cellSize;
     const fx = food.x * cs + cs / 2;
     const fy = food.y * cs + cs / 2;
 
-    // Massive particle explosion (GPU handles it!)
-    emit(fx, fy, 40, { color: 0xff4466, speed: 5, size: 3, decay: 0.015, gravity: 0.04 });
-    emit(fx, fy, 25, { color: 0xffaa00, speed: 4, type: 'spark', size: 4, decay: 0.018 });
-    emit(fx, fy, 15, { color: 0xffffff, speed: 3, size: 2, decay: 0.02 });
-    emitRing(fx, fy, 0xff6688);
-    emitRing(fx, fy, 0xffaa44);
+    // Cartoon star particles
+    emit(fx, fy, 8, { color: C.starYellow, speed: 4, size: 5, decay: 0.02, gravity: 0.06, type: 'star' });
+    emit(fx, fy, 5, { color: 0xFFFFFF, speed: 3, size: 3, decay: 0.025, gravity: 0.05, type: 'circle' });
 
-    screenShake.intensity = 8;
+    // Eat bump effect
+    eatBump = 1;
+    eatBumpPos = 0;
+
+    // Happy expression
+    snakeExpression = 'happy';
+    expressionTimer = 0.5;
+
+    screenShake.intensity = 3; // subtle shake
     playSound('eat');
-    if (navigator.vibrate) navigator.vibrate([20, 10, 15]);
+    if (navigator.vibrate) navigator.vibrate([15]);
+
+    // Milestone celebration
+    if (score % 10 === 0) {
+      emit(fx, fy, 20, { color: C.starYellow, speed: 6, size: 6, decay: 0.012, gravity: 0.04, type: 'star' });
+      emit(fx, fy, 10, { color: C.apple, speed: 5, size: 4, decay: 0.015, gravity: 0.05, type: 'circle' });
+      launchConfetti();
+    }
+
     spawnFood();
   } else {
     snake.pop();
@@ -457,27 +387,14 @@ function setDirection(dir) {
 }
 
 // =============================================
-//  DEATH
+//  DEATH (cartoon style)
 // =============================================
 function triggerDeath() {
   deathTimer = 0;
-  const cs = cellSize;
-
-  snake.forEach((seg, i) => {
-    const sx = seg.x * cs + cs / 2;
-    const sy = seg.y * cs + cs / 2;
-    setTimeout(() => {
-      emit(sx, sy, 15, {
-        color: i === 0 ? 0x00ff55 : 0x00cc44,
-        speed: 6, type: i % 2 === 0 ? 'spark' : 'circle',
-        size: 4, decay: 0.014, gravity: 0.05,
-      });
-    }, i * 25);
-  });
-
-  screenShake.intensity = 18;
-  if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
-  setTimeout(gameOver, 900);
+  snakeExpression = 'dead';
+  screenShake.intensity = 6;
+  if (navigator.vibrate) navigator.vibrate([30, 20, 40]);
+  setTimeout(gameOver, 1200);
 }
 
 async function gameOver() {
@@ -495,7 +412,7 @@ async function gameOver() {
   overlayIcon.textContent = '💀';
   overlayTitle.textContent = 'Game Over!';
   overlayMsg.textContent = isNew ? 'Novo Recorde!' : '';
-  overlayScore.textContent = `Pontuacao: ${score}`;
+  overlayScore.textContent = `Pontuação: ${score}`;
   btnStart.textContent = 'Jogar Novamente';
 
   const btnShare = document.getElementById('btn-share');
@@ -509,7 +426,7 @@ async function gameOver() {
 }
 
 // =============================================
-//  RENDER (PixiJS GPU)
+//  RENDER
 // =============================================
 function render(dt) {
   const cs = cellSize;
@@ -519,241 +436,26 @@ function render(dt) {
 
   // ---- Screen shake ----
   if (screenShake.intensity > 0) {
-    gameContainer.x = (Math.random() - 0.5) * screenShake.intensity;
-    gameContainer.y = (Math.random() - 0.5) * screenShake.intensity;
-    screenShake.intensity *= 0.87;
-    if (screenShake.intensity < 0.3) { screenShake.intensity = 0; gameContainer.x = 0; gameContainer.y = 0; }
-  }
-
-  // ---- Grid (animated wave) ----
-  gridGraphics.clear();
-  gridGraphics.lineStyle(0.5, 0x00fc40, 0.06);
-  for (let i = 0; i <= GRID; i++) {
-    gridGraphics.moveTo(i * cs, 0); gridGraphics.lineTo(i * cs, W);
-    gridGraphics.moveTo(0, i * cs); gridGraphics.lineTo(W, i * cs);
-  }
-  // Grid intersection dots with wave
-  for (let i = 0; i <= GRID; i++) {
-    for (let j = 0; j <= GRID; j++) {
-      const px = i * cs, py = j * cs;
-      const dist = Math.sqrt((px - W / 2) ** 2 + (py - W / 2) ** 2);
-      const wave = Math.sin(dist * 0.02 - t * 3) * 0.5 + 0.5;
-      const alpha = 0.03 + wave * 0.07;
-      gridGraphics.beginFill(0x00fc40, alpha);
-      gridGraphics.drawCircle(px, py, 1);
-      gridGraphics.endFill();
+    gameContainer.x = cellSize * 2 + (Math.random() - 0.5) * screenShake.intensity;
+    gameContainer.y = cellSize * 2 + (Math.random() - 0.5) * screenShake.intensity;
+    screenShake.intensity *= 0.88;
+    if (screenShake.intensity < 0.2) {
+      screenShake.intensity = 0;
+      gameContainer.x = cellSize * 2;
+      gameContainer.y = cellSize * 2;
     }
   }
 
-  // ---- Stars twinkle ----
-  bgStars.forEach(star => {
-    const twinkle = Math.sin(t * 3 + star._phase) * 0.3 + 0.7;
-    star.alpha = star._baseAlpha * twinkle;
-  });
+  // ---- Background ----
+  drawBackground(cs, W);
 
-  // ---- Eat flash ----
-  if (eatFlash > 0) {
-    app.renderer.background.color = eatFlash > 0.5 ? 0x0a1a0a : 0x050a05;
-    eatFlash *= 0.88;
-    if (eatFlash < 0.01) { eatFlash = 0; app.renderer.background.color = 0x050a05; }
-  }
-
-  // ---- Trail (neon vapor) ----
-  trailGraphics.clear();
-  trailPoints.forEach(tp => {
-    tp.life -= 0.018;
-    if (tp.life <= 0) return;
-    trailGraphics.beginFill(0x00e038, tp.life * 0.35);
-    trailGraphics.drawCircle(tp.x, tp.y, cs * 0.15 * tp.life);
-    trailGraphics.endFill();
-  });
-  trailPoints = trailPoints.filter(tp => tp.life > 0);
-
-  // ---- Food (bright and visible!) ----
-  foodGraphics.clear();
-  if (food) {
-    const fx = food.x * cs + cs / 2;
-    const fy = food.y * cs + cs / 2;
-    const pulse = 1 + Math.sin(t * 4) * 0.15;
-
-    // Outer glow ring (pulsating)
-    foodGraphics.beginFill(0xff2244, 0.25);
-    foodGraphics.drawCircle(fx, fy, cs * 0.9 * pulse);
-    foodGraphics.endFill();
-
-    // Middle aura
-    foodGraphics.beginFill(0xff4466, 0.35);
-    foodGraphics.drawCircle(fx, fy, cs * 0.6 * pulse);
-    foodGraphics.endFill();
-
-    // Orbiters
-    foodOrbiters.forEach(orb => {
-      orb.angle += orb.speed;
-      const ox = fx + Math.cos(orb.angle) * cs * orb.radius;
-      const oy = fy + Math.sin(orb.angle) * cs * orb.radius;
-      foodGraphics.beginFill(0xff88aa, 0.8);
-      foodGraphics.drawCircle(ox, oy, orb.size * 1.2);
-      foodGraphics.endFill();
-    });
-
-    // Body (bright red)
-    foodGraphics.beginFill(0xff3355);
-    foodGraphics.drawCircle(fx, fy, cs * 0.42 * pulse);
-    foodGraphics.endFill();
-
-    // Inner bright core
-    foodGraphics.beginFill(0xff8899, 0.9);
-    foodGraphics.drawCircle(fx, fy, cs * 0.25 * pulse);
-    foodGraphics.endFill();
-
-    // Specular highlight
-    foodGraphics.beginFill(0xffffff, 0.6);
-    foodGraphics.drawCircle(fx - cs * 0.1, fy - cs * 0.12, cs * 0.13);
-    foodGraphics.endFill();
-
-    // Update food light
-    if (foodLight) {
-      foodLight.x = fx;
-      foodLight.y = fy;
-      foodLight.alpha = 0.3 + Math.sin(t * 4) * 0.1;
-    }
-  }
+  // ---- Food (apple) ----
+  drawFood(cs, t);
 
   // ---- Snake ----
-  snakeGraphics.clear();
-  if (deathTimer < 0) {
-    const len = snake.length;
+  drawSnake(cs, W, t, interp);
 
-    // Draw connections first (behind segments)
-    for (let i = 0; i < len - 1; i++) {
-      const curr = snake[i], prev = prevSnake[i] || curr;
-      const next = snake[i + 1], prevNext = prevSnake[i + 1] || next;
-      const sx = (prev.x + (curr.x - prev.x) * interp) * cs + cs / 2;
-      const sy = (prev.y + (curr.y - prev.y) * interp) * cs + cs / 2;
-      const nx = (prevNext.x + (next.x - prevNext.x) * interp) * cs + cs / 2;
-      const ny = (prevNext.y + (next.y - prevNext.y) * interp) * cs + cs / 2;
-      const progress = i / len;
-      const alpha = (1 - progress * 0.4) * 0.6;
-      const width = cs * (0.7 - progress * 0.15);
-
-      snakeGraphics.lineStyle(width, 0x00cc33, alpha);
-      snakeGraphics.moveTo(sx, sy);
-      snakeGraphics.lineTo(nx, ny);
-    }
-    snakeGraphics.lineStyle(0);
-
-    // Draw segments (back to front)
-    for (let i = len - 1; i >= 0; i--) {
-      const curr = snake[i], prev = prevSnake[i] || curr;
-      const sx = (prev.x + (curr.x - prev.x) * interp) * cs + cs / 2;
-      const sy = (prev.y + (curr.y - prev.y) * interp) * cs + cs / 2;
-      const isHead = i === 0;
-      const progress = i / len;
-      const segAlpha = 1 - progress * 0.3;
-      const segSize = cs * (isHead ? 0.46 : 0.40 - progress * 0.06);
-
-      // Glow aura
-      const glowColor = isHead ? 0x00ff55 : 0x00dd44;
-      const glowAlpha = segAlpha * (0.1 + comboGlow * 0.15);
-      snakeGraphics.beginFill(glowColor, glowAlpha);
-      snakeGraphics.drawCircle(sx, sy, segSize + 5 + comboGlow * 8);
-      snakeGraphics.endFill();
-
-      // Body
-      const bodyColor = isHead ? 0x44ff66 : (comboGlow > 0.3 ? 0x55ff77 : 0x00dd44);
-      snakeGraphics.beginFill(bodyColor, segAlpha);
-      snakeGraphics.drawCircle(sx, sy, segSize);
-      snakeGraphics.endFill();
-
-      // Inner highlight
-      snakeGraphics.beginFill(0xffffff, segAlpha * 0.15);
-      snakeGraphics.drawCircle(sx - segSize * 0.2, sy - segSize * 0.2, segSize * 0.5);
-      snakeGraphics.endFill();
-
-      // Scales pattern (subtle)
-      if (!isHead && i % 2 === 0) {
-        snakeGraphics.beginFill(0x00ff44, segAlpha * 0.08);
-        snakeGraphics.drawCircle(sx, sy, segSize * 0.6);
-        snakeGraphics.endFill();
-      }
-
-      // Head details
-      if (isHead) {
-        const dir = direction;
-        const eyeOff = cs * 0.16;
-        const eyeDX = dir.x * cs * 0.06;
-        const eyeDY = dir.y * cs * 0.06;
-        let ex1, ey1, ex2, ey2;
-
-        if (dir.x === 1)       { ex1 = eyeOff; ey1 = -eyeOff; ex2 = eyeOff; ey2 = eyeOff; }
-        else if (dir.x === -1) { ex1 = -eyeOff; ey1 = -eyeOff; ex2 = -eyeOff; ey2 = eyeOff; }
-        else if (dir.y === -1) { ex1 = -eyeOff; ey1 = -eyeOff; ex2 = eyeOff; ey2 = -eyeOff; }
-        else                   { ex1 = -eyeOff; ey1 = eyeOff; ex2 = eyeOff; ey2 = eyeOff; }
-
-        // Eye whites (glow)
-        snakeGraphics.beginFill(0xffffff, 0.95);
-        snakeGraphics.drawCircle(sx + ex1 + eyeDX, sy + ey1 + eyeDY, cs * 0.08);
-        snakeGraphics.drawCircle(sx + ex2 + eyeDX, sy + ey2 + eyeDY, cs * 0.08);
-        snakeGraphics.endFill();
-
-        // Pupils
-        snakeGraphics.beginFill(0x003300);
-        snakeGraphics.drawCircle(sx + ex1 + eyeDX * 1.5, sy + ey1 + eyeDY * 1.5, cs * 0.035);
-        snakeGraphics.drawCircle(sx + ex2 + eyeDX * 1.5, sy + ey2 + eyeDY * 1.5, cs * 0.035);
-        snakeGraphics.endFill();
-
-        // Tongue (flickering)
-        if (Math.sin(t * 10) > 0.2) {
-          const tongueBase = { x: sx + dir.x * segSize, y: sy + dir.y * segSize };
-          const tongueEnd = { x: tongueBase.x + dir.x * cs * 0.35, y: tongueBase.y + dir.y * cs * 0.35 };
-          const perpX = dir.y, perpY = -dir.x;
-          const forkLen = cs * 0.1;
-
-          snakeGraphics.lineStyle(1.5, 0xff4466, 0.9);
-          snakeGraphics.moveTo(tongueBase.x, tongueBase.y);
-          snakeGraphics.lineTo(tongueEnd.x, tongueEnd.y);
-          // Fork
-          snakeGraphics.moveTo(tongueEnd.x, tongueEnd.y);
-          snakeGraphics.lineTo(tongueEnd.x + (dir.x + perpX * 0.5) * forkLen, tongueEnd.y + (dir.y + perpY * 0.5) * forkLen);
-          snakeGraphics.moveTo(tongueEnd.x, tongueEnd.y);
-          snakeGraphics.lineTo(tongueEnd.x + (dir.x - perpX * 0.5) * forkLen, tongueEnd.y + (dir.y - perpY * 0.5) * forkLen);
-          snakeGraphics.lineStyle(0);
-        }
-
-        // Update snake light position
-        if (snakeLight) {
-          snakeLight.x = sx;
-          snakeLight.y = sy;
-          snakeLight.alpha = 0.12 + comboGlow * 0.1;
-        }
-      }
-    }
-  }
-
-  // ---- Death dissolve ----
-  if (deathTimer >= 0 && deathTimer < 35) {
-    const progress = deathTimer / 35;
-    snakeGraphics.clear();
-    snake.forEach((seg, i) => {
-      const delay = i * 0.03;
-      const segP = Math.max(0, Math.min((progress - delay) / (1 - delay), 1));
-      if (segP >= 1) return;
-      const sx = seg.x * cs + cs / 2;
-      const sy = seg.y * cs + cs / 2;
-      const scatter = segP * cs * 3;
-      const angle = (i * 1.7 + progress * 5);
-      snakeGraphics.beginFill(0x00cc44, (1 - segP) * 0.7);
-      snakeGraphics.drawCircle(
-        sx + Math.cos(angle) * scatter,
-        sy + Math.sin(angle) * scatter,
-        cs * 0.35 * (1 - segP)
-      );
-      snakeGraphics.endFill();
-    });
-    deathTimer++;
-  }
-
-  // ---- Particles update ----
+  // ---- Particles ----
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.update();
@@ -763,24 +465,402 @@ function render(dt) {
     }
   }
 
-  // ---- Combo glow decay ----
-  if (comboGlow > 0) {
-    comboGlow *= 0.97;
-    if (comboGlow < 0.01) comboGlow = 0;
+  // ---- Expression timer ----
+  if (expressionTimer > 0) {
+    expressionTimer -= dt * 0.001;
+    if (expressionTimer <= 0) snakeExpression = 'normal';
   }
 
-  // ---- Border glow ----
-  gridGraphics.lineStyle(2, 0x00fc40, 0.12 + Math.sin(t * 2) * 0.04);
-  gridGraphics.drawRect(0, 0, W, W);
+  // ---- Eat bump decay ----
+  if (eatBump > 0) {
+    eatBump *= 0.92;
+    eatBumpPos += dt * 0.008;
+    if (eatBump < 0.01) eatBump = 0;
+  }
 
-  // ---- Update CRT shader time ----
-  if (crtFilter) {
-    crtFilter.uniforms.uTime = t;
+  // ---- Food spawn animation ----
+  if (foodSpawnScale < 1) {
+    foodSpawnScale = Math.min(1, foodSpawnScale + dt * 0.006);
+  }
+
+  // ---- Ambient leaves (occasional) ----
+  if (Math.random() < 0.005) {
+    const lx = Math.random() * W;
+    emit(lx, -10, 1, { color: C.decoLeaf, speed: 0.5, size: 4, decay: 0.003, gravity: 0.02, friction: 0.999, type: 'leaf' });
   }
 }
 
 // =============================================
-//  GAME LOOP (Pixi ticker)
+//  DRAW BACKGROUND
+// =============================================
+function drawBackground(cs, W) {
+  bgGraphics.clear();
+
+  // Board shadow
+  bgGraphics.beginFill(0x2E7D32, 0.3);
+  bgGraphics.drawRoundedRect(4, 4, W, W, 8);
+  bgGraphics.endFill();
+
+  // Board border (thick rounded)
+  bgGraphics.beginFill(C.borderDark);
+  bgGraphics.drawRoundedRect(-4, -4, W + 8, W + 8, 12);
+  bgGraphics.endFill();
+
+  bgGraphics.beginFill(C.border);
+  bgGraphics.drawRoundedRect(-2, -2, W + 4, W + 4, 10);
+  bgGraphics.endFill();
+
+  // Board background
+  bgGraphics.beginFill(C.bgInner1);
+  bgGraphics.drawRoundedRect(0, 0, W, W, 6);
+  bgGraphics.endFill();
+
+  // Checkerboard pattern (subtle)
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      if ((x + y) % 2 === 0) {
+        bgGraphics.beginFill(C.bgInner2, 0.5);
+        bgGraphics.drawRect(x * cs, y * cs, cs, cs);
+        bgGraphics.endFill();
+      }
+    }
+  }
+}
+
+// =============================================
+//  DRAW FOOD (APPLE)
+// =============================================
+function drawFood(cs, t) {
+  foodGraphics.clear();
+  if (!food) return;
+
+  const fx = food.x * cs + cs / 2;
+  const fy = food.y * cs + cs / 2;
+  const wobble = Math.sin(t * 3) * 0.05;
+  const bounce = Math.sin(t * 2) * 2;
+
+  // Pop-in scale
+  const popScale = foodSpawnScale < 1
+    ? easeOutBack(foodSpawnScale)
+    : 1;
+  const r = cs * 0.38 * popScale;
+
+  // Apple body
+  foodGraphics.beginFill(C.apple);
+  foodGraphics.drawCircle(fx, fy + bounce * 0.3, r);
+  foodGraphics.endFill();
+
+  // Apple highlight (3D effect)
+  foodGraphics.beginFill(C.appleLight, 0.5);
+  foodGraphics.drawEllipse(fx - r * 0.2, fy - r * 0.2 + bounce * 0.3, r * 0.5, r * 0.4);
+  foodGraphics.endFill();
+
+  // Apple shine (white specular)
+  foodGraphics.beginFill(C.appleShine, 0.7);
+  foodGraphics.drawCircle(fx - r * 0.25, fy - r * 0.3 + bounce * 0.3, r * 0.18);
+  foodGraphics.endFill();
+
+  // Stem
+  foodGraphics.lineStyle(cs * 0.06, C.stem);
+  foodGraphics.moveTo(fx, fy - r + bounce * 0.3);
+  foodGraphics.lineTo(fx + cs * 0.03, fy - r - cs * 0.15 + bounce * 0.3);
+  foodGraphics.lineStyle(0);
+
+  // Leaf on top
+  const leafX = fx + cs * 0.06;
+  const leafY = fy - r - cs * 0.08 + bounce * 0.3;
+  foodGraphics.beginFill(C.leaf);
+  foodGraphics.moveTo(leafX, leafY);
+  foodGraphics.bezierCurveTo(
+    leafX + cs * 0.15, leafY - cs * 0.1,
+    leafX + cs * 0.2, leafY + cs * 0.05,
+    leafX + cs * 0.05, leafY + cs * 0.08
+  );
+  foodGraphics.endFill();
+}
+
+function easeOutBack(t) {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+
+// =============================================
+//  DRAW SNAKE
+// =============================================
+function drawSnake(cs, W, t, interp) {
+  snakeGraphics.clear();
+
+  if (deathTimer >= 0) {
+    drawSnakeDeath(cs, t);
+    return;
+  }
+
+  const len = snake.length;
+  if (len === 0) return;
+
+  // Calculate interpolated positions
+  const positions = [];
+  for (let i = 0; i < len; i++) {
+    const curr = snake[i], prev = prevSnake[i] || curr;
+    const sx = (prev.x + (curr.x - prev.x) * interp) * cs + cs / 2;
+    const sy = (prev.y + (curr.y - prev.y) * interp) * cs + cs / 2;
+    positions.push({ x: sx, y: sy });
+  }
+
+  // Draw body shadow
+  snakeGraphics.beginFill(0x2E7D32, 0.2);
+  for (let i = len - 1; i >= 1; i--) {
+    const p = positions[i];
+    const progress = i / len;
+    const segSize = cs * (0.38 - progress * 0.08);
+    // Eat bump
+    let bump = 0;
+    if (eatBump > 0) {
+      const dist = Math.abs(i - eatBumpPos * len);
+      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.1;
+    }
+    snakeGraphics.drawCircle(p.x + 2, p.y + 3, segSize + bump);
+  }
+  snakeGraphics.endFill();
+
+  // Draw body connections (thick rounded line between segments)
+  for (let i = 0; i < len - 1; i++) {
+    const p1 = positions[i];
+    const p2 = positions[i + 1];
+    const progress = i / len;
+    const width = cs * (0.65 - progress * 0.15);
+
+    let bump = 0;
+    if (eatBump > 0) {
+      const dist = Math.abs(i - eatBumpPos * len);
+      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.15;
+    }
+
+    snakeGraphics.lineStyle(width + bump, C.snakeBody, 1);
+    snakeGraphics.moveTo(p1.x, p1.y);
+    snakeGraphics.lineTo(p2.x, p2.y);
+  }
+  snakeGraphics.lineStyle(0);
+
+  // Draw body segments (circles) - back to front
+  for (let i = len - 1; i >= 1; i--) {
+    const p = positions[i];
+    const progress = i / len;
+    const segSize = cs * (0.35 - progress * 0.06);
+
+    let bump = 0;
+    if (eatBump > 0) {
+      const dist = Math.abs(i - eatBumpPos * len);
+      bump = Math.max(0, eatBump * (1 - dist * 0.3)) * cs * 0.1;
+    }
+
+    // Main body
+    snakeGraphics.beginFill(C.snakeBody);
+    snakeGraphics.drawCircle(p.x, p.y, segSize + bump);
+    snakeGraphics.endFill();
+
+    // Belly highlight (lighter stripe)
+    snakeGraphics.beginFill(C.snakeBelly, 0.3);
+    snakeGraphics.drawEllipse(p.x, p.y + segSize * 0.15, segSize * 0.5, segSize * 0.35);
+    snakeGraphics.endFill();
+
+    // Top highlight (3D volume)
+    snakeGraphics.beginFill(C.snakeLight, 0.3);
+    snakeGraphics.drawCircle(p.x - segSize * 0.15, p.y - segSize * 0.2, segSize * 0.35);
+    snakeGraphics.endFill();
+
+    // Dark pattern spots (every other)
+    if (i % 3 === 0) {
+      snakeGraphics.beginFill(C.snakeDark, 0.15);
+      snakeGraphics.drawCircle(p.x, p.y, segSize * 0.6);
+      snakeGraphics.endFill();
+    }
+  }
+
+  // ---- HEAD ----
+  drawSnakeHead(positions[0], cs, t);
+}
+
+function drawSnakeHead(headPos, cs, t) {
+  const hx = headPos.x;
+  const hy = headPos.y;
+  const dir = direction;
+  const headSize = cs * 0.44;
+
+  // Head shadow
+  snakeGraphics.beginFill(0x2E7D32, 0.2);
+  snakeGraphics.drawCircle(hx + 2, hy + 3, headSize);
+  snakeGraphics.endFill();
+
+  // Head shape (slightly oval in direction of movement)
+  const stretchX = 1 + Math.abs(dir.x) * 0.12;
+  const stretchY = 1 + Math.abs(dir.y) * 0.12;
+
+  snakeGraphics.beginFill(C.snakeBody);
+  snakeGraphics.drawEllipse(hx + dir.x * cs * 0.05, hy + dir.y * cs * 0.05, headSize * stretchX, headSize * stretchY);
+  snakeGraphics.endFill();
+
+  // Top highlight
+  snakeGraphics.beginFill(C.snakeLight, 0.4);
+  snakeGraphics.drawEllipse(hx - headSize * 0.15, hy - headSize * 0.2, headSize * 0.5, headSize * 0.4);
+  snakeGraphics.endFill();
+
+  // ---- EYES ----
+  const eyeOff = cs * 0.17;
+  const eyeForward = cs * 0.08;
+  let ex1, ey1, ex2, ey2;
+
+  if (dir.x === 1)       { ex1 = eyeOff; ey1 = -eyeOff * 0.7; ex2 = eyeOff; ey2 = eyeOff * 0.7; }
+  else if (dir.x === -1) { ex1 = -eyeOff; ey1 = -eyeOff * 0.7; ex2 = -eyeOff; ey2 = eyeOff * 0.7; }
+  else if (dir.y === -1) { ex1 = -eyeOff * 0.7; ey1 = -eyeOff; ex2 = eyeOff * 0.7; ey2 = -eyeOff; }
+  else                   { ex1 = -eyeOff * 0.7; ey1 = eyeOff; ex2 = eyeOff * 0.7; ey2 = eyeOff; }
+
+  const eyeSize = cs * 0.14;
+  const pupilSize = cs * 0.07;
+
+  if (snakeExpression === 'dead') {
+    // X_X eyes
+    const xSize = eyeSize * 0.7;
+    snakeGraphics.lineStyle(2, C.eyePupil);
+    // Eye 1 - X
+    snakeGraphics.moveTo(hx + ex1 - xSize, hy + ey1 - xSize);
+    snakeGraphics.lineTo(hx + ex1 + xSize, hy + ey1 + xSize);
+    snakeGraphics.moveTo(hx + ex1 + xSize, hy + ey1 - xSize);
+    snakeGraphics.lineTo(hx + ex1 - xSize, hy + ey1 + xSize);
+    // Eye 2 - X
+    snakeGraphics.moveTo(hx + ex2 - xSize, hy + ey2 - xSize);
+    snakeGraphics.lineTo(hx + ex2 + xSize, hy + ey2 + xSize);
+    snakeGraphics.moveTo(hx + ex2 + xSize, hy + ey2 - xSize);
+    snakeGraphics.lineTo(hx + ex2 - xSize, hy + ey2 + xSize);
+    snakeGraphics.lineStyle(0);
+  } else if (snakeExpression === 'happy') {
+    // ^_^ eyes (happy arcs)
+    snakeGraphics.lineStyle(2.5, C.eyePupil);
+    // Eye 1 - arc
+    snakeGraphics.arc(hx + ex1, hy + ey1 + eyeSize * 0.3, eyeSize * 0.6, Math.PI, 0);
+    // Eye 2 - arc
+    snakeGraphics.arc(hx + ex2, hy + ey2 + eyeSize * 0.3, eyeSize * 0.6, Math.PI, 0);
+    snakeGraphics.lineStyle(0);
+
+    // Blush cheeks
+    snakeGraphics.beginFill(C.cheek, 0.35);
+    const cheekOff = dir.y !== 0 ? { x: eyeOff * 1.5, y: 0 } : { x: 0, y: eyeOff * 1.5 };
+    snakeGraphics.drawCircle(hx + cheekOff.x * 0.5, hy + cheekOff.y * 0.5 + cs * 0.05, cs * 0.08);
+    snakeGraphics.drawCircle(hx - cheekOff.x * 0.5, hy - cheekOff.y * 0.5 + cs * 0.05, cs * 0.08);
+    snakeGraphics.endFill();
+  } else {
+    // Normal eyes - big white circles with pupils
+    // Eye whites
+    snakeGraphics.beginFill(C.eyeWhite);
+    snakeGraphics.drawCircle(hx + ex1, hy + ey1, eyeSize);
+    snakeGraphics.drawCircle(hx + ex2, hy + ey2, eyeSize);
+    snakeGraphics.endFill();
+
+    // Pupils (look in direction of movement)
+    const pupilDX = dir.x * pupilSize * 0.4;
+    const pupilDY = dir.y * pupilSize * 0.4;
+    snakeGraphics.beginFill(C.eyePupil);
+    snakeGraphics.drawCircle(hx + ex1 + pupilDX, hy + ey1 + pupilDY, pupilSize);
+    snakeGraphics.drawCircle(hx + ex2 + pupilDX, hy + ey2 + pupilDY, pupilSize);
+    snakeGraphics.endFill();
+
+    // Eye shine
+    snakeGraphics.beginFill(0xFFFFFF, 0.8);
+    snakeGraphics.drawCircle(hx + ex1 - pupilSize * 0.3, hy + ey1 - pupilSize * 0.3, pupilSize * 0.35);
+    snakeGraphics.drawCircle(hx + ex2 - pupilSize * 0.3, hy + ey2 - pupilSize * 0.3, pupilSize * 0.35);
+    snakeGraphics.endFill();
+
+    // Subtle cheeks
+    snakeGraphics.beginFill(C.cheek, 0.15);
+    if (dir.y !== 0) {
+      snakeGraphics.drawCircle(hx - eyeOff * 1.2, hy + dir.y * cs * 0.02, cs * 0.07);
+      snakeGraphics.drawCircle(hx + eyeOff * 1.2, hy + dir.y * cs * 0.02, cs * 0.07);
+    } else {
+      snakeGraphics.drawCircle(hx + dir.x * cs * 0.02, hy - eyeOff * 1.2, cs * 0.07);
+      snakeGraphics.drawCircle(hx + dir.x * cs * 0.02, hy + eyeOff * 1.2, cs * 0.07);
+    }
+    snakeGraphics.endFill();
+  }
+
+  // ---- TONGUE ----
+  if (snakeExpression === 'normal' && Math.sin(t * 8) > 0.3) {
+    const tongueBase = { x: hx + dir.x * headSize * 0.9, y: hy + dir.y * headSize * 0.9 };
+    const tongueLen = cs * 0.25;
+    const tongueEnd = { x: tongueBase.x + dir.x * tongueLen, y: tongueBase.y + dir.y * tongueLen };
+    const perpX = dir.y, perpY = -dir.x;
+    const forkLen = cs * 0.08;
+
+    snakeGraphics.lineStyle(1.5, C.tongue, 0.9);
+    snakeGraphics.moveTo(tongueBase.x, tongueBase.y);
+    snakeGraphics.lineTo(tongueEnd.x, tongueEnd.y);
+    snakeGraphics.moveTo(tongueEnd.x, tongueEnd.y);
+    snakeGraphics.lineTo(tongueEnd.x + (dir.x + perpX * 0.6) * forkLen, tongueEnd.y + (dir.y + perpY * 0.6) * forkLen);
+    snakeGraphics.moveTo(tongueEnd.x, tongueEnd.y);
+    snakeGraphics.lineTo(tongueEnd.x + (dir.x - perpX * 0.6) * forkLen, tongueEnd.y + (dir.y - perpY * 0.6) * forkLen);
+    snakeGraphics.lineStyle(0);
+  }
+
+  // ---- Smile (subtle) ----
+  if (snakeExpression === 'normal') {
+    const smileOff = headSize * 0.3;
+    snakeGraphics.lineStyle(1.5, C.snakeDark, 0.3);
+    snakeGraphics.arc(
+      hx + dir.x * smileOff * 0.5,
+      hy + dir.y * smileOff * 0.5,
+      cs * 0.1,
+      dir.x === 1 ? 0 : dir.x === -1 ? Math.PI : dir.y === 1 ? Math.PI / 2 : -Math.PI / 2,
+      dir.x === 1 ? Math.PI : dir.x === -1 ? 0 : dir.y === 1 ? -Math.PI / 2 : Math.PI / 2,
+      dir.x === 1 || dir.y === -1
+    );
+    snakeGraphics.lineStyle(0);
+  }
+}
+
+function drawSnakeDeath(cs, t) {
+  if (deathTimer >= 40) return;
+
+  const progress = deathTimer / 40;
+  const len = snake.length;
+
+  // Snake fades and flattens
+  for (let i = 0; i < len; i++) {
+    const seg = snake[i];
+    const sx = seg.x * cs + cs / 2;
+    const sy = seg.y * cs + cs / 2;
+    const segSize = cs * (i === 0 ? 0.44 : 0.35 - (i / len) * 0.06);
+
+    const fadeAlpha = Math.max(0, 1 - progress * 1.5 + i * 0.02);
+    if (fadeAlpha <= 0) continue;
+
+    // Body wobbles
+    const wobbleX = Math.sin(t * 15 + i * 2) * progress * cs * 0.3;
+    const wobbleY = Math.cos(t * 12 + i * 3) * progress * cs * 0.2;
+
+    snakeGraphics.beginFill(C.snakeBody, fadeAlpha);
+    snakeGraphics.drawCircle(sx + wobbleX, sy + wobbleY, segSize * (1 - progress * 0.5));
+    snakeGraphics.endFill();
+
+    // Stars above head on death
+    if (i === 0 && progress < 0.8) {
+      for (let s = 0; s < 3; s++) {
+        const starAngle = t * 5 + s * (Math.PI * 2 / 3);
+        const starR = cs * 0.5;
+        const starX = sx + Math.cos(starAngle) * starR;
+        const starY = sy - cs * 0.4 + Math.sin(starAngle * 0.5) * cs * 0.1;
+
+        snakeGraphics.beginFill(C.starYellow, fadeAlpha * 0.8);
+        snakeGraphics.drawStar(starX, starY, 4, cs * 0.08, cs * 0.04);
+        snakeGraphics.endFill();
+      }
+    }
+  }
+
+  deathTimer++;
+}
+
+// =============================================
+//  GAME LOOP
 // =============================================
 function gameFrame(delta) {
   const dt = app.ticker.deltaMS;
@@ -861,7 +941,6 @@ document.addEventListener('touchend', e => {
   touchStartX = null;
 }, { passive: true });
 
-// Mobile buttons
 const dirMap = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
 
 // =============================================
@@ -880,7 +959,6 @@ function init() {
 
   initPixi();
 
-  // Mobile controls
   document.querySelectorAll('.ctrl-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();
@@ -890,7 +968,6 @@ function init() {
     });
   });
 
-  // Start button
   const newBtn = btnStart.cloneNode(true);
   btnStart.parentNode.replaceChild(newBtn, btnStart);
   btnStart = newBtn;
@@ -898,7 +975,6 @@ function init() {
   btnStart.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); startGame(); }, { passive: false });
 
   window.addEventListener('resize', () => {
-    // Recalculate and resize pixi
     const container = document.querySelector('.game-container');
     const rect = container.getBoundingClientRect();
     const maxW = Math.max(rect.width - 16, 100);
@@ -906,13 +982,15 @@ function init() {
     const maxCell = Math.floor(Math.min(maxW, maxH) / GRID);
     cellSize = Math.max(maxCell, 10);
     canvasSize = cellSize * GRID;
-    app.renderer.resize(canvasSize, canvasSize);
-    app.view.style.width = canvasSize + 'px';
-    app.view.style.height = canvasSize + 'px';
-    if (crtFilter) crtFilter.uniforms.uResolution = [canvasSize, canvasSize];
+    const totalSize = canvasSize + cellSize * 4;
+    app.renderer.resize(totalSize, totalSize);
+    app.view.style.width = totalSize + 'px';
+    app.view.style.height = totalSize + 'px';
+    gameContainer.x = cellSize * 2;
+    gameContainer.y = cellSize * 2;
+    generateDecorations();
   });
 
-  // Initial render
   initGame();
   render(0);
 }
