@@ -18,9 +18,9 @@
   <meta name="twitter:description" content="Jogue Pac-Man online e de graca!" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=23" />
-  <meta name="theme-color" content="#000000" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=24" />
+  <meta name="theme-color" content="#0D1B3E" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -66,11 +66,11 @@
     <!-- Overlay de inicio / game over -->
     <div class="modal-overlay" id="overlay">
       <div class="modal">
-        <div class="modal-icon" id="overlay-icon">C</div>
+        <div class="modal-icon" id="overlay-icon">🟡</div>
         <h2 id="overlay-title">PAC-MAN</h2>
         <p id="overlay-msg">USE AS SETAS, WASD OU BOTOES</p>
         <p id="overlay-score" class="overlay-score"></p>
-        <button class="btn btn-primary" id="btn-start">INSERT COIN</button>
+        <button class="btn btn-primary" id="btn-start">JOGAR</button>
         <button class="btn btn-whatsapp" id="btn-share">COMPARTILHAR</button>
       </div>
     </div>
@@ -92,7 +92,7 @@
     import { initSidebar } from '../../sidebar.js?v=7';
     initSidebar({ active: 'pacman' });
   </script>
-  <script type="module" src="game.js?v=21"></script>
+  <script type="module" src="game.js?v=22"></script>
   <script type="module" src="../shared/pwa-register.js?v=1"></script>
 
   <section class="game-info" aria-label="Sobre o jogo">
