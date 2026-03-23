@@ -1,38 +1,41 @@
 /* ================================================================
-   NONOGRAM — "Atelier de Pixel Art" by Stitch "The Digital Curator"
-   Light theme · Art studio / Canvas aesthetics
+   NONOGRAM — Cartoon Theme
+   Green background · Beige surfaces · Orange buttons · Nunito font
    ================================================================ */
 
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  --studio-bg: #fef9f1;
-  --surface: #fef9f1;
-  --surface-container: #f2ede5;
-  --surface-container-high: #ece8e0;
-  --primary: #0061a4;
-  --primary-container: #2196f3;
-  --secondary: #b02f00;
-  --secondary-container: #ff5722;
-  --tertiary: #006e1c;
-  --tertiary-container: #42a547;
-  --on-surface: #1d1c17;
+  --bg: #4CAF50;
+  --bg-dark: #388E3C;
+  --surface: #F5E6D0;
+  --surface-container: #EDD9C0;
+  --surface-container-high: #E5CEAF;
+  --primary: #FF5722;
+  --primary-dark: #E64A19;
+  --primary-shadow: #BF360C;
+  --secondary: #8D6E63;
+  --secondary-dark: #5D4037;
+  --tertiary: #4CAF50;
+  --tertiary-dark: #388E3C;
+  --on-surface: #3E2723;
   --on-primary: #ffffff;
-  --outline: #707883;
-  --outline-variant: #bfc7d4;
-  --roundness: 4px;
-  --font-display: 'Plus Jakarta Sans', sans-serif;
-  --font-mono: 'Space Grotesk', sans-serif;
+  --outline: #8D6E63;
+  --outline-variant: #BCAAA4;
+  --roundness: 16px;
+  --font-display: 'Nunito', sans-serif;
+  --font-mono: 'Nunito', sans-serif;
   --cell-size: min(28px, 6.5vw);
   --clue-size: min(24px, 5.5vw);
-  --grid-line: #c4bdb3;
-  --grid-line-thick: #a09889;
-  --filled-pixel: #1d1c17;
-  --filled-glow: rgba(29, 28, 23, 0.12);
-  --mark-color: #b02f00;
-  --error-bg: #fce4ec;
-  --error-color: #c62828;
+  --grid-line: #BCAAA4;
+  --grid-line-thick: #8D6E63;
+  --filled-pixel: #5D4037;
+  --filled-glow: rgba(93, 64, 55, 0.15);
+  --mark-color: #E64A19;
+  --error-bg: #FFCCBC;
+  --error-color: #D32F2F;
   --topbar-height: auto;
+  --border: 3px solid #8D6E63;
 }
 
 /* ===== RESET ===== */
@@ -42,10 +45,13 @@
   padding: 0;
 }
 
-/* ===== BODY — Studio Wall ===== */
+/* ===== BODY ===== */
 body {
   font-family: var(--font-display);
-  background: var(--studio-bg);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(0,0,0,0.06) 0%, transparent 50%);
   color: var(--on-surface);
   min-height: 100dvh;
   display: flex;
@@ -55,102 +61,121 @@ body {
   position: relative;
 }
 
-/* Scanlines overlay removed — visual noise on light backgrounds */
-
-/* ===== TOPBAR — Easel Header ===== */
+/* ===== TOPBAR ===== */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: linear-gradient(135deg, var(--primary) 0%, #004d82 100%);
+  background: var(--primary);
   color: var(--on-primary);
   font-family: var(--font-display);
   flex-shrink: 0;
   position: relative;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 3px solid var(--primary-shadow);
+  box-shadow: 0 4px 0 var(--primary-shadow), 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-back {
   color: var(--on-primary);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.85rem;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--roundness);
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.35rem 0.85rem;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: background 0.2s, transform 0.1s;
   white-space: nowrap;
   font-family: var(--font-display);
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-back:active {
+  transform: translateY(1px);
 }
 
 .game-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
   white-space: nowrap;
   font-family: var(--font-display);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
 }
 
 .stats {
   display: flex;
   gap: 0.8rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   opacity: 0.95;
   white-space: nowrap;
   font-family: var(--font-mono);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* ===== CONTROLS BAR — Paint Palette Toolbar ===== */
+/* ===== CONTROLS BAR ===== */
 .controls-bar {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 0.6rem 1rem;
-  background: var(--surface-container);
-  border-bottom: 1px solid var(--outline-variant);
+  padding: 0.7rem 1rem;
+  background: var(--surface);
+  border-bottom: var(--border);
   flex-wrap: wrap;
   flex-shrink: 0;
   position: relative;
   z-index: 5;
+  box-shadow: 0 4px 0 #5D4037, 0 6px 8px rgba(0, 0, 0, 0.1);
 }
 
 .difficulty-selector {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .diff-btn {
-  padding: 0.35rem 0.85rem;
-  border: 2px solid var(--outline-variant);
-  border-radius: var(--roundness);
+  padding: 0.4rem 0.9rem;
+  border: 3px solid var(--outline);
+  border-radius: 12px;
   background: var(--surface);
   color: var(--on-surface);
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  box-shadow: 0 3px 0 var(--secondary-dark);
 }
 
 .diff-btn:hover {
   background: var(--surface-container-high);
-  border-color: var(--outline);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 var(--secondary-dark);
+}
+
+.diff-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--secondary-dark);
 }
 
 .diff-btn.active {
-  background: var(--secondary);
+  background: var(--primary);
   color: var(--on-primary);
-  border-color: var(--secondary);
-  box-shadow: 0 2px 6px rgba(176, 47, 0, 0.25);
+  border-color: var(--primary-dark);
+  box-shadow: 0 3px 0 var(--primary-shadow), 0 4px 8px rgba(255, 87, 34, 0.25);
+}
+
+.diff-btn.active:active {
+  box-shadow: 0 1px 0 var(--primary-shadow);
 }
 
 .control-buttons {
@@ -159,28 +184,32 @@ body {
 }
 
 .btn-new {
-  background: var(--primary);
+  background: var(--tertiary);
   color: var(--on-primary);
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: var(--roundness);
+  border: 3px solid var(--tertiary-dark);
+  padding: 0.4rem 1.1rem;
+  border-radius: 12px;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 2px 6px rgba(0, 97, 164, 0.2);
+  box-shadow: 0 3px 0 #2E7D32;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 .btn-new:hover {
-  background: #004d82;
+  background: #43A047;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #2E7D32;
 }
 
 .btn-new:active {
-  transform: scale(0.96);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2E7D32;
 }
 
-/* ===== GAME CONTAINER — Canvas on Easel ===== */
+/* ===== GAME CONTAINER ===== */
 .game-container {
   flex: 1;
   display: flex;
@@ -196,27 +225,26 @@ body {
   display: inline-block;
   max-width: 100%;
   overflow: auto;
-  background: #fffdf8;
-  border-radius: calc(var(--roundness) + 2px);
-  padding: min(8px, 1.5vw);
+  background: var(--surface);
+  border-radius: 20px;
+  padding: min(10px, 2vw);
+  border: 3px solid #8D6E63;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 6px 24px rgba(0, 0, 0, 0.08),
-    inset 0 0 0 1px rgba(160, 152, 137, 0.2);
-  border: 2px solid var(--surface-container-high);
+    0 4px 0 #5D4037,
+    0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== NONOGRAM BOARD — Graph Paper Grid ===== */
+/* ===== NONOGRAM BOARD ===== */
 .nonogram-board {
   display: grid;
   gap: 0;
   background: var(--grid-line);
-  border: 2px solid var(--grid-line-thick);
-  border-radius: var(--roundness);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  border: 3px solid var(--grid-line-thick);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-/* ===== CLUE CELLS — Pencil Notes ===== */
+/* ===== CLUE CELLS ===== */
 .clue-cell {
   display: flex;
   align-items: flex-end;
@@ -224,15 +252,15 @@ body {
   background: var(--surface-container);
   padding: 2px;
   font-size: min(0.65rem, 2.8vw);
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-mono);
   color: var(--on-surface);
-  opacity: 0.85;
+  opacity: 0.9;
   flex-direction: column;
   text-align: center;
   min-width: var(--clue-size);
   min-height: var(--clue-size);
-  border: 1px solid rgba(196, 189, 179, 0.5);
+  border: 1px solid rgba(141, 110, 99, 0.3);
 }
 
 .clue-cell.row-clue {
@@ -241,7 +269,7 @@ body {
   justify-content: flex-end;
   gap: 3px;
   padding-right: 5px;
-  background: linear-gradient(90deg, var(--surface-container) 0%, #f7f2ea 100%);
+  background: linear-gradient(90deg, var(--surface-container) 0%, var(--surface) 100%);
 }
 
 .clue-cell.col-clue {
@@ -250,7 +278,7 @@ body {
   justify-content: flex-end;
   gap: 1px;
   padding-bottom: 3px;
-  background: linear-gradient(180deg, var(--surface-container) 0%, #f7f2ea 100%);
+  background: linear-gradient(180deg, var(--surface-container) 0%, var(--surface) 100%);
 }
 
 .clue-cell.corner {
@@ -262,19 +290,19 @@ body {
   opacity: 0.5;
 }
 
-/* ===== GAME CELLS — Pixel Canvas ===== */
+/* ===== GAME CELLS ===== */
 .game-cell {
   width: var(--cell-size);
   height: var(--cell-size);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fffef9;
+  background: #FFF8EE;
   border: 1px solid var(--grid-line);
   cursor: pointer;
-  transition: background 0.1s ease, box-shadow 0.15s ease;
+  transition: background 0.1s ease, box-shadow 0.15s ease, transform 0.1s;
   font-size: min(0.85rem, 3.2vw);
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-mono);
   color: var(--mark-color);
   -webkit-tap-highlight-color: transparent;
@@ -282,23 +310,23 @@ body {
 }
 
 .game-cell:hover {
-  background: #f5f0e6;
-  box-shadow: inset 0 0 0 1px rgba(0, 97, 164, 0.15);
+  background: #F5E6D0;
+  box-shadow: inset 0 0 0 2px rgba(255, 87, 34, 0.2);
 }
 
-/* Filled — Painted pixel with brush stroke feel */
+/* Filled */
 .game-cell.filled {
   background: var(--filled-pixel);
   border-color: rgba(0, 0, 0, 0.2);
   box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.08),
-    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+    inset 2px 2px 0 rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.2);
   transition: background 0.08s ease;
 }
 
 /* Marked — X mark */
 .game-cell.marked {
-  background: #fffef9;
+  background: #FFF8EE;
   color: var(--mark-color);
 }
 
@@ -313,7 +341,7 @@ body {
 .game-cell.filled.row-done,
 .game-cell.correct-row .filled-check {
   background: var(--tertiary);
-  border-color: rgba(0, 110, 28, 0.3);
+  border-color: rgba(56, 142, 60, 0.4);
 }
 
 @keyframes cellShake {
@@ -323,17 +351,17 @@ body {
   75% { transform: translateX(-1px); }
 }
 
-/* ===== MODAL — Glassmorphism Gallery Frame ===== */
+/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(29, 28, 23, 0.55);
+  background: rgba(62, 39, 35, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .modal-overlay.hidden {
@@ -341,19 +369,16 @@ body {
 }
 
 .modal-content {
-  background: rgba(254, 249, 241, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: calc(var(--roundness) * 3);
+  background: var(--surface);
+  border: 3px solid #8D6E63;
+  border-radius: 20px;
   padding: 2rem 2.5rem;
   text-align: center;
-  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   max-width: min(90vw, 380px);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 4px 0 #5D4037,
+    0 12px 32px rgba(0, 0, 0, 0.2);
   color: var(--on-surface);
 }
 
@@ -363,11 +388,11 @@ body {
 
 @keyframes popIn {
   from {
-    transform: scale(0.75);
+    transform: scale(0.7) rotate(-3deg);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
@@ -375,27 +400,37 @@ body {
 .modal-icon {
   font-size: 3.5rem;
   margin-bottom: 0.5rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+  animation: bounce 0.6s ease 0.3s both;
+}
+
+@keyframes bounce {
+  0% { transform: scale(0.5); }
+  50% { transform: scale(1.2); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
 
 .modal-content h2 {
   font-size: 1.7rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.3rem;
   font-family: var(--font-display);
   color: var(--primary);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .modal-content p {
   font-size: 0.95rem;
-  color: var(--outline);
+  color: var(--secondary);
   margin-bottom: 0.3rem;
   font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .modal-stats {
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--on-surface);
   font-family: var(--font-mono);
   margin-bottom: 0.5rem;
@@ -407,88 +442,111 @@ body {
 
 /* ===== BUTTONS ===== */
 .btn {
-  padding: 0.45rem 1.2rem;
-  border: none;
-  border-radius: var(--roundness);
+  padding: 0.5rem 1.3rem;
+  border: 3px solid transparent;
+  border-radius: 14px;
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 0.88rem;
+  font-weight: 800;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
   display: inline-block;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .btn:active {
-  transform: scale(0.96);
+  transform: translateY(2px);
 }
 
 .btn-primary {
   background: var(--primary);
   color: var(--on-primary);
-  box-shadow: 0 2px 8px rgba(0, 97, 164, 0.25);
+  border-color: var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-shadow), 0 6px 12px rgba(255, 87, 34, 0.2);
 }
 
 .btn-primary:hover {
-  background: #004d82;
-  box-shadow: 0 4px 12px rgba(0, 97, 164, 0.35);
+  background: var(--primary-dark);
+  box-shadow: 0 4px 0 var(--primary-shadow), 0 6px 16px rgba(255, 87, 34, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-shadow);
 }
 
 .btn-whatsapp {
   background: var(--tertiary);
   color: var(--on-primary);
-  box-shadow: 0 2px 8px rgba(0, 110, 28, 0.2);
+  border-color: var(--tertiary-dark);
+  box-shadow: 0 4px 0 #2E7D32, 0 6px 12px rgba(76, 175, 80, 0.2);
   margin-top: 0.5rem;
   display: block;
   width: 100%;
 }
 
 .btn-whatsapp:hover {
-  background: #005a16;
+  background: #43A047;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #2E7D32, 0 6px 16px rgba(76, 175, 80, 0.3);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2E7D32;
 }
 
 .btn-orange {
-  background: var(--secondary);
+  background: var(--primary);
   color: var(--on-primary);
-  padding: 0.5rem 1.5rem;
+  padding: 0.55rem 1.5rem;
   font-size: 1rem;
-  border: none;
-  border-radius: var(--roundness);
+  border: 3px solid var(--primary-dark);
+  border-radius: 14px;
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(176, 47, 0, 0.2);
+  box-shadow: 0 4px 0 var(--primary-shadow), 0 6px 12px rgba(255, 87, 34, 0.2);
 }
 
 .btn-orange:hover {
-  background: #8c2500;
+  background: var(--primary-dark);
 }
 
-/* ===== GAME INFO — Curator's Notes ===== */
+.btn-orange:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--primary-shadow);
+}
+
+/* ===== GAME INFO ===== */
 .game-info {
   max-width: 780px;
   margin: 1.2rem auto;
   padding: 1.2rem 1.5rem;
-  background: var(--surface-container);
-  border-radius: calc(var(--roundness) * 2);
+  background: var(--surface);
+  border-radius: 20px;
   color: var(--on-surface);
   font-size: 0.88rem;
   line-height: 1.65;
   font-family: var(--font-display);
-  border: 1px solid var(--outline-variant);
+  font-weight: 700;
+  border: 3px solid #8D6E63;
+  box-shadow: 0 4px 0 #5D4037, 0 6px 12px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1;
 }
 
 .game-info h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   color: var(--primary);
 }
 
 .game-info h3 {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 800;
   margin: 0.8rem 0 0.3rem;
   color: var(--secondary);
 }

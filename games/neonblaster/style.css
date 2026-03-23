@@ -1,28 +1,24 @@
-/* ===== NEON BLASTER — GEOMETRY WARS INSPIRED ===== */
-/* Theme: Deep Space Neon — WebGL Showcase */
+/* ===== NEON BLASTER — CARTOON THEME ===== */
+/* Theme: Cartoon Space Adventure */
 
 /* -- Tokens -- */
 :root {
-  --bg: #050510;
-  --surface: #0a0a1a;
-  --surface-container: #0f0f2a;
-  --surface-high: #161640;
-  --primary: #00ffff;
-  --secondary: #ff00ff;
-  --tertiary: #ffff00;
-  --on-surface: #e0e0ff;
-  --outline: #333366;
-  --danger: #ff3355;
+  --bg: #1A237E;
+  --surface: #F5E6D0;
+  --surface-container: #EFD9BF;
+  --surface-high: #E8CCB0;
+  --primary: #FF5722;
+  --secondary: #FF9800;
+  --tertiary: #FFC107;
+  --on-surface: #3E2723;
+  --on-primary: #FFF;
+  --outline: #8D6E63;
+  --danger: #E53935;
+  --shadow-dark: #5D4037;
+  --shadow-medium: #8D6E63;
 
-  --neon-cyan: #00ffff;
-  --neon-magenta: #ff00ff;
-  --neon-yellow: #ffff00;
-  --neon-green: #00ff66;
-  --neon-red: #ff3355;
-  --neon-orange: #ff8800;
-
-  --font-display: 'VT323', monospace;
-  --font-body: 'Space Grotesk', sans-serif;
+  --font-display: 'Nunito', sans-serif;
+  --font-body: 'Nunito', sans-serif;
 }
 
 /* -- Reset -- */
@@ -54,9 +50,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(255, 0, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(255, 255, 0, 0.02) 0%, transparent 40%);
+    radial-gradient(ellipse at 20% 50%, rgba(255, 87, 34, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 152, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 193, 7, 0.06) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
@@ -67,38 +63,38 @@ body::before {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  background: rgba(5, 5, 16, 0.95);
-  border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+  background: var(--surface);
+  border-bottom: 3px solid var(--outline);
   position: relative;
   z-index: 100;
   min-height: 48px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 0 var(--shadow-dark);
 }
 
 .btn-back {
   color: var(--primary);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.9rem;
   padding: 0.3rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
 .btn-back:hover {
-  background: rgba(0, 255, 255, 0.1);
-  text-shadow: 0 0 8px var(--primary);
+  background: rgba(255, 87, 34, 0.12);
+  color: #E64A19;
 }
 
 .game-title {
   font-family: var(--font-display);
   font-size: 1.4rem;
+  font-weight: 800;
   color: var(--primary);
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   text-transform: uppercase;
+  text-shadow: 2px 2px 0 var(--shadow-dark);
 }
 
 .stats {
@@ -110,16 +106,19 @@ body::before {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  background: rgba(0, 255, 255, 0.06);
-  border: 1px solid rgba(0, 255, 255, 0.15);
+  background: var(--surface-container);
+  border: 3px solid var(--outline);
   padding: 0.25rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 12px;
   font-family: var(--font-display);
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--shadow-dark);
 }
 
 .score-box.best {
-  background: rgba(255, 255, 0, 0.06);
-  border-color: rgba(255, 255, 0, 0.2);
+  background: #FFF8E1;
+  border-color: #F9A825;
+  box-shadow: 0 3px 0 #F57F17;
 }
 
 .score-icon {
@@ -128,13 +127,12 @@ body::before {
 
 .score-value {
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--on-surface);
 }
 
 .neon-text {
   color: var(--primary);
-  text-shadow: 0 0 6px rgba(0, 255, 255, 0.6);
 }
 
 /* -- Game Container -- */
@@ -176,23 +174,22 @@ body::before {
 }
 
 .glass-overlay {
-  background: rgba(5, 5, 16, 0.85);
+  background: rgba(26, 35, 126, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 .glass-modal {
-  background: rgba(10, 10, 30, 0.9);
-  border: 1px solid rgba(0, 255, 255, 0.2);
-  border-radius: 16px;
+  background: var(--surface);
+  border: 3px solid var(--outline);
+  border-radius: 20px;
   padding: 2rem 2.5rem;
   text-align: center;
   max-width: 380px;
   width: 90%;
   box-shadow:
-    0 0 30px rgba(0, 255, 255, 0.1),
-    0 0 60px rgba(255, 0, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 6px 0 var(--shadow-dark),
+    0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .modal-icon {
@@ -209,16 +206,18 @@ body::before {
 .modal-title {
   font-family: var(--font-display);
   font-size: 2rem;
+  font-weight: 800;
   color: var(--primary);
-  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  text-shadow: 2px 2px 0 var(--shadow-dark);
   margin-bottom: 0.5rem;
-  letter-spacing: 3px;
+  letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .modal-subtitle {
-  color: rgba(224, 224, 255, 0.7);
+  color: #6D4C41;
   font-size: 0.85rem;
+  font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.4;
 }
@@ -226,54 +225,60 @@ body::before {
 .overlay-score {
   font-family: var(--font-display);
   font-size: 1.3rem;
+  font-weight: 800;
   margin-bottom: 1rem;
   min-height: 1.5em;
 }
 
 .neon-score {
-  color: var(--tertiary);
-  text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+  color: var(--primary);
+  text-shadow: 1px 1px 0 var(--shadow-dark);
 }
 
 /* -- Buttons -- */
 .btn {
   display: inline-block;
   padding: 0.7rem 2rem;
-  border: none;
-  border-radius: 10px;
+  border: 3px solid transparent;
+  border-radius: 16px;
   font-family: var(--font-body);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), #0088aa);
-  color: #050510;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: #BF360C;
+  box-shadow: 0 4px 0 #BF360C;
 }
 
 .btn-primary:hover {
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  background: #F4511E;
   transform: translateY(-2px);
+  box-shadow: 0 6px 0 #BF360C;
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #BF360C;
 }
 
 .btn-whatsapp {
-  background: linear-gradient(135deg, #25D366, #128C7E);
+  background: #25D366;
   color: #fff;
-  box-shadow: 0 0 15px rgba(37, 211, 102, 0.2);
+  border-color: #128C7E;
+  box-shadow: 0 4px 0 #128C7E;
 }
 
 .btn-whatsapp:hover {
-  box-shadow: 0 0 25px rgba(37, 211, 102, 0.4);
+  background: #2BE06F;
   transform: translateY(-2px);
+  box-shadow: 0 6px 0 #128C7E;
 }
 
 /* -- Mobile Joysticks -- */
@@ -296,34 +301,35 @@ body::before {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: rgba(0, 255, 255, 0.08);
-  border: 2px solid rgba(0, 255, 255, 0.2);
+  background: rgba(245, 230, 208, 0.25);
+  border: 3px solid var(--outline);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  box-shadow: 0 3px 0 var(--shadow-dark);
 }
 
 .joystick-knob {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(0, 255, 255, 0.25);
-  border: 2px solid rgba(0, 255, 255, 0.5);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  background: var(--primary);
+  border: 3px solid #BF360C;
+  box-shadow: 0 3px 0 #BF360C;
   position: absolute;
   transition: none;
 }
 
 .joystick-right .joystick-base {
-  background: rgba(255, 0, 255, 0.08);
-  border-color: rgba(255, 0, 255, 0.2);
+  background: rgba(255, 152, 0, 0.2);
+  border-color: var(--secondary);
 }
 
 .joystick-right .joystick-knob {
-  background: rgba(255, 0, 255, 0.25);
-  border-color: rgba(255, 0, 255, 0.5);
-  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+  background: var(--secondary);
+  border-color: #E65100;
+  box-shadow: 0 3px 0 #E65100;
 }
 
 /* -- Bomb Button -- */
@@ -336,17 +342,18 @@ body::before {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(255, 255, 0, 0.15);
-  border: 2px solid rgba(255, 255, 0, 0.4);
+  background: var(--tertiary);
+  border: 3px solid #F9A825;
   font-size: 1.5rem;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+  box-shadow: 0 4px 0 #F57F17;
   touch-action: manipulation;
 }
 
 .bomb-button:active {
-  background: rgba(255, 255, 0, 0.35);
-  box-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
+  background: #FFD54F;
+  transform: translateX(-50%) translateY(2px);
+  box-shadow: 0 1px 0 #F57F17;
 }
 
 /* -- Responsive -- */
