@@ -129,6 +129,7 @@
       <span class="coin-icon">🪙</span>
       <span id="coin-balance">0</span>
     </div>
+    <button class="notification-bell" id="notification-bell" title="Notificações" aria-label="Notificações">🔔</button>
     <div class="header-auth" id="header-auth"></div>
   </header>
 
@@ -1094,120 +1095,10 @@
 
     loadLiveRooms();
 
-    // ===== ACTIVITY FEED =====
-    async function loadActivityFeed() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        document.getElementById('activity-feed-list').innerHTML = `
-          <div class="activity-feed-empty">
-            <div class="activity-feed-empty-icon">🔒</div>
-            <p>Faça login para ver as atividades dos seus amigos</p>
-            <a href="auth.html" class="btn btn-primary" style="margin-top:1rem">Entrar</a>
-          </div>
-        `;
-        return;
-      }
-
-      try {
-        // Busca atividades dos amigos nas últimas 24h
-        const { data: friends } = await supabase
-          .from('friendships')
-          .select('friend_id')
-          .eq('user_id', session.user.id)
-          .eq('status', 'accepted');
-
-        if (!friends || friends.length === 0) {
-          document.getElementById('activity-feed-list').innerHTML = `
-            <div class="activity-feed-empty">
-              <div class="activity-feed-empty-icon">👥</div>
-              <p>Você ainda não tem amigos</p>
-              <a href="social.html" class="btn btn-primary" style="margin-top:1rem">Encontrar Amigos</a>
-            </div>
-          `;
-          return;
-        }
-
-        const friendIds = friends.map(f => f.friend_id);
-        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-        const { data: activities } = await supabase
-          .from('game_stats')
-          .select('user_id, game, result, time_seconds, created_at')
-          .in('user_id', friendIds)
-          .gte('created_at', cutoff)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, display_name')
-          .in('id', friendIds);
-
-        const profileMap = new Map(profiles?.map(p => [p.id, p.display_name]) || []);
-
-        const gameIcons = {
-          solitaire: '🃏', freecell: '🂡', blackjack: '🃏', truco: '🂠', uno: '🟥', pyramid: '🔺',
-          memory: '🧠', minesweeper: '💣', game2048: '🔢', sudoku: '🔢', puzzle15: '🧩',
-          nonogram: '🖼️', mahjong: '🀄', lightsout: '💡', sokoban: '📦',
-          snake: '🐍', tetris: '🧱', flappybird: '🐦', pong: '🏓', breakout: '🧱',
-          dinorunner: '🦕', spaceinvaders: '👾', pacman: '🟡',
-          checkers: '⚫', tictactoe: '❌', reversi: '⚪', chess: '♟️', battleship: '🚢',
-          connect4: '🔴', go: '⚫', ludo: '🎲', domino: '🁣',
-          termo: '📝', hangman: '🔤', wordsearch: '🔍', anagram: '🔀', stopgame: '✋',
-          cookieclicker: '🍪', sinuca: '🎱'
-        };
-
-        function getTimeAgo(date) {
-          const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
-          if (seconds < 60) return 'agora';
-          if (seconds < 3600) return `${Math.floor(seconds / 60)} min atrás`;
-          if (seconds < 86400) return `${Math.floor(seconds / 3600)} h atrás`;
-          return `${Math.floor(seconds / 86400)} d atrás`;
-        }
-
-        if (!activities || activities.length === 0) {
-          document.getElementById('activity-feed-list').innerHTML = `
-            <div class="activity-feed-empty">
-              <div class="activity-feed-empty-icon">🎮</div>
-              <p>Seus amigos ainda não jogaram hoje</p>
-            </div>
-          `;
-          return;
-        }
-
-        const activityHtml = activities.slice(0, 5).map(activity => {
-          const name = profileMap.get(activity.user_id) || 'Amigo';
-          const gameName = activity.game.charAt(0).toUpperCase() + activity.game.slice(1);
-          const icon = gameIcons[activity.game] || '🎮';
-          const timeAgo = getTimeAgo(activity.created_at);
-          const action = activity.result === 'win' ? 'venceu' : 'jogou';
-
-          return `
-            <div class="activity-item" role="listitem">
-              <a href="perfil-publico.html?id=${activity.user_id}" class="activity-avatar" title="${name}">
-                ${name[0].toUpperCase()}
-              </a>
-              <div class="activity-content">
-                <div class="activity-text">
-                  <strong>${name}</strong> ${action} no <a href="games/${activity.game}/index.html">${gameName}</a>
-                </div>
-                <div class="activity-time">${timeAgo}</div>
-              </div>
-              <span class="activity-game-icon">${icon}</span>
-            </div>
-          `;
-        }).join('');
-
-        document.getElementById('activity-feed-list').innerHTML = activityHtml;
-      } catch (error) {
-        console.error('Erro ao carregar feed:', error);
-        document.getElementById('activity-feed-list').innerHTML = `
-          <div class="activity-feed-empty">Não foi possível carregar as atividades</div>
-        `;
-      }
-    }
-
-    loadActivityFeed();
+  </script>
+  <script type="module">
+    import { initLiveFeed } from './games/shared/live-feed.js';
+    initLiveFeed('activity-feed-list');
   </script>
   <script src="toast-notification.js"></script>
   <script type="module">
@@ -1348,6 +1239,80 @@
       widgetEl.classList.add('daily-widget-completed');
       if (btnEl) btnEl.textContent = '\u2705 Conclu\u00EDdo';
     }
+  </script>
+  <script type="module">
+    import { pushManager } from './games/shared/push-manager.js';
+
+    // Show opt-in prompt if not yet decided
+    const bellEl = document.getElementById('notification-bell');
+
+    if (pushManager.isSupported()) {
+      if (pushManager.isEnabled()) {
+        if (bellEl) bellEl.classList.add('active');
+        pushManager.startScheduledChecks();
+      } else if (Notification.permission !== 'denied') {
+        // Show a subtle opt-in after 10 seconds (only if not dismissed before)
+        if (localStorage.getItem('gamehub_push_dismissed') !== 'true') {
+          setTimeout(() => {
+            const banner = document.createElement('div');
+            banner.className = 'push-banner';
+            banner.innerHTML = `
+              <span>\u{1F514} Ative notifica\u00E7\u00F5es para lembrar da sua streak e desafios di\u00E1rios!</span>
+              <button class="push-banner-btn" id="push-enable">Ativar</button>
+              <button class="push-banner-close" id="push-dismiss">\u2715</button>
+            `;
+            document.body.appendChild(banner);
+
+            requestAnimationFrame(() => banner.classList.add('show'));
+
+            document.getElementById('push-enable').addEventListener('click', async () => {
+              const ok = await pushManager.requestPermission();
+              banner.classList.remove('show');
+              setTimeout(() => banner.remove(), 300);
+              if (ok) {
+                if (bellEl) bellEl.classList.add('active');
+                pushManager.startScheduledChecks();
+                if (window.showToast) window.showToast('Notifica\u00E7\u00F5es ativadas!', 'success');
+              }
+            });
+
+            document.getElementById('push-dismiss').addEventListener('click', () => {
+              banner.classList.remove('show');
+              setTimeout(() => banner.remove(), 300);
+              localStorage.setItem('gamehub_push_dismissed', 'true');
+            });
+          }, 10000);
+        }
+      }
+
+      // Bell click toggles notifications
+      if (bellEl) {
+        bellEl.addEventListener('click', async () => {
+          if (pushManager.isEnabled()) {
+            pushManager.disable();
+            bellEl.classList.remove('active');
+            if (window.showToast) window.showToast('Notifica\u00E7\u00F5es desativadas', 'info');
+          } else if (Notification.permission !== 'denied') {
+            const ok = await pushManager.requestPermission();
+            if (ok) {
+              bellEl.classList.add('active');
+              pushManager.startScheduledChecks();
+              if (window.showToast) window.showToast('Notifica\u00E7\u00F5es ativadas!', 'success');
+            }
+          } else {
+            if (window.showToast) window.showToast('Notifica\u00E7\u00F5es bloqueadas pelo navegador. Altere nas configura\u00E7\u00F5es.', 'warning');
+          }
+        });
+      }
+    } else {
+      // Hide bell if push not supported
+      if (bellEl) bellEl.style.display = 'none';
+    }
+  </script>
+  <script type="module">
+    import { achievementManager } from './games/shared/achievement-manager.js';
+    // Check achievements on homepage load (aggregate check)
+    achievementManager.checkAchievements();
   </script>
 </body>
 </html>

@@ -226,52 +226,61 @@ async function syncScores() {
   console.log('[SW] Sincronizando scores...');
 }
 
-// Push notifications (para desafio diário e social)
+// =============================================
+// Push Notification Handlers
+// =============================================
+
 self.addEventListener('push', (event) => {
-  const data = event.data?.json() || {};
+  let data = { title: 'Games Hub', body: 'Confira as novidades!' };
+
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch {
+      data.body = event.data.text();
+    }
+  }
 
   // Configurações baseadas no tipo de notificação
-  let actions = [];
-  let url = '/';
+  let actions = data.actions || [];
+  let url = data.data?.url || '/';
 
-  switch (data.type) {
-    case 'friend_request':
-      actions = [
-        { action: 'accept', title: 'Aceitar' },
-        { action: 'decline', title: 'Recusar' }
-      ];
-      url = '/social.html?tab=requests';
-      break;
-    case 'challenge':
-      actions = [
-        { action: 'accept', title: 'Aceitar Desafio' },
-        { action: 'decline', title: 'Recusar' }
-      ];
-      url = `/multiplayer.html?room=${data.roomId || ''}`;
-      break;
-    case 'friend_online':
-      actions = [
-        { action: 'challenge', title: 'Desafiar' },
-        { action: 'close', title: 'Fechar' }
-      ];
-      url = `/perfil-publico.html?id=${data.userId || ''}`;
-      break;
-    default:
-      actions = [
-        { action: 'play', title: 'Jogar' },
-        { action: 'close', title: 'Fechar' }
-      ];
-      url = '/games/termo/';
+  if (data.type && !data.actions) {
+    switch (data.type) {
+      case 'friend_request':
+        actions = [
+          { action: 'accept', title: 'Aceitar' },
+          { action: 'decline', title: 'Recusar' }
+        ];
+        url = '/social.html?tab=requests';
+        break;
+      case 'challenge':
+        actions = [
+          { action: 'accept', title: 'Aceitar Desafio' },
+          { action: 'decline', title: 'Recusar' }
+        ];
+        url = `/multiplayer.html?room=${data.roomId || ''}`;
+        break;
+      case 'friend_online':
+        actions = [
+          { action: 'challenge', title: 'Desafiar' },
+          { action: 'close', title: 'Fechar' }
+        ];
+        url = `/perfil-publico.html?id=${data.userId || ''}`;
+        break;
+    }
   }
 
   event.waitUntil(
     self.registration.showNotification(data.title || 'Games Hub', {
       body: data.body || 'Novo desafio disponível!',
-      icon: '/icon-192x192.png',
-      badge: '/icon-72x72.png',
-      tag: data.tag || 'default',
+      icon: '/icon.svg',
+      badge: '/icon.svg',
+      vibrate: [100, 50, 100],
+      tag: data.tag || 'gameshub-notification',
+      renotify: true,
       requireInteraction: data.type === 'friend_request' || data.type === 'challenge',
-      data: { url, type: data.type },
+      data: { url, type: data.type, ...data.data },
       actions
     })
   );
@@ -280,11 +289,20 @@ self.addEventListener('push', (event) => {
 // Clique na notificação
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const data = event.notification.data || {};
 
-  if (event.action === 'accept' || event.action === 'challenge' || !event.action) {
-    event.waitUntil(
-      clients.openWindow(data.url || '/')
-    );
-  }
+  const url = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Focus existing tab if open
+      for (const client of windowClients) {
+        if (client.url.includes('gameshub') && 'focus' in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // Open new tab
+      return clients.openWindow(url);
+    })
+  );
 });
