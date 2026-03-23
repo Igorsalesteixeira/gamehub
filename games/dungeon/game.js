@@ -430,6 +430,12 @@ function computeVisibility() {
 function drawVisibleWorld() {
   tileGfx.clear();
 
+  // === DIAGNOSTIC: bright red square at player position ===
+  tileGfx.beginFill(0xff0000);
+  tileGfx.drawRect(player.x * TILE - TILE * 2, player.y * TILE - TILE * 2, TILE * 5, TILE * 5);
+  tileGfx.endFill();
+  // === END DIAGNOSTIC ===
+
   const playerCX = player.x * TILE + TILE / 2;
   const playerCY = player.y * TILE + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
