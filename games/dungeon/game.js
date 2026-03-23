@@ -399,53 +399,50 @@ function buildWorld() {
   worldContainer.addChild(fogGfx); // Fog on top of everything in world
 }
 
-// ── Draw visible tiles with lighting baked in ──
+// ── Visibility: raycast from player ──
+function computeVisibility() {
+  visibleSet = new Set();
+  const cx = player.x * TILE + TILE / 2;
+  const cy = player.y * TILE + TILE / 2;
+  const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
+  const lr = (lightRadius + flicker) * TILE;
+
+  const rayCount = 180;
+  for (let r = 0; r < rayCount; r++) {
+    const angle = (r / rayCount) * Math.PI * 2;
+    const rdx = Math.cos(angle);
+    const rdy = Math.sin(angle);
+    for (let dist = 0; dist < lr; dist += TILE * 0.4) {
+      const wx = cx + rdx * dist;
+      const wy = cy + rdy * dist;
+      const tx = Math.floor(wx / TILE);
+      const ty = Math.floor(wy / TILE);
+      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) break;
+      const idx = ty * mapW + tx;
+      visibleSet.add(idx);
+      explored[idx] = true;
+      if (tiles[idx] === TILE_WALL) break;
+    }
+  }
+}
+
+// ── Draw tiles ──
 function drawVisibleWorld() {
   tileGfx.clear();
 
-  // Use player grid position for visibility (avoids px/py mismatch during animation)
   const playerCX = player.x * TILE + TILE / 2;
   const playerCY = player.y * TILE + TILE / 2;
   const flicker = Math.sin(flickerTime * 3) * 0.15 + Math.sin(flickerTime * 7.3) * 0.08;
   const lr = (lightRadius + flicker) * TILE;
-  const lrSq = lr * lr;
 
-  // Mark tiles within light radius as visible+explored (simple distance check)
-  visibleSet = new Set();
-  const ptx = player.x;
-  const pty = player.y;
-  const tileRadius = lightRadius + 2;
-  for (let dy = -tileRadius; dy <= tileRadius; dy++) {
-    for (let dx = -tileRadius; dx <= tileRadius; dx++) {
-      const tx = ptx + dx;
-      const ty = pty + dy;
-      if (tx < 0 || tx >= mapW || ty < 0 || ty >= mapH) continue;
-      const tileCX = tx * TILE + TILE / 2;
-      const tileCY = ty * TILE + TILE / 2;
-      const distSq = (tileCX - playerCX) ** 2 + (tileCY - playerCY) ** 2;
-      if (distSq <= lrSq) {
-        const idx = ty * mapW + tx;
-        visibleSet.add(idx);
-        explored[idx] = true;
-      }
-    }
-  }
+  // Draw ALL tiles around the player (no camera viewport dependency)
+  const drawRadius = lightRadius + 4;
+  for (let dy = -drawRadius; dy <= drawRadius; dy++) {
+    for (let dx = -drawRadius; dx <= drawRadius; dx++) {
+      const x = player.x + dx;
+      const y = player.y + dy;
+      if (x < 0 || x >= mapW || y < 0 || y >= mapH) continue;
 
-  // Draw tiles in camera viewport
-  const sw = app.screen.width;
-  const sh = app.screen.height;
-  const camX = -worldContainer.x / worldScale;
-  const camY = -worldContainer.y / worldScale;
-  const viewW = sw / worldScale;
-  const viewH = sh / worldScale;
-
-  const startTX = Math.max(0, Math.floor(camX / TILE) - 1);
-  const startTY = Math.max(0, Math.floor(camY / TILE) - 1);
-  const endTX = Math.min(mapW, Math.ceil((camX + viewW) / TILE) + 1);
-  const endTY = Math.min(mapH, Math.ceil((camY + viewH) / TILE) + 1);
-
-  for (let y = startTY; y < endTY; y++) {
-    for (let x = startTX; x < endTX; x++) {
       const idx = y * mapW + x;
       const t = tiles[idx];
       const px = x * TILE;
@@ -1210,7 +1207,8 @@ function gameLoop(ticker) {
   updateParticles(dt);
   updateCamera(false);
 
-  // Draw world with inline visibility computation
+  // Compute visibility then draw
+  computeVisibility();
   drawVisibleWorld();
   drawEntities();
   drawParticles();
