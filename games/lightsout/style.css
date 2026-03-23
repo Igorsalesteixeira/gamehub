@@ -1,34 +1,34 @@
 /* ============================================================
-   Lights Out — "Neon Switchboard: Control Room"
-   Stitch Design System — The Analog-Digital Nexus
+   Lights Out — Cartoon Theme
+   Playful, bold, hand-drawn feel with Nunito font
    ============================================================ */
-
 
 /* ===== DESIGN TOKENS ===== */
 :root {
-  --color-background: #10141a;
-  --color-surface: #10141a;
-  --color-surface-container: #1c2026;
-  --color-surface-container-high: #262a31;
-  --color-primary-on: #00ff88;
-  --color-primary-container: #00ff88;
-  --color-primary-off: #1c2026;
-  --color-secondary: #9be1ff;
-  --color-secondary-bright: #00cbfe;
-  --color-tertiary: #ffcc00;
-  --color-on-surface: #dfe2eb;
-  --color-on-primary: #003919;
-  --color-outline: #849585;
-  --color-outline-variant: #3b4b3d;
-  --roundness: 0px;
-  --font-display: 'Share Tech Mono', monospace;
-  --font-body: 'Space Grotesk', sans-serif;
-  --glow-green: 0 0 12px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.2);
-  --glow-green-intense: 0 0 8px rgba(0, 255, 136, 0.7), 0 0 24px rgba(0, 255, 136, 0.45), 0 0 60px rgba(0, 255, 136, 0.2);
-  --glow-blue: 0 0 10px rgba(0, 203, 254, 0.4), 0 0 30px rgba(0, 203, 254, 0.15);
-  --glow-gold: 0 0 8px rgba(255, 204, 0, 0.35);
-  --rivet-shadow: inset 3px 3px 0 rgba(255, 255, 255, 0.04),
-                  inset -3px -3px 0 rgba(0, 0, 0, 0.3);
+  --color-background: #1565C0;
+  --color-surface: #F5E6D0;
+  --color-surface-dark: #E8D5BC;
+  --color-primary: #FF5722;
+  --color-primary-dark: #D84315;
+  --color-primary-shadow: #BF360C;
+  --color-on-primary: #fff;
+  --color-on-surface: #3E2723;
+  --color-on-surface-muted: #5D4037;
+  --color-border: #8D6E63;
+  --color-border-dark: #5D4037;
+  --color-cell-on: #FFD54F;
+  --color-cell-on-bright: #FFEB3B;
+  --color-cell-on-shadow: #F9A825;
+  --color-cell-off: #1A237E;
+  --color-cell-off-light: #283593;
+  --color-cell-off-shadow: #0D1642;
+  --color-accent-green: #4CAF50;
+  --color-accent-green-dark: #2E7D32;
+  --color-whatsapp: #25D366;
+  --roundness: 16px;
+  --roundness-lg: 20px;
+  --font-display: 'Nunito', sans-serif;
+  --font-body: 'Nunito', sans-serif;
   --cell-size: min(56px, 15vw);
 }
 
@@ -39,10 +39,13 @@
   padding: 0;
 }
 
-/* ===== BODY — Control Room ===== */
+/* ===== BODY ===== */
 body {
   font-family: var(--font-body);
   background: var(--color-background);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
   color: var(--color-on-surface);
   min-height: 100vh;
   min-height: 100dvh;
@@ -53,74 +56,49 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanlines overlay removed — visual noise on light backgrounds */
-
-/* Circuit trace glow decoration */
+/* Remove old overlays */
 body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 2001;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, transparent 49.5%, rgba(255, 204, 0, 0.03) 49.5%, rgba(255, 204, 0, 0.03) 50.5%, transparent 50.5%),
-    linear-gradient(0deg, transparent 49.5%, rgba(255, 204, 0, 0.03) 49.5%, rgba(255, 204, 0, 0.03) 50.5%, transparent 50.5%),
-    radial-gradient(ellipse at 20% 80%, rgba(255, 204, 0, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
-  background-size: 120px 120px, 120px 120px, 100% 100%, 100% 100%;
+  display: none;
 }
 
 /* ===== TOPBAR ===== */
 .topbar {
   width: 100%;
-  background: linear-gradient(180deg, var(--color-surface-container-high) 0%, var(--color-surface-container) 100%);
+  background: var(--color-surface);
   padding: 0.8rem 1.2rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-bottom: 1px solid var(--color-outline-variant);
+  border-bottom: 3px solid var(--color-border);
   position: relative;
   z-index: 10;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 2px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 0 var(--color-border-dark);
 }
 
 .topbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-primary-on), transparent);
-  opacity: 0.3;
+  display: none;
 }
 
 .back-btn {
-  color: var(--color-secondary);
+  color: var(--color-primary);
   text-decoration: none;
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-  transition: color 0.2s, text-shadow 0.2s;
+  font-weight: 800;
+  font-size: 0.95rem;
+  transition: color 0.2s, transform 0.2s;
   border-radius: var(--roundness);
 }
 
 .back-btn:hover {
-  color: var(--color-secondary-bright);
-  text-shadow: var(--glow-blue);
+  color: var(--color-primary-dark);
+  transform: scale(1.05);
 }
 
 .topbar h1 {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--color-primary-on);
-  text-shadow: var(--glow-green);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
 }
 
 /* ===== GAME CONTAINER ===== */
@@ -140,315 +118,200 @@ body::after {
 .info {
   font-family: var(--font-display);
   font-size: 1rem;
-  color: var(--color-secondary);
-  letter-spacing: 1px;
-  text-shadow: var(--glow-blue);
-  background: var(--color-surface-container);
-  padding: 0.5rem 1.2rem;
-  border: 1px solid var(--color-outline-variant);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+  padding: 0.55rem 1.3rem;
+  border: 3px solid var(--color-border);
   border-radius: var(--roundness);
-  box-shadow:
-    var(--rivet-shadow),
-    0 0 20px rgba(0, 203, 254, 0.05);
+  box-shadow: 0 4px 0 var(--color-border-dark);
   position: relative;
 }
 
-/* Corner rivets on info panel */
+/* Remove old rivets */
 .info::before,
 .info::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #555 30%, #333 70%);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.info::before {
-  top: 5px;
-  left: 6px;
-}
-
-.info::after {
-  top: 5px;
-  right: 6px;
+  display: none;
 }
 
 #level {
-  color: var(--color-tertiary);
-  text-shadow: var(--glow-gold);
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 #moves {
-  color: var(--color-secondary-bright);
+  color: var(--color-on-surface-muted);
+  font-weight: 700;
 }
 
-/* ===== BOARD — 5x5 Control Panel ===== */
+/* ===== BOARD ===== */
 .board {
   display: grid;
   grid-template-columns: repeat(5, var(--cell-size));
   grid-template-rows: repeat(5, var(--cell-size));
   gap: 6px;
   padding: 16px;
-  background: var(--color-surface-container);
-  border: 2px solid var(--color-outline-variant);
-  border-radius: var(--roundness);
-  box-shadow:
-    var(--rivet-shadow),
-    0 4px 24px rgba(0, 0, 0, 0.5),
-    0 0 1px rgba(0, 255, 136, 0.1);
+  background: var(--color-surface);
+  border: 3px solid var(--color-border);
+  border-radius: var(--roundness-lg);
+  box-shadow: 0 6px 0 var(--color-border-dark), 0 10px 20px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
-/* Allen screw rivets at board corners */
+/* Remove old Allen screw rivets */
 .board::before,
 .board::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 35%, #4a4a4a 0%, #2a2a2a 50%, #1a1a1a 100%);
-  box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.15),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.6),
-    0 1px 3px rgba(0, 0, 0, 0.6);
-  z-index: 2;
+  display: none;
 }
 
-.board::before {
-  top: 3px;
-  left: 3px;
-  box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.15),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.6),
-    0 1px 3px rgba(0, 0, 0, 0.6),
-    /* bottom-right rivet via box-shadow trick */
-    calc(100% + var(--cell-size) * 5 + 6px * 4 + 16px - 6px) calc(100% + var(--cell-size) * 5 + 6px * 4 + 16px - 6px) 0 0 #2a2a2a;
-}
-
-.board::after {
-  top: 3px;
-  right: 3px;
-}
-
-/* ===== CELL — Industrial Light Switch ===== */
+/* ===== CELL ===== */
 .cell {
   width: var(--cell-size);
   height: var(--cell-size);
-  border-radius: var(--roundness);
+  border-radius: 12px;
   cursor: pointer;
   position: relative;
   transition:
     background-color 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.1s ease;
-  border: 2px solid var(--color-outline-variant);
+  border: 3px solid transparent;
   overflow: hidden;
 }
 
-/* Metal housing inner bevel */
+/* Remove old pseudo-elements */
 .cell::before {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: var(--roundness);
-  pointer-events: none;
-  transition: opacity 0.15s ease;
+  display: none;
 }
 
-/* LED indicator dot */
 .cell::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 30%;
-  height: 30%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  pointer-events: none;
-  transition:
-    background 0.15s ease,
-    box-shadow 0.2s ease;
+  display: none;
 }
 
-/* ===== CELL OFF — Smoked Glass / Matte Metal ===== */
+/* ===== CELL OFF ===== */
 .cell.off {
-  background: linear-gradient(
-    145deg,
-    var(--color-surface-container-high) 0%,
-    var(--color-primary-off) 100%
-  );
-  border-color: #2a3035;
+  background: linear-gradient(145deg, var(--color-cell-off-light) 0%, var(--color-cell-off) 100%);
+  border-color: var(--color-cell-off-shadow);
   box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.4),
-    inset 0 -1px 2px rgba(255, 255, 255, 0.03);
+    0 3px 0 var(--color-cell-off-shadow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.05);
 }
 
-.cell.off::before {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
-}
+.cell.off::before { display: none; }
+.cell.off::after { display: none; }
 
-.cell.off::after {
-  background: radial-gradient(circle, #2a3035 30%, #1c2026 70%);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-/* ===== CELL ON — Green LED with Intense Glow ===== */
+/* ===== CELL ON ===== */
 .cell.on {
-  background: linear-gradient(
-    145deg,
-    #00ff88 0%,
-    #00dd77 40%,
-    #00bb66 100%
-  );
-  border-color: #00ff88;
+  background: linear-gradient(145deg, var(--color-cell-on-bright) 0%, var(--color-cell-on) 60%, var(--color-cell-on-shadow) 100%);
+  border-color: var(--color-cell-on-shadow);
   box-shadow:
-    0 0 8px rgba(0, 255, 136, 0.6),
-    0 0 24px rgba(0, 255, 136, 0.35),
-    0 0 48px rgba(0, 255, 136, 0.15),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
-  animation: led-pulse 2s ease-in-out infinite;
+    0 3px 0 var(--color-cell-on-shadow),
+    0 0 16px rgba(255, 213, 79, 0.5),
+    0 0 32px rgba(255, 213, 79, 0.2);
+  animation: cartoon-glow 2s ease-in-out infinite;
 }
 
-.cell.on::before {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
-}
+.cell.on::before { display: none; }
+.cell.on::after { display: none; }
 
-/* Metal reflection on ON state */
-.cell.on::after {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 10%, rgba(0, 255, 136, 0.8) 50%, transparent 70%);
-  box-shadow:
-    0 0 6px rgba(0, 255, 136, 0.8),
-    0 0 16px rgba(0, 255, 136, 0.4);
-}
-
-/* LED breathing pulse */
-@keyframes led-pulse {
+@keyframes cartoon-glow {
   0%, 100% {
     box-shadow:
-      0 0 8px rgba(0, 255, 136, 0.6),
-      0 0 24px rgba(0, 255, 136, 0.35),
-      0 0 48px rgba(0, 255, 136, 0.15),
-      inset 0 2px 4px rgba(255, 255, 255, 0.2),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+      0 3px 0 var(--color-cell-on-shadow),
+      0 0 16px rgba(255, 213, 79, 0.5),
+      0 0 32px rgba(255, 213, 79, 0.2);
   }
   50% {
     box-shadow:
-      0 0 12px rgba(0, 255, 136, 0.7),
-      0 0 32px rgba(0, 255, 136, 0.45),
-      0 0 56px rgba(0, 255, 136, 0.2),
-      inset 0 2px 4px rgba(255, 255, 255, 0.25),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+      0 3px 0 var(--color-cell-on-shadow),
+      0 0 22px rgba(255, 213, 79, 0.65),
+      0 0 40px rgba(255, 213, 79, 0.3);
   }
 }
 
-/* Toggle press — electric flash */
+/* Toggle press */
 .cell:active {
-  transform: scale(0.92);
+  transform: scale(0.9) translateY(2px);
   transition: transform 0.05s ease;
 }
 
 .cell.on:active {
   box-shadow:
-    0 0 20px rgba(0, 255, 136, 1),
-    0 0 50px rgba(0, 255, 136, 0.6),
-    0 0 80px rgba(0, 255, 136, 0.3),
-    inset 0 0 15px rgba(255, 255, 255, 0.4);
+    0 1px 0 var(--color-cell-on-shadow),
+    0 0 24px rgba(255, 213, 79, 0.8);
 }
 
 .cell.off:active {
   box-shadow:
-    0 0 15px rgba(0, 255, 136, 0.5),
-    0 0 30px rgba(0, 255, 136, 0.2),
-    inset 0 0 10px rgba(0, 255, 136, 0.15);
-  background: linear-gradient(
-    145deg,
-    #1e2830 0%,
-    var(--color-primary-off) 100%
-  );
+    0 1px 0 var(--color-cell-off-shadow);
+  transform: scale(0.9) translateY(2px);
 }
 
 /* ===== BUTTONS ===== */
 .btn {
-  padding: 0.65rem 1.5rem;
-  background: linear-gradient(180deg, var(--color-surface-container-high) 0%, var(--color-surface-container) 100%);
-  color: var(--color-on-surface);
-  border: 1px solid var(--color-outline-variant);
+  padding: 0.7rem 1.5rem;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: 3px solid var(--color-primary-dark);
   border-radius: var(--roundness);
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 0.9rem;
-  letter-spacing: 0.8px;
+  font-weight: 800;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   text-transform: uppercase;
-  box-shadow:
-    var(--rivet-shadow),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 var(--color-primary-shadow);
   position: relative;
+  letter-spacing: 0.5px;
 }
 
 .btn:hover {
-  border-color: var(--color-outline);
-  color: var(--color-secondary-bright);
-  box-shadow:
-    var(--rivet-shadow),
-    0 2px 12px rgba(0, 0, 0, 0.4),
-    0 0 10px rgba(0, 203, 254, 0.1);
+  background: #FF6D3A;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 var(--color-primary-shadow);
 }
 
 .btn:active {
-  transform: translateY(1px);
-  box-shadow:
-    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.02);
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--color-primary-shadow);
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #00dd77 0%, #00aa55 100%);
-  color: var(--color-on-primary);
-  border-color: var(--color-primary-on);
-  box-shadow:
-    0 0 12px rgba(0, 255, 136, 0.25),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+  background: var(--color-accent-green);
+  border-color: var(--color-accent-green-dark);
+  color: #fff;
+  box-shadow: 0 4px 0 #1B5E20;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg, #00ff88 0%, #00cc66 100%);
-  color: var(--color-on-primary);
-  box-shadow:
-    0 0 18px rgba(0, 255, 136, 0.4),
-    0 2px 12px rgba(0, 0, 0, 0.4);
+  background: #66BB6A;
+  color: #fff;
+  box-shadow: 0 5px 0 #1B5E20;
 }
 
 .btn-whatsapp {
-  background: linear-gradient(180deg, var(--color-surface-container-high) 0%, var(--color-surface-container) 100%);
-  color: var(--color-secondary);
-  border-color: var(--color-outline-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  border-color: var(--color-border);
   margin-top: 0.5rem;
+  box-shadow: 0 4px 0 var(--color-border-dark);
 }
 
 .btn-whatsapp:hover {
-  border-color: var(--color-secondary-bright);
-  color: var(--color-secondary-bright);
-  box-shadow:
-    var(--rivet-shadow),
-    0 0 12px rgba(0, 203, 254, 0.15);
+  background: var(--color-surface-dark);
+  color: var(--color-on-surface);
+  box-shadow: 0 5px 0 var(--color-border-dark);
 }
 
 #restart {
   margin-top: 0.3rem;
 }
 
-/* ===== MODAL — System Alert Panel ===== */
+/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -457,17 +320,15 @@ body::after {
 }
 
 .modal {
-  background: linear-gradient(180deg, var(--color-surface-container-high) 0%, var(--color-surface-container) 100%);
-  border: 2px solid var(--color-primary-on);
-  border-radius: var(--roundness);
+  background: var(--color-surface);
+  border: 3px solid var(--color-border);
+  border-radius: var(--roundness-lg);
   padding: 2rem 1.8rem;
   text-align: center;
   max-width: min(340px, 90vw);
   box-shadow:
-    0 0 30px rgba(0, 255, 136, 0.2),
-    0 0 60px rgba(0, 255, 136, 0.08),
-    0 8px 32px rgba(0, 0, 0, 0.6),
-    var(--rivet-shadow);
+    0 6px 0 var(--color-border-dark),
+    0 12px 32px rgba(0, 0, 0, 0.3);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -478,7 +339,7 @@ body::after {
 @keyframes modal-enter {
   from {
     opacity: 0;
-    transform: scale(0.92) translateY(10px);
+    transform: scale(0.88) translateY(16px);
   }
   to {
     opacity: 1;
@@ -486,122 +347,97 @@ body::after {
   }
 }
 
-/* Top green scan-line on modal */
+/* Remove old scanline */
 .modal::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-primary-on), transparent);
-  animation: modal-scanline 2s linear infinite;
-}
-
-@keyframes modal-scanline {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
+  display: none;
 }
 
 .modal-icon {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   line-height: 1;
 }
 
 #modal-msg {
   font-family: var(--font-display);
   font-size: 1.15rem;
-  color: var(--color-primary-on);
-  text-shadow: var(--glow-green);
+  font-weight: 800;
+  color: var(--color-on-surface);
   line-height: 1.6;
   white-space: pre-line;
 }
 
-/* ===== VICTORY — Rainbow LED Pulse Sequence ===== */
-@keyframes victory-rainbow {
-  0%   { border-color: #ff0044; box-shadow: 0 0 20px rgba(255, 0, 68, 0.5); }
-  16%  { border-color: #ff8800; box-shadow: 0 0 20px rgba(255, 136, 0, 0.5); }
-  33%  { border-color: #ffcc00; box-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
-  50%  { border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.5); }
-  66%  { border-color: #00cbfe; box-shadow: 0 0 20px rgba(0, 203, 254, 0.5); }
-  83%  { border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
-  100% { border-color: #ff0044; box-shadow: 0 0 20px rgba(255, 0, 68, 0.5); }
+/* ===== VICTORY ===== */
+@keyframes victory-bounce {
+  0%   { border-color: #FF5722; box-shadow: 0 6px 0 #BF360C, 0 0 20px rgba(255, 87, 34, 0.4); }
+  16%  { border-color: #FF9800; box-shadow: 0 6px 0 #E65100, 0 0 20px rgba(255, 152, 0, 0.4); }
+  33%  { border-color: #FFD54F; box-shadow: 0 6px 0 #F9A825, 0 0 20px rgba(255, 213, 79, 0.4); }
+  50%  { border-color: #4CAF50; box-shadow: 0 6px 0 #2E7D32, 0 0 20px rgba(76, 175, 80, 0.4); }
+  66%  { border-color: #2196F3; box-shadow: 0 6px 0 #1565C0, 0 0 20px rgba(33, 150, 243, 0.4); }
+  83%  { border-color: #AB47BC; box-shadow: 0 6px 0 #7B1FA2, 0 0 20px rgba(171, 71, 188, 0.4); }
+  100% { border-color: #FF5722; box-shadow: 0 6px 0 #BF360C, 0 0 20px rgba(255, 87, 34, 0.4); }
 }
 
 .modal-overlay[style*="flex"] .modal {
-  animation: modal-enter 0.3s ease-out, victory-rainbow 3s linear infinite 0.3s;
+  animation: modal-enter 0.3s ease-out, victory-bounce 3s linear infinite 0.3s;
 }
 
-/* ===== GAME INFO — Technical Manual Section ===== */
+/* ===== GAME INFO ===== */
 .game-info {
   max-width: min(780px, 94vw);
   margin: 1.5rem auto;
   padding: 1.2rem 1.4rem;
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--roundness);
-  color: rgba(223, 226, 235, 0.8);
+  background: var(--color-surface);
+  border: 3px solid var(--color-border);
+  border-radius: var(--roundness-lg);
+  color: var(--color-on-surface-muted);
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+  font-weight: 700;
   line-height: 1.7;
-  box-shadow:
-    var(--rivet-shadow),
-    0 2px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 var(--color-border-dark);
   position: relative;
 }
 
-/* Circuit trace accent on left border */
+/* Remove old left border accent */
 .game-info::before {
-  content: '';
-  position: absolute;
-  top: 12px;
-  bottom: 12px;
-  left: 0;
-  width: 2px;
-  background: linear-gradient(180deg, var(--color-tertiary), transparent);
-  opacity: 0.4;
+  display: none;
 }
 
 .game-info h2 {
   font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 400;
-  color: var(--color-primary-on);
-  text-shadow: 0 0 8px rgba(0, 255, 136, 0.2);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary);
   margin-bottom: 0.6rem;
 }
 
 .game-info h3 {
   font-family: var(--font-display);
-  font-size: 0.92rem;
-  font-weight: 400;
-  color: var(--color-tertiary);
-  text-shadow: 0 0 6px rgba(255, 204, 0, 0.15);
-  letter-spacing: 0.5px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
   margin: 1rem 0 0.4rem;
 }
 
 .game-info p {
-  color: rgba(223, 226, 235, 0.75);
+  color: var(--color-on-surface-muted);
 }
 
 .game-info ul {
   padding-left: 1.2rem;
-  list-style-type: '> ';
+  list-style-type: disc;
 }
 
 .game-info li {
   margin-bottom: 0.3rem;
-  color: rgba(223, 226, 235, 0.75);
+  color: var(--color-on-surface-muted);
 }
 
 .game-info li::marker {
-  color: var(--color-primary-on);
+  color: var(--color-primary);
 }
 
-/* ===== RESPONSIVE — Mobile Breakpoints ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   :root {
     --cell-size: min(52px, 15vw);
@@ -632,7 +468,7 @@ body::after {
   }
 
   .topbar h1 {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .modal {
@@ -676,24 +512,24 @@ body::after {
   }
 
   .topbar h1 {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 }
 
-/* ===== SCROLLBAR — Themed ===== */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface);
+  background: var(--color-background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-outline-variant);
-  border-radius: 0;
+  background: var(--color-border);
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-outline);
+  background: var(--color-border-dark);
 }
