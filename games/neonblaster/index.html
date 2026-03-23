@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Neon Blaster Online Gratis - Games Hub</title>
+  <meta name="description" content="Jogue Neon Blaster online gratis. Shooter neon com milhares de particulas e efeitos WebGL!" />
+  <meta name="keywords" content="neon blaster, geometry wars, shooter online, jogo neon gratis" />
+  <link rel="canonical" href="https://gameshub.com.br/games/neonblaster/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Neon Blaster Online Gratis - Games Hub" />
+  <meta property="og:description" content="Shooter neon com milhares de particulas! Jogue gratis." />
+  <meta property="og:url" content="https://gameshub.com.br/games/neonblaster/" />
+  <meta property="og:image" content="https://gameshub.com.br/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+  <link rel="stylesheet" href="style.css?v=1" />
+  <meta name="theme-color" content="#050510" />
+  <link rel="manifest" href="/manifest.json" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Neon Blaster",
+    "description": "Shooter neon com efeitos WebGL. Destrua ondas de inimigos com explosoes massivas!",
+    "url": "https://gameshub.com.br/games/neonblaster/",
+    "inLanguage": "pt-BR",
+    "isAccessibleForFree": true,
+    "playMode": "SinglePlayer",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser"
+  }
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7180169008033609" crossorigin="anonymous"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNTD0KNJ6T"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-LNTD0KNJ6T');
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <a href="../../index.html" class="btn-back">&larr; Voltar</a>
+    <h1 class="game-title">Neon Blaster</h1>
+    <div class="stats">
+      <div class="score-box"><span class="score-icon">💥</span><span id="score-display" class="score-value neon-text">0</span></div>
+      <div class="score-box best"><span class="score-icon">🏆</span><span id="best-display" class="score-value">0</span></div>
+    </div>
+  </header>
+  <div class="game-container">
+    <div id="pixi-container"></div>
+    <div class="modal-overlay glass-overlay" id="overlay">
+      <div class="modal glass-modal">
+        <div class="modal-icon" id="overlay-icon">💥</div>
+        <h2 id="overlay-title" class="modal-title">Neon Blaster</h2>
+        <p id="overlay-msg" class="modal-subtitle">Desktop: WASD + Mouse | Mobile: Joysticks virtuais</p>
+        <div id="overlay-score" class="overlay-score neon-score"></div>
+        <button type="button" class="btn btn-primary" id="btn-start">Jogar</button>
+        <button type="button" class="btn btn-whatsapp" id="btn-share" style="display:none; margin-top: 12px;">Compartilhar</button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile joysticks rendered by game.js -->
+  <div id="joystick-left" class="joystick joystick-left" style="display:none;">
+    <div class="joystick-base"><div class="joystick-knob"></div></div>
+  </div>
+  <div id="joystick-right" class="joystick joystick-right" style="display:none;">
+    <div class="joystick-base"><div class="joystick-knob"></div></div>
+  </div>
+  <button id="btn-bomb" class="bomb-button" style="display:none;">💣</button>
+  <script type="module">
+    import { initSidebar } from '../../sidebar.js?v=7';
+    initSidebar({ active: 'neonblaster' });
+  </script>
+  <script type="module" src="game.js?v=1"></script>
+  <script type="module" src="../shared/pwa-register.js?v=1"></script>
+</body>
+</html>

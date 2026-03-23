@@ -1,0 +1,346 @@
+/* ===== GRAVITY PULSE — ORBITAL SINGULARITY ===== */
+/* Theme: Deep Space — Gravitational Fields */
+
+/* ── Tokens ── */
+:root {
+  --bg: #050515;
+  --surface: #0a0a20;
+  --surface-container: #0d0d25;
+  --surface-high: #151535;
+  --primary: #4488ff;
+  --secondary: #aa44ff;
+  --tertiary: #ff8844;
+  --on-surface: #e0e4f0;
+  --outline: #334;
+  --success: #44ff88;
+  --danger: #ff4466;
+
+  --glow-blue: rgba(68, 136, 255, 0.5);
+  --glow-purple: rgba(170, 68, 255, 0.5);
+  --glow-orange: rgba(255, 136, 68, 0.5);
+
+  --font-display: 'VT323', monospace;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--on-surface);
+  display: flex;
+  flex-direction: column;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* ── Space Background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(68, 136, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(170, 68, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 136, 68, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Top Bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--surface-container);
+  border-bottom: 2px solid var(--primary);
+  flex-shrink: 0;
+  box-shadow:
+    0 4px 24px rgba(68, 136, 255, 0.1),
+    0 1px 0 rgba(68, 136, 255, 0.2);
+  position: relative;
+  z-index: 10;
+}
+
+.btn-back {
+  color: var(--primary);
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--outline);
+  border-radius: 6px;
+  background: rgba(68, 136, 255, 0.08);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: rgba(68, 136, 255, 0.18);
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--glow-blue);
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-shadow:
+    0 0 20px var(--glow-blue),
+    0 0 40px rgba(68, 136, 255, 0.2);
+}
+
+.stats {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--on-surface);
+  background: rgba(68, 136, 255, 0.06);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(68, 136, 255, 0.15);
+}
+
+.score-box.best {
+  border-color: rgba(255, 136, 68, 0.3);
+  background: rgba(255, 136, 68, 0.06);
+}
+
+.score-icon {
+  font-size: 1rem;
+}
+
+.score-value {
+  font-weight: 700;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.neon-text {
+  text-shadow: 0 0 10px var(--glow-blue);
+  color: var(--primary);
+}
+
+/* ── Game Container ── */
+.game-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#pixi-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#pixi-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Modal Overlay ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 5, 21, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(
+    145deg,
+    rgba(13, 13, 37, 0.9) 0%,
+    rgba(21, 21, 53, 0.85) 100%
+  );
+  border: 1px solid rgba(68, 136, 255, 0.25);
+  border-radius: 12px;
+  box-shadow:
+    0 0 60px rgba(68, 136, 255, 0.12),
+    0 0 120px rgba(170, 68, 255, 0.06),
+    inset 0 1px 0 rgba(68, 136, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  max-width: 90vw;
+  width: 400px;
+  animation: modalIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 20px var(--glow-blue));
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px var(--glow-blue);
+}
+
+.modal-subtitle {
+  font-size: 0.95rem;
+  color: rgba(224, 228, 240, 0.7);
+  line-height: 1.5;
+  margin-bottom: 1.2rem;
+}
+
+.overlay-score {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--tertiary);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px var(--glow-orange);
+}
+
+.neon-score {
+  min-height: 0;
+}
+
+/* ── Buttons ── */
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.7rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  box-shadow: 0 4px 20px var(--glow-blue);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px var(--glow-blue), 0 0 40px var(--glow-purple);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-whatsapp {
+  background: #25d366;
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.55rem 1.5rem;
+}
+
+.btn-whatsapp:hover {
+  background: #20bd5a;
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .topbar {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .game-title {
+    font-size: 1.1rem;
+    letter-spacing: 0.08em;
+  }
+
+  .btn-back {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .score-box {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.4rem;
+    gap: 0.2rem;
+  }
+
+  .score-icon {
+    font-size: 0.85rem;
+  }
+
+  .modal {
+    padding: 1.8rem 1.2rem;
+    width: 340px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .game-title {
+    font-size: 0.95rem;
+  }
+
+  .stats {
+    gap: 0.4rem;
+  }
+}

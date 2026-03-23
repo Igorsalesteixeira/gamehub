@@ -1,0 +1,426 @@
+/* ===== NEON BLASTER — GEOMETRY WARS INSPIRED ===== */
+/* Theme: Deep Space Neon — WebGL Showcase */
+
+/* -- Tokens -- */
+:root {
+  --bg: #050510;
+  --surface: #0a0a1a;
+  --surface-container: #0f0f2a;
+  --surface-high: #161640;
+  --primary: #00ffff;
+  --secondary: #ff00ff;
+  --tertiary: #ffff00;
+  --on-surface: #e0e0ff;
+  --outline: #333366;
+  --danger: #ff3355;
+
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --neon-yellow: #ffff00;
+  --neon-green: #00ff66;
+  --neon-red: #ff3355;
+  --neon-orange: #ff8800;
+
+  --font-display: 'VT323', monospace;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+
+/* -- Reset -- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--on-surface);
+  display: flex;
+  flex-direction: column;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* -- Space Background -- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 0, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 255, 0, 0.02) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* -- Top Bar -- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: rgba(5, 5, 16, 0.95);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+  position: relative;
+  z-index: 100;
+  min-height: 48px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-back {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: rgba(0, 255, 255, 0.1);
+  text-shadow: 0 0 8px var(--primary);
+}
+
+.game-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--primary);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.stats {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.score-box {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(0, 255, 255, 0.06);
+  border: 1px solid rgba(0, 255, 255, 0.15);
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
+  font-family: var(--font-display);
+}
+
+.score-box.best {
+  background: rgba(255, 255, 0, 0.06);
+  border-color: rgba(255, 255, 0, 0.2);
+}
+
+.score-icon {
+  font-size: 1rem;
+}
+
+.score-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.neon-text {
+  color: var(--primary);
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.6);
+}
+
+/* -- Game Container -- */
+.game-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#pixi-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+#pixi-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* -- Modal Overlay -- */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.glass-overlay {
+  background: rgba(5, 5, 16, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-modal {
+  background: rgba(10, 10, 30, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow:
+    0 0 30px rgba(0, 255, 255, 0.1),
+    0 0 60px rgba(255, 0, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--primary);
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  margin-bottom: 0.5rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.modal-subtitle {
+  color: rgba(224, 224, 255, 0.7);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.overlay-score {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  min-height: 1.5em;
+}
+
+.neon-score {
+  color: var(--tertiary);
+  text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+/* -- Buttons -- */
+.btn {
+  display: inline-block;
+  padding: 0.7rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #0088aa);
+  color: #050510;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(37, 211, 102, 0.2);
+}
+
+.btn-whatsapp:hover {
+  box-shadow: 0 0 25px rgba(37, 211, 102, 0.4);
+  transform: translateY(-2px);
+}
+
+/* -- Mobile Joysticks -- */
+.joystick {
+  position: fixed;
+  bottom: 30px;
+  z-index: 200;
+  touch-action: none;
+}
+
+.joystick-left {
+  left: 30px;
+}
+
+.joystick-right {
+  right: 30px;
+}
+
+.joystick-base {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(0, 255, 255, 0.08);
+  border: 2px solid rgba(0, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.joystick-knob {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(0, 255, 255, 0.25);
+  border: 2px solid rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  position: absolute;
+  transition: none;
+}
+
+.joystick-right .joystick-base {
+  background: rgba(255, 0, 255, 0.08);
+  border-color: rgba(255, 0, 255, 0.2);
+}
+
+.joystick-right .joystick-knob {
+  background: rgba(255, 0, 255, 0.25);
+  border-color: rgba(255, 0, 255, 0.5);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+}
+
+/* -- Bomb Button -- */
+.bomb-button {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 0, 0.15);
+  border: 2px solid rgba(255, 255, 0, 0.4);
+  font-size: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+  touch-action: manipulation;
+}
+
+.bomb-button:active {
+  background: rgba(255, 255, 0, 0.35);
+  box-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
+}
+
+/* -- Responsive -- */
+@media (max-width: 600px) {
+  .topbar {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .game-title {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .btn-back {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .score-box {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .score-value {
+    font-size: 0.95rem;
+  }
+
+  .glass-modal {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .joystick-base {
+    width: 100px;
+    height: 100px;
+  }
+
+  .joystick-knob {
+    width: 42px;
+    height: 42px;
+  }
+
+  .joystick {
+    bottom: 20px;
+  }
+
+  .joystick-left {
+    left: 15px;
+  }
+
+  .joystick-right {
+    right: 15px;
+  }
+}
+
+@media (max-width: 380px) {
+  .game-title {
+    font-size: 0.85rem;
+  }
+
+  .score-icon {
+    display: none;
+  }
+}
+
+@media (min-width: 601px) {
+  .joystick, .bomb-button {
+    display: none !important;
+  }
+}
