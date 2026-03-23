@@ -1,18 +1,24 @@
 /* ============================================
    COMBINA 3 - Joias do Brasil — style.css
+   Cartoon Theme
    ============================================ */
 
 :root {
-  --bg: #131313;
-  --bg2: #1a1a2e;
-  --surface: #1e1e32;
-  --border: #2a2a4a;
-  --text: #e8e8f0;
-  --text-dim: #8888aa;
-  --accent: #a855f7;
-  --accent2: #06b6d4;
-  --gold: #f59e0b;
-  --gem-glow: rgba(168, 85, 247, 0.3);
+  --bg: #FFF8F0;
+  --bg2: #F5E6D0;
+  --surface: #F5E6D0;
+  --border: #8D6E63;
+  --text: #3E2723;
+  --text-dim: #6D4C41;
+  --accent: #FF5722;
+  --accent2: #FF9800;
+  --gold: #FFC107;
+  --gem-glow: rgba(255, 87, 34, 0.25);
+  --shadow-dark: #5D4037;
+  --candy-pink: #E91E63;
+  --candy-blue: #29B6F6;
+  --candy-green: #66BB6A;
+  --candy-purple: #AB47BC;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,8 +27,14 @@ html, body {
   width: 100%;
   min-height: 100vh;
   background: var(--bg);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(233, 30, 99, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(41, 182, 246, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(171, 71, 188, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 30% 60%, rgba(102, 187, 106, 0.08) 0%, transparent 40%);
   color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -36,42 +48,60 @@ html, body {
   justify-content: space-between;
   padding: 8px 16px;
   background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
+  box-shadow: 0 4px 0 var(--shadow-dark);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
 .btn-back {
-  color: var(--accent2);
+  color: var(--accent);
   text-decoration: none;
   font-size: 14px;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  font-weight: 800;
+  padding: 6px 12px;
+  border: 3px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 3px 0 var(--shadow-dark);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-back:hover {
-  background: rgba(6, 182, 212, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 var(--shadow-dark);
+}
+.btn-back:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow-dark);
 }
 
 .game-title {
-  font-family: 'Press Start 2P', monospace;
-  font-size: clamp(10px, 3vw, 16px);
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(12px, 3.5vw, 20px);
+  font-weight: 800;
   color: var(--accent);
-  text-shadow: 0 0 12px var(--gem-glow);
+  text-shadow: 2px 2px 0 var(--shadow-dark), 0 0 0 transparent;
   white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
 .stats {
   display: flex;
   gap: 12px;
-  font-family: 'VT323', monospace;
-  font-size: 18px;
-  color: var(--gold);
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
 }
 .stats span {
   white-space: nowrap;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  box-shadow: 0 2px 0 var(--shadow-dark);
+  color: var(--accent);
 }
 
 /* ---- Game Container ---- */
@@ -88,11 +118,12 @@ html, body {
   display: block;
   max-width: 100%;
   max-height: calc(100vh - 60px);
-  border-radius: 12px;
+  border-radius: 20px;
   background: var(--bg2);
+  border: 3px solid var(--border);
   box-shadow:
-    0 0 30px rgba(168, 85, 247, 0.15),
-    0 4px 20px rgba(0, 0, 0, 0.5);
+    0 4px 0 var(--shadow-dark),
+    0 8px 24px rgba(93, 64, 55, 0.2);
   touch-action: none;
 }
 
@@ -103,9 +134,9 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(62, 39, 35, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 50;
   transition: opacity 0.3s;
 }
@@ -116,71 +147,88 @@ html, body {
 
 .modal {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  border: 3px solid var(--border);
+  border-radius: 20px;
   padding: 32px 28px;
   text-align: center;
   max-width: 360px;
   width: 90%;
-  box-shadow: 0 0 40px rgba(168, 85, 247, 0.2);
+  box-shadow:
+    0 4px 0 var(--shadow-dark),
+    0 12px 32px rgba(93, 64, 55, 0.25);
 }
 
 .modal-icon {
-  font-size: 48px;
+  font-size: 52px;
   margin-bottom: 12px;
+  filter: drop-shadow(2px 2px 0 var(--shadow-dark));
 }
 
 .modal h2 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 18px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--accent);
   margin-bottom: 12px;
-  text-shadow: 0 0 10px var(--gem-glow);
+  text-shadow: 1px 1px 0 rgba(93, 64, 55, 0.3);
 }
 
 .modal p {
   color: var(--text-dim);
   font-size: 15px;
+  font-weight: 700;
   line-height: 1.6;
   margin-bottom: 8px;
 }
 
 .overlay-score {
-  font-family: 'VT323', monospace;
+  font-family: 'Nunito', sans-serif;
   font-size: 28px;
+  font-weight: 800;
   color: var(--gold);
   margin: 12px 0;
+  text-shadow: 1px 1px 0 var(--shadow-dark);
 }
 
 .btn {
   display: inline-block;
   padding: 12px 32px;
-  border: none;
-  border-radius: 10px;
-  font-family: 'Space Grotesk', sans-serif;
+  border: 3px solid var(--shadow-dark);
+  border-radius: 16px;
+  font-family: 'Nunito', sans-serif;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
   margin: 6px;
+  letter-spacing: 0.5px;
 }
 .btn:active {
-  transform: scale(0.95);
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--shadow-dark) !important;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  background: linear-gradient(180deg, #FF7043, #FF5722);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 4px 0 #BF360C;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
 }
 .btn-primary:hover {
-  box-shadow: 0 6px 25px rgba(168, 85, 247, 0.6);
+  background: linear-gradient(180deg, #FF8A65, #FF5722);
+  box-shadow: 0 6px 0 #BF360C;
+  transform: translateY(-2px);
 }
 
 .btn-share {
-  background: linear-gradient(135deg, #25d366, #128c7e);
+  background: linear-gradient(180deg, #66BB6A, #43A047);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 0 #2E7D32;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+}
+.btn-share:hover {
+  box-shadow: 0 6px 0 #2E7D32;
+  transform: translateY(-2px);
 }
 
 /* ---- Game Info ---- */
@@ -190,15 +238,19 @@ html, body {
   padding: 24px 20px;
   color: var(--text-dim);
   line-height: 1.7;
+  font-weight: 700;
 }
 .game-info h2 {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
   color: var(--accent);
   margin-bottom: 16px;
+  text-shadow: 1px 1px 0 rgba(93, 64, 55, 0.2);
 }
 .game-info h3 {
   font-size: 16px;
+  font-weight: 800;
   color: var(--text);
   margin: 20px 0 8px;
 }
@@ -212,10 +264,11 @@ html, body {
 /* ---- Responsive ---- */
 @media (max-width: 480px) {
   .topbar { padding: 6px 10px; }
-  .stats { gap: 8px; font-size: 15px; }
-  .game-title { font-size: 10px; }
+  .stats { gap: 6px; font-size: 13px; }
+  .stats span { padding: 3px 7px; border-radius: 10px; }
+  .game-title { font-size: 12px; }
   .modal { padding: 24px 18px; }
-  .modal h2 { font-size: 14px; }
+  .modal h2 { font-size: 18px; }
 }
 
 @media (min-width: 768px) {
