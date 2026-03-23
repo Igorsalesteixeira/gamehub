@@ -1,110 +1,175 @@
 /* ============================================
-   SUDOKU - TEMA ZEN MINIMALISTA v12
-   Refinamentos: variáveis CSS locais, modo notas,
-   undo, responsividade 360/480/768px, localStorage
+   SUDOKU — Wabi-Sabi: The Ink Master's Scroll
+   Stitch Design System "The Living Parchment"
+   Light theme · Washi paper · Sumi ink palette
    ============================================ */
 
-/* Variáveis CSS locais para isolar tema zen */
-.sudoku-game {
-  --zen-bg: linear-gradient(180deg, #f5f5f0 0%, #e8e8e0 100%);
-  --zen-text: #2c3e50;
-  --zen-text-light: #5a6c7d;
-  --zen-primary: #7ba3a8;
-  --zen-secondary: #5d8c6f;
-  --zen-accent: #8b9a46;
-  --zen-paper: #ffffff;
-  --zen-paper-dark: #f8f9fa;
-  --zen-border: #2c3e50;
-  --zen-highlight: #f0e68c;
-  --zen-highlight-text: #5a4a00;
-  --zen-conflict: #e74c3c;
-  --zen-conflict-bg: #fdf2f2;
-  --zen-selected: #e8f4f8;
-  --zen-notes: #7ba3a8;
-  --zen-shadow: rgba(44, 62, 80, 0.15);
-  --zen-shadow-dark: rgba(44, 62, 80, 0.2);
-  --zen-radius: 8px;
-  --zen-radius-lg: 20px;
-  --zen-radius-xl: 25px;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* ============================================
+   DESIGN TOKENS — :root variables
+   ============================================ */
+:root {
+  --wabi-bg: #fff9ec;
+  --wabi-surface: #fff9ec;
+  --wabi-surface-container: #f4eedb;
+  --wabi-surface-container-high: #efe8d5;
+  --wabi-surface-container-highest: #e9e2d0;
+  --wabi-primary: #000000;
+  --wabi-primary-container: #1c1b1b;
+  --wabi-secondary: #715b3e;
+  --wabi-secondary-container: #f9dbb7;
+  --wabi-tertiary: #ba1a1a;
+  --wabi-on-surface: #1e1c10;
+  --wabi-on-primary: #ffffff;
+  --wabi-outline: #747878;
+  --wabi-outline-variant: #c4c7c7;
+  --wabi-roundness: 4px;
+  --wabi-ink-wash: rgba(139, 115, 85, 0.15);
+  --wabi-lantern-shadow: 0 4px 40px rgba(113, 91, 62, 0.08);
+  --wabi-ghost-border: rgba(196, 199, 199, 0.15);
+  --wabi-font-display: 'Noto Serif JP', 'Georgia', serif;
+  --wabi-font-body: 'Newsreader', 'Georgia', serif;
 }
 
+/* ============================================
+   RESET
+   ============================================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Fonte japonesa elegante */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
-
-.sudoku-game body,
+/* ============================================
+   BODY — Washi paper canvas
+   ============================================ */
 body.sudoku-game {
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
-  background: var(--zen-bg);
-  color: var(--zen-text);
+  font-family: var(--wabi-font-body);
+  background: var(--wabi-bg);
+  color: var(--wabi-on-surface);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Washi paper fiber grain texture */
+body.sudoku-game::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(113, 91, 62, 0.018) 3px,
+      rgba(113, 91, 62, 0.018) 4px
+    ),
+    repeating-linear-gradient(
+      87deg,
+      transparent,
+      transparent 5px,
+      rgba(113, 91, 62, 0.012) 5px,
+      rgba(113, 91, 62, 0.012) 6px
+    ),
+    repeating-linear-gradient(
+      173deg,
+      transparent,
+      transparent 7px,
+      rgba(113, 91, 62, 0.008) 7px,
+      rgba(113, 91, 62, 0.008) 8px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm ambient light wash */
+body.sudoku-game::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    rgba(249, 219, 183, 0.18) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ============================================
-   TOPBAR - GRADIENTE ZEN (BAMBU/VERDE-AGUA)
+   TOPBAR — Ink scroll header
    ============================================ */
 .sudoku-game .topbar,
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 1.2rem;
-  background: linear-gradient(135deg, var(--zen-primary) 0%, var(--zen-secondary) 50%, var(--zen-accent) 100%);
-  color: #fff;
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
-  box-shadow: 0 2px 8px var(--zen-shadow);
+  padding: 0.75rem 1.2rem;
+  background: var(--wabi-surface-container);
+  color: var(--wabi-on-surface);
+  font-family: var(--wabi-font-display);
   position: relative;
+  z-index: 10;
+  box-shadow: var(--wabi-lantern-shadow);
 }
 
+/* Bottom bamboo accent line */
 .topbar::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--wabi-secondary) 20%,
+    var(--wabi-secondary) 80%,
+    transparent
+  );
+  opacity: 0.3;
 }
 
 .btn-back {
-  color: #fff;
+  color: var(--wabi-secondary);
   text-decoration: none;
+  font-family: var(--wabi-font-body);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   padding: 0.4rem 0.9rem;
-  border-radius: var(--zen-radius-lg);
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: all 0.25s ease;
-  letter-spacing: 0.5px;
+  border-radius: var(--wabi-roundness);
+  background: var(--wabi-ghost-border);
+  border: none;
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+  letter-spacing: 0.3px;
 }
 
 .btn-back:hover {
-  background: rgba(255,255,255,0.25);
-  transform: translateY(-1px);
+  background: var(--wabi-ink-wash);
+  color: var(--wabi-primary);
 }
 
 .game-title {
-  font-size: 1.3rem;
+  font-family: var(--wabi-font-display);
+  font-size: 1.35rem;
   font-weight: 700;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  letter-spacing: 2px;
+  color: var(--wabi-primary);
 }
 
 .stats {
-  font-weight: 500;
+  font-family: var(--wabi-font-display);
+  font-weight: 600;
   font-size: 0.95rem;
-  background: rgba(255,255,255,0.15);
+  color: var(--wabi-secondary);
   padding: 0.3rem 0.8rem;
-  border-radius: var(--zen-radius-lg);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: var(--wabi-ghost-border);
+  border-radius: var(--wabi-roundness);
 }
 
 /* ============================================
@@ -116,15 +181,17 @@ body.sudoku-game {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 1rem;
+  padding: 1.2rem 1rem;
   gap: 1rem;
   max-width: 500px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================
-   CONTROLS BAR - ESTILO ZEN
+   CONTROLS BAR
    ============================================ */
 .controls-bar {
   display: flex;
@@ -137,27 +204,27 @@ body.sudoku-game {
 }
 
 .select-diff {
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
+  font-family: var(--wabi-font-body);
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.5rem 1rem;
-  border-radius: var(--zen-radius-lg);
-  border: 2px solid #c5d5d8;
-  background: var(--zen-paper);
+  border-radius: var(--wabi-roundness);
+  border: 1.5px solid rgba(113, 91, 62, 0.2);
+  background: var(--wabi-surface);
   cursor: pointer;
-  color: var(--zen-text);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  transition: all 0.2s ease;
+  color: var(--wabi-on-surface);
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  appearance: auto;
 }
 
 .select-diff:hover {
-  border-color: var(--zen-primary);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+  border-color: var(--wabi-secondary);
 }
 
 .select-diff:focus {
   outline: none;
-  border-color: var(--zen-secondary);
+  border-color: var(--wabi-secondary);
+  box-shadow: 0 0 0 3px rgba(113, 91, 62, 0.1);
 }
 
 .action-buttons {
@@ -170,15 +237,12 @@ body.sudoku-game {
   width: 40px;
   height: 40px;
   border: none;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #e8e8e0, #d0d0c8);
+  border-radius: var(--wabi-roundness);
+  background: var(--wabi-surface-container);
   cursor: pointer;
-  color: var(--zen-text);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    3px 3px 6px rgba(0,0,0,0.12),
-    -2px -2px 4px rgba(255,255,255,0.7),
-    inset 0 1px 0 rgba(255,255,255,0.5);
+  color: var(--wabi-on-surface);
+  transition: all 0.3s ease-in-out;
+  box-shadow: var(--wabi-lantern-shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,11 +254,8 @@ body.sudoku-game {
 }
 
 .btn-icon:hover {
-  background: linear-gradient(145deg, #f0f0e8, #d8d8d0);
-  transform: translateY(-2px);
-  box-shadow:
-    4px 4px 8px rgba(0,0,0,0.15),
-    -2px -2px 5px rgba(255,255,255,0.8);
+  background: var(--wabi-surface-container-high);
+  transform: translateY(-1px);
 }
 
 .btn-icon:active {
@@ -202,31 +263,29 @@ body.sudoku-game {
 }
 
 .btn-icon.active {
-  background: linear-gradient(145deg, var(--zen-primary), var(--zen-secondary));
-  color: #fff;
-  box-shadow:
-    3px 3px 6px rgba(93, 140, 111, 0.3),
-    inset 0 1px 0 rgba(255,255,255,0.2);
+  background: var(--wabi-primary);
+  color: var(--wabi-on-primary);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
 
 .btn-new {
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
+  font-family: var(--wabi-font-display);
   font-weight: 600;
   font-size: 0.9rem;
   padding: 0.5rem 1.2rem;
-  border-radius: var(--zen-radius-lg);
+  border-radius: var(--wabi-roundness);
   border: none;
-  background: linear-gradient(135deg, var(--zen-primary), var(--zen-secondary));
-  color: #fff;
+  background: var(--wabi-primary);
+  color: var(--wabi-on-primary);
   cursor: pointer;
-  box-shadow: 0 3px 6px rgba(93, 140, 111, 0.3);
-  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease-in-out;
   letter-spacing: 0.5px;
 }
 
 .btn-new:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(93, 140, 111, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .btn-new:active {
@@ -243,26 +302,37 @@ body.sudoku-game {
 }
 
 /* ============================================
-   BOARD - GRID 9x9 ESTILO TATAMI
+   BOARD — Floating scroll with bamboo grid
    ============================================ */
 .board {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   width: min(380px, 92vw);
   aspect-ratio: 1;
-  background: var(--zen-border);
+  background: var(--wabi-secondary);
   gap: 1px;
-  border: 4px solid var(--zen-border);
-  border-radius: var(--zen-radius);
+  border: none;
+  border-radius: var(--wabi-roundness);
   box-shadow:
-    0 8px 24px var(--zen-shadow-dark),
-    0 2px 4px var(--zen-shadow),
-    inset 0 1px 0 rgba(255,255,255,0.1);
+    var(--wabi-lantern-shadow),
+    0 1px 3px rgba(113, 91, 62, 0.06);
   position: relative;
   overflow: hidden;
+  animation: scroll-unfurl 0.5s ease-in-out;
 }
 
-/* Efeito de textura de papel no board */
+@keyframes scroll-unfurl {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle washi texture overlay on board */
 .board::before {
   content: '';
   position: absolute;
@@ -271,99 +341,127 @@ body.sudoku-game {
     repeating-linear-gradient(
       0deg,
       transparent,
-      transparent 2px,
-      rgba(44, 62, 80, 0.015) 2px,
-      rgba(44, 62, 80, 0.015) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(44, 62, 80, 0.015) 2px,
-      rgba(44, 62, 80, 0.015) 4px
+      transparent 3px,
+      rgba(113, 91, 62, 0.012) 3px,
+      rgba(113, 91, 62, 0.012) 4px
     );
   pointer-events: none;
   z-index: 1;
 }
 
 /* ============================================
-   CELULAS - ESTILO ZEN COM SOMBRA SUTIL
+   CELLS — Sumi ink on washi
    ============================================ */
 .cell {
-  background: var(--zen-paper);
+  background: var(--wabi-surface);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--wabi-font-display);
   font-size: clamp(1rem, 4.5vw, 1.5rem);
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   user-select: none;
-  transition: all 0.15s ease-out;
+  transition: background 0.25s ease-in-out, color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
   aspect-ratio: 1;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+  color: var(--wabi-on-surface);
 }
 
-/* Hover suave nas celulas */
 .cell:hover {
-  background: #fafafa;
+  background: var(--wabi-surface-container);
 }
 
-/* Numeros dados (fixos) - estilo tinta */
+/* Given numbers — bold sumi ink */
 .cell.given {
-  color: var(--zen-text);
+  color: var(--wabi-primary);
   font-weight: 700;
-  background: var(--zen-paper-dark);
+  background: var(--wabi-surface-container);
   cursor: default;
 }
 
 .cell.given:hover {
-  background: var(--zen-paper-dark);
+  background: var(--wabi-surface-container);
 }
 
-/* Numeros do usuario - azul agua */
+/* User-entered numbers */
 .cell.user {
-  color: var(--zen-notes);
-  font-weight: 500;
+  color: var(--wabi-secondary);
+  font-weight: 600;
 }
 
-/* Celula selecionada - azul agua */
+/* Selected cell — ink wash expanding effect */
 .cell.selected {
-  background: var(--zen-selected);
+  background: var(--wabi-ink-wash);
   box-shadow:
-    inset 0 0 0 2px var(--zen-primary),
-    0 0 12px rgba(123, 163, 168, 0.3);
+    inset 0 0 0 2px var(--wabi-primary),
+    0 0 20px rgba(139, 115, 85, 0.12);
   z-index: 3;
+  animation: ink-wash-breathe 3s ease-in-out infinite;
 }
 
-/* Mesmo numero destacado - bambu suave */
+@keyframes ink-wash-breathe {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 2px var(--wabi-primary),
+      0 0 20px rgba(139, 115, 85, 0.12);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 2px var(--wabi-primary),
+      0 0 28px rgba(139, 115, 85, 0.18);
+  }
+}
+
+/* Same number highlight */
 .cell.same-num {
-  background: var(--zen-highlight);
-  color: var(--zen-highlight-text);
+  background: var(--wabi-secondary-container);
+  color: var(--wabi-secondary);
 }
 
-/* Conflito/erro - vermelho suave */
-.cell.conflict {
-  color: var(--zen-conflict);
-  background: var(--zen-conflict-bg);
-  animation: gentle-pulse 1.5s ease-in-out infinite;
+/* Same value highlight (alias) */
+.cell.same-value {
+  background: var(--wabi-secondary-container);
+  color: var(--wabi-secondary);
 }
 
-@keyframes gentle-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
-}
-
-/* Destaques de linha, coluna e caixa */
+/* Row, column, box highlights */
+.cell.same-row,
+.cell.same-col,
+.cell.same-box,
 .cell.highlight-row,
 .cell.highlight-col,
 .cell.highlight-box {
-  background: #f0f4f0;
+  background: var(--wabi-surface-container-high);
+}
+
+/* Error / conflict — red lacquer accent */
+.cell.error,
+.cell.conflict {
+  color: var(--wabi-tertiary);
+  background: rgba(186, 26, 26, 0.06);
+  box-shadow: inset 0 0 0 1.5px rgba(186, 26, 26, 0.25);
+  animation: lacquer-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lacquer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.88; }
+}
+
+/* 3x3 block bamboo borders — heavier weight */
+.cell.border-right {
+  border-right: 2.5px solid var(--wabi-secondary);
+}
+
+.cell.border-bottom {
+  border-bottom: 2.5px solid var(--wabi-secondary);
 }
 
 /* ============================================
-   MODO NOTAS (LAPIS) - NUMEROS PEQUENOS
+   NOTES — Small Newsreader italic
    ============================================ */
+.cell .notes,
 .cell.notes-mode {
   align-items: flex-start;
   justify-content: flex-start;
@@ -383,25 +481,16 @@ body.sudoku-game {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(0.5rem, 1.8vw, 0.65rem);
+  font-family: var(--wabi-font-body);
+  font-style: italic;
+  font-size: clamp(0.45rem, 1.6vw, 0.6rem);
   font-weight: 400;
-  color: var(--zen-notes);
+  color: var(--wabi-outline);
   line-height: 1;
 }
 
 /* ============================================
-   BORDAS 3x3 - ESTILO TATAMI
-   ============================================ */
-.cell.border-right {
-  border-right: 3px solid var(--zen-border);
-}
-
-.cell.border-bottom {
-  border-bottom: 3px solid var(--zen-border);
-}
-
-/* ============================================
-   NUMPAD - ESTILO PEDRAS ZEN
+   NUMPAD — Carved stone stamps
    ============================================ */
 .numpad {
   display: grid;
@@ -415,18 +504,17 @@ body.sudoku-game {
 .num-btn {
   aspect-ratio: 1;
   border: none;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #e8e8e0, #d0d0c8);
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
-  font-weight: 600;
+  border-radius: var(--wabi-roundness);
+  background: var(--wabi-surface-container);
+  font-family: var(--wabi-font-display);
+  font-weight: 700;
   font-size: clamp(1rem, 4vw, 1.4rem);
   cursor: pointer;
-  color: var(--zen-text);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--wabi-primary);
+  transition: all 0.25s ease-in-out;
   box-shadow:
-    4px 4px 8px rgba(0,0,0,0.15),
-    -2px -2px 6px rgba(255,255,255,0.8),
-    inset 0 1px 0 rgba(255,255,255,0.5);
+    0 2px 6px rgba(113, 91, 62, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -434,50 +522,49 @@ body.sudoku-game {
   justify-content: center;
 }
 
-/* Efeito de pedra zen */
+/* Carved stamp texture — top-left highlight */
 .num-btn::before {
   content: '';
   position: absolute;
-  top: 20%;
-  left: 20%;
-  width: 25%;
-  height: 15%;
-  background: rgba(255,255,255,0.4);
+  top: 15%;
+  left: 15%;
+  width: 30%;
+  height: 20%;
+  background: rgba(255, 255, 255, 0.35);
   border-radius: 50%;
-  filter: blur(2px);
+  filter: blur(3px);
   pointer-events: none;
 }
 
 .num-btn:hover {
-  background: linear-gradient(145deg, #f0f0e8, #d8d8d0);
-  transform: translateY(-2px) scale(1.03);
+  background: var(--wabi-surface-container-high);
+  transform: translateY(-1px);
   box-shadow:
-    5px 5px 10px rgba(0,0,0,0.18),
-    -2px -2px 5px rgba(255,255,255,0.9);
+    0 4px 12px rgba(113, 91, 62, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .num-btn:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(1px);
   box-shadow:
-    2px 2px 4px rgba(0,0,0,0.15),
-    -1px -1px 3px rgba(255,255,255,0.8),
-    inset 0 2px 4px rgba(0,0,0,0.08);
+    0 1px 3px rgba(113, 91, 62, 0.1),
+    inset 0 2px 4px rgba(113, 91, 62, 0.08);
 }
 
 .num-btn.used {
-  opacity: 0.5;
-  transform: scale(0.95);
+  opacity: 0.35;
+  transform: scale(0.96);
 }
 
-/* Botao de apagar - estilo pedra vermelha */
+/* Erase button — lacquer red stamp */
 .erase-btn {
-  color: #c0392b;
-  background: linear-gradient(145deg, #f5e6e6, #dcc0c0);
+  color: var(--wabi-tertiary);
+  background: rgba(186, 26, 26, 0.06);
 }
 
 .erase-btn:hover {
-  background: linear-gradient(145deg, #fae6e6, #e0c0c0);
-  color: var(--zen-conflict);
+  background: rgba(186, 26, 26, 0.1);
+  color: var(--wabi-tertiary);
 }
 
 .erase-btn svg {
@@ -489,26 +576,30 @@ body.sudoku-game {
    HINT TEXT
    ============================================ */
 .hint-text {
+  font-family: var(--wabi-font-body);
+  font-style: italic;
   font-size: 0.85rem;
-  color: var(--zen-text-light);
+  color: var(--wabi-outline);
   text-align: center;
-  margin-top: -0.5rem;
-  opacity: 0.8;
+  margin-top: -0.3rem;
+  opacity: 0.75;
+  transition: color 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 .hint-text.notes-active {
-  color: var(--zen-primary);
+  color: var(--wabi-secondary);
   font-weight: 500;
+  opacity: 1;
 }
 
 /* ============================================
-   MODAL - SEM !IMPORTANT (usando especificidade)
+   MODAL — Glassmorphism washi tint
    ============================================ */
 .sudoku-game .modal-overlay,
 body.sudoku-game .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(44, 62, 80, 0.85);
+  background: rgba(30, 28, 16, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -516,9 +607,9 @@ body.sudoku-game .modal-overlay {
   padding: 1rem;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
 
 .sudoku-game .modal-overlay.show,
@@ -529,58 +620,62 @@ body.sudoku-game .modal-overlay.show {
 
 .sudoku-game .modal,
 body.sudoku-game .modal {
-  background: var(--zen-bg);
-  border-radius: var(--zen-radius-xl);
+  background: rgba(255, 249, 236, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: calc(var(--wabi-roundness) * 3);
   padding: 2.5rem 2rem;
   text-align: center;
   max-width: 380px;
   width: 100%;
   box-shadow:
-    0 20px 60px rgba(0,0,0,0.3),
-    0 0 0 1px rgba(255,255,255,0.5) inset;
+    0 20px 60px rgba(113, 91, 62, 0.15),
+    0 0 0 1px var(--wabi-ghost-border);
   position: relative;
-  transform: scale(0.9);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border: 3px solid var(--zen-primary);
+  z-index: 2001;
+  transform: scale(0.92) translateY(12px);
+  transition: transform 0.4s ease-in-out;
 }
 
 .sudoku-game .modal-overlay.show .modal,
 body.sudoku-game .modal-overlay.show .modal {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
 }
 
-/* Icone do modal - estilo zen */
 .modal-icon {
   font-size: 3.5rem;
   margin-bottom: 0.5rem;
-  animation: float 3s ease-in-out infinite;
+  animation: zen-float 3.5s ease-in-out infinite;
 }
 
-@keyframes float {
+@keyframes zen-float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
 .sudoku-game .modal h2,
 body.sudoku-game .modal h2 {
+  font-family: var(--wabi-font-display);
   font-size: 1.8rem;
   margin-bottom: 0.8rem;
-  color: var(--zen-text);
+  color: var(--wabi-primary);
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .sudoku-game .modal p,
 body.sudoku-game .modal p {
+  font-family: var(--wabi-font-body);
   font-size: 1.05rem;
   margin-bottom: 1rem;
-  color: var(--zen-text-light);
-  line-height: 1.5;
+  color: var(--wabi-outline);
+  line-height: 1.6;
 }
 
 .modal-stats {
+  font-family: var(--wabi-font-display);
   font-size: 0.95rem;
-  color: var(--zen-text-light);
+  color: var(--wabi-secondary);
   margin-bottom: 1.5rem;
 }
 
@@ -590,102 +685,111 @@ body.sudoku-game .modal p {
   gap: 0.75rem;
 }
 
-/* Botoes do modal */
-.btn-orange,
-.btn-primary {
-  background: linear-gradient(135deg, var(--zen-primary), var(--zen-secondary));
-  color: #fff;
-  padding: 0.9rem 2.5rem;
-  font-size: 1.05rem;
-  border-radius: var(--zen-radius-xl);
+/* ============================================
+   BUTTONS — Generic .btn base
+   ============================================ */
+.btn {
+  font-family: var(--wabi-font-display);
+  font-weight: 600;
   border: none;
   cursor: pointer;
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(93, 140, 111, 0.4);
-  transition: all 0.25s ease;
-  letter-spacing: 0.5px;
+  transition: all 0.3s ease-in-out;
+  letter-spacing: 0.4px;
 }
 
-.btn-orange:hover,
+.btn-primary {
+  background: var(--wabi-primary);
+  color: var(--wabi-on-primary);
+  padding: 0.9rem 2.5rem;
+  font-size: 1.05rem;
+  border-radius: var(--wabi-roundness);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+}
+
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(93, 140, 111, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.24);
 }
 
 .btn-whatsapp {
-  background: linear-gradient(135deg, #25d366, #128c7e);
+  background: #25d366;
   color: #fff;
   padding: 0.9rem 2rem;
   font-size: 1rem;
-  border-radius: var(--zen-radius-xl);
+  border-radius: var(--wabi-roundness);
   border: none;
   cursor: pointer;
-  font-family: 'Noto Sans JP', 'Nunito', sans-serif;
+  font-family: var(--wabi-font-display);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-  transition: all 0.25s ease;
+  box-shadow: 0 3px 12px rgba(37, 211, 102, 0.25);
+  transition: all 0.3s ease-in-out;
 }
 
 .btn-whatsapp:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(37, 211, 102, 0.35);
 }
 
 /* ============================================
-   GAME INFO - SECAO ESTILIZADA ZEN
+   GAME INFO — Watercolor-edged container
    ============================================ */
 .game-info {
   max-width: 780px;
-  margin: 1.5rem auto;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(145deg, rgba(123, 163, 168, 0.12), rgba(93, 140, 111, 0.08));
-  border-radius: 16px;
-  color: var(--zen-text);
+  margin: 2rem auto;
+  padding: 2rem 2.5rem;
+  background: var(--wabi-surface-container);
+  border-radius: calc(var(--wabi-roundness) * 2);
+  color: var(--wabi-on-surface);
+  font-family: var(--wabi-font-body);
   font-size: 0.95rem;
-  line-height: 1.7;
-  border: 1px solid rgba(123, 163, 168, 0.25);
-  box-shadow:
-    0 4px 12px rgba(0,0,0,0.04),
-    inset 0 1px 0 rgba(255,255,255,0.8);
+  line-height: 1.75;
+  box-shadow: var(--wabi-lantern-shadow);
   position: relative;
+  z-index: 1;
 }
 
-/* Decoracao zen - cantos */
+/* Decorative ink brush marks */
 .game-info::before,
 .game-info::after {
-  content: '\2767';
+  content: '\2022';
   position: absolute;
-  font-size: 1.5rem;
-  color: rgba(123, 163, 168, 0.35);
+  font-size: 2rem;
+  color: rgba(113, 91, 62, 0.15);
+  font-family: var(--wabi-font-display);
 }
 
 .game-info::before {
   top: 0.5rem;
-  left: 1rem;
+  left: 1.2rem;
 }
 
 .game-info::after {
   bottom: 0.5rem;
-  right: 1rem;
-  transform: rotate(180deg);
+  right: 1.2rem;
 }
 
 .game-info h2 {
+  font-family: var(--wabi-font-display);
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.8rem;
-  color: var(--zen-text);
-  border-bottom: 2px solid rgba(123, 163, 168, 0.25);
+  color: var(--wabi-primary);
   padding-bottom: 0.5rem;
   display: inline-block;
+  border-bottom: 2px solid rgba(113, 91, 62, 0.2);
 }
 
 .game-info h3 {
+  font-family: var(--wabi-font-display);
   font-size: 1.05rem;
   font-weight: 600;
   margin: 1.2rem 0 0.5rem;
-  color: var(--zen-secondary);
+  color: var(--wabi-secondary);
+}
+
+.game-info p {
+  color: var(--wabi-on-surface);
+  margin-bottom: 0.5rem;
 }
 
 .game-info ul {
@@ -695,14 +799,56 @@ body.sudoku-game .modal p {
 .game-info li {
   margin-bottom: 0.4rem;
   position: relative;
+  color: var(--wabi-on-surface);
 }
 
 .game-info li::marker {
-  color: var(--zen-primary);
+  color: var(--wabi-secondary);
 }
 
 /* ============================================
-   RESPONSIVIDADE - BREAKPOINTS 360/480/768px
+   ANIMATIONS — Zen breathing
+   ============================================ */
+
+/* Completion ripple */
+@keyframes ink-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(113, 91, 62, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(113, 91, 62, 0);
+  }
+}
+
+.cell.completed {
+  animation: ink-ripple 0.6s ease-in-out;
+}
+
+/* Number entry */
+@keyframes sumi-stroke {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.cell.user:not(.notes-mode) {
+  animation: sumi-stroke 0.25s ease-in-out;
+}
+
+.cell.just-entered {
+  animation: sumi-stroke 0.25s ease-in-out;
+}
+
+/* ============================================
+   RESPONSIVENESS — 360 / 480 / 768px
    ============================================ */
 @media (max-width: 360px) {
   .game-container {
@@ -719,12 +865,12 @@ body.sudoku-game .modal p {
   }
 
   .btn-back {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     padding: 0.3rem 0.7rem;
   }
 
   .stats {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     padding: 0.25rem 0.6rem;
   }
 
@@ -734,7 +880,7 @@ body.sudoku-game .modal p {
 
   .select-diff {
     font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.7rem;
   }
 
   .btn-icon {
@@ -749,8 +895,7 @@ body.sudoku-game .modal p {
 
   .board {
     width: min(320px, 94vw);
-    border-width: 3px;
-    border-radius: 6px;
+    border-radius: 3px;
     gap: 0;
   }
 
@@ -815,8 +960,7 @@ body.sudoku-game .modal p {
 
   .board {
     width: min(350px, 95vw);
-    border-width: 3px;
-    border-radius: 6px;
+    border-radius: 3px;
   }
 
   .cell.border-right {
@@ -842,12 +986,14 @@ body.sudoku-game .modal p {
     font-size: 0.9rem;
   }
 
-  .modal {
+  .sudoku-game .modal,
+  body.sudoku-game .modal {
     padding: 2rem 1.5rem;
     margin: 1rem;
   }
 
-  .modal h2 {
+  .sudoku-game .modal h2,
+  body.sudoku-game .modal h2 {
     font-size: 1.5rem;
   }
 }
@@ -874,61 +1020,4 @@ body.sudoku-game .modal p {
   .num-btn {
     font-size: clamp(1.1rem, 4vw, 1.5rem);
   }
-}
-
-/* ============================================
-   ANIMACOES ADICIONAIS
-   ============================================ */
-/* Efeito de ondulacao ao completar */
-@keyframes zen-ripple {
-  0% {
-    box-shadow: 0 0 0 0 rgba(123, 163, 168, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 0 20px rgba(123, 163, 168, 0);
-  }
-}
-
-.cell.completed {
-  animation: zen-ripple 0.6s ease-out;
-}
-
-/* Transicao suave para o board */
-.board {
-  animation: fade-in 0.4s ease-out;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Animacao de entrada do numero */
-@keyframes num-pop {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.cell.user:not(.notes-mode) {
-  animation: num-pop 0.2s ease-out;
-}
-
-/* Celula com numero digitado recentemente */
-.cell.just-entered {
-  animation: num-pop 0.2s ease-out;
 }
