@@ -265,6 +265,26 @@ export function initSidebar(options = {}) {
         <span>Desafios</span>
         <span class="sidebar-badge" id="sidebar-challenges-badge" style="display:none">0</span>
       </a>
+      <a href="${base}desafio-diario.html" class="sidebar-link ${isActive('daily')}">
+        <span class="sidebar-icon">🏆</span>
+        <span>Desafio Diário</span>
+      </a>
+      <a href="${base}torneios.html" class="sidebar-link ${isActive('torneios')}">
+        <span class="sidebar-icon">🏅</span>
+        <span>Torneios</span>
+      </a>
+      <a href="${base}loja.html" class="sidebar-link ${isActive('loja')}">
+        <span class="sidebar-icon">🛒</span>
+        <span>Loja</span>
+      </a>
+      <a href="${base}festa.html" class="sidebar-link ${isActive('festa')}">
+        <span class="sidebar-icon">🎉</span>
+        <span>Modo Festa</span>
+      </a>
+      <a href="${base}criar-puzzle.html" class="sidebar-link ${isActive('criar-puzzle')}">
+        <span class="sidebar-icon">✏️</span>
+        <span>Criar Puzzle</span>
+      </a>
       <div class="sidebar-divider"></div>
       <span class="sidebar-section-label">Cartas</span>
       <a href="${base}games/blackjack/index.html" class="sidebar-link ${isActive('blackjack')}"><span class="sidebar-icon">🃏</span><span>Blackjack</span></a>
@@ -318,6 +338,7 @@ export function initSidebar(options = {}) {
       <a href="${base}games/termo/index.html" class="sidebar-link ${isActive('termo')}"><span class="sidebar-icon">📝</span><span>Termo</span></a>
       <span class="sidebar-section-label">Casual</span>
       <a href="${base}games/cookieclicker/index.html" class="sidebar-link ${isActive('cookie')}"><span class="sidebar-icon">🍪</span><span>Cookie Clicker</span></a>
+      <a href="${base}games/quiz/index.html" class="sidebar-link ${isActive('quiz')}"><span class="sidebar-icon">🧠</span><span>Quiz Battle</span></a>
       <a href="${base}games/sinuca/index.html" class="sidebar-link ${isActive('sinuca')}"><span class="sidebar-icon">🎱</span><span>Sinuca</span></a>
       <div class="sidebar-divider"></div>
       <a href="${base}sobre.html" class="sidebar-link ${isActive('sobre')}">

@@ -609,6 +609,15 @@
         <span class="badge badge-play">Jogar</span>
       </a>
 
+      <a href="games/quiz/index.html" class="game-card" data-category="casual" data-name="Quiz Battle Trivia" data-game="quiz">
+        <div class="game-icon">🧠</div>
+        <div class="game-info"><h3>Quiz Battle</h3><p>Trivia multiplayer em tempo real</p></div>
+        <span class="game-category-tag" data-cat="casual">Casual</span>
+        <span class="badge badge-new">Novo</span>
+        <div class="game-stats" id="stats-quiz"></div>
+        <span class="badge badge-play">Jogar</span>
+      </a>
+
     </div>
 
     <!-- No results message -->
@@ -983,6 +992,7 @@
 
       // Casual
       renderScoreStats('cookieclicker', 'stats-cookieclicker');
+      renderScoreStats('quiz', 'stats-quiz');
       renderScoreStats('sinuca', 'stats-sinuca');
     }
 
@@ -1050,6 +1060,7 @@
       truco:      { icon: '🃏', name: 'Truco' },
       pyramid:    { icon: '🔺', name: 'Pirâmide' },
       uno:        { icon: '🎴', name: 'Uno' },
+      quiz:       { icon: '🧠', name: 'Quiz Battle' },
     };
 
     async function loadLiveRooms() {
