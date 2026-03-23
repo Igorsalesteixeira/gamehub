@@ -48,29 +48,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Tatami texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 18px,
-      rgba(154, 143, 130, 0.04) 18px,
-      rgba(154, 143, 130, 0.04) 19px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 18px,
-      rgba(154, 143, 130, 0.03) 18px,
-      rgba(154, 143, 130, 0.03) 19px
-    );
-  pointer-events: none;
-  z-index: 0;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm ambient light from top */
 body::after {
@@ -173,58 +151,7 @@ body::after {
     inset 0 1px 0 rgba(252, 212, 161, 0.05);
 }
 
-/* ── Tiles ── */
-.tile {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  border-radius: var(--p15-radius);
-  font-family: var(--p15-font-display);
-  font-size: clamp(1.2rem, 5vw, 2rem);
-  font-weight: 700;
-  color: var(--p15-on-primary);
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-  border: 1px solid transparent;
-
-  /* Hinoki wood base with grain texture */
-  background:
-    repeating-linear-gradient(
-      82deg,
-      transparent 0px,
-      transparent 6px,
-      rgba(99, 72, 33, 0.12) 6px,
-      rgba(99, 72, 33, 0.12) 7px,
-      transparent 7px,
-      transparent 14px
-    ),
-    linear-gradient(
-      165deg,
-      #e8ca97 0%,
-      var(--p15-primary-container) 35%,
-      #d4a76a 70%,
-      #c89b5e 100%
-    );
-
-  /* Chamfered edge illusion */
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.15),
-    inset 1px 0 0 rgba(255, 255, 255, 0.2),
-    inset -1px 0 0 rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.3);
-
-  transition:
-    transform 0.15s var(--p15-bounce),
-    box-shadow var(--p15-transition);
-
-  /* Sumi ink stamp text effect */
-  text-shadow: 0 0.5px 0 rgba(99, 72, 33, 0.3);
-}
+/* Texture overlay removed */
 
 .tile:focus-visible {
   border-color: var(--p15-tertiary);

@@ -42,29 +42,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Shoji screen light pattern */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 60px,
-      rgba(240, 230, 208, 0.03) 60px,
-      rgba(240, 230, 208, 0.03) 62px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 80px,
-      rgba(240, 230, 208, 0.03) 80px,
-      rgba(240, 230, 208, 0.03) 82px
-    );
-  pointer-events: none;
-  z-index: 0;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm incense vignette + amber light from above */
 body::after {

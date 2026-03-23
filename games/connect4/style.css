@@ -47,45 +47,7 @@ body {
   position: relative;
 }
 
-/* 3D perspective grid receding to horizon */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 79px,
-      rgba(0, 255, 255, 0.025) 79px,
-      rgba(0, 255, 255, 0.025) 80px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 79px,
-      rgba(255, 0, 255, 0.02) 79px,
-      rgba(255, 0, 255, 0.02) 80px
-    );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0,0,0,0.08) 20%,
-    rgba(0,0,0,0.4) 55%,
-    rgba(0,0,0,0.9) 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0,0,0,0.08) 20%,
-    rgba(0,0,0,0.4) 55%,
-    rgba(0,0,0,0.9) 100%
-  );
-  transform: perspective(500px) rotateX(40deg);
-  transform-origin: center top;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Neon ambient light — cyan + magenta radial glows */
 body::after {
@@ -364,24 +326,7 @@ body::after {
   50% { opacity: 1; }
 }
 
-/* === Board — Brushed Metal Frame + LED Edge Strips === */
-.board {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  background:
-    linear-gradient(135deg, rgba(42, 42, 62, 0.6), var(--c4-surface-container) 40%, rgba(30, 30, 47, 0.8)),
-    repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255, 255, 255, 0.008) 3px, rgba(255, 255, 255, 0.008) 4px);
-  padding: 10px;
-  border-radius: var(--c4-radius);
-  width: min(92vw, 420px);
-  position: relative;
-  box-shadow:
-    0 0 35px rgba(0, 255, 255, 0.08),
-    0 0 35px rgba(255, 0, 255, 0.05),
-    0 10px 50px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
+/* Texture overlay removed */
 
 /* LED border animation — magenta to cyan cycling gradient */
 .board::before {

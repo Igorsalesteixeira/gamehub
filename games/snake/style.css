@@ -107,24 +107,7 @@ body::before {
   100% { transform: translateY(0%); }
 }
 
-/* ===== DIGITAL VIGNETTE — body::after ===== */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at center, transparent 40%, rgba(10, 15, 10, 0.6) 100%),
-    /* Scanline overlay */
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 252, 64, 0.015) 2px,
-      rgba(0, 252, 64, 0.015) 4px
-    );
-  pointer-events: none;
-  z-index: 1;
-}
+/* Texture overlay removed */
 
 /* ===== TOPBAR — Terminal Header ===== */
 .topbar {
@@ -263,36 +246,7 @@ body::after {
   min-height: 0;
 }
 
-/* ===== CANVAS — Grid Pulse Background ===== */
-#game-canvas {
-  border-radius: 0;
-  border: 1px solid var(--outline-variant);
-  background:
-    /* Grid pulse pattern inside the canvas area */
-    repeating-linear-gradient(
-      0deg,
-      rgba(0, 252, 64, 0.02) 0px,
-      transparent 1px,
-      transparent 19px,
-      rgba(0, 252, 64, 0.02) 20px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(0, 252, 64, 0.02) 0px,
-      transparent 1px,
-      transparent 19px,
-      rgba(0, 252, 64, 0.02) 20px
-    ),
-    var(--surface-container-lowest);
-  box-shadow:
-    var(--glow-primary),
-    inset 0 0 80px rgba(0, 252, 64, 0.02);
-  max-width: 100%;
-  max-height: 100%;
-  position: relative;
-  z-index: 5;
-  image-rendering: pixelated;
-}
+/* Texture overlay removed */
 
 /* ===== PARTICLES CONTAINER ===== */
 .particles-container {

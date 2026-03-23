@@ -90,35 +90,7 @@ body {
   position: relative;
 }
 
-/* Atmospheric overlay — dim room with wood panel texture, Tiffany lamp cone */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    /* Tiffany lamp overhead glow */
-    var(--lamp-glow),
-    /* Wood panel vertical lines */
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 80px,
-      rgba(92, 42, 14, 0.04) 80px,
-      rgba(92, 42, 14, 0.04) 82px
-    ),
-    /* Horizontal wainscoting */
-    repeating-linear-gradient(
-      180deg,
-      transparent 0px,
-      transparent 200px,
-      rgba(92, 42, 14, 0.03) 200px,
-      rgba(92, 42, 14, 0.03) 202px
-    ),
-    /* Vignette */
-    radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* ===== Topbar — Mahogany Rail ===== */
 .topbar {

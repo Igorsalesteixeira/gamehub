@@ -87,31 +87,7 @@ body {
   position: relative;
 }
 
-/* Raked sand texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 18px,
-      rgba(200, 180, 140, 0.08) 18px,
-      rgba(200, 180, 140, 0.08) 19px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 60px,
-      rgba(200, 180, 140, 0.04) 60px,
-      rgba(200, 180, 140, 0.04) 61px
-    ),
-    radial-gradient(ellipse 600px 400px at 20% 30%, rgba(210, 190, 150, 0.06), transparent),
-    radial-gradient(ellipse 400px 300px at 80% 70%, rgba(210, 190, 150, 0.05), transparent);
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm dawn light overlay */
 body::after {

@@ -43,21 +43,7 @@ body {
   position: relative;
 }
 
-/* --- Scanlines overlay --- */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* --- CRT vignette --- */
 body::after {
@@ -212,20 +198,7 @@ body {
   position: relative;
 }
 
-/* Modal inner scanline effect */
-.modal::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent 0px,
-    transparent 3px,
-    rgba(51, 255, 51, 0.02) 3px,
-    rgba(51, 255, 51, 0.02) 6px
-  );
-  pointer-events: none;
-}
+/* Texture overlay removed */
 
 .modal-overlay.hidden .modal {
   transform: scale(0.9);

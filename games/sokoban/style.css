@@ -69,37 +69,7 @@ body {
   touch-action: none;
 }
 
-/* Atmospheric diamond-plate / brushed-metal overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 3px,
-      rgba(255, 183, 121, 0.012) 3px,
-      rgba(255, 183, 121, 0.012) 4px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 3px,
-      rgba(205, 127, 50, 0.012) 3px,
-      rgba(205, 127, 50, 0.012) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 18px,
-      rgba(255, 255, 255, 0.008) 18px,
-      rgba(255, 255, 255, 0.008) 19px
-    );
-  opacity: 0.7;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 body > * { position: relative; z-index: 1; }
 

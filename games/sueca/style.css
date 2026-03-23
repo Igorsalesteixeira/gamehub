@@ -71,27 +71,7 @@ body {
   position: relative;
 }
 
-/* Azulejo tile pattern overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(30,58,95,0.02) 0px,
-      transparent 1px,
-      transparent 40px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(30,58,95,0.02) 0px,
-      transparent 1px,
-      transparent 40px
-    );
-  pointer-events: none;
-  z-index: 0;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm sunlight from top + subtle vignette */
 body::after {
@@ -337,26 +317,7 @@ body::after {
   -webkit-backdrop-filter: blur(4px);
 }
 
-/* Tile pattern on overlay */
-#overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,0.03) 0px,
-      transparent 1px,
-      transparent 30px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,0.03) 0px,
-      transparent 1px,
-      transparent 30px
-    );
-  pointer-events: none;
-}
+/* Texture overlay removed */
 
 #overlay h1 {
   font-family: var(--font-display);

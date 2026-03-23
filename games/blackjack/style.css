@@ -284,27 +284,7 @@ body::after {
   transform: rotate(180deg);
 }
 
-/* Card back — Vault pattern */
-.card.card-back {
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(201, 168, 76, 0.06) 0px,
-      rgba(201, 168, 76, 0.06) 1px,
-      transparent 1px,
-      transparent 6px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(201, 168, 76, 0.06) 0px,
-      rgba(201, 168, 76, 0.06) 1px,
-      transparent 1px,
-      transparent 6px
-    ),
-    linear-gradient(145deg, #152540 0%, #0d1a2e 50%, #0a1320 100%);
-  color: transparent;
-  border: 2px solid rgba(201, 168, 76, 0.3);
-}
+/* Texture overlay removed */
 
 .card.card-back::after {
   content: '?';

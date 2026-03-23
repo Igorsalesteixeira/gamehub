@@ -76,45 +76,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Film grain texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,0.015) 0px,
-      transparent 1px,
-      transparent 3px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,0.008) 0px,
-      transparent 1px,
-      transparent 3px
-    );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Venetian blind diagonal shadows + vignette */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      135deg,
-      transparent 0px,
-      transparent 18px,
-      rgba(255,255,255,0.018) 18px,
-      rgba(255,255,255,0.018) 20px
-    ),
-    radial-gradient(ellipse at 50% 30%, transparent 20%, rgba(0,0,0,0.6) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
+/* Texture overlay removed */
 
 /* — Topbar: Smoke-glass header — */
 .topbar {

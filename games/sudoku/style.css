@@ -54,36 +54,7 @@ body.sudoku-game {
   overflow-x: hidden;
 }
 
-/* Washi paper fiber grain texture */
-body.sudoku-game::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(113, 91, 62, 0.018) 3px,
-      rgba(113, 91, 62, 0.018) 4px
-    ),
-    repeating-linear-gradient(
-      87deg,
-      transparent,
-      transparent 5px,
-      rgba(113, 91, 62, 0.012) 5px,
-      rgba(113, 91, 62, 0.012) 6px
-    ),
-    repeating-linear-gradient(
-      173deg,
-      transparent,
-      transparent 7px,
-      rgba(113, 91, 62, 0.008) 7px,
-      rgba(113, 91, 62, 0.008) 8px
-    );
-  pointer-events: none;
-  z-index: 0;
-}
+/* Texture overlay removed */
 
 /* Warm ambient light wash */
 body.sudoku-game::after {
@@ -331,22 +302,7 @@ body.sudoku-game::after {
   }
 }
 
-/* Subtle washi texture overlay on board */
-.board::before {
-  content: '';
-  position: absolute;
-  inset: -10px;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(113, 91, 62, 0.012) 3px,
-      rgba(113, 91, 62, 0.012) 4px
-    );
-  pointer-events: none;
-  z-index: 1;
-}
+/* Texture overlay removed */
 
 /* ============================================
    CELLS — Sumi ink on washi

@@ -70,29 +70,7 @@ body::before {
   z-index: 0;
 }
 
-/* Fractured light lines overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 120px,
-      rgba(194, 195, 241, 0.015) 120px,
-      rgba(194, 195, 241, 0.015) 121px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 80px,
-      rgba(233, 196, 0, 0.01) 80px,
-      rgba(233, 196, 0, 0.01) 81px
-    );
-  pointer-events: none;
-  z-index: 1000;
-}
+/* Texture overlay removed */
 
 /* ── Top Bar ── */
 .topbar {

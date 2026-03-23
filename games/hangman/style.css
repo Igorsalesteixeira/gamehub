@@ -44,34 +44,7 @@ body {
   position: relative;
 }
 
-/* Atmospheric overlay — damask wallpaper + candle flicker */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 15%, rgba(242, 192, 141, 0.06) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 30% at 25% 10%, rgba(242, 192, 141, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 35% 25% at 75% 12%, rgba(242, 192, 141, 0.03) 0%, transparent 55%),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px, transparent 18px,
-      rgba(80, 69, 59, 0.04) 18px, rgba(80, 69, 59, 0.04) 19px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px, transparent 18px,
-      rgba(80, 69, 59, 0.04) 18px, rgba(80, 69, 59, 0.04) 19px
-    ),
-    repeating-conic-gradient(
-      from 0deg at 50% 50%,
-      rgba(212, 165, 116, 0.012) 0deg 45deg,
-      transparent 45deg 90deg
-    );
-  animation: candleFlicker 4s ease-in-out infinite alternate;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 @keyframes candleFlicker {
   0%   { opacity: 0.85; }

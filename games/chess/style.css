@@ -72,37 +72,7 @@ body {
   position: relative;
 }
 
-/* Stone texture / dust overlay — noise at 3% opacity */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.03;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(210, 190, 160, 0.18) 2px,
-      rgba(210, 190, 160, 0.18) 3px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      rgba(180, 165, 130, 0.12) 3px,
-      rgba(180, 165, 130, 0.12) 4px
-    ),
-    repeating-linear-gradient(
-      135deg,
-      transparent,
-      transparent 5px,
-      rgba(200, 180, 140, 0.1) 5px,
-      rgba(200, 180, 140, 0.1) 6px
-    );
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Torch ambient light — radial gradients at 135° source + vignette */
 body::after {

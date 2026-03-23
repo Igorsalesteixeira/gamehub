@@ -75,25 +75,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Cobblestone texture + night grain */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    repeating-conic-gradient(
-      rgba(255,255,255,0.008) 0% 25%,
-      transparent 0% 50%
-    ) 0 0 / 20px 20px,
-    repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,0.01) 0px,
-      transparent 1px,
-      transparent 4px
-    );
-  pointer-events: none;
-  z-index: 1;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Sodium lamp cone + warm vignette */
 body::after {

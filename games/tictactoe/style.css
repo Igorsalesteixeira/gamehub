@@ -55,21 +55,7 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Scanline overlay for cyberpunk feel */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 251, 251, 0.03) 2px,
-    rgba(0, 251, 251, 0.03) 4px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* === Topbar === */
 .topbar {

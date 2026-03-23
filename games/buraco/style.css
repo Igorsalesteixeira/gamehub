@@ -69,31 +69,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Wood grain + azulejo tile texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    /* Azulejo tile pattern (faint) */
-    repeating-conic-gradient(
-      var(--secondary-container) 0% 25%,
-      transparent 0% 50%
-    ) 0 0 / 60px 60px,
-    /* Wood grain horizontal lines */
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 18px,
-      rgba(159, 142, 124, 0.04) 18px,
-      rgba(159, 142, 124, 0.04) 19px
-    ),
-    /* Noise texture */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm vignette + incandescent light cone from above */
 body::after {

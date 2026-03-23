@@ -52,43 +52,7 @@ body {
   overflow-x: hidden;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    /* brick mortar pattern */
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 38px,
-      rgba(156, 142, 130, 0.04) 38px,
-      rgba(156, 142, 130, 0.04) 40px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 78px,
-      rgba(156, 142, 130, 0.03) 78px,
-      rgba(156, 142, 130, 0.03) 80px
-    ),
-    /* warm oven ambient glow from bottom center */
-    radial-gradient(
-      ellipse 60% 40% at 50% 85%,
-      rgba(184, 57, 0, 0.12) 0%,
-      transparent 70%
-    ),
-    /* flour dust particles */
-    radial-gradient(1px 1px at 15% 25%, rgba(255, 219, 206, 0.12) 50%, transparent 100%),
-    radial-gradient(1px 1px at 42% 18%, rgba(255, 186, 147, 0.1) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 73% 35%, rgba(255, 219, 206, 0.08) 50%, transparent 100%),
-    radial-gradient(1px 1px at 88% 55%, rgba(242, 192, 141, 0.1) 50%, transparent 100%),
-    radial-gradient(1px 1px at 28% 72%, rgba(255, 219, 206, 0.07) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 60% 60%, rgba(255, 186, 147, 0.06) 50%, transparent 100%),
-    radial-gradient(1px 1px at 5% 90%, rgba(242, 192, 141, 0.09) 50%, transparent 100%);
-}
+/* Scanlines overlay removed */
 
 body > * {
   position: relative;

@@ -54,31 +54,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Parchment texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(32, 27, 12, 0.008) 3px,
-      rgba(32, 27, 12, 0.008) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 5px,
-      rgba(32, 27, 12, 0.005) 5px,
-      rgba(32, 27, 12, 0.005) 6px
-    ),
-    radial-gradient(ellipse at 20% 50%, rgba(204, 171, 78, 0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 30%, rgba(201, 168, 76, 0.04) 0%, transparent 50%);
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* Warm ambient light */
 body::after {
@@ -229,44 +205,7 @@ body > * {
   to { transform: rotate(360deg); }
 }
 
-/* ===== BOARD — Kaya Wood with Grain ===== */
-.board {
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 0;
-  background:
-    /* Kaya wood grain — horizontal fibers */
-    repeating-linear-gradient(
-      2deg,
-      transparent,
-      transparent 8px,
-      rgba(160, 120, 40, 0.12) 8px,
-      rgba(160, 120, 40, 0.12) 9px,
-      transparent 9px,
-      transparent 14px
-    ),
-    /* Kaya wood grain — subtle vertical grain */
-    repeating-linear-gradient(
-      92deg,
-      transparent,
-      transparent 20px,
-      rgba(140, 100, 30, 0.06) 20px,
-      rgba(140, 100, 30, 0.06) 21px,
-      transparent 21px,
-      transparent 40px
-    ),
-    /* Base kaya gradient */
-    linear-gradient(160deg, #dbb568 0%, var(--go-kaya-wood) 40%, var(--go-kaya-dark) 100%);
-  padding: min(12px, 3vw);
-  border-radius: var(--go-radius);
-  max-width: min(380px, 90vw);
-  width: 100%;
-  box-shadow:
-    0 8px 40px var(--go-shadow-heavy),
-    0 2px 8px var(--go-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  position: relative;
-}
+/* Texture overlay removed */
 
 /* ===== CELLS — Grid Intersections ===== */
 .cell {

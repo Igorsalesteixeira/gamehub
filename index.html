@@ -1314,5 +1314,61 @@
     // Check achievements on homepage load (aggregate check)
     achievementManager.checkAchievements();
   </script>
+  <script type="module">
+    // ===== SPECTATOR MODE — Live games widget =====
+    import { spectatorManager } from './games/shared/spectator-manager.js';
+
+    async function loadLiveSpectateGames() {
+      const games = await spectatorManager.getActiveGames(5);
+      if (!games.length) return;
+
+      const GAME_LABELS = {
+        tictactoe:  { icon: '\u274C', name: 'Jogo da Velha' },
+        connect4:   { icon: '\uD83D\uDD34', name: 'Conecte 4' },
+        checkers:   { icon: '\u26AB', name: 'Dama' },
+        reversi:    { icon: '\u2B1B', name: 'Reversi' },
+        memory:     { icon: '\uD83E\uDDE0', name: 'Mem\u00F3ria' },
+        battleship: { icon: '\uD83D\uDEA2', name: 'Batalha Naval' },
+        chess:      { icon: '\u265F\uFE0F', name: 'Xadrez' },
+        go:         { icon: '\u26AB', name: 'Go (9\u00D79)' },
+        stopgame:   { icon: '\uD83D\uDED1', name: 'Stop!' },
+        hangman:    { icon: '\uD83E\uDE62', name: 'Forca' },
+        anagram:    { icon: '\uD83D\uDD24', name: 'Anagrama' },
+        termo:      { icon: '\uD83D\uDFE9', name: 'Termo' },
+        truco:      { icon: '\uD83C\uDCCF', name: 'Truco' },
+        uno:        { icon: '\uD83C\uDCB4', name: 'Uno' },
+      };
+
+      const section = document.getElementById('live-rooms-section');
+      if (!section) return;
+      // Ensure the section is visible
+      section.style.display = '';
+
+      // Create spectate sub-section
+      const spectateDiv = document.createElement('div');
+      spectateDiv.className = 'live-spectate-section';
+      spectateDiv.innerHTML = `
+        <div class="live-spectate-header">
+          <span class="spectator-live-dot"></span>
+          <span>Partidas ao vivo \u2014 assista agora</span>
+        </div>
+        <div class="live-spectate-grid">
+          ${games.map(room => {
+            const g = GAME_LABELS[room.game] || { icon: '\uD83C\uDFAE', name: room.game };
+            const url = spectatorManager.getSpectateUrl(room.game, room.id);
+            return `<a class="live-spectate-chip" href="${url}">
+              <span class="chip-icon">${g.icon}</span>
+              <span class="chip-players">${room.player1_name || 'Jogador'} vs ${room.player2_name || 'Jogador'}</span>
+              <span class="chip-game">${g.name}</span>
+              <span class="chip-watch">\uD83D\uDC41\uFE0F Assistir</span>
+            </a>`;
+          }).join('')}
+        </div>
+      `;
+      section.appendChild(spectateDiv);
+    }
+
+    loadLiveSpectateGames();
+  </script>
 </body>
 </html>

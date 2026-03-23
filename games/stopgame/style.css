@@ -45,32 +45,7 @@ body {
   overflow-x: hidden;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 600px 400px at 20% 10%, rgba(255,85,64,0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 500px 350px at 80% 15%, rgba(0,218,243,0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 400px 300px at 50% 90%, rgba(255,219,60,0.06) 0%, transparent 70%),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0px,
-      transparent 58px,
-      rgba(255,255,255,0.012) 58px,
-      rgba(255,255,255,0.012) 60px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 58px,
-      rgba(255,255,255,0.012) 58px,
-      rgba(255,255,255,0.012) 60px
-    );
-  animation: spotlightSweep 12s ease-in-out infinite alternate;
-}
+/* Scanlines overlay removed */
 
 @keyframes spotlightSweep {
   0% {

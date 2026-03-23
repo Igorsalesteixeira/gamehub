@@ -44,39 +44,7 @@ body {
   position: relative;
 }
 
-/* ── 3D Perspective Grid (body::before) ── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    /* horizontal perspective lines */
-    linear-gradient(
-      180deg,
-      transparent 0%,
-      transparent 50%,
-      rgba(14, 106, 255, 0.03) 50%,
-      transparent 100%
-    ),
-    /* circuit grid pattern */
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 59px,
-      rgba(142, 171, 255, 0.04) 59px,
-      rgba(142, 171, 255, 0.04) 60px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 59px,
-      rgba(142, 171, 255, 0.04) 59px,
-      rgba(142, 171, 255, 0.04) 60px
-    );
-  pointer-events: none;
-  z-index: 0;
-  perspective: 400px;
-}
+/* Scanlines overlay removed — visual noise on light backgrounds */
 
 /* ── Neon Ambient Glow (body::after) ── */
 body::after {
