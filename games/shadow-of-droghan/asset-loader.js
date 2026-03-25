@@ -84,19 +84,20 @@ const CHAR_FRAME_H = 16;
 const CHAR_COLS = 48; // 768 / 16
 
 // Mapeamento de animações para o spritesheet Puny Characters
-// Layout REAL: cada DIREÇÃO ocupa 2 rows; animações são blocos de 6 colunas
-// Rows 0-1: Down, Rows 2-3: Left, Rows 4-5: Right, Rows 6-7: Up
-// Cols 0-5: Idle, Cols 6-11: Walk, Cols 12-17: Attack, Cols 18-23: Bow
-// Row+1 de cada par: Cols 0-5: Hurt, Cols 6-11: Death
+// Layout: 768×256 = 48 cols × 16 rows (16×16 frames)
+// Cada DIREÇÃO = 1 row. Animações em blocos horizontais de 6 frames.
+// Row 0: Down, Row 1: Left, Row 2: Right, Row 3: Up
+// (Rows 4-7, 8-11, 12-15 = variantes de equipamento do mesmo personagem)
+// Cols: 0-5=Idle, 6-11=Walk, 12-17=Attack, 18-23=Bow, 24-29=Hurt, 30-35=Death
 
-const CHAR_DIR_ROW = { down: 0, left: 2, right: 4, up: 6 };
+const CHAR_DIR_ROW = { down: 0, left: 1, right: 2, up: 3 };
 const CHAR_ANIM_COL = {
-  idle:   { col: 0,  frames: 6, rowOff: 0 },
-  walk:   { col: 6,  frames: 6, rowOff: 0 },
-  attack: { col: 12, frames: 6, rowOff: 0 },
-  bow:    { col: 18, frames: 6, rowOff: 0 },
-  hurt:   { col: 0,  frames: 6, rowOff: 1 },
-  death:  { col: 6,  frames: 6, rowOff: 1 },
+  idle:   { col: 0,  frames: 6 },
+  walk:   { col: 6,  frames: 6 },
+  attack: { col: 12, frames: 6 },
+  bow:    { col: 18, frames: 6 },
+  hurt:   { col: 24, frames: 6 },
+  death:  { col: 30, frames: 6 },
 };
 
 // Converte facing do jogo (0-3 ou string) para index de direção
@@ -120,8 +121,7 @@ function getCharFrame(imgKey, anim, dir, frameIndex) {
   if (!img) return null;
   const a = CHAR_ANIM_COL[anim] || CHAR_ANIM_COL.idle;
   const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][dir] || 'down';
-  const baseRow = CHAR_DIR_ROW[dirStr] || 0;
-  const row = baseRow + (a.rowOff || 0);
+  const row = CHAR_DIR_ROW[dirStr] || 0;
   const col = a.col + (frameIndex % a.frames);
   return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
 }
@@ -374,7 +374,7 @@ const ENEMY_SPRITE_MAP = {
 
   // B3+
   golemPedra:   { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
-  cultista:     { sheet: 'mageRed', col: 6, row: 0, w: 16, h: 16, frames: 6 },
+  cultista:     { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
   mimic:        { sheet: 'rpgEnemies', col: 5, row: 4, w: 16, h: 16, frames: 2 },
 
   // Bosses — usam Warrior/Soldier com escala maior
@@ -386,7 +386,7 @@ const ENEMY_SPRITE_MAP = {
 
   // Mini-bosses
   aranhaRainha: { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
-  lichMenor:    { sheet: 'mageRed', col: 12, row: 0, w: 16, h: 16, frames: 6 },
+  lichMenor:    { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
   golemArcano:  { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
   dragaoMenor:  { sheet: 'rpgEnemies', col: 7, row: 1, w: 16, h: 16, frames: 2 },
   guardaReal:   { sheet: 'soldierYellow', col: 0, row: 0, w: 16, h: 16, frames: 6 },

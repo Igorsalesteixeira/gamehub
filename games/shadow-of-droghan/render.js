@@ -701,19 +701,18 @@ function renderPlayer() {
     let frameIdx = 0;
     if (player.dead) {
       anim = 'death';
-      frameIdx = 5; // último frame (deitado)
+      frameIdx = 5;
     } else if (player.attackAnim > 0) {
       anim = 'attack';
-      // attackAnim vai de 0.2 → 0, mapear para frames 0-5
       frameIdx = Math.floor((1 - player.attackAnim / 0.2) * 5);
-    } else if (player.walkFrame > 0) {
+    } else if (player.walkTimer > 0 || player.walkFrame > 0) {
       anim = 'walk';
-      // walkFrame cicla 0-2, mapear para frames de spritesheet
-      frameIdx = player.walkFrame % 6;
+      // walkFrame cicla 0-2, mapear para 6 frames: 0→0, 1→2, 2→4
+      frameIdx = player.walkFrame * 2;
     } else {
       anim = 'idle';
-      // Idle: animação lenta (1 frame a cada 400ms)
-      frameIdx = Math.floor(performance.now() / 400) % 4;
+      // Idle: animação bem lenta (1 frame a cada 600ms, 4 frames)
+      frameIdx = Math.floor(performance.now() / 600) % 4;
     }
     const dir = player.facing || 'down';
     const frame = getCharFrame(spriteKey, anim, dir, frameIdx);
