@@ -98,7 +98,37 @@ function _sweep(type, f1, f2, vol, dur, t) {
   return {o, g};
 }
 
+// Mapeamento sfx type → chave de áudio real
+const SFX_REAL_MAP = {
+  swing: 'sfx_drawKnife1',
+  hit: 'sfx_hit',
+  kill: 'sfx_die',
+  playerHit: 'sfx_hit',
+  coin: 'sfx_coin1',
+  levelUp: 'sfx_levelUp',
+  heal: 'sfx_heal',
+  death: 'sfx_die',
+  chest: 'sfx_chest',
+  door: 'sfx_door',
+  buy: 'sfx_coin2',
+  equip: 'sfx_metalClick',
+  menuOpen: 'sfx_menuOpen',
+  menuClose: 'sfx_menuClose',
+  menuSelect: 'sfx_menuSelect',
+  menuCursor: 'sfx_menuCursor',
+  page: 'sfx_bookFlip1',
+  potion: 'sfx_handleSmallLeather',
+};
+
 function sfx(type, opts) {
+  // Tenta usar áudio real primeiro
+  const realKey = SFX_REAL_MAP[type];
+  if (realKey && typeof AUDIO_CACHE !== 'undefined' && AUDIO_CACHE[realKey]) {
+    if (typeof playSfxReal === 'function') playSfxReal(realKey);
+    return;
+  }
+
+  // Fallback: Web Audio procedural
   if (!audioCtx) initAudio();
   if (!audioCtx) return;
   if (sfxVolume <= 0) return;

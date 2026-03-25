@@ -155,6 +155,8 @@ function startFloor(floor) {
   player.vontadeUsed = false;
   // GDD §9: Atualizar tema visual do bioma
   updateThemeForFloor(floor);
+  // GDD §ASSETS: Tocar música do bioma
+  if (typeof playBiomeMusic === 'function') playBiomeMusic();
   // GDD §22: Save ao trocar andar
   triggerSave();
   // Minimap reset
@@ -359,10 +361,21 @@ function renderTutorialTip() {
   ctx.textAlign = 'left';
 }
 
-// Boot
-initPlayer();
-initMinimap();
-initCloudSave();
-document.getElementById('loading').classList.add('hidden');
-gameState = 'mainMenu';
-requestAnimationFrame(gameLoop);
+// Boot — carrega assets e inicia
+(async function boot() {
+  // Carrega assets reais (sprites, sons, músicas)
+  if (typeof loadAllAssets === 'function') {
+    try {
+      await loadAllAssets();
+      console.log('[Boot] Assets carregados com sucesso');
+    } catch(e) {
+      console.warn('[Boot] Falha ao carregar assets, usando fallback procedural:', e);
+    }
+  }
+  initPlayer();
+  initMinimap();
+  initCloudSave();
+  document.getElementById('loading').classList.add('hidden');
+  gameState = 'mainMenu';
+  requestAnimationFrame(gameLoop);
+})();

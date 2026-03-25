@@ -236,20 +236,33 @@ function renderMap() {
       const sy = Math.round(ty * TILE - camY);
 
       if (tile >= TILE_FLOOR) {
-        ctx.fillStyle = ((tx*7+ty*13) % 4 < 2) ? THEME.floor1 : THEME.floor2;
-        ctx.fillRect(sx, sy, TILE, TILE);
-        ctx.fillStyle = THEME.grout;
-        ctx.fillRect(sx, sy, TILE, 1);
-        ctx.fillRect(sx, sy, 1, TILE);
+        // Sprite tile ou fallback procedural
+        const biomeTiles = typeof getBiomeTiles === 'function' ? getBiomeTiles() : null;
+        const floorKey = ((tx*7+ty*13) % 4 < 2) ? (biomeTiles ? biomeTiles.floor : null) : (biomeTiles ? biomeTiles.floorAlt : null);
+        const floorFrame = floorKey ? getDungeonTile(floorKey) : null;
+        if (floorFrame) {
+          drawFrame(ctx, floorFrame, sx, sy, TILE, TILE);
+        } else {
+          ctx.fillStyle = ((tx*7+ty*13) % 4 < 2) ? THEME.floor1 : THEME.floor2;
+          ctx.fillRect(sx, sy, TILE, TILE);
+          ctx.fillStyle = THEME.grout;
+          ctx.fillRect(sx, sy, TILE, 1);
+          ctx.fillRect(sx, sy, 1, TILE);
+        }
 
         if (tile === TILE_STAIRS_DOWN) {
-          ctx.fillStyle = '#886622';
-          ctx.fillRect(sx+6, sy+6, 20, 20);
-          ctx.fillStyle = '#ffd700';
-          ctx.fillRect(sx+10, sy+10, 12, 12);
-          ctx.fillStyle = '#443311';
-          ctx.fillRect(sx+14, sy+11, 4, 8);
-          ctx.fillRect(sx+12, sy+17, 8, 3);
+          const stairFrame = getDungeonTile('stairsDown');
+          if (stairFrame) {
+            drawFrame(ctx, stairFrame, sx, sy, TILE, TILE);
+          } else {
+            ctx.fillStyle = '#886622';
+            ctx.fillRect(sx+6, sy+6, 20, 20);
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(sx+10, sy+10, 12, 12);
+            ctx.fillStyle = '#443311';
+            ctx.fillRect(sx+14, sy+11, 4, 8);
+            ctx.fillRect(sx+12, sy+17, 8, 3);
+          }
         }
         if (tile === TILE_STAIRS_UP) {
           ctx.fillStyle = '#888888';
@@ -261,14 +274,26 @@ function renderMap() {
           ctx.fillRect(sx+12, sy+12, 8, 3);
         }
       } else {
-        ctx.fillStyle = THEME.wallTop;
-        ctx.fillRect(sx, sy, TILE, TILE);
-        if (getTile(tx, ty+1) >= TILE_FLOOR) {
-          ctx.fillStyle = THEME.wallFace;
-          ctx.fillRect(sx, sy + TILE, TILE, WALL_DEPTH);
+        // Wall sprite ou fallback
+        const biomeTiles = typeof getBiomeTiles === 'function' ? getBiomeTiles() : null;
+        const wallFrame = biomeTiles ? getDungeonTile(biomeTiles.wall) : null;
+        if (wallFrame) {
+          drawFrame(ctx, wallFrame, sx, sy, TILE, TILE);
+        } else {
+          ctx.fillStyle = THEME.wallTop;
+          ctx.fillRect(sx, sy, TILE, TILE);
+          ctx.fillStyle = THEME.wallDetail;
+          ctx.fillRect(sx + TILE/2-1, sy + TILE/2-1, 2, 2);
         }
-        ctx.fillStyle = THEME.wallDetail;
-        ctx.fillRect(sx + TILE/2-1, sy + TILE/2-1, 2, 2);
+        if (getTile(tx, ty+1) >= TILE_FLOOR) {
+          const wallFaceFrame = biomeTiles ? getDungeonTile(biomeTiles.wallFace) : null;
+          if (wallFaceFrame) {
+            drawFrame(ctx, wallFaceFrame, sx, sy + TILE, TILE, WALL_DEPTH);
+          } else {
+            ctx.fillStyle = THEME.wallFace;
+            ctx.fillRect(sx, sy + TILE, TILE, WALL_DEPTH);
+          }
+        }
       }
 
       if (fog === 1) {
@@ -480,10 +505,15 @@ function renderChests() {
     const sy = Math.round(ch.y * TILE - camY);
 
     if (ch.opened) {
-      ctx.fillStyle = '#664422';
-      ctx.fillRect(sx+6, sy+10, 20, 14);
-      ctx.fillStyle = '#553311';
-      ctx.fillRect(sx+6, sy+6, 20, 8);
+      const openFrame = typeof getDungeonTile === 'function' ? getDungeonTile('chestOpen') : null;
+      if (openFrame) {
+        drawFrame(ctx, openFrame, sx, sy, TILE, TILE);
+      } else {
+        ctx.fillStyle = '#664422';
+        ctx.fillRect(sx+6, sy+10, 20, 14);
+        ctx.fillStyle = '#553311';
+        ctx.fillRect(sx+6, sy+6, 20, 8);
+      }
     } else {
       // GDD §9: Mimic treme levemente a cada 5s (dica sutil)
       let mx = 0;
@@ -492,15 +522,23 @@ function renderChests() {
         const cycle = t % 5;
         if (cycle < 0.15) mx = Math.sin(cycle * 80) * 1.5;
       }
-      ctx.fillStyle = '#885522';
-      ctx.fillRect(sx+6+mx, sy+8, 20, 16);
-      ctx.fillStyle = '#aa6633';
-      ctx.fillRect(sx+6+mx, sy+8, 20, 4);
-      ctx.fillStyle = '#ffd700';
-      ctx.fillRect(sx+14+mx, sy+14, 4, 4);
-      const glow = 0.15 + Math.sin(performance.now()/500) * 0.08;
-      ctx.fillStyle = `rgba(255,215,0,${glow})`;
-      ctx.fillRect(sx+2+mx, sy+4, 28, 24);
+      const chestFrame = typeof getDungeonTile === 'function' ? getDungeonTile('chest') : null;
+      if (chestFrame) {
+        drawFrame(ctx, chestFrame, sx+mx, sy, TILE, TILE);
+        const glow = 0.15 + Math.sin(performance.now()/500) * 0.08;
+        ctx.fillStyle = `rgba(255,215,0,${glow})`;
+        ctx.fillRect(sx+2+mx, sy+4, 28, 24);
+      } else {
+        ctx.fillStyle = '#885522';
+        ctx.fillRect(sx+6+mx, sy+8, 20, 16);
+        ctx.fillStyle = '#aa6633';
+        ctx.fillRect(sx+6+mx, sy+8, 20, 4);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(sx+14+mx, sy+14, 4, 4);
+        const glow = 0.15 + Math.sin(performance.now()/500) * 0.08;
+        ctx.fillStyle = `rgba(255,215,0,${glow})`;
+        ctx.fillRect(sx+2+mx, sy+4, 28, 24);
+      }
     }
   }
 }
@@ -653,79 +691,100 @@ function renderPlayer() {
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-  const pw = 16, ph = 24;
-  const dx = sx - pw/2;
-  const dy = sy - ph + 4;
+  // --- SPRITE RENDERING (com fallback procedural) ---
+  const spriteKey = typeof getPlayerSpriteKey === 'function' ? getPlayerSpriteKey() : null;
+  const spriteImg = spriteKey ? IMAGES[spriteKey] : null;
 
-  // Ataque visual
-  if (player.attackAnim > 0) {
-    const atkAngle = player.dir;
-    const arcX = sx + Math.cos(atkAngle) * 16;
-    const arcY = sy - 8 + Math.sin(atkAngle) * 16;
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(arcX, arcY, 10, atkAngle - 0.8, atkAngle + 0.8);
-    ctx.stroke();
-    ctx.lineWidth = 1;
-  }
+  if (spriteImg) {
+    // Determina animação e frame
+    let anim = 'idle';
+    if (player.dead) anim = 'death';
+    else if (player.attackAnim > 0) anim = 'attack';
+    else if (player.walkFrame > 0) anim = 'walk';
+    const dir = player.facing || 'down';
+    const frameIdx = Math.floor((performance.now() / 150)) % 6;
+    const frame = getCharFrame(spriteKey, anim, dir, frameIdx);
+    if (frame) {
+      // Sprite 16x16 escalado para 32x32 (TILE), centrado no player
+      drawFrame(ctx, frame, sx - TILE/2, sy - TILE + 4, TILE, TILE);
+    }
 
-  // Corpo
-  ctx.fillStyle = '#f0c8a0';
-  ctx.fillRect(dx+4, dy, 8, 8);
-  ctx.fillRect(dx+3, dy+8, 10, 6);
-
-  ctx.fillStyle = '#222';
-  ctx.fillRect(dx+3, dy, 10, 4);
-  if (player.facing === 'left' || player.facing === 'down')
-    ctx.fillRect(dx+1, dy+4, 3, 6);
-
-  // Equipamento visual
-  if (player.equipment.body) {
-    const tier = player.equipment.body.tier;
-    ctx.fillStyle = tier >= 2 ? '#557799' : tier >= 1 ? '#668855' : '#887766';
-    ctx.fillRect(dx+3, dy+8, 10, 6);
+    // Ataque visual (arco branco)
+    if (player.attackAnim > 0) {
+      const atkAngle = player.dir;
+      const arcX = sx + Math.cos(atkAngle) * 16;
+      const arcY = sy - 8 + Math.sin(atkAngle) * 16;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(arcX, arcY, 10, atkAngle - 0.8, atkAngle + 0.8);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
   } else {
-    ctx.fillStyle = '#eee'; // sunguinha
-    ctx.fillRect(dx+3, dy+14, 10, 4);
-  }
+    // === FALLBACK PROCEDURAL (original) ===
+    const pw = 16, ph = 24;
+    const dx = sx - pw/2;
+    const dy = sy - ph + 4;
 
-  if (player.equipment.head) {
-    const tier = player.equipment.head.tier;
-    ctx.fillStyle = tier >= 2 ? '#778899' : '#998877';
-    ctx.fillRect(dx+3, dy-2, 10, 4);
-  }
+    if (player.attackAnim > 0) {
+      const atkAngle = player.dir;
+      const arcX = sx + Math.cos(atkAngle) * 16;
+      const arcY = sy - 8 + Math.sin(atkAngle) * 16;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(arcX, arcY, 10, atkAngle - 0.8, atkAngle + 0.8);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+    }
 
-  ctx.fillStyle = '#f0c8a0';
-  const wo = player.walkFrame === 1 ? 1 : player.walkFrame === 2 ? -1 : 0;
-  ctx.fillRect(dx+4, dy+18, 3, 6+wo);
-  ctx.fillRect(dx+9, dy+18, 3, 6-wo);
-
-  if (player.equipment.feet) {
-    ctx.fillStyle = '#665544';
-    ctx.fillRect(dx+4, dy+22+wo, 3, 2);
-    ctx.fillRect(dx+9, dy+22-wo, 3, 2);
-  }
-
-  // Olhos
-  ctx.fillStyle = '#222';
-  if (player.facing === 'down') {
-    ctx.fillRect(dx+5, dy+4, 2, 2);
-    ctx.fillRect(dx+9, dy+4, 2, 2);
-  } else if (player.facing === 'left') {
-    ctx.fillRect(dx+4, dy+4, 2, 2);
-  } else if (player.facing === 'right') {
-    ctx.fillRect(dx+10, dy+4, 2, 2);
-  }
-
-  // Arma
-  if (player.equipment.weapon) {
-    const t = player.equipment.weapon.tier;
-    ctx.fillStyle = t >= 2 ? '#aaccee' : t >= 1 ? '#bbbbbb' : '#999999';
-    if (player.facing === 'right') ctx.fillRect(dx+14, dy+8, 6, 2);
-    else if (player.facing === 'left') ctx.fillRect(dx-4, dy+8, 6, 2);
-    else if (player.facing === 'down') ctx.fillRect(dx+12, dy+10, 2, 6);
-    else ctx.fillRect(dx+2, dy+2, 2, 6);
+    ctx.fillStyle = '#f0c8a0';
+    ctx.fillRect(dx+4, dy, 8, 8);
+    ctx.fillRect(dx+3, dy+8, 10, 6);
+    ctx.fillStyle = '#222';
+    ctx.fillRect(dx+3, dy, 10, 4);
+    if (player.facing === 'left' || player.facing === 'down')
+      ctx.fillRect(dx+1, dy+4, 3, 6);
+    if (player.equipment.body) {
+      const tier = player.equipment.body.tier;
+      ctx.fillStyle = tier >= 2 ? '#557799' : tier >= 1 ? '#668855' : '#887766';
+      ctx.fillRect(dx+3, dy+8, 10, 6);
+    } else {
+      ctx.fillStyle = '#eee';
+      ctx.fillRect(dx+3, dy+14, 10, 4);
+    }
+    if (player.equipment.head) {
+      const tier = player.equipment.head.tier;
+      ctx.fillStyle = tier >= 2 ? '#778899' : '#998877';
+      ctx.fillRect(dx+3, dy-2, 10, 4);
+    }
+    ctx.fillStyle = '#f0c8a0';
+    const wo = player.walkFrame === 1 ? 1 : player.walkFrame === 2 ? -1 : 0;
+    ctx.fillRect(dx+4, dy+18, 3, 6+wo);
+    ctx.fillRect(dx+9, dy+18, 3, 6-wo);
+    if (player.equipment.feet) {
+      ctx.fillStyle = '#665544';
+      ctx.fillRect(dx+4, dy+22+wo, 3, 2);
+      ctx.fillRect(dx+9, dy+22-wo, 3, 2);
+    }
+    ctx.fillStyle = '#222';
+    if (player.facing === 'down') {
+      ctx.fillRect(dx+5, dy+4, 2, 2);
+      ctx.fillRect(dx+9, dy+4, 2, 2);
+    } else if (player.facing === 'left') {
+      ctx.fillRect(dx+4, dy+4, 2, 2);
+    } else if (player.facing === 'right') {
+      ctx.fillRect(dx+10, dy+4, 2, 2);
+    }
+    if (player.equipment.weapon) {
+      const t = player.equipment.weapon.tier;
+      ctx.fillStyle = t >= 2 ? '#aaccee' : t >= 1 ? '#bbbbbb' : '#999999';
+      if (player.facing === 'right') ctx.fillRect(dx+14, dy+8, 6, 2);
+      else if (player.facing === 'left') ctx.fillRect(dx-4, dy+8, 6, 2);
+      else if (player.facing === 'down') ctx.fillRect(dx+12, dy+10, 2, 6);
+      else ctx.fillRect(dx+2, dy+2, 2, 6);
+    }
   }
 }
 
@@ -758,53 +817,62 @@ function renderEnemy(e) {
     ctx.fillRect(sx - w/2 - 4, sy - h - 4, w + 8, h + 8);
   }
 
-  ctx.fillStyle = e.def.color;
-  if (e.def.id === 'slime') {
-    ctx.beginPath();
-    ctx.ellipse(sx, sy - h/2 + 2, w/2, h/2, 0, 0, Math.PI*2);
-    ctx.fill();
-  } else if (e.isBoss) {
-    // Boss: larger, more detailed
-    ctx.fillRect(sx - w/2, sy - h + 2, w, h);
-    // Armor details
-    ctx.fillStyle = '#888';
-    ctx.fillRect(sx - w/2 + 4, sy - h + 6, w - 8, 4);
-    ctx.fillRect(sx - w/2 + 2, sy - h/2, w - 4, 3);
-    // Eyes (red in phase 2)
-    ctx.fillStyle = e.bossPhase >= 2 ? '#ff0000' : '#ffcc00';
-    ctx.fillRect(sx - 6, sy - h + 10, 4, 4);
-    ctx.fillRect(sx + 2, sy - h + 10, 4, 4);
-  } else if (e.isMiniBoss) {
-    // Mini-boss: Aranha Rainha
-    ctx.fillRect(sx - w/2, sy - h + 2, w, h);
-    // Legs
-    ctx.strokeStyle = e.def.color;
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-      const lx = (i - 1.5) * 6;
-      ctx.beginPath();
-      ctx.moveTo(sx + lx, sy - h/2);
-      ctx.lineTo(sx + lx - 8, sy + 4);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(sx + lx, sy - h/2);
-      ctx.lineTo(sx + lx + 8, sy + 4);
-      ctx.stroke();
-    }
-    ctx.lineWidth = 1;
-    // Red eyes
-    ctx.fillStyle = '#ff0000';
-    ctx.fillRect(sx - 5, sy - h + 8, 3, 3);
-    ctx.fillRect(sx + 2, sy - h + 8, 3, 3);
-  } else {
-    ctx.fillRect(sx - w/2, sy - h + 2, w, h);
-  }
+  // --- SPRITE RENDERING (com fallback procedural) ---
+  const enemyDir = e.dir !== undefined ? (
+    Math.abs(Math.cos(e.dir)) > Math.abs(Math.sin(e.dir))
+      ? (Math.cos(e.dir) > 0 ? 'right' : 'left')
+      : (Math.sin(e.dir) > 0 ? 'down' : 'up')
+  ) : 'down';
+  const enemyFrameIdx = Math.floor((performance.now() / 200)) % 6;
+  const enemyFrame = typeof getEnemyFrame === 'function' ? getEnemyFrame(e.def.id, enemyFrameIdx, enemyDir) : null;
 
-  // Eyes for regulars
-  if (!e.isBoss && !e.isMiniBoss) {
-    ctx.fillStyle = e.def.id === 'lobo' ? '#ffcc00' : '#ff3333';
-    ctx.fillRect(sx - 3, sy - h + 6, 2, 2);
-    ctx.fillRect(sx + 1, sy - h + 6, 2, 2);
+  if (enemyFrame) {
+    // Escala: boss=48x48(3x), mini-boss=32x32(2x), regular=TILE(2x)
+    const drawW = e.isBoss ? 48 : e.isMiniBoss ? 36 : Math.max(w, TILE);
+    const drawH = e.isBoss ? 48 : e.isMiniBoss ? 36 : Math.max(h, TILE);
+    drawFrame(ctx, enemyFrame, sx - drawW/2, sy - drawH + 2, drawW, drawH);
+  } else {
+    // === FALLBACK PROCEDURAL ===
+    ctx.fillStyle = e.def.color;
+    if (e.def.id === 'slime') {
+      ctx.beginPath();
+      ctx.ellipse(sx, sy - h/2 + 2, w/2, h/2, 0, 0, Math.PI*2);
+      ctx.fill();
+    } else if (e.isBoss) {
+      ctx.fillRect(sx - w/2, sy - h + 2, w, h);
+      ctx.fillStyle = '#888';
+      ctx.fillRect(sx - w/2 + 4, sy - h + 6, w - 8, 4);
+      ctx.fillRect(sx - w/2 + 2, sy - h/2, w - 4, 3);
+      ctx.fillStyle = e.bossPhase >= 2 ? '#ff0000' : '#ffcc00';
+      ctx.fillRect(sx - 6, sy - h + 10, 4, 4);
+      ctx.fillRect(sx + 2, sy - h + 10, 4, 4);
+    } else if (e.isMiniBoss) {
+      ctx.fillRect(sx - w/2, sy - h + 2, w, h);
+      ctx.strokeStyle = e.def.color;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) {
+        const lx = (i - 1.5) * 6;
+        ctx.beginPath();
+        ctx.moveTo(sx + lx, sy - h/2);
+        ctx.lineTo(sx + lx - 8, sy + 4);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sx + lx, sy - h/2);
+        ctx.lineTo(sx + lx + 8, sy + 4);
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(sx - 5, sy - h + 8, 3, 3);
+      ctx.fillRect(sx + 2, sy - h + 8, 3, 3);
+    } else {
+      ctx.fillRect(sx - w/2, sy - h + 2, w, h);
+    }
+    if (!e.isBoss && !e.isMiniBoss) {
+      ctx.fillStyle = e.def.id === 'lobo' ? '#ffcc00' : '#ff3333';
+      ctx.fillRect(sx - 3, sy - h + 6, 2, 2);
+      ctx.fillRect(sx + 1, sy - h + 6, 2, 2);
+    }
   }
 
   ctx.globalAlpha = 1;
@@ -839,24 +907,32 @@ function renderNPC(npc) {
   const sy = Math.round(npc.y - camY);
   const w = npc.def.w, h = npc.def.h;
 
-  // Body
-  ctx.fillStyle = npc.def.color;
-  ctx.fillRect(sx - w/2, sy - h + 2, w, h);
+  // --- SPRITE RENDERING (com fallback procedural) ---
+  const npcFrameIdx = Math.floor((performance.now() / 300)) % 6;
+  const npcFrame = typeof getNPCFrame === 'function' ? getNPCFrame(npc.id, 'down', npcFrameIdx) : null;
 
-  // Head (skin)
-  ctx.fillStyle = npc.id === 'lira' ? 'rgba(150,180,255,0.7)' : '#f0c8a0';
-  ctx.fillRect(sx - 4, sy - h - 2, 8, 8);
-
-  // Eyes
-  ctx.fillStyle = npc.id === 'selene' ? '#ccaa00' : '#222';
-  ctx.fillRect(sx - 2, sy - h + 2, 2, 2);
-  ctx.fillRect(sx + 1, sy - h + 2, 2, 2);
-
-  // Lira ghost glow
-  if (npc.id === 'lira') {
-    const glow = 0.15 + Math.sin(performance.now()/600) * 0.08;
-    ctx.fillStyle = `rgba(100,150,255,${glow})`;
-    ctx.fillRect(sx - w/2 - 4, sy - h - 6, w + 8, h + 12);
+  if (npcFrame) {
+    drawFrame(ctx, npcFrame, sx - TILE/2, sy - TILE + 2, TILE, TILE);
+    // Lira ghost glow
+    if (npc.id === 'lira') {
+      const glow = 0.15 + Math.sin(performance.now()/600) * 0.08;
+      ctx.fillStyle = `rgba(100,150,255,${glow})`;
+      ctx.fillRect(sx - TILE/2 - 4, sy - TILE - 2, TILE + 8, TILE + 8);
+    }
+  } else {
+    // === FALLBACK PROCEDURAL ===
+    ctx.fillStyle = npc.def.color;
+    ctx.fillRect(sx - w/2, sy - h + 2, w, h);
+    ctx.fillStyle = npc.id === 'lira' ? 'rgba(150,180,255,0.7)' : '#f0c8a0';
+    ctx.fillRect(sx - 4, sy - h - 2, 8, 8);
+    ctx.fillStyle = npc.id === 'selene' ? '#ccaa00' : '#222';
+    ctx.fillRect(sx - 2, sy - h + 2, 2, 2);
+    ctx.fillRect(sx + 1, sy - h + 2, 2, 2);
+    if (npc.id === 'lira') {
+      const glow = 0.15 + Math.sin(performance.now()/600) * 0.08;
+      ctx.fillStyle = `rgba(100,150,255,${glow})`;
+      ctx.fillRect(sx - w/2 - 4, sy - h - 6, w + 8, h + 12);
+    }
   }
 
   // Name tag
