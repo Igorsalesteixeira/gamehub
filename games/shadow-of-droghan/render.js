@@ -182,7 +182,7 @@ function renderVictoryScreen() {
       const entry = victoryState.leaderboardData[i];
       const entryY = rankY + 26 + i * 10;
       ctx.fillStyle = i === 0 ? '#ffd700' : i === 1 ? '#cccccc' : i === 2 ? '#cc8844' : '#888';
-      ctx.fillText(`#${i + 1} ${entry.nome || '???'} — A${entry.andar_max || '?'} ${entry.mortes || 0}d`, VIEW_W / 2, entryY);
+      ctx.fillText(`#${i + 1} ${entry.nome || '???'} — ${entry.runs_completas || 0} runs, ${entry.mortes || 0} mortes`, VIEW_W / 2, entryY);
     }
   }
 

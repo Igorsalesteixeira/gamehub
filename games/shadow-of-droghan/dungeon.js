@@ -503,6 +503,8 @@ function updateHazards(dt) {
         if (borderDist <= 1 && player.iframeTimer <= 0 &&
             ptx >= r.x && ptx < r.x + r.w && pty >= r.y && pty < r.y + r.h) {
           const dmg = Math.max(1, Math.floor(getMaxHp() * 0.07));
+          // GDD §20: Track death cause for rising lava hazard
+          if (typeof deathCause !== 'undefined') deathCause = 'Lava Ascendente';
           applyPlayerDamage(dmg);
           applyStatusPlayer('queimadura', 2);
           player.iframeTimer = 0.5;
@@ -543,6 +545,8 @@ function updateHazards(dt) {
           player.kbVy = Math.sin(angle) * TILE * 4;
           player.kbTimer = 0.15;
           const dmg = Math.floor(getMaxHp() * 0.05);
+          // GDD §20: Track death cause for cracking floor hazard
+          if (typeof deathCause !== 'undefined') deathCause = 'Chão Rachando';
           applyPlayerDamage(dmg);
         }
       } else {

@@ -1461,6 +1461,19 @@ function renderInventory() {
     if (item.def) { ctx.fillStyle = '#4488ff'; ctx.fillText(`+${item.def}`, 180, y); }
     if (item.type === 'ring') { ctx.fillStyle = '#88ff88'; ctx.fillText(`${item.attr}+${item.val.toFixed(1)}`, 180, y); }
     if (item.type === 'amulet') { ctx.fillStyle = AMULET_RARITY_COLORS[item.rarity]||'#aaa'; ctx.fillText(`${item.attr1}+${item.val1}`, 180, y); }
+    // GDD §13: Comparison arrows ↑↓ vs equipped item
+    if (item.slot && player.equipment) {
+      const equipped = player.equipment[item.slot];
+      let compX = 230;
+      const showDiff = (label, newVal, eqVal) => {
+        const diff = (newVal || 0) - (eqVal || 0);
+        if (diff > 0) { ctx.fillStyle = '#44ff44'; ctx.fillText(`${label}↑+${diff}`, compX, y); compX += 45; }
+        else if (diff < 0) { ctx.fillStyle = '#ff4444'; ctx.fillText(`${label}↓${diff}`, compX, y); compX += 45; }
+      };
+      if (item.atk || (equipped && equipped.atk)) showDiff('ATK', item.atk, equipped ? equipped.atk : 0);
+      if (item.def || (equipped && equipped.def)) showDiff('DEF', item.def, equipped ? equipped.def : 0);
+      if (item.agi || (equipped && equipped.agi)) showDiff('AGI', item.agi, equipped ? equipped.agi : 0);
+    }
   }
 
   // Consumíveis

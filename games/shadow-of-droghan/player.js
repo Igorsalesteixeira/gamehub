@@ -556,8 +556,8 @@ function checkBadges(trigger) {
     const allT5 = t5Slots.every(s => player.equipment[s] && player.equipment[s].tier >= 5);
     if (allT5) award('colecionador');
 
-    // Explorador: 8 secret rooms found (tracked in player if available)
-    if (player.secretRoomsFound >= 8) award('explorador');
+    // Explorador: 8 unique secret rooms found (floors 3,6,9,12,15,18,21,24)
+    if ((player.salaSecretaEncontrada || []).length >= 8) award('explorador');
   }
 
   return earned;

@@ -182,6 +182,8 @@ function updatePlayer(dt) {
     if (e.contactCD > 0) continue;
     const d = distXY(player.x, player.y, e.x, e.y);
     if (d < 6 + e.def.w/2) {
+      // GDD §20: Track death cause from enemy contact
+      if (typeof deathCause !== 'undefined') deathCause = e.name || e.def?.name || 'Inimigo';
       damagePlayer(Math.round(e.atk * 0.5), e.x, e.y, e.level);
       // GDD §5: Chance de status por inimigo (15-25% por hit)
       if (e.def.statusOnHit && Math.random() < (e.def.statusChance || 0.20)) {
@@ -263,7 +265,7 @@ function performAttack() {
     if (e.dead) continue;
     const edx = e.x - player.x, edy = e.y - player.y;
     const d = Math.sqrt(edx*edx + edy*edy);
-    if (d > TILE * 1.5) continue;
+    if (d > TILE) continue;
 
     const eAngle = Math.atan2(edy, edx);
     let diff = Math.abs(eAngle - angle);
@@ -765,6 +767,8 @@ function updateProjectiles(dt) {
           text: 'Teia!', color: '#cccccc', size: 7, timer: 0.8, vy: -25
         });
       } else {
+        // GDD §20: Track death cause from enemy projectile
+        if (typeof deathCause !== 'undefined' && p.owner) deathCause = p.owner.name || p.owner.def?.name || 'Projétil';
         damagePlayer(p.dmg, p.x, p.y);
         // GDD §10: drainHP — projétil cura o dono ao acertar
         if (p.drainHP && p.owner && !p.owner.dead) {

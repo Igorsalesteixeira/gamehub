@@ -125,6 +125,8 @@ function buildSaveData() {
     contadorRevisitasPorAndar: player.contadorRevisitasPorAndar || {},
     ultimoTemplate: typeof ultimoTemplate !== 'undefined' ? ultimoTemplate : null,
     runsCompletas: player.runsCompletas || 0,
+    sfxVolume: typeof sfxVolume !== 'undefined' ? sfxVolume : 0.8,
+    musicVolume: typeof musicVolume !== 'undefined' ? musicVolume : 0.4,
   };
 }
 
@@ -199,6 +201,9 @@ function loadSaveData(data) {
   player.contadorRevisitasPorAndar = data.contadorRevisitasPorAndar || {};
   if (typeof ultimoTemplate !== 'undefined') ultimoTemplate = data.ultimoTemplate || null;
   player.runsCompletas = data.runsCompletas || 0;
+  // Volume sliders
+  if (typeof sfxVolume !== 'undefined') sfxVolume = data.sfxVolume ?? 0.8;
+  if (typeof musicVolume !== 'undefined') musicVolume = data.musicVolume ?? 0.4;
   // Reset combat state
   player.dead = false; player.deathTimer = 0;
   player.attackTimer = 0; player.attackAnim = 0;

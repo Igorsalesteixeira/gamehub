@@ -298,9 +298,9 @@ if (isTouchDevice) {
 
       // Outros botões release
       if (touchBtns.potion.active && t.identifier === touchBtns.potion.touchId) {
-        // GDD §15: toque rápido = poção, segurar > 0.4s = abre inventário (consumíveis)
+        // GDD §14: toque rápido = poção vida, segurar > 0.4s = menu rápido consumíveis
         if (touchBtns.potion.holdTimer < 0.4) usePotion();
-        else keys.KeyI = true; // abre inventário como menu rápido
+        else gameState = 'consumableMenu'; // GDD §14: hold = quick consumable menu (same as KeyB)
         touchBtns.potion.active = false; touchBtns.potion.touchId = null;
         touchBtns.potion.holdTimer = 0;
       }
