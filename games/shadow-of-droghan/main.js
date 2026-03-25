@@ -30,6 +30,7 @@ function update(dt) {
   updateSecretPuzzles(dt, null);
   updateDmgNumbers(dt);
   updateEffects(dt);
+  if (typeof updateAmbientParticles === 'function') updateAmbientParticles(dt);
   updateCamera();
   updateFog();
   updateResource(dt);
@@ -161,6 +162,8 @@ function startFloor(floor) {
   triggerSave();
   // Minimap reset
   minimapDirty = true;
+  // Lighting: reinicializar partículas ambient para o novo bioma
+  if (typeof initAmbientParticles === 'function') initAmbientParticles();
 
   const loadingEl = document.getElementById('loading');
   const loadBar   = document.getElementById('loadBar');
@@ -374,6 +377,8 @@ function renderTutorialTip() {
   }
   initPlayer();
   initMinimap();
+  if (typeof initLighting === 'function') initLighting();
+  if (typeof initAmbientParticles === 'function') initAmbientParticles();
   initCloudSave();
   document.getElementById('loading').classList.add('hidden');
   gameState = 'mainMenu';

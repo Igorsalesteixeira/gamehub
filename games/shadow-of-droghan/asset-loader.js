@@ -1,7 +1,7 @@
 'use strict';
 // ============================================================
-// asset-loader.js — Carrega PNGs, corta spritesheets, cache
-// GDD §ASSETS: assets/*.png → Image() → ctx.drawImage()
+// asset-loader.js — Revolução Gráfica: 0x72 + PixelCrawler + NinjaAdventure
+// Carrega PNGs, corta spritesheets, cache de frames
 // ============================================================
 
 // --- Image cache ---
@@ -12,7 +12,7 @@ let assetsTotal = 0;
 let assetsCount = 0;
 
 // --- Sprite frame size (source) ---
-const SRC_TILE = 16; // sprites são 16x16, escalados 2x para TILE=32
+const SRC_TILE = 16; // 0x72 tiles são 16x16, escalados 2x para TILE=32
 
 // ============================================================
 // IMAGE LOADING
@@ -49,7 +49,6 @@ function updateLoadBar() {
 // SPRITESHEET FRAME EXTRACTION
 // ============================================================
 
-// Extrai frame de spritesheet com margem
 function getFrame(img, col, row, fw, fh, margin) {
   margin = margin || 0;
   const sx = col * (fw + margin);
@@ -57,7 +56,11 @@ function getFrame(img, col, row, fw, fh, margin) {
   return { img, sx, sy, sw: fw, sh: fh };
 }
 
-// Desenha frame escalado para TILE (32x32) ou tamanho custom
+// Extrai frame de spritesheet horizontal (row=0, frame index)
+function getHorizFrame(img, frameIndex, fw, fh) {
+  return { img, sx: frameIndex * fw, sy: 0, sw: fw, sh: fh };
+}
+
 function drawFrame(ctx, frame, dx, dy, dw, dh) {
   if (!frame || !frame.img) return false;
   dw = dw || TILE;
@@ -67,45 +70,222 @@ function drawFrame(ctx, frame, dx, dy, dw, dh) {
 }
 
 // ============================================================
-// PUNY CHARACTER SPRITE SYSTEM
-// Spritesheet: 768x256 = 48 cols × 16 rows (16x16 frames)
-// Layout (Puny Characters standard):
-//   Row 0-1:  Idle (down, left, right, up) — 6 frames each
-//   Row 2-3:  Walk (down, left, right, up) — 6 frames each
-//   Row 4-5:  Sword attack (down, left, right, up) — 6 frames each
-//   Row 6-7:  Bow attack / Stave attack
-//   Row 8-9:  Hurt / Death
-//   etc.
-// Direções: 0=down, 1=left, 2=right, 3=up
+// 0x72 DUNGEON TILESET II — TILES
+// Full atlas: 512x512 px
+// Individual frames: 16x16 (floors, walls, items)
 // ============================================================
 
-const CHAR_FRAME_W = 32;
-const CHAR_FRAME_H = 32;
-const CHAR_COLS = 24; // 768 / 32
+// 0x72 usa frames individuais — mapeamos por nome de arquivo
+const TILE_FRAME_CACHE = {};
 
-// Mapeamento de animações para o spritesheet Puny Characters
-// Layout REAL: 768×256 = 24 cols × 8 rows de 32×32 frames
-// Cada DIREÇÃO = 2 rows. Animações em blocos horizontais de 6 frames.
-// Rows 0-1: Down, Rows 2-3: Left, Rows 4-5: Right, Rows 6-7: Up
-// Row par (0,2,4,6): Idle(0-5), Walk(6-11), Attack(12-17), Bow(18-23)
-// Row ímpar (1,3,5,7): Hurt(0-5), Death(6-11), Cast(12-17), Special(18-23)
+function get0x72Frame(baseName) {
+  if (TILE_FRAME_CACHE[baseName]) return TILE_FRAME_CACHE[baseName];
+  const img = IMAGES['0x72_' + baseName];
+  if (!img) return null;
+  const frame = { img, sx: 0, sy: 0, sw: img.width, sh: img.height };
+  TILE_FRAME_CACHE[baseName] = frame;
+  return frame;
+}
 
-const CHAR_DIR_ROW = { down: 0, left: 2, right: 4, up: 6 };
-const CHAR_ANIM_COL = {
-  idle:   { col: 0,  frames: 6, rowOff: 0 },
-  walk:   { col: 6,  frames: 6, rowOff: 0 },
-  attack: { col: 12, frames: 6, rowOff: 0 },
-  bow:    { col: 18, frames: 6, rowOff: 0 },
-  hurt:   { col: 0,  frames: 6, rowOff: 1 },
-  death:  { col: 6,  frames: 6, rowOff: 1 },
+// Alias de compatibilidade — getDungeonTile agora usa 0x72 frames
+function getDungeonTile(tileKey) {
+  // Mapear os antigos tile keys para novos nomes 0x72
+  const OLD_TO_NEW = {
+    floorStone1: 'floor_1', floorStone2: 'floor_2', floorStone3: 'floor_3',
+    floorDark1: 'floor_4', floorDark2: 'floor_5',
+    floorBrick1: 'floor_6', floorBrick2: 'floor_7',
+    wallTop: 'wall_top_mid', wallMid: 'wall_mid',
+    wallLeft: 'wall_left', wallRight: 'wall_right',
+    wallCornerTL: 'wall_top_left', wallCornerTR: 'wall_top_right',
+    stairsDown: 'floor_stairs',
+    spikes: 'floor_spikes_anim_f0',
+    torch1: 'wall_fountain_mid_red_anim_f0',
+    barrel: 'crate', chest: 'chest_full_open_anim_f0',
+    chestOpen: 'chest_empty_open_anim_f2',
+    doorClosed: 'doors_leaf_closed', doorOpen: 'doors_leaf_open',
+  };
+  const mapped = OLD_TO_NEW[tileKey] || tileKey;
+  return get0x72Frame(mapped);
+}
+
+// ============================================================
+// PIXEL CRAWLER — PLAYER CHARACTER
+// Horizontal spritesheets: 64x64 frames
+// Directions: Down, Side, Up (Side = both left & right, flip horizontally)
+// Animations: Idle(4f), Walk(6f), Run(6f), Slice(8f), Hit(4f), Death(8f)
+// ============================================================
+
+const PC_FRAME_SIZE = 64; // cada frame do Pixel Crawler
+
+// Mapeamento de animações do player
+const PC_PLAYER_ANIMS = {
+  idle:   { prefix: 'Idle',  frames: 4 },
+  walk:   { prefix: 'Walk',  frames: 6 },
+  run:    { prefix: 'Run',   frames: 6 },
+  attack: { prefix: 'Slice', frames: 8 },
+  hit:    { prefix: 'Hit',   frames: 4 },
+  death:  { prefix: 'Death', frames: 8 },
+  pierce: { prefix: 'Pierce', frames: 8 },
 };
 
-// Converte facing do jogo (0-3 ou string) para index de direção
-function facingToDir(facing) {
-  if (typeof facing === 'number') {
-    // 0=down, 1=left, 2=right, 3=up
-    return Math.min(3, Math.max(0, facing));
+// Direções do PC: Down, Side, Up
+const PC_DIR_SUFFIX = { down: 'Down', left: 'Side', right: 'Side', up: 'Up' };
+
+function getPlayerFrame(anim, dir, frameIndex) {
+  const a = PC_PLAYER_ANIMS[anim] || PC_PLAYER_ANIMS.idle;
+  const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][dir] || 'down';
+  const suffix = PC_DIR_SUFFIX[dirStr] || 'Down';
+  const key = `pc_player_${a.prefix}_${suffix}`;
+  const img = IMAGES[key];
+  if (!img) return null;
+
+  const fi = (frameIndex || 0) % a.frames;
+  const frame = { img, sx: fi * PC_FRAME_SIZE, sy: 0, sw: PC_FRAME_SIZE, sh: PC_FRAME_SIZE };
+  // Side sprites são espelhados para 'left'
+  if (dirStr === 'left') frame.flipX = true;
+  return frame;
+}
+
+// Override drawFrame para suportar flipX
+const _origDrawFrame = drawFrame;
+function drawFrameEx(ctx, frame, dx, dy, dw, dh) {
+  if (!frame || !frame.img) return false;
+  dw = dw || TILE;
+  dh = dh || TILE;
+  if (frame.flipX) {
+    ctx.save();
+    ctx.translate(dx + dw, dy);
+    ctx.scale(-1, 1);
+    ctx.drawImage(frame.img, frame.sx, frame.sy, frame.sw, frame.sh, 0, 0, dw, dh);
+    ctx.restore();
+  } else {
+    ctx.drawImage(frame.img, frame.sx, frame.sy, frame.sw, frame.sh, dx, dy, dw, dh);
   }
+  return true;
+}
+
+// ============================================================
+// 0x72 ENEMIES — Individual frames (idle + run animations)
+// Standard heroes: 16x28, Big enemies: 32x36, Small: 16x16
+// ============================================================
+
+const ENEMY_SPRITE_MAP = {
+  // 0x72 enemies: individual frame files, idle + run (4 frames each)
+  // Small enemies (16x16)
+  slime:        { pack: '0x72', base: 'goblin',       w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  rato:         { pack: '0x72', base: 'tiny_zombie',   w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  morcego:      { pack: '0x72', base: 'imp',           w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  aranha:       { pack: '0x72', base: 'muddy',         w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  lobo:         { pack: '0x72', base: 'wogol',         w: 16, h: 24, idleFrames: 4, runFrames: 4 },
+  goblin:       { pack: '0x72', base: 'goblin',        w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  gobArqueiro:  { pack: '0x72', base: 'masked_orc',    w: 16, h: 20, idleFrames: 4, runFrames: 4 },
+  esqSoldado:   { pack: '0x72', base: 'skelet',        w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  kobold:       { pack: '0x72', base: 'swampy',        w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  centopeia:    { pack: '0x72', base: 'slug',          w: 16, h: 16, idleFrames: 4, runFrames: 0 },
+
+  // B2 enemies
+  zumbi:        { pack: '0x72', base: 'zombie',        w: 16, h: 16, idleFrames: 4, runFrames: 0 },
+  fantasma:     { pack: '0x72', base: 'angel',         w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  necromante:   { pack: '0x72', base: 'necromancer',   w: 16, h: 20, idleFrames: 4, runFrames: 0 },
+  vampiroMenor: { pack: '0x72', base: 'chort',         w: 16, h: 24, idleFrames: 4, runFrames: 4 },
+  esqArqueiro:  { pack: '0x72', base: 'skelet',        w: 16, h: 16, idleFrames: 4, runFrames: 4 },
+  esqGuerreiro: { pack: '0x72', base: 'ice_zombie',    w: 16, h: 16, idleFrames: 4, runFrames: 0 },
+
+  // B3+ enemies
+  golemPedra:   { pack: '0x72', base: 'orc_warrior',   w: 16, h: 20, idleFrames: 4, runFrames: 4 },
+  cultista:     { pack: '0x72', base: 'orc_shaman',    w: 16, h: 20, idleFrames: 4, runFrames: 4 },
+  mimic:        { pack: '0x72', base: 'slug',          w: 16, h: 16, idleFrames: 4, runFrames: 0 },
+
+  // Mini-bosses — larger enemies
+  aranhaRainha: { pack: '0x72', base: 'big_zombie',    w: 32, h: 36, idleFrames: 4, runFrames: 4 },
+  lichMenor:    { pack: '0x72', base: 'ogre',          w: 32, h: 36, idleFrames: 4, runFrames: 4 },
+  golemArcano:  { pack: '0x72', base: 'big_demon',     w: 32, h: 36, idleFrames: 4, runFrames: 4 },
+  dragaoMenor:  { pack: '0x72', base: 'big_zombie',    w: 32, h: 36, idleFrames: 4, runFrames: 4 },
+  guardaReal:   { pack: '0x72', base: 'ogre',          w: 32, h: 36, idleFrames: 4, runFrames: 4 },
+
+  // Bosses — Ninja Adventure sprites (muito maiores)
+  thornax:      { pack: 'na', boss: 'GiantBamboo',     frameSize: 62, idleFrames: 6 },
+  morvena:      { pack: 'na', boss: 'GiantSpirit',     frameSize: 50, idleFrames: 5 },
+  azaroth:      { pack: 'na', boss: 'DemonCyclop',     frameSize: 50, idleFrames: 5 },
+  ignaroth:     { pack: 'na', boss: 'GiantFlam',       frameSize: 50, idleFrames: 5 },
+  nahgord:      { pack: 'na', boss: 'TenguRed',        frameSize: 82, idleFrames: 6 },
+};
+
+function getEnemyFrame(enemyId, frameIndex, dir) {
+  const mapping = ENEMY_SPRITE_MAP[enemyId];
+  if (!mapping) return null;
+
+  // Ninja Adventure bosses — horizontal spritesheet
+  if (mapping.pack === 'na') {
+    const img = IMAGES['boss_' + mapping.boss + '_Idle'];
+    if (!img) return null;
+    const fi = (frameIndex || 0) % mapping.idleFrames;
+    return { img, sx: fi * mapping.frameSize, sy: 0, sw: mapping.frameSize, sh: mapping.frameSize };
+  }
+
+  // 0x72 enemies — individual frame PNGs
+  const isMoving = dir !== undefined && dir !== null;
+  const animType = isMoving && mapping.runFrames > 0 ? 'run' : 'idle';
+  const maxFrames = animType === 'run' ? mapping.runFrames : mapping.idleFrames;
+  const fi = (frameIndex || 0) % maxFrames;
+  const key = `0x72_${mapping.base}_${animType}_anim_f${fi}`;
+  const img = IMAGES[key];
+  if (!img) {
+    // Fallback: tentar idle f0
+    const fallback = IMAGES[`0x72_${mapping.base}_idle_anim_f0`];
+    if (!fallback) return null;
+    return { img: fallback, sx: 0, sy: 0, sw: fallback.width, sh: fallback.height };
+  }
+  return { img, sx: 0, sy: 0, sw: img.width, sh: img.height };
+}
+
+// ============================================================
+// NPC SPRITE MAPPING — 0x72 heroes
+// knight_m/elf_f/wizzard_m: 16x28 frames, idle(4f) + run(4f)
+// ============================================================
+
+const NPC_SPRITE_MAP = {
+  selene:   { base: 'elf_f',     w: 16, h: 28 },
+  lira:     { base: 'wizzard_m', w: 16, h: 28 },
+  bron:     { base: 'knight_m',  w: 16, h: 28 },
+  kaelith:  { base: 'dwarf_m',   w: 16, h: 28 },
+};
+
+function getNPCFrame(npcId, dir, frameIndex) {
+  const mapping = NPC_SPRITE_MAP[npcId];
+  if (!mapping) return null;
+  const fi = (frameIndex || 0) % 4;
+  const key = `0x72_${mapping.base}_idle_anim_f${fi}`;
+  const img = IMAGES[key];
+  if (!img) return null;
+  return { img, sx: 0, sy: 0, sw: img.width, sh: img.height };
+}
+
+// ============================================================
+// PLAYER CLASS → SPRITE MAPPING (Pixel Crawler)
+// Todas as classes usam o mesmo Body_A mas com cores diferentes via tinting
+// ============================================================
+
+const CLASS_SPRITE_MAP = {
+  guerreiro: 'pc_player',
+  mago:      'pc_player',
+  arqueiro:  'pc_player',
+  assassino: 'pc_player',
+  '':        'pc_player',
+};
+
+function getPlayerSpriteKey() {
+  return 'pc_player';
+}
+
+// Compatibility: getCharFrame for old code that may still call it
+function getCharFrame(imgKey, anim, dir, frameIndex) {
+  // Redirect to new player frame system
+  return getPlayerFrame(anim, dir, frameIndex);
+}
+
+function facingToDir(facing) {
+  if (typeof facing === 'number') return Math.min(3, Math.max(0, facing));
   switch (facing) {
     case 'down': return 0;
     case 'left': return 1;
@@ -115,392 +295,103 @@ function facingToDir(facing) {
   }
 }
 
-// Retorna frame de animação para um character sprite
-function getCharFrame(imgKey, anim, dir, frameIndex) {
-  const img = IMAGES[imgKey];
-  if (!img) return null;
-  const a = CHAR_ANIM_COL[anim] || CHAR_ANIM_COL.idle;
-  const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][dir] || 'down';
-  const row = (CHAR_DIR_ROW[dirStr] || 0) + (a.rowOff || 0);
-  const col = a.col + (frameIndex % a.frames);
-  return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
-}
-
 // ============================================================
-// SLIME SPRITE
-// Slime.png: 480x32 = 15 cols × 1 row (32x32)
-// ============================================================
-
-function getSlimeFrame(frameIndex) {
-  const img = IMAGES['slime'];
-  if (!img) return null;
-  const col = frameIndex % 15;
-  return getFrame(img, col, 0, 32, 32, 0);
-}
-
-// ============================================================
-// DUNGEON TILESET
-// punyworld-dungeon-tileset.png: 416x320
-// 16x16 tiles com 1px margem
-// ============================================================
-
-const DUNGEON_TILE_SIZE = 16;
-const DUNGEON_MARGIN = 1;
-const DUNGEON_COLS = Math.floor(416 / (DUNGEON_TILE_SIZE + DUNGEON_MARGIN));
-
-// Tile indices mapeados visualmente do spritesheet:
-const TILE_MAP = {
-  // Floors
-  floorStone1:    { col: 0, row: 6 },
-  floorStone2:    { col: 1, row: 6 },
-  floorStone3:    { col: 2, row: 6 },
-  floorDark1:     { col: 0, row: 7 },
-  floorDark2:     { col: 1, row: 7 },
-  floorBrick1:    { col: 3, row: 6 },
-  floorBrick2:    { col: 4, row: 6 },
-
-  // Walls
-  wallTop:        { col: 0, row: 0 },
-  wallMid:        { col: 0, row: 1 },
-  wallLeft:       { col: 2, row: 0 },
-  wallRight:      { col: 3, row: 0 },
-  wallCornerTL:   { col: 4, row: 0 },
-  wallCornerTR:   { col: 5, row: 0 },
-  wallCornerBL:   { col: 4, row: 1 },
-  wallCornerBR:   { col: 5, row: 1 },
-
-  // Doors
-  doorClosed:     { col: 7, row: 3 },
-  doorOpen:       { col: 8, row: 3 },
-
-  // Stairs
-  stairsDown:     { col: 9, row: 3 },
-
-  // Decorations
-  torch1:         { col: 16, row: 0 },
-  torch2:         { col: 16, row: 1 },
-  barrel:         { col: 22, row: 14 },
-  crate:          { col: 23, row: 14 },
-  chest:          { col: 21, row: 14 },
-  chestOpen:      { col: 21, row: 15 },
-
-  // Hazards
-  spikes:         { col: 10, row: 6 },
-  lava1:          { col: 0, row: 3 },
-  lava2:          { col: 1, row: 3 },
-  water1:         { col: 0, row: 4 },
-  water2:         { col: 1, row: 4 },
-};
-
-function getDungeonTile(tileKey) {
-  const t = TILE_MAP[tileKey];
-  if (!t) return null;
-  const img = IMAGES['dungeonTileset'];
-  if (!img) return null;
-  return getFrame(img, t.col, t.row, DUNGEON_TILE_SIZE, DUNGEON_TILE_SIZE, DUNGEON_MARGIN);
-}
-
-// ============================================================
-// KENNEY ROGUELIKE TILESET
-// roguelikeSheet_transparent.png: 968x526
-// 16x16 tiles com 1px margem = 57 cols × 31 rows
-// ============================================================
-
-const KENNEY_COLS = 57;
-
-// Mapeamento visual de tiles úteis do Kenney
-const KENNEY_MAP = {
-  // Floor tiles (rows 0-3)
-  floorWood1:     { col: 0, row: 0 },
-  floorWood2:     { col: 1, row: 0 },
-  floorStone1:    { col: 3, row: 0 },
-  floorStone2:    { col: 4, row: 0 },
-  floorGrass1:    { col: 6, row: 0 },
-  floorDirt1:     { col: 8, row: 0 },
-
-  // Wall tiles
-  wallBrick1:     { col: 16, row: 0 },
-  wallBrick2:     { col: 17, row: 0 },
-  wallStone1:     { col: 18, row: 0 },
-
-  // Items
-  coinGold:       { col: 43, row: 18 },
-  coinSilver:     { col: 44, row: 18 },
-  potionRed:      { col: 44, row: 22 },
-  potionBlue:     { col: 45, row: 22 },
-  potionGreen:    { col: 46, row: 22 },
-  keyGold:        { col: 47, row: 22 },
-  scrollItem:     { col: 48, row: 22 },
-  gemRed:         { col: 43, row: 19 },
-  gemBlue:        { col: 44, row: 19 },
-
-  // Weapons
-  sword1:         { col: 43, row: 24 },
-  sword2:         { col: 44, row: 24 },
-  axe1:           { col: 45, row: 24 },
-  bow1:           { col: 46, row: 24 },
-  staff1:         { col: 47, row: 24 },
-  dagger1:        { col: 48, row: 24 },
-
-  // Armor
-  helmet1:        { col: 43, row: 25 },
-  shield1:        { col: 44, row: 25 },
-  chestplate1:    { col: 45, row: 25 },
-  boots1:         { col: 46, row: 25 },
-
-  // Furniture
-  tablewood:      { col: 32, row: 5 },
-  chair1:         { col: 33, row: 5 },
-};
-
-function getKenneyTile(tileKey) {
-  const t = KENNEY_MAP[tileKey];
-  if (!t) return null;
-  const img = IMAGES['kenneySheet'];
-  if (!img) return null;
-  return getFrame(img, t.col, t.row, 16, 16, 1);
-}
-
-// ============================================================
-// ICON PACK (Kyrise 16x16)
-// spritesheet_16x16.png: 256x304 = 16 cols × 19 rows (16x16, no margin)
-// ============================================================
-
-const ICON_COLS = 16;
-
-// Mapeamento de ícones por categoria
-const ICON_MAP = {
-  // Swords (row 0)
-  swordIron:      { col: 0, row: 0 },
-  swordSteel:     { col: 1, row: 0 },
-  swordGold:      { col: 2, row: 0 },
-  swordRuby:      { col: 3, row: 0 },
-  swordBlue:      { col: 4, row: 0 },
-  swordGreen:     { col: 5, row: 0 },
-  swordPurple:    { col: 6, row: 0 },
-
-  // Staffs (row 1)
-  staffWood:      { col: 0, row: 1 },
-  staffBlue:      { col: 1, row: 1 },
-  staffRed:       { col: 2, row: 1 },
-  staffGreen:     { col: 3, row: 1 },
-  staffPurple:    { col: 4, row: 1 },
-
-  // Bows (row 2)
-  bowWood:        { col: 0, row: 2 },
-  bowIron:        { col: 1, row: 2 },
-  bowGold:        { col: 2, row: 2 },
-
-  // Shields (row 3)
-  shieldWood:     { col: 0, row: 3 },
-  shieldIron:     { col: 1, row: 3 },
-  shieldGold:     { col: 2, row: 3 },
-
-  // Helmets (row 4)
-  helmetLeather:  { col: 0, row: 4 },
-  helmetIron:     { col: 1, row: 4 },
-  helmetGold:     { col: 2, row: 4 },
-
-  // Potions (row 5)
-  potionRed:      { col: 0, row: 5 },
-  potionBlue:     { col: 1, row: 5 },
-  potionGreen:    { col: 2, row: 5 },
-  potionYellow:   { col: 3, row: 5 },
-  potionPurple:   { col: 4, row: 5 },
-
-  // Gems (row 7)
-  gemRed:         { col: 0, row: 7 },
-  gemBlue:        { col: 1, row: 7 },
-  gemGreen:       { col: 2, row: 7 },
-  gemPurple:      { col: 3, row: 7 },
-  gemYellow:      { col: 4, row: 7 },
-
-  // Rings/Amulets (row 9)
-  ringGold:       { col: 0, row: 9 },
-  ringGem:        { col: 1, row: 9 },
-  amulet1:        { col: 2, row: 9 },
-  amulet2:        { col: 3, row: 9 },
-
-  // Keys (row 11)
-  keyBronze:      { col: 0, row: 11 },
-  keyGold:        { col: 1, row: 11 },
-
-  // Scrolls / Books (row 12)
-  scroll1:        { col: 0, row: 12 },
-  book1:          { col: 1, row: 12 },
-
-  // Coins (row 13)
-  coin1:          { col: 0, row: 13 },
-  coinStack:      { col: 1, row: 13 },
-  ingot:          { col: 2, row: 13 },
-};
-
-function getIconFrame(iconKey) {
-  const t = ICON_MAP[iconKey];
-  if (!t) return null;
-  const img = IMAGES['iconSheet'];
-  if (!img) return null;
-  return getFrame(img, t.col, t.row, 16, 16, 0);
-}
-
-// ============================================================
-// RPG ENEMIES SPRITESHEET
-// rpg_enemies.png: 240x192
-// Mixed sizes — mapped manually from visual inspection
-// Row heights vary. Each enemy type ~16x16 with some 16x24
-// ============================================================
-
-const ENEMY_SPRITE_MAP = {
-  // Mapeamento de enemy.def.id → posição no spritesheet ou character sheet
-  // Puny Character sheets: 32×32 frames. rpgEnemies: 16×16 frames.
-  slime:        { sheet: 'slime', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  rato:         { sheet: 'rpgEnemies', col: 0, row: 4, w: 16, h: 16, frames: 3 },
-  morcego:      { sheet: 'rpgEnemies', col: 4, row: 0, w: 16, h: 16, frames: 3 },
-  aranha:       { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
-  lobo:         { sheet: 'rpgEnemies', col: 0, row: 2, w: 16, h: 16, frames: 3 },
-  goblin:       { sheet: 'orcPeonRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  gobArqueiro:  { sheet: 'orcPeonCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  esqSoldado:   { sheet: 'rpgEnemies', col: 0, row: 3, w: 16, h: 16, frames: 3 },
-  kobold:       { sheet: 'rpgEnemies', col: 3, row: 4, w: 16, h: 16, frames: 3 },
-  centopeia:    { sheet: 'rpgEnemies', col: 0, row: 1, w: 16, h: 16, frames: 3 },
-
-  // B2 humanoids — use soldier/warrior variants
-  zumbi:        { sheet: 'rpgEnemies', col: 0, row: 5, w: 16, h: 16, frames: 3 },
-  fantasma:     { sheet: 'rpgEnemies', col: 7, row: 0, w: 16, h: 16, frames: 2 },
-  necromante:   { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  vampiroMenor: { sheet: 'mageCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  esqArqueiro:  { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 3 },
-  esqGuerreiro: { sheet: 'rpgEnemies', col: 0, row: 3, w: 16, h: 16, frames: 3 },
-
-  // B3+
-  golemPedra:   { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
-  cultista:     { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  mimic:        { sheet: 'rpgEnemies', col: 5, row: 4, w: 16, h: 16, frames: 2 },
-
-  // Bosses — usam Warrior/Soldier com escala maior
-  thornax:      { sheet: 'warriorRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  morvena:      { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  azaroth:      { sheet: 'mageCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  ignaroth:     { sheet: 'soldierRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  nahgord:      { sheet: 'archerPurple', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-
-  // Mini-bosses
-  aranhaRainha: { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
-  lichMenor:    { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-  golemArcano:  { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
-  dragaoMenor:  { sheet: 'rpgEnemies', col: 7, row: 1, w: 16, h: 16, frames: 2 },
-  guardaReal:   { sheet: 'soldierYellow', col: 0, row: 0, w: 32, h: 32, frames: 6 },
-};
-
-function getEnemyFrame(enemyId, frameIndex, dir) {
-  const mapping = ENEMY_SPRITE_MAP[enemyId];
-  if (!mapping) return null;
-
-  const img = IMAGES[mapping.sheet];
-  if (!img) return null;
-
-  if (mapping.sheet === 'slime') {
-    return getSlimeFrame(frameIndex);
-  }
-
-  // Para character sheets (768x256), usar layout correto:
-  // Rows por direção (0=down,2=left,4=right,6=up), cols por animação
-  if (['orcPeonRed', 'orcPeonCyan', 'orcGrunt', 'mageRed', 'mageCyan',
-       'warriorRed', 'warriorBlue', 'soldierRed', 'soldierBlue',
-       'soldierYellow', 'archerGreen', 'archerPurple',
-       'humanSoldierRed', 'humanSoldierCyan'].includes(mapping.sheet)) {
-    const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][facingToDir(dir || 0)] || 'down';
-    const row = CHAR_DIR_ROW[dirStr] || 0;
-    const col = (mapping.col || 0) + ((frameIndex || 0) % mapping.frames);
-    return getFrame(img, col, row, mapping.w, mapping.h, 0);
-  }
-
-  // Para rpgEnemies (sheet simples)
-  const col = mapping.col + ((frameIndex || 0) % mapping.frames);
-  return getFrame(img, col, mapping.row, mapping.w, mapping.h, 0);
-}
-
-// ============================================================
-// ITEM ICON MAPPING
-// Mapeia slot + tier para ícone
+// ITEM ICONS — 0x72 individual frame files
 // ============================================================
 
 function getItemIcon(item) {
   if (!item) return null;
-  const tier = item.tier || 0;
 
   // Armas
   if (item.slot === 'weapon') {
     const cls = item.cls || '';
-    if (cls === 'guerreiro') return getIconFrame(tier >= 3 ? 'swordGold' : tier >= 1 ? 'swordSteel' : 'swordIron');
-    if (cls === 'mago') return getIconFrame(tier >= 3 ? 'staffPurple' : tier >= 1 ? 'staffBlue' : 'staffWood');
-    if (cls === 'arqueiro') return getIconFrame(tier >= 3 ? 'bowGold' : tier >= 1 ? 'bowIron' : 'bowWood');
-    if (cls === 'assassino') return getIconFrame(tier >= 3 ? 'swordPurple' : tier >= 1 ? 'swordBlue' : 'swordIron');
-    return getIconFrame('swordIron');
+    if (cls === 'guerreiro') return get0x72Frame('weapon_regular_sword');
+    if (cls === 'mago') return get0x72Frame('weapon_red_magic_staff');
+    if (cls === 'arqueiro') return get0x72Frame('weapon_bow');
+    if (cls === 'assassino') return get0x72Frame('weapon_knife');
+    return get0x72Frame('weapon_regular_sword');
   }
 
-  if (item.slot === 'head') return getIconFrame(tier >= 3 ? 'helmetGold' : tier >= 1 ? 'helmetIron' : 'helmetLeather');
-  if (item.slot === 'secondary') return getIconFrame(tier >= 3 ? 'shieldGold' : tier >= 1 ? 'shieldIron' : 'shieldWood');
-  if (item.slot === 'body') return getIconFrame(tier >= 3 ? 'helmetGold' : 'helmetIron');
-  if (item.slot === 'feet') return getIconFrame('helmetLeather');
+  if (item.slot === 'head') return get0x72Frame('weapon_knight_sword');
+  if (item.slot === 'secondary') return get0x72Frame('weapon_big_hammer');
+  if (item.slot === 'body') return get0x72Frame('weapon_golden_sword');
+  if (item.slot === 'feet') return get0x72Frame('weapon_katana');
 
-  if (item.type === 'ring') return getIconFrame('ringGem');
-  if (item.type === 'amulet') return getIconFrame('amulet1');
+  // Consumables
+  if (item.id === 'pocaoHP' || item.id === 'pocaoHPG') return get0x72Frame('flask_big_red');
+  if (item.id === 'pocaoMana') return get0x72Frame('flask_big_blue');
+  if (item.id === 'pocaoStamina') return get0x72Frame('flask_big_yellow');
+  if (item.id === 'antidoto') return get0x72Frame('flask_big_green');
+  if (item.id === 'bomba') return get0x72Frame('bomb_f0');
+  if (item.id === 'pergaminho') return get0x72Frame('flask_red');
 
-  // Consumíveis
-  if (item.id === 'pocaoHP' || item.id === 'pocaoHPG') return getIconFrame('potionRed');
-  if (item.id === 'pocaoMana') return getIconFrame('potionBlue');
-  if (item.id === 'pocaoStamina') return getIconFrame('potionYellow');
-  if (item.id === 'antidoto') return getIconFrame('potionGreen');
-  if (item.id === 'bomba') return getIconFrame('gemRed');
-  if (item.id === 'pergaminho') return getIconFrame('scroll1');
+  // Generic
+  return get0x72Frame('coin_anim_f0');
+}
 
-  return getIconFrame('coin1');
+// Compatibility aliases
+function getIconFrame(iconKey) {
+  // Map old icon keys to 0x72 frames
+  const MAP = {
+    swordIron: 'weapon_regular_sword', swordSteel: 'weapon_knight_sword',
+    swordGold: 'weapon_golden_sword', swordBlue: 'weapon_anime_sword',
+    swordPurple: 'weapon_lavish_sword', swordRuby: 'weapon_red_gem_sword',
+    staffWood: 'weapon_green_magic_staff', staffBlue: 'weapon_red_magic_staff',
+    staffRed: 'weapon_red_magic_staff', staffPurple: 'weapon_red_magic_staff',
+    bowWood: 'weapon_bow', bowIron: 'weapon_bow_2', bowGold: 'weapon_bow_2',
+    shieldWood: 'weapon_big_hammer', shieldIron: 'weapon_mace', shieldGold: 'weapon_waraxe',
+    helmetLeather: 'weapon_katana', helmetIron: 'weapon_saw_sword', helmetGold: 'weapon_golden_sword',
+    potionRed: 'flask_big_red', potionBlue: 'flask_big_blue',
+    potionGreen: 'flask_big_green', potionYellow: 'flask_big_yellow',
+    potionPurple: 'flask_red',
+    gemRed: 'flask_red', gemBlue: 'flask_blue', gemGreen: 'flask_green',
+    ringGold: 'coin_anim_f0', ringGem: 'coin_anim_f0',
+    amulet1: 'coin_anim_f0', amulet2: 'coin_anim_f0',
+    coin1: 'coin_anim_f0', coinStack: 'coin_anim_f0',
+    scroll1: 'flask_yellow', book1: 'flask_yellow',
+    keyBronze: 'coin_anim_f0', keyGold: 'coin_anim_f0',
+  };
+  return get0x72Frame(MAP[iconKey] || 'coin_anim_f0');
+}
+
+// Kenney compatibility stub
+function getKenneyTile(tileKey) {
+  return getDungeonTile(tileKey);
+}
+
+// Slime compatibility
+function getSlimeFrame(frameIndex) {
+  return getEnemyFrame('slime', frameIndex);
 }
 
 // ============================================================
-// NPC SPRITE MAPPING
+// BIOME TILES — Uses 0x72 floor variants
 // ============================================================
 
-const NPC_SPRITE_MAP = {
-  selene:   'mageCyan',
-  lira:     'archerPurple',
-  bron:     'warriorRed',
-  kaelith:  'archerGreen',
+const BIOME_TILES = {
+  B1: { floor: 'floor_1', floorAlt: 'floor_2', wall: 'wall_top_mid', wallFace: 'wall_mid',
+        wallLeft: 'wall_top_left', wallRight: 'wall_top_right', wallEdgeL: 'wall_left', wallEdgeR: 'wall_right' },
+  B2: { floor: 'floor_3', floorAlt: 'floor_4', wall: 'wall_top_mid', wallFace: 'wall_mid',
+        wallLeft: 'wall_top_left', wallRight: 'wall_top_right', wallEdgeL: 'wall_left', wallEdgeR: 'wall_right' },
+  B3: { floor: 'floor_5', floorAlt: 'floor_6', wall: 'wall_top_mid', wallFace: 'wall_mid',
+        wallLeft: 'wall_top_left', wallRight: 'wall_top_right', wallEdgeL: 'wall_left', wallEdgeR: 'wall_right' },
+  B4: { floor: 'floor_7', floorAlt: 'floor_8', wall: 'wall_top_mid', wallFace: 'wall_mid',
+        wallLeft: 'wall_top_left', wallRight: 'wall_top_right', wallEdgeL: 'wall_left', wallEdgeR: 'wall_right' },
+  B5: { floor: 'floor_4', floorAlt: 'floor_5', wall: 'wall_top_mid', wallFace: 'wall_mid',
+        wallLeft: 'wall_top_left', wallRight: 'wall_top_right', wallEdgeL: 'wall_left', wallEdgeR: 'wall_right' },
 };
 
-function getNPCFrame(npcId, dir, frameIndex) {
-  const sheetKey = NPC_SPRITE_MAP[npcId];
-  if (!sheetKey) return null;
-  const img = IMAGES[sheetKey];
-  if (!img) return null;
-  const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][facingToDir(dir || 0)] || 'down';
-  const row = CHAR_DIR_ROW[dirStr] || 0;
-  const col = (frameIndex || 0) % 6; // idle animation (cols 0-5)
-  return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
+function getBiomeTiles() {
+  const floor = typeof currentFloor !== 'undefined' ? currentFloor : 1;
+  if (floor <= 5) return BIOME_TILES.B1;
+  if (floor <= 10) return BIOME_TILES.B2;
+  if (floor <= 15) return BIOME_TILES.B3;
+  if (floor <= 20) return BIOME_TILES.B4;
+  return BIOME_TILES.B5;
 }
 
 // ============================================================
-// PLAYER CLASS → SPRITE MAPPING
-// ============================================================
-
-const CLASS_SPRITE_MAP = {
-  guerreiro: 'warriorBlue',
-  mago:      'mageCyan',
-  arqueiro:  'archerGreen',
-  assassino: 'archerPurple',
-  '':        'characterBase', // sem classe
-};
-
-function getPlayerSpriteKey() {
-  if (typeof player !== 'undefined' && player.cls) {
-    return CLASS_SPRITE_MAP[player.cls] || 'characterBase';
-  }
-  return 'characterBase';
-}
-
-// ============================================================
-// AUDIO LOADING
+// AUDIO LOADING (unchanged)
 // ============================================================
 
 function loadAudio(key, src, options) {
@@ -528,7 +419,6 @@ function loadAudio(key, src, options) {
 }
 
 function playMusic(key) {
-  // Para música atual
   Object.values(AUDIO_CACHE).forEach(a => {
     if (a && a.loop) { a.pause(); a.currentTime = 0; }
   });
@@ -549,27 +439,6 @@ function playSfxReal(key) {
 }
 
 // ============================================================
-// BIOME → TILESET THEME MAPPING
-// ============================================================
-
-const BIOME_TILES = {
-  B1: { floor: 'floorStone1', floorAlt: 'floorStone2', wall: 'wallTop', wallFace: 'wallMid' },
-  B2: { floor: 'floorDark1',  floorAlt: 'floorDark2',  wall: 'wallTop', wallFace: 'wallMid' },
-  B3: { floor: 'floorBrick1', floorAlt: 'floorBrick2', wall: 'wallTop', wallFace: 'wallMid' },
-  B4: { floor: 'floorStone3', floorAlt: 'floorStone1', wall: 'wallTop', wallFace: 'wallMid' },
-  B5: { floor: 'floorDark1',  floorAlt: 'floorDark2',  wall: 'wallTop', wallFace: 'wallMid' },
-};
-
-function getBiomeTiles() {
-  const floor = typeof currentFloor !== 'undefined' ? currentFloor : 1;
-  if (floor <= 5) return BIOME_TILES.B1;
-  if (floor <= 10) return BIOME_TILES.B2;
-  if (floor <= 15) return BIOME_TILES.B3;
-  if (floor <= 20) return BIOME_TILES.B4;
-  return BIOME_TILES.B5;
-}
-
-// ============================================================
 // MUSIC MAPPING POR BIOMA
 // ============================================================
 
@@ -586,7 +455,6 @@ const BIOME_MUSIC_REAL = {
 
 function playBiomeMusic() {
   const floor = typeof currentFloor !== 'undefined' ? currentFloor : 1;
-  // Boss floors
   if ([5, 10, 15, 20, 25].includes(floor)) {
     playMusic(BIOME_MUSIC_REAL.boss);
     return;
@@ -605,52 +473,144 @@ function playBiomeMusic() {
 // ============================================================
 
 async function loadAllAssets() {
+  const NEW = 'assets/new/';
   const BASE = 'assets/';
 
-  // Character sprites
-  const charPromises = [
-    loadImage('characterBase', BASE + 'characters/Puny-Characters/Character-Base.png'),
-    loadImage('warriorBlue', BASE + 'characters/Puny-Characters/Warrior-Blue.png'),
-    loadImage('warriorRed', BASE + 'characters/Puny-Characters/Warrior-Red.png'),
-    loadImage('soldierBlue', BASE + 'characters/Puny-Characters/Soldier-Blue.png'),
-    loadImage('soldierRed', BASE + 'characters/Puny-Characters/Soldier-Red.png'),
-    loadImage('soldierYellow', BASE + 'characters/Puny-Characters/Soldier-Yellow.png'),
-    loadImage('archerGreen', BASE + 'characters/Puny-Characters/Archer-Green.png'),
-    loadImage('archerPurple', BASE + 'characters/Puny-Characters/Archer-Purple.png'),
-    loadImage('mageCyan', BASE + 'characters/Puny-Characters/Mage-Cyan.png'),
-    loadImage('mageRed', BASE + 'characters/Puny-Characters/Mage-Red.png'),
-    loadImage('orcGrunt', BASE + 'characters/Puny-Characters/Orc-Grunt.png'),
-    loadImage('orcPeonRed', BASE + 'characters/Puny-Characters/Orc-Peon-Red.png'),
-    loadImage('orcPeonCyan', BASE + 'characters/Puny-Characters/Orc-Peon-Cyan.png'),
-    loadImage('orcSoldierRed', BASE + 'characters/Puny-Characters/Orc-Soldier-Red.png'),
-    loadImage('orcSoldierCyan', BASE + 'characters/Puny-Characters/Orc-Soldier-Cyan.png'),
-    loadImage('humanSoldierRed', BASE + 'characters/Puny-Characters/Human-Soldier-Red.png'),
-    loadImage('humanSoldierCyan', BASE + 'characters/Puny-Characters/Human-Soldier-Cyan.png'),
-    loadImage('humanWorkerRed', BASE + 'characters/Puny-Characters/Human-Worker-Red.png'),
-    loadImage('humanWorkerCyan', BASE + 'characters/Puny-Characters/Human-Worker-Cyan.png'),
-    loadImage('slime', BASE + 'characters/Puny-Characters/Slime.png'),
+  // --- 0x72 TILE FRAMES (individual PNGs) ---
+  const tileFrameNames = [
+    // Floors
+    'floor_1', 'floor_2', 'floor_3', 'floor_4', 'floor_5', 'floor_6', 'floor_7', 'floor_8',
+    'floor_stairs', 'floor_ladder', 'hole',
+    'floor_spikes_anim_f0', 'floor_spikes_anim_f1', 'floor_spikes_anim_f2', 'floor_spikes_anim_f3',
+    // Walls
+    'wall_left', 'wall_mid', 'wall_right',
+    'wall_top_left', 'wall_top_mid', 'wall_top_right',
+    'wall_edge_bottom_left', 'wall_edge_bottom_right',
+    'wall_edge_mid_left', 'wall_edge_mid_right',
+    'wall_edge_top_left', 'wall_edge_top_right',
+    'wall_edge_left', 'wall_edge_right',
+    'wall_outer_front_left', 'wall_outer_front_right',
+    'wall_outer_mid_left', 'wall_outer_mid_right',
+    'wall_outer_top_left', 'wall_outer_top_right',
+    // Doors
+    'doors_frame_left', 'doors_frame_right', 'doors_frame_top',
+    'doors_leaf_closed', 'doors_leaf_open',
+    // Decorations
+    'wall_fountain_mid_red_anim_f0', 'wall_fountain_mid_red_anim_f1', 'wall_fountain_mid_red_anim_f2',
+    'wall_fountain_mid_blue_anim_f0', 'wall_fountain_mid_blue_anim_f1', 'wall_fountain_mid_blue_anim_f2',
+    'wall_banner_blue', 'wall_banner_red', 'wall_banner_green', 'wall_banner_yellow',
+    'wall_goo', 'wall_goo_base',
+    'wall_hole_1', 'wall_hole_2',
+    'column', 'column_wall',
+    // Interactive
+    'button_red_up', 'button_red_down', 'button_blue_up', 'button_blue_down',
+    'lever_left', 'lever_right',
   ];
+  const tilePromises = tileFrameNames.map(name =>
+    loadImage('0x72_' + name, NEW + 'tiles/' + name + '.png')
+  );
 
-  // Tilesets
-  const tilePromises = [
-    loadImage('dungeonTileset', BASE + 'dungeon/PUNY_DUNGEON_v1/punyworld-dungeon-tileset.png'),
-    loadImage('overworldTileset', BASE + 'dungeon/punyworld-overworld-tileset.png'),
-    loadImage('dungeonTilesAlt', BASE + 'dungeon/dungeon_tiles.png'),
-    loadImage('kenneySheet', BASE + 'kenney/Spritesheet/roguelikeSheet_transparent.png'),
-    loadImage('zeldaCave', BASE + 'zelda/gfx/cave.png'),
-    loadImage('zeldaOverworld', BASE + 'zelda/gfx/Overworld.png'),
-    loadImage('zeldaObjects', BASE + 'zelda/gfx/objects.png'),
-    loadImage('zeldaInner', BASE + 'zelda/gfx/Inner.png'),
-    loadImage('zeldaChar', BASE + 'zelda/gfx/character.png'),
+  // --- 0x72 ENEMY FRAMES ---
+  const enemyTypes = [
+    { base: 'goblin',       anims: ['idle', 'run'] },
+    { base: 'tiny_zombie',  anims: ['idle', 'run'] },
+    { base: 'imp',          anims: ['idle', 'run'] },
+    { base: 'muddy',        anims: ['idle'] },
+    { base: 'wogol',        anims: ['idle', 'run'] },
+    { base: 'masked_orc',   anims: ['idle', 'run'] },
+    { base: 'skelet',       anims: ['idle', 'run'] },
+    { base: 'swampy',       anims: ['idle'] },
+    { base: 'slug',         anims: ['idle'] },
+    { base: 'zombie',       anims: ['idle'] },
+    { base: 'angel',        anims: ['idle', 'run'] },
+    { base: 'necromancer',  anims: ['idle'] },
+    { base: 'chort',        anims: ['idle', 'run'] },
+    { base: 'ice_zombie',   anims: ['idle'] },
+    { base: 'orc_warrior',  anims: ['idle', 'run'] },
+    { base: 'orc_shaman',   anims: ['idle', 'run'] },
+    { base: 'big_demon',    anims: ['idle', 'run'] },
+    { base: 'big_zombie',   anims: ['idle', 'run'] },
+    { base: 'ogre',         anims: ['idle', 'run'] },
   ];
+  const enemyPromises = [];
+  for (const et of enemyTypes) {
+    for (const anim of et.anims) {
+      for (let f = 0; f < 4; f++) {
+        enemyPromises.push(
+          loadImage(`0x72_${et.base}_${anim}_anim_f${f}`, NEW + `enemies/${et.base}_${anim}_anim_f${f}.png`)
+        );
+      }
+    }
+  }
 
-  // Enemies & Icons
-  const miscPromises = [
-    loadImage('rpgEnemies', BASE + 'enemies/rpg_enemies.png'),
-    loadImage('iconSheet', BASE + "icons/Kyrise's 16x16 RPG Icon Pack - V1.2/spritesheet/spritesheet_16x16.png"),
+  // --- 0x72 HERO FRAMES (for NPCs) ---
+  const heroTypes = ['knight_m', 'elf_f', 'wizzard_m', 'dwarf_m', 'lizard_m'];
+  const heroPromises = [];
+  for (const hero of heroTypes) {
+    for (const anim of ['idle', 'run']) {
+      for (let f = 0; f < 4; f++) {
+        heroPromises.push(
+          loadImage(`0x72_${hero}_${anim}_anim_f${f}`, NEW + `characters/${hero}_${anim}_anim_f${f}.png`)
+        );
+      }
+    }
+    // hit frame (1 only)
+    heroPromises.push(
+      loadImage(`0x72_${hero}_hit_anim_f0`, NEW + `characters/${hero}_hit_anim_f0.png`)
+    );
+  }
+
+  // --- 0x72 ITEM FRAMES ---
+  const itemNames = [
+    'flask_red', 'flask_blue', 'flask_green', 'flask_yellow',
+    'flask_big_red', 'flask_big_blue', 'flask_big_green', 'flask_big_yellow',
+    'coin_anim_f0', 'coin_anim_f1', 'coin_anim_f2', 'coin_anim_f3',
+    'chest_empty_open_anim_f0', 'chest_empty_open_anim_f1', 'chest_empty_open_anim_f2',
+    'chest_full_open_anim_f0', 'chest_full_open_anim_f1', 'chest_full_open_anim_f2',
+    'chest_mimic_open_anim_f0', 'chest_mimic_open_anim_f1', 'chest_mimic_open_anim_f2',
+    'crate', 'skull', 'bomb_f0', 'bomb_f1', 'bomb_f2',
+    'weapon_regular_sword', 'weapon_knight_sword', 'weapon_golden_sword',
+    'weapon_anime_sword', 'weapon_lavish_sword', 'weapon_red_gem_sword',
+    'weapon_bow', 'weapon_bow_2', 'weapon_knife', 'weapon_katana',
+    'weapon_big_hammer', 'weapon_mace', 'weapon_waraxe', 'weapon_spear',
+    'weapon_red_magic_staff', 'weapon_green_magic_staff',
+    'weapon_saw_sword', 'weapon_duel_sword', 'weapon_axe',
+    'ui_heart_full', 'ui_heart_half', 'ui_heart_empty',
   ];
+  const itemPromises = itemNames.map(name =>
+    loadImage('0x72_' + name, NEW + 'items/' + name + '.png')
+  );
 
-  // Sound effects (Kenney OGG) — nomes exatos do pack
+  // --- PIXEL CRAWLER PLAYER ---
+  const pcDirs = ['Down', 'Side', 'Up'];
+  const pcAnims = ['Idle', 'Walk', 'Run', 'Slice', 'Hit', 'Death', 'Pierce'];
+  const pcPromises = [];
+  for (const dir of pcDirs) {
+    for (const anim of pcAnims) {
+      pcPromises.push(
+        loadImage(`pc_player_${anim}_${dir}`, NEW + `characters/player/${anim}_${dir}-Sheet.png`)
+      );
+    }
+  }
+
+  // --- NINJA ADVENTURE BOSS SPRITES ---
+  const bossMap = {
+    GiantBamboo: ['Idle', 'Attack', 'Walk'],
+    GiantSpirit: ['Idle', 'Walk'],
+    DemonCyclop: ['Idle', 'Hit'],
+    GiantFlam: ['Idle', 'Walk'],
+    TenguRed: ['Idle', 'Walk', 'Attack'],
+  };
+  const bossPromises = [];
+  for (const [boss, anims] of Object.entries(bossMap)) {
+    for (const anim of anims) {
+      bossPromises.push(
+        loadImage(`boss_${boss}_${anim}`, NEW + `bosses/${boss}/${anim}.png`)
+      );
+    }
+  }
+
+  // --- KEEP EXISTING AUDIO ---
   const sfxDir = BASE + 'sounds/kenney/OGG/';
   const sfxFiles = [
     'bookClose', 'bookFlip1', 'bookOpen',
@@ -665,7 +625,6 @@ async function loadAllAssets() {
   ];
   const sfxPromises = sfxFiles.map(f => loadAudio('sfx_' + f, sfxDir + f + '.ogg'));
 
-  // RPG Sound Pack (WAV) — caminhos exatos
   const rpgSfxDir = BASE + 'sounds/rpg_pack/RPG Sound Pack/';
   const rpgSfxFiles = [
     { key: 'sfx_hit', path: 'battle/swing.wav' },
@@ -686,7 +645,6 @@ async function loadAllAssets() {
   ];
   const rpgSfxPromises = rpgSfxFiles.map(f => loadAudio(f.key, rpgSfxDir + f.path));
 
-  // Music
   const musicDir = BASE + 'music/';
   const musicPromises = [
     loadAudio('musicDungeon', musicDir + 'dungeon_ambient.ogg', { loop: true, volume: 0.4 }),
@@ -702,9 +660,12 @@ async function loadAllAssets() {
 
   // Carrega tudo em paralelo
   await Promise.all([
-    ...charPromises,
     ...tilePromises,
-    ...miscPromises,
+    ...enemyPromises,
+    ...heroPromises,
+    ...itemPromises,
+    ...pcPromises,
+    ...bossPromises,
     ...sfxPromises,
     ...rpgSfxPromises,
     ...musicPromises,

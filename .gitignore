@@ -32,5 +32,7 @@ npm-debug.log*
 test-results/
 .playwright-artifacts-*/
 
-# Game assets (large binary files - downloaded separately)
-games/shadow-of-droghan/assets/
+# Game assets — ignore source packs (106MB+), keep processed assets
+games/shadow-of-droghan/assets/*
+!games/shadow-of-droghan/assets/new/
+games/shadow-of-droghan/assets/packs/

@@ -64,6 +64,17 @@ function render() {
   renderParticlesLayer();
   renderFogOverlay();
 
+  // === LIGHTING SYSTEM ===
+  if (typeof renderLightMap === 'function') renderLightMap();
+  if (typeof applyLighting === 'function') applyLighting();
+
+  // === AMBIENT PARTICLES (above lighting, below HUD) ===
+  if (typeof renderAmbientParticles === 'function') renderAmbientParticles();
+
+  // === POST-PROCESSING ===
+  if (typeof renderVignette === 'function') renderVignette();
+  if (typeof renderColorGrading === 'function') renderColorGrading();
+
   ctx.restore();
 
   renderScreenFlashOverlay();
@@ -227,6 +238,8 @@ function renderMap() {
   const sx1 = Math.min(dungeonW-1, Math.floor((camX+VIEW_W)/TILE) + 1);
   const sy1 = Math.min(dungeonH-1, Math.floor((camY+VIEW_H)/TILE) + 1);
 
+  const biomeTiles = typeof getBiomeTiles === 'function' ? getBiomeTiles() : null;
+
   for (let ty = sy0; ty <= sy1; ty++) {
     for (let tx = sx0; tx <= sx1; tx++) {
       const fog = getFog(tx, ty);
@@ -236,10 +249,11 @@ function renderMap() {
       const sy = Math.round(ty * TILE - camY);
 
       if (tile >= TILE_FLOOR) {
-        // Sprite tile ou fallback procedural
-        const biomeTiles = typeof getBiomeTiles === 'function' ? getBiomeTiles() : null;
-        const floorKey = ((tx*7+ty*13) % 4 < 2) ? (biomeTiles ? biomeTiles.floor : null) : (biomeTiles ? biomeTiles.floorAlt : null);
-        const floorFrame = floorKey ? getDungeonTile(floorKey) : null;
+        // --- FLOOR RENDERING (0x72 tiles) ---
+        const floorKey = biomeTiles
+          ? (((tx*7+ty*13) % 4 < 2) ? biomeTiles.floor : biomeTiles.floorAlt)
+          : null;
+        const floorFrame = floorKey ? get0x72Frame(floorKey) : null;
         if (floorFrame) {
           drawFrame(ctx, floorFrame, sx, sy, TILE, TILE);
         } else {
@@ -250,45 +264,67 @@ function renderMap() {
           ctx.fillRect(sx, sy, 1, TILE);
         }
 
+        // Stairs
         if (tile === TILE_STAIRS_DOWN) {
-          const stairFrame = getDungeonTile('stairsDown');
+          const stairFrame = get0x72Frame('floor_stairs');
           if (stairFrame) {
             drawFrame(ctx, stairFrame, sx, sy, TILE, TILE);
           } else {
-            ctx.fillStyle = '#886622';
-            ctx.fillRect(sx+6, sy+6, 20, 20);
             ctx.fillStyle = '#ffd700';
-            ctx.fillRect(sx+10, sy+10, 12, 12);
+            ctx.fillRect(sx+6, sy+6, 20, 20);
             ctx.fillStyle = '#443311';
-            ctx.fillRect(sx+14, sy+11, 4, 8);
-            ctx.fillRect(sx+12, sy+17, 8, 3);
+            ctx.fillRect(sx+12, sy+14, 8, 4);
           }
         }
         if (tile === TILE_STAIRS_UP) {
-          ctx.fillStyle = '#888888';
-          ctx.fillRect(sx+6, sy+6, 20, 20);
-          ctx.fillStyle = '#cccccc';
-          ctx.fillRect(sx+10, sy+10, 12, 12);
-          ctx.fillStyle = '#444444';
-          ctx.fillRect(sx+14, sy+13, 4, 8);
-          ctx.fillRect(sx+12, sy+12, 8, 3);
+          const ladderFrame = get0x72Frame('floor_ladder');
+          if (ladderFrame) {
+            drawFrame(ctx, ladderFrame, sx, sy, TILE, TILE);
+          } else {
+            ctx.fillStyle = '#888';
+            ctx.fillRect(sx+6, sy+6, 20, 20);
+          }
         }
       } else {
-        // Wall sprite ou fallback
-        const biomeTiles = typeof getBiomeTiles === 'function' ? getBiomeTiles() : null;
-        const wallFrame = biomeTiles ? getDungeonTile(biomeTiles.wall) : null;
+        // --- WALL RENDERING com auto-tiling ---
+        const isFloor = (x, y) => {
+          if (x < 0 || y < 0 || x >= dungeonW || y >= dungeonH) return false;
+          return getTile(x, y) >= TILE_FLOOR;
+        };
+        const belowFloor = isFloor(tx, ty+1);
+        const aboveFloor = isFloor(tx, ty-1);
+        const leftFloor = isFloor(tx-1, ty);
+        const rightFloor = isFloor(tx+1, ty);
+
+        let wallKey = biomeTiles ? biomeTiles.wall : 'wall_top_mid';
+
+        // Auto-tiling: escolher sprite de parede baseado nos vizinhos
+        if (belowFloor && !leftFloor && !rightFloor) {
+          wallKey = 'wall_mid';  // Face da parede (virada para baixo)
+        } else if (belowFloor && leftFloor) {
+          wallKey = 'wall_outer_front_left';
+        } else if (belowFloor && rightFloor) {
+          wallKey = 'wall_outer_front_right';
+        } else if (leftFloor && !rightFloor && !belowFloor) {
+          wallKey = 'wall_edge_mid_left';
+        } else if (rightFloor && !leftFloor && !belowFloor) {
+          wallKey = 'wall_edge_mid_right';
+        }
+
+        const wallFrame = get0x72Frame(wallKey);
         if (wallFrame) {
           drawFrame(ctx, wallFrame, sx, sy, TILE, TILE);
         } else {
           ctx.fillStyle = THEME.wallTop;
           ctx.fillRect(sx, sy, TILE, TILE);
-          ctx.fillStyle = THEME.wallDetail;
-          ctx.fillRect(sx + TILE/2-1, sy + TILE/2-1, 2, 2);
         }
-        if (getTile(tx, ty+1) >= TILE_FLOOR) {
-          const wallFaceFrame = biomeTiles ? getDungeonTile(biomeTiles.wallFace) : null;
-          if (wallFaceFrame) {
-            drawFrame(ctx, wallFaceFrame, sx, sy + TILE, TILE, WALL_DEPTH);
+
+        // Topo da parede visível acima do chão
+        if (belowFloor) {
+          const faceFrame = get0x72Frame('wall_mid');
+          if (faceFrame) {
+            // Wall face (projeção 3D abaixo do topo)
+            drawFrame(ctx, faceFrame, sx, sy + TILE, TILE, WALL_DEPTH);
           } else {
             ctx.fillStyle = THEME.wallFace;
             ctx.fillRect(sx, sy + TILE, TILE, WALL_DEPTH);
@@ -296,6 +332,7 @@ function renderMap() {
         }
       }
 
+      // Fog of war overlay
       if (fog === 1) {
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
         const extraH = (tile===TILE_WALL && getTile(tx,ty+1)>=TILE_FLOOR) ? WALL_DEPTH : 0;
@@ -348,35 +385,58 @@ function renderDecorations() {
     const sy = Math.round(dec.y * TILE - camY);
 
     if (dec.type === 'torch') {
-      const flicker = Math.sin(performance.now()/100 + dec.x*5) * 2;
-      ctx.fillStyle = '#ffcc00';
-      ctx.fillRect(sx+TILE/2-2, sy+4+flicker, 4, 6);
-      ctx.fillStyle = '#ff6600';
-      ctx.fillRect(sx+TILE/2-1, sy+2+flicker, 2, 4);
-      ctx.fillStyle = '#664422';
-      ctx.fillRect(sx+TILE/2-1, sy+10, 2, 8);
+      // 0x72 animated torch (fountain_red = torch look)
+      const tfi = Math.floor(performance.now() / 200) % 3;
+      const torchFrame = get0x72Frame('wall_fountain_mid_red_anim_f' + tfi);
+      if (torchFrame) {
+        drawFrame(ctx, torchFrame, sx, sy, TILE, TILE);
+      } else {
+        const flicker = Math.sin(performance.now()/100 + dec.x*5) * 2;
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillRect(sx+TILE/2-2, sy+4+flicker, 4, 6);
+        ctx.fillStyle = '#ff6600';
+        ctx.fillRect(sx+TILE/2-1, sy+2+flicker, 2, 4);
+        ctx.fillStyle = '#664422';
+        ctx.fillRect(sx+TILE/2-1, sy+10, 2, 8);
+      }
     } else if (dec.type === 'crack') {
-      ctx.strokeStyle = THEME.grout;
-      ctx.beginPath();
-      ctx.moveTo(sx+8, sy+8); ctx.lineTo(sx+16, sy+20); ctx.lineTo(sx+24, sy+16);
-      ctx.stroke();
+      const crackFrame = get0x72Frame('wall_hole_1');
+      if (crackFrame) {
+        drawFrame(ctx, crackFrame, sx, sy, TILE, TILE);
+      } else {
+        ctx.strokeStyle = THEME.grout;
+        ctx.beginPath();
+        ctx.moveTo(sx+8, sy+8); ctx.lineTo(sx+16, sy+20); ctx.lineTo(sx+24, sy+16);
+        ctx.stroke();
+      }
     } else if (dec.type === 'puddle') {
-      ctx.fillStyle = 'rgba(60,80,120,0.35)';
-      ctx.beginPath();
-      ctx.ellipse(sx+TILE/2, sy+TILE/2, 8, 5, 0, 0, Math.PI*2);
-      ctx.fill();
+      const gooFrame = get0x72Frame('wall_goo');
+      if (gooFrame) {
+        drawFrame(ctx, gooFrame, sx, sy, TILE, TILE);
+      } else {
+        ctx.fillStyle = 'rgba(60,80,120,0.35)';
+        ctx.beginPath();
+        ctx.ellipse(sx+TILE/2, sy+TILE/2, 8, 5, 0, 0, Math.PI*2);
+        ctx.fill();
+      }
     } else if (dec.type === 'cobweb') {
+      // Keep procedural (no cobweb sprite in 0x72)
       ctx.strokeStyle = 'rgba(200,200,200,0.25)';
       ctx.beginPath();
       ctx.moveTo(sx, sy);
       ctx.quadraticCurveTo(sx+10, sy+12, sx+TILE/2, sy+TILE/2);
       ctx.stroke();
     } else if (dec.type === 'barrel') {
-      ctx.fillStyle = '#664422';
-      ctx.fillRect(sx+8, sy+8, 16, 18);
-      ctx.fillStyle = '#886633';
-      ctx.fillRect(sx+9, sy+12, 14, 3);
-      ctx.fillRect(sx+9, sy+20, 14, 3);
+      const crateFrame = get0x72Frame('crate');
+      if (crateFrame) {
+        drawFrame(ctx, crateFrame, sx, sy, TILE, TILE);
+      } else {
+        ctx.fillStyle = '#664422';
+        ctx.fillRect(sx+8, sy+8, 16, 18);
+        ctx.fillStyle = '#886633';
+        ctx.fillRect(sx+9, sy+12, 14, 3);
+        ctx.fillRect(sx+9, sy+20, 14, 3);
+      }
     }
 
     if (getFog(dec.x, dec.y) === 1) {
@@ -399,15 +459,22 @@ function renderHazards() {
     const t = performance.now() / 1000;
 
     switch(h.type) {
-      case 'espinhos':
-        ctx.fillStyle = '#888888';
-        for (let i = 0; i < 4; i++) {
-          const ox = 4 + i * 7, oy = 20;
-          ctx.beginPath();
-          ctx.moveTo(sx+ox, sy+oy); ctx.lineTo(sx+ox+3, sy+oy-10); ctx.lineTo(sx+ox+6, sy+oy);
-          ctx.fill();
+      case 'espinhos': {
+        const spikeFrame = Math.floor(performance.now() / 300) % 4;
+        const sf = get0x72Frame('floor_spikes_anim_f' + spikeFrame);
+        if (sf) {
+          drawFrame(ctx, sf, sx, sy, TILE, TILE);
+        } else {
+          ctx.fillStyle = '#888888';
+          for (let i = 0; i < 4; i++) {
+            const ox = 4 + i * 7, oy = 20;
+            ctx.beginPath();
+            ctx.moveTo(sx+ox, sy+oy); ctx.lineTo(sx+ox+3, sy+oy-10); ctx.lineTo(sx+ox+6, sy+oy);
+            ctx.fill();
+          }
         }
         break;
+      }
       case 'acido':
         ctx.fillStyle = `rgba(102,255,51,${0.5 + Math.sin(t*3)*0.2})`;
         ctx.beginPath();
@@ -691,33 +758,35 @@ function renderPlayer() {
     ctx.fill();
     ctx.globalAlpha = 1;
   }
-  // --- SPRITE RENDERING (com fallback procedural) ---
-  const spriteKey = typeof getPlayerSpriteKey === 'function' ? getPlayerSpriteKey() : null;
-  const spriteImg = spriteKey ? IMAGES[spriteKey] : null;
+  // --- ENTITY SHADOW ---
+  if (typeof renderEntityShadow === 'function') renderEntityShadow(sx, sy, TILE, TILE);
 
-  if (spriteImg) {
-    // Determina animação e frame baseado no estado do jogo
-    let anim = 'idle';
-    let frameIdx = 0;
-    if (player.dead) {
-      anim = 'death';
-      frameIdx = 5;
-    } else if (player.attackAnim > 0) {
-      anim = 'attack';
-      frameIdx = Math.floor((1 - player.attackAnim / 0.2) * 5);
-    } else if (player.walkTimer > 0 || player.walkFrame > 0) {
-      anim = 'walk';
-      // walkFrame cicla 0-2, mapear para 6 frames: 0→0, 1→2, 2→4
-      frameIdx = player.walkFrame * 2;
+  // --- SPRITE RENDERING (Pixel Crawler com fallback procedural) ---
+  let anim = 'idle';
+  let frameIdx = 0;
+  if (player.dead) {
+    anim = 'death';
+    frameIdx = Math.min(7, Math.floor((1 - player.deathTimer / 0.5) * 7));
+  } else if (player.attackAnim > 0) {
+    anim = 'attack';
+    frameIdx = Math.floor((1 - player.attackAnim / 0.2) * 7);
+  } else if (player.hurtTimer > 0) {
+    anim = 'hit';
+    frameIdx = Math.floor((1 - player.hurtTimer / 0.3) * 3);
+  } else if (player.walkTimer > 0 || player.walkFrame > 0) {
+    anim = 'walk';
+    frameIdx = Math.floor(performance.now() / 150) % 6;
+  } else {
+    anim = 'idle';
+    frameIdx = Math.floor(performance.now() / 400) % 4;
+  }
+  const dir = player.facing || 'down';
+  const frame = typeof getPlayerFrame === 'function' ? getPlayerFrame(anim, dir, frameIdx) : null;
+  if (frame) {
+    // Pixel Crawler 64x64 escalado para TILE (32x32), centrado
+    if (typeof drawFrameEx === 'function') {
+      drawFrameEx(ctx, frame, sx - TILE/2, sy - TILE + 4, TILE, TILE);
     } else {
-      anim = 'idle';
-      // Idle: animação bem lenta (1 frame a cada 600ms, 4 frames)
-      frameIdx = Math.floor(performance.now() / 600) % 4;
-    }
-    const dir = player.facing || 'down';
-    const frame = getCharFrame(spriteKey, anim, dir, frameIdx);
-    if (frame) {
-      // Sprite 16x16 escalado para 32x32 (TILE), centrado no player
       drawFrame(ctx, frame, sx - TILE/2, sy - TILE + 4, TILE, TILE);
     }
 
@@ -823,6 +892,9 @@ function renderEnemy(e) {
     ctx.globalAlpha *= 0.6 + 0.4 * Math.sin(Date.now() / 50);
   }
 
+  // --- ENTITY SHADOW ---
+  if (typeof renderEntityShadow === 'function') renderEntityShadow(sx, sy, w, h);
+
   // Boss blocking indicator
   if (e.isBoss && e.blocking) {
     ctx.fillStyle = 'rgba(200,200,200,0.3)';
@@ -839,9 +911,17 @@ function renderEnemy(e) {
   const enemyFrame = typeof getEnemyFrame === 'function' ? getEnemyFrame(e.def.id, enemyFrameIdx, enemyDir) : null;
 
   if (enemyFrame) {
-    // Escala: boss=48x48(3x), mini-boss=32x32(2x), regular=TILE(2x)
-    const drawW = e.isBoss ? 48 : e.isMiniBoss ? 36 : Math.max(w, TILE);
-    const drawH = e.isBoss ? 48 : e.isMiniBoss ? 36 : Math.max(h, TILE);
+    // Boss NA sprites: renderizar em tamanho proporcional (2x tile)
+    // Mini-bosses 0x72: 32x36 frames, escalar para ~40px
+    // Regulares 0x72: 16x16 ou 16x28, escalar para TILE
+    let drawW, drawH;
+    if (e.isBoss) {
+      drawW = TILE * 2; drawH = TILE * 2; // 64x64
+    } else if (e.isMiniBoss) {
+      drawW = TILE * 1.3; drawH = TILE * 1.3; // ~42x42
+    } else {
+      drawW = TILE; drawH = TILE;
+    }
     drawFrame(ctx, enemyFrame, sx - drawW/2, sy - drawH + 2, drawW, drawH);
   } else {
     // === FALLBACK PROCEDURAL ===
@@ -918,6 +998,9 @@ function renderNPC(npc) {
   const sx = Math.round(npc.x - camX);
   const sy = Math.round(npc.y - camY);
   const w = npc.def.w, h = npc.def.h;
+
+  // --- ENTITY SHADOW ---
+  if (typeof renderEntityShadow === 'function') renderEntityShadow(sx, sy, w, h);
 
   // --- SPRITE RENDERING (com fallback procedural) ---
   const npcFrameIdx = Math.floor((performance.now() / 300)) % 6;
@@ -1040,21 +1123,28 @@ function renderScreenFlashOverlay() {
 function renderHUD() {
   const pad = 4;
 
-  // HP bar
+  // HP bar com heart icon
   const hpW = 80, hpH = 8;
   const hpRatio = clamp(player.hp / getMaxHp(), 0, 1);
   ctx.fillStyle = 'rgba(0,0,0,0.6)';
-  ctx.fillRect(pad, pad, hpW + 6, player.classKey ? 44 : 30);
-  ctx.fillStyle = '#cc4444';
+  ctx.fillRect(pad, pad, hpW + 18, player.classKey ? 44 : 30);
+  // Heart icon
+  const heartFrame = get0x72Frame(hpRatio > 0.5 ? 'ui_heart_full' : hpRatio > 0 ? 'ui_heart_half' : 'ui_heart_empty');
+  if (heartFrame) {
+    drawFrame(ctx, heartFrame, pad+2, pad+1, 12, 12);
+  }
+  ctx.fillStyle = '#333';
+  ctx.fillRect(pad+16, pad+4, hpW, hpH);
+  const hpColor = hpRatio > 0.5 ? '#cc2222' : hpRatio > 0.25 ? '#cc8800' : '#880000';
+  ctx.fillStyle = hpColor;
+  ctx.fillRect(pad+16, pad+4, Math.round(hpW * hpRatio), hpH);
+  // HP border
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.strokeRect(pad+16, pad+4, hpW, hpH);
+  ctx.fillStyle = '#fff';
   ctx.font = '7px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText('HP', pad+2, pad+8);
-  ctx.fillStyle = '#333';
-  ctx.fillRect(pad+2, pad+11, hpW, hpH);
-  ctx.fillStyle = hpRatio > 0.5 ? '#cc2222' : hpRatio > 0.25 ? '#cc8800' : '#880000';
-  ctx.fillRect(pad+2, pad+11, Math.round(hpW * hpRatio), hpH);
-  ctx.fillStyle = '#fff';
-  ctx.fillText(`${player.hp}/${getMaxHp()}`, pad+2, pad+27);
+  ctx.fillText(`${player.hp}/${getMaxHp()}`, pad+16, pad+22);
 
   // GDD §13: Resource bar (só pós-A5)
   if (player.classKey) {
@@ -1083,11 +1173,17 @@ function renderHUD() {
   ctx.fillStyle = '#4488ff';
   ctx.fillRect(cx-28, pad+13, Math.round(56 * player.xp / getXpToNext()), 4);
 
-  // Ouro
+  // Ouro (com coin sprite 0x72)
   ctx.fillStyle = 'rgba(0,0,0,0.6)';
   ctx.fillRect(VIEW_W-68, pad, 64, 16);
-  ctx.fillStyle = '#ffd700';
-  ctx.beginPath(); ctx.arc(VIEW_W-60, pad+8, 4, 0, Math.PI*2); ctx.fill();
+  const coinFi = Math.floor(performance.now() / 200) % 4;
+  const coinFrame = get0x72Frame('coin_anim_f' + coinFi);
+  if (coinFrame) {
+    drawFrame(ctx, coinFrame, VIEW_W-66, pad+2, 12, 12);
+  } else {
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(VIEW_W-60, pad+8, 4, 0, Math.PI*2); ctx.fill();
+  }
   ctx.fillStyle = '#fff';
   ctx.font = '8px monospace';
   ctx.textAlign = 'right';
