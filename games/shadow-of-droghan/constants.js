@@ -100,24 +100,24 @@ function _sweep(type, f1, f2, vol, dur, t) {
 
 // Mapeamento sfx type → chave de áudio real
 const SFX_REAL_MAP = {
-  swing: 'sfx_drawKnife1',
-  hit: 'sfx_hit',
-  kill: 'sfx_die',
+  swing: 'sfx_hit',
+  hit: 'sfx_swing2',
+  kill: 'sfx_monster',
   playerHit: 'sfx_hit',
   coin: 'sfx_coin1',
-  levelUp: 'sfx_levelUp',
-  heal: 'sfx_heal',
-  death: 'sfx_die',
-  chest: 'sfx_chest',
+  levelUp: 'sfx_menuSelect',
+  heal: 'sfx_bottle',
+  death: 'sfx_monster',
+  chest: 'sfx_metalClick',
   door: 'sfx_door',
   buy: 'sfx_coin2',
-  equip: 'sfx_metalClick',
+  equip: 'sfx_armorLight',
   menuOpen: 'sfx_menuOpen',
   menuClose: 'sfx_menuClose',
   menuSelect: 'sfx_menuSelect',
   menuCursor: 'sfx_menuCursor',
   page: 'sfx_bookFlip1',
-  potion: 'sfx_handleSmallLeather',
+  potion: 'sfx_bottle',
 };
 
 function sfx(type, opts) {

@@ -568,7 +568,7 @@ function getBiomeTiles() {
 // MUSIC MAPPING POR BIOMA
 // ============================================================
 
-const BIOME_MUSIC = {
+const BIOME_MUSIC_REAL = {
   B1: 'musicDungeon',
   B2: 'musicSpooky',
   B3: 'musicGreatMission',
@@ -583,15 +583,15 @@ function playBiomeMusic() {
   const floor = typeof currentFloor !== 'undefined' ? currentFloor : 1;
   // Boss floors
   if ([5, 10, 15, 20, 25].includes(floor)) {
-    playMusic(BIOME_MUSIC.boss);
+    playMusic(BIOME_MUSIC_REAL.boss);
     return;
   }
   let key;
-  if (floor <= 5) key = BIOME_MUSIC.B1;
-  else if (floor <= 10) key = BIOME_MUSIC.B2;
-  else if (floor <= 15) key = BIOME_MUSIC.B3;
-  else if (floor <= 20) key = BIOME_MUSIC.B4;
-  else key = BIOME_MUSIC.B5;
+  if (floor <= 5) key = BIOME_MUSIC_REAL.B1;
+  else if (floor <= 10) key = BIOME_MUSIC_REAL.B2;
+  else if (floor <= 15) key = BIOME_MUSIC_REAL.B3;
+  else if (floor <= 20) key = BIOME_MUSIC_REAL.B4;
+  else key = BIOME_MUSIC_REAL.B5;
   playMusic(key);
 }
 
@@ -645,36 +645,39 @@ async function loadAllAssets() {
     loadImage('iconSheet', BASE + "icons/Kyrise's 16x16 RPG Icon Pack - V1.2/spritesheet/spritesheet_16x16.png"),
   ];
 
-  // Sound effects (Kenney OGG)
+  // Sound effects (Kenney OGG) — nomes exatos do pack
   const sfxDir = BASE + 'sounds/kenney/OGG/';
   const sfxFiles = [
     'bookClose', 'bookFlip1', 'bookOpen',
     'chop', 'cloth1', 'cloth2', 'cloth3',
-    'coin1', 'coin2', 'coin3',
-    'doorClose1', 'doorClose2', 'doorOpen1', 'doorOpen2',
+    'doorClose_1', 'doorClose_2', 'doorOpen_1', 'doorOpen_2',
     'drawKnife1', 'drawKnife2', 'drawKnife3',
     'handleCoins', 'handleCoins2',
     'handleSmallLeather', 'handleSmallLeather2',
+    'knifeSlice', 'knifeSlice2',
     'metalClick', 'metalLatch',
     'metalPot1', 'metalPot2', 'metalPot3',
   ];
   const sfxPromises = sfxFiles.map(f => loadAudio('sfx_' + f, sfxDir + f + '.ogg'));
 
-  // RPG Sound Pack (WAV)
+  // RPG Sound Pack (WAV) — caminhos exatos
   const rpgSfxDir = BASE + 'sounds/rpg_pack/RPG Sound Pack/';
   const rpgSfxFiles = [
-    { key: 'sfx_hit', path: 'battle/hit.wav' },
-    { key: 'sfx_miss', path: 'battle/miss.wav' },
-    { key: 'sfx_battleStart', path: 'battle/start.wav' },
-    { key: 'sfx_levelUp', path: 'NPC/levelup.wav' },
-    { key: 'sfx_heal', path: 'battle/heal.wav' },
-    { key: 'sfx_die', path: 'NPC/die.wav' },
-    { key: 'sfx_menuOpen', path: 'menu/open.wav' },
-    { key: 'sfx_menuClose', path: 'menu/close.wav' },
-    { key: 'sfx_menuSelect', path: 'menu/select.wav' },
-    { key: 'sfx_menuCursor', path: 'menu/cursor.wav' },
-    { key: 'sfx_chest', path: 'world/chest.wav' },
+    { key: 'sfx_hit', path: 'battle/swing.wav' },
+    { key: 'sfx_swing2', path: 'battle/swing2.wav' },
+    { key: 'sfx_spell', path: 'battle/spell.wav' },
+    { key: 'sfx_swordDraw', path: 'battle/sword-unsheathe.wav' },
+    { key: 'sfx_coin1', path: 'inventory/coin.wav' },
+    { key: 'sfx_coin2', path: 'inventory/coin2.wav' },
+    { key: 'sfx_bottle', path: 'inventory/bottle.wav' },
+    { key: 'sfx_armorLight', path: 'inventory/armor-light.wav' },
+    { key: 'sfx_menuOpen', path: 'interface/interface1.wav' },
+    { key: 'sfx_menuClose', path: 'interface/interface2.wav' },
+    { key: 'sfx_menuSelect', path: 'interface/interface3.wav' },
+    { key: 'sfx_menuCursor', path: 'interface/interface4.wav' },
     { key: 'sfx_door', path: 'world/door.wav' },
+    { key: 'sfx_slime', path: 'NPC/slime/slime1.wav' },
+    { key: 'sfx_monster', path: 'NPC/gutteral beast/mnstr1.wav' },
   ];
   const rpgSfxPromises = rpgSfxFiles.map(f => loadAudio(f.key, rpgSfxDir + f.path));
 
