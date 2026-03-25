@@ -10,7 +10,7 @@ let currentFloor = 1;
 let maxFloorReached = 1;
 let autosaveTimer = 0;
 let currentSaveSlot = 0; // 0, 1 ou 2
-let showMinimap = false; // GDD §14: toggle M
+let showMinimap = true; // GDD §14: toggle M (visível por padrão)
 let bossDefeated = {}; // {5: true, 10: true, ...}
 let miniBossDefeated = {}; // {3: true, 8: true, ...}
 

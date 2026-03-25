@@ -79,25 +79,25 @@ function drawFrame(ctx, frame, dx, dy, dw, dh) {
 // Direções: 0=down, 1=left, 2=right, 3=up
 // ============================================================
 
-const CHAR_FRAME_W = 16;
-const CHAR_FRAME_H = 16;
-const CHAR_COLS = 48; // 768 / 16
+const CHAR_FRAME_W = 32;
+const CHAR_FRAME_H = 32;
+const CHAR_COLS = 24; // 768 / 32
 
 // Mapeamento de animações para o spritesheet Puny Characters
-// Layout: 768×256 = 48 cols × 16 rows (16×16 frames)
-// Cada DIREÇÃO = 1 row. Animações em blocos horizontais de 6 frames.
-// Row 0: Down, Row 1: Left, Row 2: Right, Row 3: Up
-// (Rows 4-7, 8-11, 12-15 = variantes de equipamento do mesmo personagem)
-// Cols: 0-5=Idle, 6-11=Walk, 12-17=Attack, 18-23=Bow, 24-29=Hurt, 30-35=Death
+// Layout REAL: 768×256 = 24 cols × 8 rows de 32×32 frames
+// Cada DIREÇÃO = 2 rows. Animações em blocos horizontais de 6 frames.
+// Rows 0-1: Down, Rows 2-3: Left, Rows 4-5: Right, Rows 6-7: Up
+// Row par (0,2,4,6): Idle(0-5), Walk(6-11), Attack(12-17), Bow(18-23)
+// Row ímpar (1,3,5,7): Hurt(0-5), Death(6-11), Cast(12-17), Special(18-23)
 
-const CHAR_DIR_ROW = { down: 0, left: 1, right: 2, up: 3 };
+const CHAR_DIR_ROW = { down: 0, left: 2, right: 4, up: 6 };
 const CHAR_ANIM_COL = {
-  idle:   { col: 0,  frames: 6 },
-  walk:   { col: 6,  frames: 6 },
-  attack: { col: 12, frames: 6 },
-  bow:    { col: 18, frames: 6 },
-  hurt:   { col: 24, frames: 6 },
-  death:  { col: 30, frames: 6 },
+  idle:   { col: 0,  frames: 6, rowOff: 0 },
+  walk:   { col: 6,  frames: 6, rowOff: 0 },
+  attack: { col: 12, frames: 6, rowOff: 0 },
+  bow:    { col: 18, frames: 6, rowOff: 0 },
+  hurt:   { col: 0,  frames: 6, rowOff: 1 },
+  death:  { col: 6,  frames: 6, rowOff: 1 },
 };
 
 // Converte facing do jogo (0-3 ou string) para index de direção
@@ -121,21 +121,21 @@ function getCharFrame(imgKey, anim, dir, frameIndex) {
   if (!img) return null;
   const a = CHAR_ANIM_COL[anim] || CHAR_ANIM_COL.idle;
   const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][dir] || 'down';
-  const row = CHAR_DIR_ROW[dirStr] || 0;
+  const row = (CHAR_DIR_ROW[dirStr] || 0) + (a.rowOff || 0);
   const col = a.col + (frameIndex % a.frames);
   return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
 }
 
 // ============================================================
 // SLIME SPRITE
-// Slime.png: 480x32 = 30 cols × 2 rows (16x16)
+// Slime.png: 480x32 = 15 cols × 1 row (32x32)
 // ============================================================
 
 function getSlimeFrame(frameIndex) {
   const img = IMAGES['slime'];
   if (!img) return null;
   const col = frameIndex % 15;
-  return getFrame(img, col, 0, 16, 16, 0);
+  return getFrame(img, col, 0, 32, 32, 0);
 }
 
 // ============================================================
@@ -352,14 +352,14 @@ function getIconFrame(iconKey) {
 
 const ENEMY_SPRITE_MAP = {
   // Mapeamento de enemy.def.id → posição no spritesheet ou character sheet
-  // Usa Puny Character sheets para humanoids
-  slime:        { sheet: 'slime', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  // Puny Character sheets: 32×32 frames. rpgEnemies: 16×16 frames.
+  slime:        { sheet: 'slime', col: 0, row: 0, w: 32, h: 32, frames: 6 },
   rato:         { sheet: 'rpgEnemies', col: 0, row: 4, w: 16, h: 16, frames: 3 },
   morcego:      { sheet: 'rpgEnemies', col: 4, row: 0, w: 16, h: 16, frames: 3 },
   aranha:       { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
   lobo:         { sheet: 'rpgEnemies', col: 0, row: 2, w: 16, h: 16, frames: 3 },
-  goblin:       { sheet: 'orcPeonRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  gobArqueiro:  { sheet: 'orcPeonCyan', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  goblin:       { sheet: 'orcPeonRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  gobArqueiro:  { sheet: 'orcPeonCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
   esqSoldado:   { sheet: 'rpgEnemies', col: 0, row: 3, w: 16, h: 16, frames: 3 },
   kobold:       { sheet: 'rpgEnemies', col: 3, row: 4, w: 16, h: 16, frames: 3 },
   centopeia:    { sheet: 'rpgEnemies', col: 0, row: 1, w: 16, h: 16, frames: 3 },
@@ -367,29 +367,29 @@ const ENEMY_SPRITE_MAP = {
   // B2 humanoids — use soldier/warrior variants
   zumbi:        { sheet: 'rpgEnemies', col: 0, row: 5, w: 16, h: 16, frames: 3 },
   fantasma:     { sheet: 'rpgEnemies', col: 7, row: 0, w: 16, h: 16, frames: 2 },
-  necromante:   { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  vampiroMenor: { sheet: 'mageCyan', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  necromante:   { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  vampiroMenor: { sheet: 'mageCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
   esqArqueiro:  { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 3 },
   esqGuerreiro: { sheet: 'rpgEnemies', col: 0, row: 3, w: 16, h: 16, frames: 3 },
 
   // B3+
   golemPedra:   { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
-  cultista:     { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  cultista:     { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
   mimic:        { sheet: 'rpgEnemies', col: 5, row: 4, w: 16, h: 16, frames: 2 },
 
   // Bosses — usam Warrior/Soldier com escala maior
-  thornax:      { sheet: 'warriorRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  morvena:      { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  azaroth:      { sheet: 'mageCyan', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  ignaroth:     { sheet: 'soldierRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
-  nahgord:      { sheet: 'archerPurple', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  thornax:      { sheet: 'warriorRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  morvena:      { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  azaroth:      { sheet: 'mageCyan', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  ignaroth:     { sheet: 'soldierRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
+  nahgord:      { sheet: 'archerPurple', col: 0, row: 0, w: 32, h: 32, frames: 6 },
 
   // Mini-bosses
   aranhaRainha: { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
-  lichMenor:    { sheet: 'mageRed', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  lichMenor:    { sheet: 'mageRed', col: 0, row: 0, w: 32, h: 32, frames: 6 },
   golemArcano:  { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
   dragaoMenor:  { sheet: 'rpgEnemies', col: 7, row: 1, w: 16, h: 16, frames: 2 },
-  guardaReal:   { sheet: 'soldierYellow', col: 0, row: 0, w: 16, h: 16, frames: 6 },
+  guardaReal:   { sheet: 'soldierYellow', col: 0, row: 0, w: 32, h: 32, frames: 6 },
 };
 
 function getEnemyFrame(enemyId, frameIndex, dir) {
@@ -477,7 +477,7 @@ function getNPCFrame(npcId, dir, frameIndex) {
   const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][facingToDir(dir || 0)] || 'down';
   const row = CHAR_DIR_ROW[dirStr] || 0;
   const col = (frameIndex || 0) % 6; // idle animation (cols 0-5)
-  return getFrame(img, col, row, 16, 16, 0);
+  return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
 }
 
 // ============================================================
