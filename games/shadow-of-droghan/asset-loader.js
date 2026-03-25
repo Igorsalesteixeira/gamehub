@@ -83,16 +83,20 @@ const CHAR_FRAME_W = 16;
 const CHAR_FRAME_H = 16;
 const CHAR_COLS = 48; // 768 / 16
 
-// Mapeamento de animações para rows do spritesheet
-// Cada direção ocupa ~6 frames consecutivos
-const CHAR_ANIM = {
-  // [startRow, framesPerDir, directions arrangement]
-  idle:   { row: 0, frames: 6, dirOrder: [0, 1, 2, 3] },  // down, left, right, up
-  walk:   { row: 2, frames: 6, dirOrder: [0, 1, 2, 3] },
-  attack: { row: 4, frames: 6, dirOrder: [0, 1, 2, 3] },
-  bow:    { row: 6, frames: 6, dirOrder: [0, 1, 2, 3] },
-  hurt:   { row: 8, frames: 4, dirOrder: [0, 1, 2, 3] },
-  death:  { row: 10, frames: 6, dirOrder: [0, 1, 2, 3] },
+// Mapeamento de animações para o spritesheet Puny Characters
+// Layout REAL: cada DIREÇÃO ocupa 2 rows; animações são blocos de 6 colunas
+// Rows 0-1: Down, Rows 2-3: Left, Rows 4-5: Right, Rows 6-7: Up
+// Cols 0-5: Idle, Cols 6-11: Walk, Cols 12-17: Attack, Cols 18-23: Bow
+// Row+1 de cada par: Cols 0-5: Hurt, Cols 6-11: Death
+
+const CHAR_DIR_ROW = { down: 0, left: 2, right: 4, up: 6 };
+const CHAR_ANIM_COL = {
+  idle:   { col: 0,  frames: 6, rowOff: 0 },
+  walk:   { col: 6,  frames: 6, rowOff: 0 },
+  attack: { col: 12, frames: 6, rowOff: 0 },
+  bow:    { col: 18, frames: 6, rowOff: 0 },
+  hurt:   { col: 0,  frames: 6, rowOff: 1 },
+  death:  { col: 6,  frames: 6, rowOff: 1 },
 };
 
 // Converte facing do jogo (0-3 ou string) para index de direção
@@ -114,12 +118,11 @@ function facingToDir(facing) {
 function getCharFrame(imgKey, anim, dir, frameIndex) {
   const img = IMAGES[imgKey];
   if (!img) return null;
-  const a = CHAR_ANIM[anim] || CHAR_ANIM.idle;
-  const dirIdx = facingToDir(dir);
-  // Cada direção ocupa um bloco de 'frames' colunas
-  // Row = a.row + (dirIdx >= 2 ? 1 : 0) — ajuste por rows duplas
-  const row = a.row + dirIdx;
-  const col = frameIndex % a.frames;
+  const a = CHAR_ANIM_COL[anim] || CHAR_ANIM_COL.idle;
+  const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][dir] || 'down';
+  const baseRow = CHAR_DIR_ROW[dirStr] || 0;
+  const row = baseRow + (a.rowOff || 0);
+  const col = a.col + (frameIndex % a.frames);
   return getFrame(img, col, row, CHAR_FRAME_W, CHAR_FRAME_H, 0);
 }
 
@@ -371,7 +374,7 @@ const ENEMY_SPRITE_MAP = {
 
   // B3+
   golemPedra:   { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
-  cultista:     { sheet: 'mageRed', col: 0, row: 2, w: 16, h: 16, frames: 6 },
+  cultista:     { sheet: 'mageRed', col: 6, row: 0, w: 16, h: 16, frames: 6 },
   mimic:        { sheet: 'rpgEnemies', col: 5, row: 4, w: 16, h: 16, frames: 2 },
 
   // Bosses — usam Warrior/Soldier com escala maior
@@ -383,7 +386,7 @@ const ENEMY_SPRITE_MAP = {
 
   // Mini-bosses
   aranhaRainha: { sheet: 'rpgEnemies', col: 3, row: 3, w: 16, h: 16, frames: 2 },
-  lichMenor:    { sheet: 'mageRed', col: 0, row: 4, w: 16, h: 16, frames: 6 },
+  lichMenor:    { sheet: 'mageRed', col: 12, row: 0, w: 16, h: 16, frames: 6 },
   golemArcano:  { sheet: 'rpgEnemies', col: 7, row: 3, w: 16, h: 16, frames: 2 },
   dragaoMenor:  { sheet: 'rpgEnemies', col: 7, row: 1, w: 16, h: 16, frames: 2 },
   guardaReal:   { sheet: 'soldierYellow', col: 0, row: 0, w: 16, h: 16, frames: 6 },
@@ -400,14 +403,15 @@ function getEnemyFrame(enemyId, frameIndex, dir) {
     return getSlimeFrame(frameIndex);
   }
 
-  // Para character sheets (768x256), usar sistema de char anim
+  // Para character sheets (768x256), usar layout correto:
+  // Rows por direção (0=down,2=left,4=right,6=up), cols por animação
   if (['orcPeonRed', 'orcPeonCyan', 'orcGrunt', 'mageRed', 'mageCyan',
        'warriorRed', 'warriorBlue', 'soldierRed', 'soldierBlue',
        'soldierYellow', 'archerGreen', 'archerPurple',
        'humanSoldierRed', 'humanSoldierCyan'].includes(mapping.sheet)) {
-    const dirIdx = facingToDir(dir || 0);
-    const row = mapping.row + dirIdx;
-    const col = (frameIndex || 0) % mapping.frames;
+    const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][facingToDir(dir || 0)] || 'down';
+    const row = CHAR_DIR_ROW[dirStr] || 0;
+    const col = (mapping.col || 0) + ((frameIndex || 0) % mapping.frames);
     return getFrame(img, col, row, mapping.w, mapping.h, 0);
   }
 
@@ -470,9 +474,10 @@ function getNPCFrame(npcId, dir, frameIndex) {
   if (!sheetKey) return null;
   const img = IMAGES[sheetKey];
   if (!img) return null;
-  const dirIdx = facingToDir(dir || 0);
-  const col = (frameIndex || 0) % 6;
-  return getFrame(img, col, dirIdx, 16, 16, 0);
+  const dirStr = (typeof dir === 'string') ? dir : ['down','left','right','up'][facingToDir(dir || 0)] || 'down';
+  const row = CHAR_DIR_ROW[dirStr] || 0;
+  const col = (frameIndex || 0) % 6; // idle animation (cols 0-5)
+  return getFrame(img, col, row, 16, 16, 0);
 }
 
 // ============================================================

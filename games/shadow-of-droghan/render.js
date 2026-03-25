@@ -696,13 +696,26 @@ function renderPlayer() {
   const spriteImg = spriteKey ? IMAGES[spriteKey] : null;
 
   if (spriteImg) {
-    // Determina animação e frame
+    // Determina animação e frame baseado no estado do jogo
     let anim = 'idle';
-    if (player.dead) anim = 'death';
-    else if (player.attackAnim > 0) anim = 'attack';
-    else if (player.walkFrame > 0) anim = 'walk';
+    let frameIdx = 0;
+    if (player.dead) {
+      anim = 'death';
+      frameIdx = 5; // último frame (deitado)
+    } else if (player.attackAnim > 0) {
+      anim = 'attack';
+      // attackAnim vai de 0.2 → 0, mapear para frames 0-5
+      frameIdx = Math.floor((1 - player.attackAnim / 0.2) * 5);
+    } else if (player.walkFrame > 0) {
+      anim = 'walk';
+      // walkFrame cicla 0-2, mapear para frames de spritesheet
+      frameIdx = player.walkFrame % 6;
+    } else {
+      anim = 'idle';
+      // Idle: animação lenta (1 frame a cada 400ms)
+      frameIdx = Math.floor(performance.now() / 400) % 4;
+    }
     const dir = player.facing || 'down';
-    const frameIdx = Math.floor((performance.now() / 150)) % 6;
     const frame = getCharFrame(spriteKey, anim, dir, frameIdx);
     if (frame) {
       // Sprite 16x16 escalado para 32x32 (TILE), centrado no player
