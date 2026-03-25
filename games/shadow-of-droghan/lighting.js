@@ -7,7 +7,7 @@
 // ============================================================
 let lightCanvas = null;
 let lightCtx = null;
-let lightingEnabled = true;
+let lightingEnabled = false;
 
 function initLighting() {
   lightCanvas = document.createElement('canvas');

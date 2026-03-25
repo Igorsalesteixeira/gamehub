@@ -13,6 +13,135 @@ const NPC_FLOORS = [2,4,5,7,8,9,10,11,12,14,15,17,19,20,22,23,24];
 // Selene:2,5,8,11,14,17,20,23 | Bron:4,9,14,19,24 | Kaelith:5,10,15,20 | Lira:2,7,12,17,22
 
 // ============================================================
+// UI HELPERS — Funções visuais reutilizáveis (Revolução Gráfica)
+// ============================================================
+
+// Desenha painel com borda decorativa estilo dungeon
+function drawPanel(x, y, w, h, opts) {
+  opts = opts || {};
+  const bg = opts.bg || 'rgba(8,6,18,0.92)';
+  const border = opts.border || '#554433';
+  const corner = opts.corner || '#ffd700';
+  const glow = opts.glow || null;
+
+  // Glow externo (opcional)
+  if (glow) {
+    ctx.shadowColor = glow;
+    ctx.shadowBlur = 12;
+  }
+
+  // Fundo principal
+  ctx.fillStyle = bg;
+  ctx.fillRect(x, y, w, h);
+
+  // Borda dupla
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x+1, y+1, w-2, h-2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x+3, y+3, w-6, h-6);
+
+  // Cantos decorativos
+  ctx.fillStyle = corner;
+  const cs = 3;
+  ctx.fillRect(x+1, y+1, cs, cs);
+  ctx.fillRect(x+w-cs-1, y+1, cs, cs);
+  ctx.fillRect(x+1, y+h-cs-1, cs, cs);
+  ctx.fillRect(x+w-cs-1, y+h-cs-1, cs, cs);
+
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.lineWidth = 1;
+}
+
+// Desenha barra de progresso estilizada
+function drawBar(x, y, w, h, ratio, color, bgColor) {
+  ratio = Math.max(0, Math.min(1, ratio));
+  ctx.fillStyle = bgColor || '#1a1118';
+  ctx.fillRect(x, y, w, h);
+  if (ratio > 0) {
+    // Gradiente na barra
+    const grad = ctx.createLinearGradient(x, y, x, y+h);
+    grad.addColorStop(0, color);
+    grad.addColorStop(0.5, color);
+    grad.addColorStop(1, darkenColor(color, 40));
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, Math.round(w * ratio), h);
+    // Brilho no topo
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(x, y, Math.round(w * ratio), 1);
+  }
+  // Borda
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.strokeRect(x, y, w, h);
+}
+
+// Desenha texto com sombra (mais legível)
+function drawText(text, x, y, opts) {
+  opts = opts || {};
+  ctx.font = opts.font || '9px monospace';
+  ctx.textAlign = opts.align || 'left';
+  // Sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillText(text, x+1, y+1);
+  // Texto
+  ctx.fillStyle = opts.color || '#fff';
+  ctx.fillText(text, x, y);
+}
+
+// Desenha título decorado
+function drawTitle(text, y, opts) {
+  opts = opts || {};
+  const color = opts.color || '#ffd700';
+  const font = opts.font || 'bold 14px monospace';
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
+  ctx.fillText(text, VIEW_W/2+1, y+1);
+  // Main
+  ctx.fillStyle = color;
+  ctx.fillText(text, VIEW_W/2, y);
+  // Linhas decorativas
+  const tw = ctx.measureText(text).width;
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(VIEW_W/2 - tw/2 - 20, y + 3);
+  ctx.lineTo(VIEW_W/2 - tw/2 - 4, y + 3);
+  ctx.moveTo(VIEW_W/2 + tw/2 + 4, y + 3);
+  ctx.lineTo(VIEW_W/2 + tw/2 + 20, y + 3);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'left';
+}
+
+// Desenha item de menu selecionável
+function drawMenuItem(text, x, y, selected, opts) {
+  opts = opts || {};
+  if (selected) {
+    // Fundo de seleção
+    const w = opts.width || (VIEW_W - 80);
+    ctx.fillStyle = 'rgba(255,215,0,0.08)';
+    ctx.fillRect(x - 10, y - 10, w, 18);
+    ctx.strokeStyle = 'rgba(255,215,0,0.2)';
+    ctx.strokeRect(x - 10, y - 10, w, 18);
+    // Cursor
+    ctx.fillStyle = '#ffd700';
+    ctx.font = opts.font || '10px monospace';
+    ctx.textAlign = opts.align || 'center';
+    ctx.fillText('\u25B6 ' + text, x, y);
+  } else {
+    ctx.fillStyle = opts.dimColor || '#777';
+    ctx.font = opts.font || '10px monospace';
+    ctx.textAlign = opts.align || 'center';
+    ctx.fillText('  ' + text, x, y);
+  }
+}
+
+// ============================================================
 // DIALOGUE SYSTEM — GDD §11
 // ============================================================
 let dialogState = null;
@@ -1200,58 +1329,59 @@ function handleSkillMenuInput() {
 function renderDialogue() {
   if (!dialogState) return;
 
-  // GDD §11: Caixa na parte inferior, fundo escuro semi-transparente, borda pixel art
-  const boxH = 70;
-  const boxY = VIEW_H - boxH - 4;
-  ctx.fillStyle = 'rgba(0,0,0,0.85)';
-  ctx.fillRect(4, boxY, VIEW_W - 8, boxH);
-  ctx.strokeStyle = '#888';
-  ctx.strokeRect(4, boxY, VIEW_W - 8, boxH);
+  // GDD §11: Caixa na parte inferior estilo RPG
+  const boxH = 76;
+  const boxY = VIEW_H - boxH - 6;
+  const boxX = 6;
+  const boxW = VIEW_W - 12;
 
-  // GDD §11: Retrato à esquerda (32×32)
+  drawPanel(boxX, boxY, boxW, boxH, { border: '#665544', corner: '#ffd700', bg: 'rgba(8,6,18,0.94)' });
+
+  // Retrato do NPC (quadrado com borda)
+  const portX = boxX + 8, portY = boxY + 8, portS = 32;
   ctx.fillStyle = dialogState.portrait_color;
-  ctx.fillRect(12, boxY + 8, 28, 28);
-  ctx.fillStyle = '#fff';
-  ctx.font = '7px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(dialogState.speaker.substring(0,4), 26, boxY + 42);
+  ctx.fillRect(portX, portY, portS, portS);
+  ctx.strokeStyle = '#887766';
+  ctx.strokeRect(portX - 1, portY - 1, portS + 2, portS + 2);
 
-  // Text
+  // Nome do NPC acima do retrato
+  drawText(dialogState.speaker, portX + portS/2, portY + portS + 10, { align: 'center', color: '#ffd700', font: '6px monospace' });
+
+  // Texto com word wrap
   const line = dialogState.lines[dialogState.index];
   const visibleText = line.substring(0, dialogState.charIndex);
-  ctx.fillStyle = '#fff';
+  ctx.fillStyle = '#eee';
   ctx.font = '8px monospace';
   ctx.textAlign = 'left';
 
-  // Word wrap
-  const maxW = VIEW_W - 60;
+  const textX = portX + portS + 10;
+  const maxW = boxX + boxW - textX - 10;
   const words = visibleText.split(' ');
   let lineText = '';
-  let ty = boxY + 18;
+  let ty = boxY + 20;
   for (const word of words) {
     const test = lineText + (lineText ? ' ' : '') + word;
     if (ctx.measureText(test).width > maxW) {
-      ctx.fillText(lineText, 48, ty);
+      ctx.fillText(lineText, textX, ty);
       lineText = word;
-      ty += 12;
+      ty += 13;
     } else {
       lineText = test;
     }
   }
-  ctx.fillText(lineText, 48, ty);
+  ctx.fillText(lineText, textX, ty);
 
-  // Indicator
+  // Indicador de continuar (piscante)
   if (dialogState.charIndex >= line.length) {
-    ctx.fillStyle = '#ffd700';
     const blink = Math.sin(performance.now()/300) > 0;
-    if (blink) ctx.fillText('▼', VIEW_W - 20, boxY + boxH - 8);
+    if (blink) {
+      ctx.fillStyle = '#ffd700';
+      ctx.fillText('\u25BC', boxX + boxW - 16, boxY + boxH - 10);
+    }
   }
 
-  // Page indicator
-  ctx.fillStyle = '#888';
-  ctx.font = '6px monospace';
-  ctx.fillText(`${dialogState.index+1}/${dialogState.lines.length}`, VIEW_W - 40, boxY + boxH - 8);
-
+  // Indicador de página
+  drawText(`${dialogState.index+1}/${dialogState.lines.length}`, boxX + boxW - 40, boxY + boxH - 10, { color: '#666', font: '6px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -1262,49 +1392,55 @@ function renderShop() {
   if (!shopState) return;
 
   ctx.fillStyle = 'rgba(0,0,0,0.85)';
-  ctx.fillRect(20, 20, VIEW_W - 40, VIEW_H - 40);
-  ctx.strokeStyle = '#888';
-  ctx.strokeRect(20, 20, VIEW_W - 40, VIEW_H - 40);
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
+  const px = 16, py = 16, pw = VIEW_W - 32, ph = VIEW_H - 32;
+  drawPanel(px, py, pw, ph, { border: '#665544', corner: '#ffd700' });
+
+  drawTitle('LOJA DA SELENE', py + 24, { color: '#ffd700', font: 'bold 12px monospace' });
+
+  // Tabs estilizadas
+  const tabY = py + 38;
+  const tabs = [{ label: '[1] Comprar', key: 'buy' }, { label: '[2] Vender', key: 'sell' }, { label: '[3] Upgrade', key: 'upgrade' }];
+  const tabColors = { buy: '#ffd700', sell: '#ffd700', upgrade: '#9966cc' };
+  ctx.font = '8px monospace';
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.fillText('LOJA DA SELENE', VIEW_W/2, 42);
+  for (let i = 0; i < tabs.length; i++) {
+    const active = shopState.tab === tabs[i].key;
+    const tx = VIEW_W/2 + (i - 1) * 110;
+    if (active) {
+      ctx.fillStyle = 'rgba(255,215,0,0.08)';
+      ctx.fillRect(tx - 45, tabY - 8, 90, 14);
+    }
+    ctx.fillStyle = active ? tabColors[tabs[i].key] : '#666';
+    ctx.fillText(tabs[i].label, tx, tabY);
+  }
 
-  // Tabs
-  ctx.fillStyle = shopState.tab === 'buy' ? '#ffd700' : '#888';
-  ctx.font = '9px monospace';
-  ctx.fillText('[1] Comprar', VIEW_W/2 - 100, 58);
-  ctx.fillStyle = shopState.tab === 'sell' ? '#ffd700' : '#888';
-  ctx.fillText('[2] Vender', VIEW_W/2, 58);
-  ctx.fillStyle = '#9966cc';
-  ctx.fillText('[3] Upgrade', VIEW_W/2 + 100, 58);
-
-  // Gold
-  ctx.fillStyle = '#fff';
-  ctx.fillText(`Ouro: ${player.gold}`, VIEW_W/2, 72);
+  // Ouro
+  drawText(`Ouro: ${player.gold}`, VIEW_W/2, tabY + 16, { align: 'center', color: '#ffd700', font: '8px monospace' });
 
   ctx.textAlign = 'left';
-  const startY = 85;
+  const startY = tabY + 30;
 
   if (shopState.tab === 'buy') {
     for (let i = 0; i < shopState.stock.length; i++) {
       const s = shopState.stock[i];
       const y = startY + i * 18;
-      if (y > VIEW_H - 60) break;
+      if (y > VIEW_H - 50) break;
       const sel = i === shopState.cursor;
       if (sel) {
-        ctx.fillStyle = 'rgba(255,215,0,0.1)';
-        ctx.fillRect(30, y - 8, VIEW_W - 60, 16);
+        ctx.fillStyle = 'rgba(255,215,0,0.06)';
+        ctx.fillRect(px + 6, y - 8, pw - 12, 16);
+        ctx.strokeStyle = 'rgba(255,215,0,0.12)';
+        ctx.strokeRect(px + 6, y - 8, pw - 12, 16);
       }
       ctx.fillStyle = sel ? '#ffd700' : '#ccc';
       ctx.font = '8px monospace';
-      ctx.fillText(s.item.name, 36, y);
+      ctx.fillText(s.item.name, px + 14, y);
       ctx.fillStyle = player.gold >= s.price ? '#ffd700' : '#cc4444';
       ctx.textAlign = 'right';
-      ctx.fillText(`${s.price}g`, VIEW_W - 36, y);
+      ctx.fillText(`${s.price}g`, px + pw - 10, y);
       ctx.textAlign = 'left';
-      // Stats preview
       if (s.item.atk) { ctx.fillStyle = '#ff8844'; ctx.fillText(`ATK+${s.item.atk}`, 200, y); }
       if (s.item.def) { ctx.fillStyle = '#4488ff'; ctx.fillText(`DEF+${s.item.def}`, 200, y); }
       if (s.item.heal) { ctx.fillStyle = '#44cc44'; ctx.fillText(`+${s.item.heal}HP`, 200, y); }
@@ -1312,21 +1448,21 @@ function renderShop() {
       if (s.item.type === 'amulet') { ctx.fillStyle = AMULET_RARITY_COLORS[s.item.rarity] || '#aaa'; ctx.fillText(`${s.item.skillName}+1`, 200, y); }
     }
   } else {
-    // Sell tab
     const sellItems = getSellableItems();
     for (let i = 0; i < sellItems.length; i++) {
       const s = sellItems[i];
       const y = startY + i * 18;
-      if (y > VIEW_H - 60) break;
+      if (y > VIEW_H - 50) break;
       const sel = i === shopState.cursor;
       if (sel) {
-        ctx.fillStyle = 'rgba(255,215,0,0.1)';
-        ctx.fillRect(30, y - 8, VIEW_W - 60, 16);
+        ctx.fillStyle = 'rgba(255,215,0,0.06)';
+        ctx.fillRect(px + 6, y - 8, pw - 12, 16);
+        ctx.strokeStyle = 'rgba(255,215,0,0.12)';
+        ctx.strokeRect(px + 6, y - 8, pw - 12, 16);
       }
       ctx.fillStyle = sel ? '#ffd700' : '#ccc';
       ctx.font = '8px monospace';
-      ctx.fillText(s.item.name, 36, y);
-      // GDD §17: Venda = 40%
+      ctx.fillText(s.item.name, px + 14, y);
       let sellPrice = 0;
       if (s.item.type === 'ring') {
         const ringPrices = {cobre:40, prata:100, ouro:200, rubi:400, ancestral:800};
@@ -1338,15 +1474,12 @@ function renderShop() {
       }
       ctx.fillStyle = '#ffd700';
       ctx.textAlign = 'right';
-      ctx.fillText(`${sellPrice}g`, VIEW_W - 36, y);
+      ctx.fillText(`${sellPrice}g`, px + pw - 10, y);
       ctx.textAlign = 'left';
     }
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#888';
-  ctx.font = '7px monospace';
-  ctx.fillText('Setas:navegar | Enter:comprar/vender | ESC:sair', VIEW_W/2, VIEW_H - 28);
+  drawText('Setas:navegar | Enter:comprar/vender | ESC:sair', VIEW_W/2, VIEW_H - 24, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -1354,39 +1487,36 @@ function renderShop() {
 // INVENTORY RENDER — GDD §13
 // ============================================================
 function renderInventory() {
-  ctx.fillStyle = 'rgba(0,0,0,0.85)';
-  ctx.fillRect(15, 15, VIEW_W - 30, VIEW_H - 30);
-  ctx.strokeStyle = '#888';
-  ctx.strokeRect(15, 15, VIEW_W - 30, VIEW_H - 30);
+  ctx.fillStyle = 'rgba(0,0,0,0.88)';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.fillText('INVENTARIO', VIEW_W/2, 36);
+  const px = 10, py = 10, pw = VIEW_W - 20, ph = VIEW_H - 20;
+  drawPanel(px, py, pw, ph, { border: '#554433', corner: '#ffd700' });
 
-  // GDD §13: Esquerda: Droghan preview com equip visual + 8 slots ao redor
-  const prevX = 70, prevY = 120; // Centro do preview
-  // Corpo do Droghan (silhueta)
-  ctx.fillStyle = '#f0c8a0'; // Pele
-  ctx.fillRect(prevX - 5, prevY - 20, 10, 12); // Cabeça
-  ctx.fillStyle = '#3a3a5a'; // Corpo
-  ctx.fillRect(prevX - 8, prevY - 8, 16, 18); // Torso
-  ctx.fillRect(prevX - 10, prevY - 4, 4, 14); // Braço esq
-  ctx.fillRect(prevX + 6, prevY - 4, 4, 14); // Braço dir
-  ctx.fillRect(prevX - 6, prevY + 10, 5, 12); // Perna esq
-  ctx.fillRect(prevX + 1, prevY + 10, 5, 12); // Perna dir
+  drawTitle('INVENTARIO', py + 22, { color: '#ffd700', font: 'bold 11px monospace' });
 
-  // 8 equip slots ao redor do preview (pequenos quadrados coloridos)
+  // === LADO ESQUERDO: Preview + Equip Slots ===
+  const prevX = 65, prevY = 110;
+  // Silhueta do Droghan
+  ctx.fillStyle = '#f0c8a0';
+  ctx.fillRect(prevX - 5, prevY - 20, 10, 12);
+  ctx.fillStyle = '#3a3a5a';
+  ctx.fillRect(prevX - 8, prevY - 8, 16, 18);
+  ctx.fillRect(prevX - 10, prevY - 4, 4, 14);
+  ctx.fillRect(prevX + 6, prevY - 4, 4, 14);
+  ctx.fillRect(prevX - 6, prevY + 10, 5, 12);
+  ctx.fillRect(prevX + 1, prevY + 10, 5, 12);
+
   const eqSlots = ['weapon','body','head','secondary','feet','ring1','ring2','amulet'];
   const slotPositions = [
-    {x: prevX - 30, y: prevY - 4, label: 'W'},   // weapon — esquerda
-    {x: prevX - 2, y: prevY - 2, label: 'B'},     // body — centro torso
-    {x: prevX - 4, y: prevY - 28, label: 'H'},    // head — acima
-    {x: prevX + 18, y: prevY - 4, label: 'S'},    // secondary — direita
-    {x: prevX - 4, y: prevY + 22, label: 'F'},    // feet — abaixo
-    {x: prevX - 30, y: prevY + 14, label: 'R1'},  // ring1 — esq baixo
-    {x: prevX + 18, y: prevY + 14, label: 'R2'},  // ring2 — dir baixo
-    {x: prevX - 2, y: prevY + 32, label: 'A'},    // amulet — abaixo centro
+    {x: prevX - 30, y: prevY - 4, label: 'W'},
+    {x: prevX - 2, y: prevY - 2, label: 'B'},
+    {x: prevX - 4, y: prevY - 28, label: 'H'},
+    {x: prevX + 18, y: prevY - 4, label: 'S'},
+    {x: prevX - 4, y: prevY + 22, label: 'F'},
+    {x: prevX - 30, y: prevY + 14, label: 'R1'},
+    {x: prevX + 18, y: prevY + 14, label: 'R2'},
+    {x: prevX - 2, y: prevY + 32, label: 'A'},
   ];
   const slotColors = {
     weapon: '#ff8844', body: '#4488ff', head: '#88aaff',
@@ -1398,41 +1528,37 @@ function renderInventory() {
     const eq = player.equipment[slot];
     const sp = slotPositions[i];
     const sel = inventoryState.section === 'equip' && inventoryState.equipCursor === i;
-    // Slot background
-    ctx.fillStyle = eq ? slotColors[slot] : '#333';
+    ctx.fillStyle = eq ? slotColors[slot] : '#222';
     ctx.fillRect(sp.x, sp.y, 10, 10);
-    if (sel) {
-      ctx.strokeStyle = '#ffd700';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(sp.x - 1, sp.y - 1, 12, 12);
-    }
-    // Tiny label
-    ctx.fillStyle = '#888';
+    ctx.strokeStyle = sel ? '#ffd700' : 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sp.x - 1, sp.y - 1, 12, 12);
+    ctx.fillStyle = '#666';
     ctx.font = '5px monospace';
     ctx.textAlign = 'center';
     ctx.fillText(sp.label, sp.x + 5, sp.y + 19);
   }
 
-  // Equipamento lista (à direita do preview)
+  // === Equip List (direita do preview) ===
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#aaa';
-  ctx.font = '8px monospace';
-  ctx.fillText('Equipado:', 130, 52);
+  drawText('Equipado:', 125, 46, { color: '#aaa', font: '8px monospace' });
 
   for (let i = 0; i < eqSlots.length; i++) {
     const slot = eqSlots[i];
-    const y = 62 + i * 16;
+    const y = 56 + i * 16;
     const eq = player.equipment[slot];
     const sel = inventoryState.section === 'equip' && inventoryState.equipCursor === i;
     if (sel) {
-      ctx.fillStyle = 'rgba(255,215,0,0.1)';
-      ctx.fillRect(128, y - 6, 320, 14);
+      ctx.fillStyle = 'rgba(255,215,0,0.06)';
+      ctx.fillRect(123, y - 6, pw - 125, 14);
+      ctx.strokeStyle = 'rgba(255,215,0,0.12)';
+      ctx.strokeRect(123, y - 6, pw - 125, 14);
     }
-    ctx.fillStyle = sel ? '#ffd700' : '#888';
+    ctx.fillStyle = sel ? '#ffd700' : '#777';
     ctx.font = '7px monospace';
-    ctx.fillText(SLOT_NAMES[slot] + ':', 132, y);
-    ctx.fillStyle = eq ? '#fff' : '#555';
-    ctx.fillText(eq ? eq.name : '(vazio)', 196, y);
+    ctx.fillText(SLOT_NAMES[slot] + ':', 127, y);
+    ctx.fillStyle = eq ? '#eee' : '#444';
+    ctx.fillText(eq ? eq.name : '(vazio)', 192, y);
     if (eq && eq.atk) { ctx.fillStyle = '#ff8844'; ctx.fillText(`+${eq.atk}ATK`, 330, y); }
     if (eq && eq.def) { ctx.fillStyle = '#4488ff'; ctx.fillText(`+${eq.def}DEF`, 330, y); }
     if (eq && eq.agi) { ctx.fillStyle = '#44cc44'; ctx.fillText(`+${eq.agi}AGI`, 330, y); }
@@ -1440,35 +1566,34 @@ function renderInventory() {
     if (eq && eq.type === 'amulet') { ctx.fillStyle = AMULET_RARITY_COLORS[eq.rarity]||'#aaa'; ctx.fillText(`${eq.attr1}+${eq.val1} ${eq.attr2}+${eq.val2}`, 330, y); }
   }
 
-  // Mochila
-  ctx.fillStyle = '#aaa';
-  ctx.font = '8px monospace';
-  ctx.fillText(`Mochila (${player.inventory.length}/20):`, 25, 200);
+  // === Mochila ===
+  drawText(`Mochila (${player.inventory.length}/20):`, 20, 194, { color: '#aaa', font: '8px monospace' });
 
   for (let i = 0; i < player.inventory.length; i++) {
     const item = player.inventory[i];
-    const y = 212 + i * 14;
-    if (y > VIEW_H - 50) break;
+    const y = 206 + i * 14;
+    if (y > VIEW_H - 46) break;
     const sel = inventoryState.section === 'bag' && inventoryState.cursor === i;
     if (sel) {
-      ctx.fillStyle = 'rgba(255,215,0,0.1)';
-      ctx.fillRect(22, y - 6, VIEW_W - 60, 12);
+      ctx.fillStyle = 'rgba(255,215,0,0.06)';
+      ctx.fillRect(px + 6, y - 6, pw/2 - 10, 12);
+      ctx.strokeStyle = 'rgba(255,215,0,0.12)';
+      ctx.strokeRect(px + 6, y - 6, pw/2 - 10, 12);
     }
     ctx.fillStyle = sel ? '#ffd700' : '#ccc';
     ctx.font = '7px monospace';
-    ctx.fillText(item.name, 30, y);
-    if (item.atk) { ctx.fillStyle = '#ff8844'; ctx.fillText(`+${item.atk}`, 180, y); }
-    if (item.def) { ctx.fillStyle = '#4488ff'; ctx.fillText(`+${item.def}`, 180, y); }
-    if (item.type === 'ring') { ctx.fillStyle = '#88ff88'; ctx.fillText(`${item.attr}+${item.val.toFixed(1)}`, 180, y); }
-    if (item.type === 'amulet') { ctx.fillStyle = AMULET_RARITY_COLORS[item.rarity]||'#aaa'; ctx.fillText(`${item.attr1}+${item.val1}`, 180, y); }
-    // GDD §13: Comparison arrows ↑↓ vs equipped item
+    ctx.fillText(item.name, 24, y);
+    if (item.atk) { ctx.fillStyle = '#ff8844'; ctx.fillText(`+${item.atk}`, 175, y); }
+    if (item.def) { ctx.fillStyle = '#4488ff'; ctx.fillText(`+${item.def}`, 175, y); }
+    if (item.type === 'ring') { ctx.fillStyle = '#88ff88'; ctx.fillText(`${item.attr}+${item.val.toFixed(1)}`, 175, y); }
+    if (item.type === 'amulet') { ctx.fillStyle = AMULET_RARITY_COLORS[item.rarity]||'#aaa'; ctx.fillText(`${item.attr1}+${item.val1}`, 175, y); }
     if (item.slot && player.equipment) {
       const equipped = player.equipment[item.slot];
-      let compX = 230;
+      let compX = 225;
       const showDiff = (label, newVal, eqVal) => {
         const diff = (newVal || 0) - (eqVal || 0);
-        if (diff > 0) { ctx.fillStyle = '#44ff44'; ctx.fillText(`${label}↑+${diff}`, compX, y); compX += 45; }
-        else if (diff < 0) { ctx.fillStyle = '#ff4444'; ctx.fillText(`${label}↓${diff}`, compX, y); compX += 45; }
+        if (diff > 0) { ctx.fillStyle = '#44ff44'; ctx.fillText(`${label}+${diff}`, compX, y); compX += 42; }
+        else if (diff < 0) { ctx.fillStyle = '#ff4444'; ctx.fillText(`${label}${diff}`, compX, y); compX += 42; }
       };
       if (item.atk || (equipped && equipped.atk)) showDiff('ATK', item.atk, equipped ? equipped.atk : 0);
       if (item.def || (equipped && equipped.def)) showDiff('DEF', item.def, equipped ? equipped.def : 0);
@@ -1476,21 +1601,14 @@ function renderInventory() {
     }
   }
 
-  // Consumíveis
-  ctx.fillStyle = '#aaa';
-  ctx.font = '7px monospace';
-  let consY = Math.min(212 + player.inventory.length * 14, VIEW_H - 70);
-  ctx.fillText('Consumiveis:', 260, 52);
+  // === Consumiveis ===
+  drawText('Consumiveis:', 255, 194, { color: '#aaa', font: '7px monospace' });
   for (let i = 0; i < player.consumables.length; i++) {
     const c = player.consumables[i];
-    ctx.fillStyle = '#ccc';
-    ctx.fillText(`${c.name} x${c.qty}`, 260, 64 + i * 12);
+    drawText(`${c.name} x${c.qty}`, 255, 206 + i * 12, { color: '#ccc', font: '7px monospace' });
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#888';
-  ctx.font = '7px monospace';
-  ctx.fillText('Tab:equip/mochila | Enter:equipar | ESC:fechar', VIEW_W/2, VIEW_H - 22);
+  drawText('Tab:equip/mochila | Enter:equipar | ESC:fechar', VIEW_W/2, VIEW_H - 18, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -1503,43 +1621,66 @@ function renderClassSelect() {
   ctx.fillStyle = 'rgba(0,0,0,0.9)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 14px monospace';
-  ctx.fillText('ESCOLHA SUA CLASSE', VIEW_W/2, 40);
+  // Glow dourado
+  const glow = ctx.createRadialGradient(VIEW_W/2, 40, 10, VIEW_W/2, 40, 200);
+  glow.addColorStop(0, 'rgba(255,215,0,0.05)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, VIEW_W, 120);
 
-  ctx.fillStyle = '#aaa';
-  ctx.font = '8px monospace';
-  ctx.fillText('GDD §1: Sem classe até andar 5. Escolhe após Boss 1.', VIEW_W/2, 56);
+  const panelW = VIEW_W - 40, panelH = VIEW_H - 40;
+  drawPanel(20, 15, panelW, panelH, { border: '#665544', corner: '#ffd700', glow: 'rgba(255,215,0,0.15)' });
 
+  drawTitle('ESCOLHA SUA CLASSE', 40, { color: '#ffd700', font: 'bold 13px monospace' });
+  drawText('Derrote o Boss para desbloquear sua classe', VIEW_W/2, 56, { align: 'center', color: '#777', font: '7px monospace' });
+
+  const classColors = { guerreiro: '#cc4444', arqueiro: '#44cc44', mago: '#4488ff', ladino: '#cccc44' };
   const classes = classSelectData.classes;
   for (let i = 0; i < classes.length; i++) {
     const cd = CLASS_DATA[classes[i]];
-    const y = 80 + i * 60;
+    const y = 74 + i * 58;
     const sel = i === classSelectData.cursor;
 
     if (sel) {
-      ctx.fillStyle = 'rgba(255,215,0,0.12)';
-      ctx.fillRect(40, y - 8, VIEW_W - 80, 52);
-      ctx.strokeStyle = '#ffd700';
-      ctx.strokeRect(40, y - 8, VIEW_W - 80, 52);
+      ctx.fillStyle = 'rgba(255,215,0,0.05)';
+      ctx.fillRect(30, y - 6, panelW - 20, 50);
+      ctx.strokeStyle = 'rgba(255,215,0,0.2)';
+      ctx.strokeRect(30, y - 6, panelW - 20, 50);
     }
+
+    // Ícone colorido da classe
+    const clsColor = classColors[classes[i]] || '#888';
+    ctx.fillStyle = clsColor;
+    ctx.fillRect(40, y + 2, 8, 8);
 
     ctx.textAlign = 'left';
     ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.font = 'bold 11px monospace';
-    ctx.fillText(cd.name, 60, y + 8);
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(cd.name, 56, y + 10);
 
-    ctx.fillStyle = sel ? '#fff' : '#888';
-    ctx.font = '8px monospace';
-    ctx.fillText(`Recurso: ${cd.resource}`, 60, y + 22);
-    ctx.fillText(cd.desc, 60, y + 34);
+    ctx.fillStyle = sel ? '#ddd' : '#666';
+    ctx.font = '7px monospace';
+    ctx.fillText(`Recurso: ${cd.resource}`, 56, y + 24);
+    // Word wrap desc
+    ctx.fillStyle = sel ? '#bbb' : '#555';
+    const descWords = cd.desc.split(' ');
+    let line = '', dx = 56, dy = y + 36;
+    for (const w of descWords) {
+      const test = line + (line ? ' ' : '') + w;
+      if (ctx.measureText(test).width > panelW - 80) {
+        ctx.fillText(line, dx, dy);
+        line = w; dy += 10;
+      } else { line = test; }
+    }
+    ctx.fillText(line, dx, dy);
   }
 
+  const t = performance.now() / 1000;
+  const btnPulse = 0.6 + Math.sin(t * 3) * 0.4;
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#ffd700';
-  ctx.font = '9px monospace';
-  ctx.fillText('Setas: selecionar | Enter: confirmar', VIEW_W/2, VIEW_H - 20);
+  ctx.fillStyle = `rgba(255,215,0,${btnPulse})`;
+  ctx.font = '8px monospace';
+  ctx.fillText('Setas: selecionar | Enter: confirmar', VIEW_W/2, VIEW_H - 28);
   ctx.textAlign = 'left';
 }
 
@@ -1549,65 +1690,52 @@ function renderClassSelect() {
 function renderUpgrade() {
   if (!upgradeState) return;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.85)';
-  ctx.fillRect(30, 30, VIEW_W - 60, VIEW_H - 60);
-  ctx.strokeStyle = '#888';
-  ctx.strokeRect(30, 30, VIEW_W - 60, VIEW_H - 60);
+  ctx.fillStyle = 'rgba(0,0,0,0.88)';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#cc6633';
-  ctx.font = 'bold 12px monospace';
-  ctx.fillText('FERREIRO BRON', VIEW_W/2, 52);
-  ctx.fillStyle = '#fff';
-  ctx.font = '8px monospace';
-  ctx.fillText(`Ouro: ${player.gold}`, VIEW_W/2, 66);
+  const px = 24, py = 24, pw = VIEW_W - 48, ph = VIEW_H - 48;
+  drawPanel(px, py, pw, ph, { border: '#886644', corner: '#cc6633' });
+
+  drawTitle('FERREIRO BRON', py + 24, { color: '#cc6633', font: 'bold 11px monospace' });
+  drawText(`Ouro: ${player.gold}`, VIEW_W/2, py + 40, { align: 'center', color: '#ffd700', font: '8px monospace' });
 
   ctx.textAlign = 'left';
 
   for (let i = 0; i < upgradeState.slots.length; i++) {
     const slot = upgradeState.slots[i];
     const eq = player.equipment[slot];
-    const y = 85 + i * 30;
+    const y = py + 60 + i * 30;
     const sel = i === upgradeState.cursor;
 
     if (sel) {
-      ctx.fillStyle = 'rgba(255,215,0,0.1)';
-      ctx.fillRect(38, y - 8, VIEW_W - 80, 26);
+      ctx.fillStyle = 'rgba(255,215,0,0.06)';
+      ctx.fillRect(px + 6, y - 8, pw - 12, 26);
+      ctx.strokeStyle = 'rgba(255,215,0,0.12)';
+      ctx.strokeRect(px + 6, y - 8, pw - 12, 26);
     }
 
-    ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.font = '8px monospace';
-    ctx.fillText(SLOT_NAMES[slot], 44, y);
+    drawText(SLOT_NAMES[slot], px + 14, y, { color: sel ? '#ffd700' : '#aaa', font: '8px monospace' });
 
     if (eq) {
-      ctx.fillStyle = '#fff';
-      ctx.fillText(eq.name, 110, y);
+      drawText(eq.name, px + 80, y, { color: '#eee', font: '8px monospace' });
       if (eq.upgLevel < 5) {
         const upg = UPGRADE_DATA[eq.upgLevel];
-        ctx.fillStyle = player.gold >= upg.cost ? '#44cc44' : '#cc4444';
-        ctx.fillText(`+${eq.upgLevel+1}: ${upg.cost}g (${Math.round(upg.chance*100)}%)`, 110, y + 12);
+        drawText(`+${eq.upgLevel+1}: ${upg.cost}g (${Math.round(upg.chance*100)}%)`, px + 80, y + 12, { color: player.gold >= upg.cost ? '#44cc44' : '#cc4444', font: '7px monospace' });
       } else {
-        ctx.fillStyle = '#ffd700';
-        ctx.fillText('MAX', 110, y + 12);
+        drawText('MAX', px + 80, y + 12, { color: '#ffd700', font: '7px monospace' });
       }
     } else {
-      ctx.fillStyle = '#555';
-      ctx.fillText('(nenhum equipamento)', 110, y);
+      drawText('(nenhum equipamento)', px + 80, y, { color: '#444', font: '8px monospace' });
     }
   }
 
-  // Result message
   if (upgradeState.result) {
-    ctx.textAlign = 'center';
-    ctx.fillStyle = upgradeState.result === 'success' ? '#44ff44' : '#ff4444';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(upgradeState.result === 'success' ? 'SUCESSO!' : 'FALHOU... Ouro perdido.', VIEW_W/2, VIEW_H - 70);
+    const resColor = upgradeState.result === 'success' ? '#44ff44' : '#ff4444';
+    const resText = upgradeState.result === 'success' ? 'SUCESSO!' : 'FALHOU... Ouro perdido.';
+    drawText(resText, VIEW_W/2, VIEW_H - 66, { align: 'center', color: resColor, font: 'bold 9px monospace' });
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#888';
-  ctx.font = '7px monospace';
-  ctx.fillText('Setas:navegar | Enter:melhorar | ESC:sair', VIEW_W/2, VIEW_H - 38);
+  drawText('Setas:navegar | Enter:melhorar | ESC:sair', VIEW_W/2, VIEW_H - 34, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -1617,84 +1745,64 @@ function renderUpgrade() {
 function renderSeleneUpgrade() {
   if (!seleneUpgradeState) return;
 
-  ctx.fillStyle = 'rgba(0,0,0,0.85)';
-  ctx.fillRect(30, 30, VIEW_W - 60, VIEW_H - 60);
-  ctx.strokeStyle = '#9966cc';
-  ctx.strokeRect(30, 30, VIEW_W - 60, VIEW_H - 60);
+  ctx.fillStyle = 'rgba(0,0,0,0.88)';
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#9966cc';
-  ctx.font = 'bold 12px monospace';
-  ctx.fillText('SELENE — UPGRADE', VIEW_W/2, 52);
-  ctx.fillStyle = '#fff';
-  ctx.font = '8px monospace';
-  ctx.fillText(`Ouro: ${player.gold}`, VIEW_W/2, 66);
+  const px = 24, py = 24, pw = VIEW_W - 48, ph = VIEW_H - 48;
+  drawPanel(px, py, pw, ph, { border: '#6644aa', corner: '#9966cc', glow: 'rgba(153,102,204,0.15)' });
+
+  drawTitle('SELENE \u2014 UPGRADE', py + 24, { color: '#9966cc', font: 'bold 11px monospace' });
+  drawText(`Ouro: ${player.gold}`, VIEW_W/2, py + 40, { align: 'center', color: '#ffd700', font: '8px monospace' });
 
   ctx.textAlign = 'left';
 
   for (let i = 0; i < seleneUpgradeState.slots.length; i++) {
     const slot = seleneUpgradeState.slots[i];
     const eq = player.equipment[slot];
-    const y = 85 + i * 40;
+    const y = py + 58 + i * 38;
     const sel = i === seleneUpgradeState.cursor;
 
     if (sel) {
-      ctx.fillStyle = 'rgba(153,102,204,0.1)';
-      ctx.fillRect(38, y - 8, VIEW_W - 80, 36);
+      ctx.fillStyle = 'rgba(153,102,204,0.06)';
+      ctx.fillRect(px + 6, y - 8, pw - 12, 34);
+      ctx.strokeStyle = 'rgba(153,102,204,0.15)';
+      ctx.strokeRect(px + 6, y - 8, pw - 12, 34);
     }
 
-    ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.font = '8px monospace';
-    ctx.fillText(SLOT_NAMES[slot], 44, y);
+    drawText(SLOT_NAMES[slot], px + 14, y, { color: sel ? '#ffd700' : '#aaa', font: '8px monospace' });
 
     if (eq) {
-      // Nome do item
-      ctx.fillStyle = '#fff';
-      ctx.fillText(eq.name, 110, y);
+      drawText(eq.name, px + 80, y, { color: '#eee', font: '8px monospace' });
 
-      // Show stats
       if (eq.type === 'ring') {
-        ctx.fillStyle = '#88ff88';
-        ctx.fillText(`${eq.attr}: +${eq.val.toFixed(1)}`, 110, y + 12);
+        drawText(`${eq.attr}: +${eq.val.toFixed(1)}`, px + 80, y + 12, { color: '#88ff88', font: '7px monospace' });
         if (eq.effect) {
           const effData = ANCESTRAL_EFFECTS[eq.effect];
-          ctx.fillStyle = '#ffd700';
-          ctx.fillText(effData ? effData.desc : '', 220, y + 12);
+          if (effData) drawText(effData.desc, px + 190, y + 12, { color: '#ffd700', font: '7px monospace' });
         }
       } else if (eq.type === 'amulet') {
-        ctx.fillStyle = AMULET_RARITY_COLORS[eq.rarity] || '#aaa';
-        ctx.fillText(`${eq.skillName} +1lvl`, 110, y + 12);
-        ctx.fillStyle = '#88ff88';
-        ctx.fillText(`${eq.attr1}:+${eq.val1} ${eq.attr2}:+${eq.val2}`, 110, y + 22);
+        drawText(`${eq.skillName} +1lvl`, px + 80, y + 12, { color: AMULET_RARITY_COLORS[eq.rarity] || '#aaa', font: '7px monospace' });
+        drawText(`${eq.attr1}:+${eq.val1} ${eq.attr2}:+${eq.val2}`, px + 80, y + 22, { color: '#88ff88', font: '7px monospace' });
       }
 
-      // Upgrade info
       if (eq.upgLevel < 5) {
         const upg = SELENE_UPGRADE_DATA[eq.upgLevel];
-        ctx.fillStyle = player.gold >= upg.cost ? '#44cc44' : '#cc4444';
-        ctx.fillText(`+${eq.upgLevel+1}: ${upg.cost}g (${Math.round(upg.chance*100)}%)`, 300, y);
+        drawText(`+${eq.upgLevel+1}: ${upg.cost}g (${Math.round(upg.chance*100)}%)`, px + pw - 140, y, { color: player.gold >= upg.cost ? '#44cc44' : '#cc4444', font: '7px monospace' });
       } else {
-        ctx.fillStyle = '#ffd700';
-        ctx.fillText('MAX', 300, y);
+        drawText('MAX', px + pw - 60, y, { color: '#ffd700', font: '7px monospace' });
       }
     } else {
-      ctx.fillStyle = '#555';
-      ctx.fillText('(vazio)', 110, y);
+      drawText('(vazio)', px + 80, y, { color: '#444', font: '8px monospace' });
     }
   }
 
-  // Result message
   if (seleneUpgradeState.result) {
-    ctx.textAlign = 'center';
-    ctx.fillStyle = seleneUpgradeState.result === 'success' ? '#44ff44' : '#ff4444';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(seleneUpgradeState.result === 'success' ? 'SUCESSO!' : 'FALHOU... Ouro perdido.', VIEW_W/2, VIEW_H - 70);
+    const resColor = seleneUpgradeState.result === 'success' ? '#44ff44' : '#ff4444';
+    const resText = seleneUpgradeState.result === 'success' ? 'SUCESSO!' : 'FALHOU... Ouro perdido.';
+    drawText(resText, VIEW_W/2, VIEW_H - 66, { align: 'center', color: resColor, font: 'bold 9px monospace' });
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#888';
-  ctx.font = '7px monospace';
-  ctx.fillText('Setas:navegar | Enter:melhorar | ESC:sair', VIEW_W/2, VIEW_H - 38);
+  drawText('Setas:navegar | Enter:melhorar | ESC:sair', VIEW_W/2, VIEW_H - 34, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -1702,19 +1810,31 @@ function renderSeleneUpgrade() {
 // LEVEL UP — GDD §4
 // ============================================================
 function renderLevelUpScreen() {
-  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  const t = performance.now() / 1000;
+
+  // Overlay com glow dourado
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 14px monospace';
-  ctx.fillText(`NIVEL ${player.level}!`, VIEW_W/2, 35);
+  // Glow central dourado
+  const glow = ctx.createRadialGradient(VIEW_W/2, 60, 10, VIEW_W/2, 60, 150);
+  glow.addColorStop(0, 'rgba(255,215,0,0.06)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, VIEW_W, 160);
 
-  ctx.fillStyle = '#fff';
-  ctx.font = '9px monospace';
-  ctx.fillText(`${levelUpData.points} pontos restantes`, VIEW_W/2, 52);
+  // Painel
+  drawPanel(30, 15, VIEW_W - 60, VIEW_H - 30, { border: '#886622', corner: '#ffd700', glow: 'rgba(255,215,0,0.2)' });
+
+  // Título
+  drawTitle(`NIVEL ${player.level}!`, 38, { color: '#ffd700', font: 'bold 14px monospace' });
+
+  // Pontos restantes
+  const ptColor = levelUpData.points > 0 ? '#44cc44' : '#888';
+  drawText(`${levelUpData.points} pontos restantes`, VIEW_W/2, 54, { align: 'center', color: ptColor, font: '8px monospace' });
 
   const attrs = ['FOR','DES','INT','AGI','VIT','SOR'];
+  const attrColors = ['#cc4444','#44cc44','#4488ff','#44cccc','#cc44cc','#cccc44'];
   const descs = [
     '+2 AtkFis, +1 Dano',
     '+2 AtkDist, +0.5% VelAtk',
@@ -1726,42 +1846,56 @@ function renderLevelUpScreen() {
 
   const startY = 70;
   for (let i = 0; i < 6; i++) {
-    const y = startY + i * 30;
+    const y = startY + i * 28;
     const sel = i === levelUpData.cursor;
     const added = levelUpData.tempAttrs[attrs[i]] || 0;
+    const val = player[attrs[i]] + added;
 
     if (sel) {
-      ctx.fillStyle = 'rgba(255,215,0,0.12)';
-      ctx.fillRect(40, y - 10, VIEW_W - 80, 26);
+      ctx.fillStyle = 'rgba(255,215,0,0.06)';
+      ctx.fillRect(38, y - 8, VIEW_W - 76, 24);
+      ctx.strokeStyle = 'rgba(255,215,0,0.15)';
+      ctx.strokeRect(38, y - 8, VIEW_W - 76, 24);
     }
 
+    // Attr icon (colored square)
+    ctx.fillStyle = attrColors[i];
+    ctx.fillRect(48, y - 2, 6, 6);
+
+    // Attr name
     ctx.textAlign = 'left';
+    ctx.font = 'bold 9px monospace';
     ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.font = 'bold 10px monospace';
     ctx.fillText(attrs[i], 60, y + 4);
 
+    // Value
     ctx.fillStyle = '#fff';
-    ctx.fillText(`${player[attrs[i]] + added}`, 110, y + 4);
+    ctx.fillText(`${val}`, 105, y + 4);
     if (added > 0) {
-      ctx.fillStyle = '#44cc44';
-      ctx.fillText(`(+${added})`, 140, y + 4);
+      ctx.fillStyle = '#44ff44';
+      ctx.fillText(`+${added}`, 130, y + 4);
     }
 
-    ctx.fillStyle = '#888';
-    ctx.font = '7px monospace';
-    ctx.fillText(descs[i], 180, y + 4);
+    // Barra visual do atributo
+    drawBar(155, y - 2, 80, 6, Math.min(val / 30, 1), attrColors[i]);
+
+    // Desc
+    ctx.fillStyle = '#666';
+    ctx.font = '6px monospace';
+    ctx.fillText(descs[i], 240, y + 3);
   }
 
+  // Instruções
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#888';
-  ctx.font = '8px monospace';
-  const instY = startY + 6 * 30 + 8;
-  ctx.fillText('Setas: selecionar | Enter: adicionar ponto', VIEW_W/2, instY);
+  ctx.font = '7px monospace';
+  ctx.fillStyle = '#666';
+  ctx.fillText('Setas + Enter: distribuir pontos', VIEW_W/2, VIEW_H - 30);
 
   if (levelUpData.points === 0) {
-    ctx.fillStyle = '#ffd700';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText('[ CONFIRMAR (Enter) ]', VIEW_W/2, instY + 20);
+    const btnPulse = 0.7 + Math.sin(t * 4) * 0.3;
+    ctx.fillStyle = `rgba(255,215,0,${btnPulse})`;
+    ctx.font = 'bold 9px monospace';
+    ctx.fillText('[ CONFIRMAR (Enter) ]', VIEW_W/2, VIEW_H - 16);
   }
   ctx.textAlign = 'left';
 }
@@ -1803,28 +1937,43 @@ function renderDeathScreen() {
     return;
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#cc4444';
-  ctx.font = 'bold 16px monospace';
-  ctx.fillText('VOCE CAIU!', VIEW_W/2, VIEW_H/2 - 50);
+  const t = performance.now() / 1000;
 
-  ctx.fillStyle = '#aaa';
-  ctx.font = '9px monospace';
-  ctx.fillText(`Andar: ${currentFloor}`, VIEW_W/2, VIEW_H/2 - 25);
-  // GDD §20: Causa da morte
+  // Vignetado vermelho de morte
+  const deathVig = ctx.createRadialGradient(VIEW_W/2, VIEW_H/2, 40, VIEW_W/2, VIEW_H/2, VIEW_W*0.7);
+  deathVig.addColorStop(0, 'rgba(40,0,0,0.3)');
+  deathVig.addColorStop(1, 'rgba(80,0,0,0.6)');
+  ctx.fillStyle = deathVig;
+  ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+  // Painel central
+  drawPanel(VIEW_W/2 - 120, VIEW_H/2 - 75, 240, 150, { border: '#882222', corner: '#cc4444' });
+
+  // Skull decorativo (0x72)
+  const skullFrame = typeof get0x72Frame === 'function' ? get0x72Frame('skull') : null;
+  if (skullFrame) {
+    drawFrame(ctx, skullFrame, VIEW_W/2 - 8, VIEW_H/2 - 68, 16, 16);
+  }
+
+  // Título
+  drawTitle('VOCE CAIU', VIEW_H/2 - 48, { color: '#cc3333', font: 'bold 14px monospace' });
+
+  // Info
   const cause = deathCause || inferDeathCause();
-  ctx.fillText(`Causa: ${cause}`, VIEW_W/2, VIEW_H/2 - 10);
-  ctx.fillText(`Ouro perdido: ${deathGoldLost}`, VIEW_W/2, VIEW_H/2 + 5);
-  ctx.fillText(`Mortes: ${player.deaths}`, VIEW_W/2, VIEW_H/2 + 20);
+  drawText(`Andar ${currentFloor}`, VIEW_W/2, VIEW_H/2 - 28, { align: 'center', color: '#999' });
+  drawText(`Causa: ${cause}`, VIEW_W/2, VIEW_H/2 - 14, { align: 'center', color: '#cc8888' });
+  drawText(`Ouro perdido: ${deathGoldLost}`, VIEW_W/2, VIEW_H/2, { align: 'center', color: '#cc9944' });
+  drawText(`Mortes: ${player.deaths}`, VIEW_W/2, VIEW_H/2 + 14, { align: 'center', color: '#888' });
 
-  ctx.fillStyle = '#ffd700';
-  ctx.font = '10px monospace';
-  ctx.fillText('[ Tentar Novamente (Enter) ]', VIEW_W/2, VIEW_H/2 + 45);
+  // Botões
+  const btnAlpha = 0.7 + Math.sin(t * 3) * 0.3;
+  ctx.textAlign = 'center';
+  ctx.font = '9px monospace';
+  ctx.fillStyle = `rgba(255,215,0,${btnAlpha})`;
+  ctx.fillText('[ Tentar Novamente (Enter) ]', VIEW_W/2, VIEW_H/2 + 40);
   if (currentFloor > 1) {
-    ctx.fillStyle = '#88ccff';
-    ctx.font = '9px monospace';
-    // GDD §20: "Voltar ao Acampamento" — NPC mais próximo abaixo
-    ctx.fillText('[ Voltar ao Acampamento (Backspace) ]', VIEW_W/2, VIEW_H/2 + 65);
+    ctx.fillStyle = '#6699bb';
+    ctx.fillText('[ Acampamento (Backspace) ]', VIEW_W/2, VIEW_H/2 + 56);
   }
   ctx.textAlign = 'left';
 }
@@ -1848,17 +1997,15 @@ function inferDeathCause() {
 }
 
 function renderPauseScreen() {
-  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 14px monospace';
-  ctx.fillText('PAUSADO', VIEW_W/2, VIEW_H/2 - 20);
-  ctx.fillStyle = '#aaa';
-  ctx.font = '9px monospace';
-  ctx.fillText('ESC para continuar', VIEW_W/2, VIEW_H/2 + 5);
-  ctx.fillText(`Classe: ${player.classKey ? CLASS_DATA[player.classKey].name : 'Nenhuma'}`, VIEW_W/2, VIEW_H/2 + 25);
-  ctx.fillText(`DEF: ${Math.round(getDefense())} | ATK: ${getAtkFis()} | ESQ: ${Math.round(getEsquiva())}%`, VIEW_W/2, VIEW_H/2 + 40);
+
+  drawPanel(VIEW_W/2 - 100, VIEW_H/2 - 60, 200, 120, { border: '#554433', corner: '#ffd700' });
+  drawTitle('PAUSADO', VIEW_H/2 - 38, { color: '#ffd700' });
+
+  drawText(`Classe: ${player.classKey ? CLASS_DATA[player.classKey].name : 'Nenhuma'}`, VIEW_W/2, VIEW_H/2, { align: 'center', color: '#bbb' });
+  drawText(`DEF: ${Math.round(getDefense())} | ATK: ${getAtkFis()} | ESQ: ${Math.round(getEsquiva())}%`, VIEW_W/2, VIEW_H/2 + 16, { align: 'center', color: '#999' });
+  drawText('ESC para continuar', VIEW_W/2, VIEW_H/2 + 40, { align: 'center', color: '#666', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -2260,31 +2407,82 @@ function handleSeleneUpgradeInput() {
 let menuState = {cursor: 0, slots: null, slotCursor: 0, importing: false, importText: '', confirmDelete: -1};
 
 function renderMainMenu() {
-  ctx.fillStyle = '#0a0a14';
+  const t = performance.now() / 1000;
+
+  // Fundo gradiente escuro
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+  bgGrad.addColorStop(0, '#06040e');
+  bgGrad.addColorStop(0.5, '#0c0818');
+  bgGrad.addColorStop(1, '#0a0612');
+  ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  // Fundo — silhueta dungeon
-  ctx.fillStyle = '#111122';
-  for (let i = 0; i < 8; i++) {
-    const w = 30 + Math.sin(i*1.3)*15;
-    const h = 60 + Math.cos(i*0.9)*40;
-    ctx.fillRect(VIEW_W/2 - 120 + i*30, VIEW_H - h - 20, w, h);
+  // Dungeon silhueta com profundidade
+  for (let layer = 2; layer >= 0; layer--) {
+    const alpha = 0.04 + layer * 0.03;
+    ctx.fillStyle = `rgba(20,15,40,${alpha})`;
+    for (let i = 0; i < 10; i++) {
+      const w = 25 + Math.sin(i*1.3 + layer)*18;
+      const h = 40 + layer*20 + Math.cos(i*0.9 + layer*0.5)*30;
+      const x = VIEW_W/2 - 140 + i*30 + layer*5;
+      ctx.fillRect(x, VIEW_H - h - 10 - layer*8, w, h + layer*8);
+    }
   }
 
-  // Droghan silhueta (centro)
-  ctx.fillStyle = '#1a1a2e';
-  ctx.fillRect(VIEW_W/2 - 8, VIEW_H - 90, 16, 24);
-  ctx.fillRect(VIEW_W/2 - 6, VIEW_H - 96, 12, 8);
+  // Partículas flutuantes no menu
+  for (let i = 0; i < 15; i++) {
+    const px = (i * 37 + t * 8) % VIEW_W;
+    const py = (i * 23 + Math.sin(t * 0.5 + i) * 30) % VIEW_H;
+    const alpha = 0.1 + Math.sin(t * 2 + i * 0.7) * 0.08;
+    ctx.fillStyle = `rgba(255,200,100,${alpha})`;
+    ctx.fillRect(Math.round(px), Math.round(py), 1, 1);
+  }
 
-  // Título
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 16px monospace';
+  // Personagem silhueta (centro) — 0x72 knight se disponível
+  const heroFrame = typeof get0x72Frame === 'function' ? get0x72Frame('knight_m_idle_anim_f' + (Math.floor(t * 2) % 4)) : null;
+  if (heroFrame) {
+    ctx.globalAlpha = 0.15;
+    drawFrame(ctx, heroFrame, VIEW_W/2 - 24, VIEW_H - 100, 48, 48);
+    ctx.globalAlpha = 1;
+  }
+
+  // Glow atrás do título
+  const titleGlow = ctx.createRadialGradient(VIEW_W/2, 65, 10, VIEW_W/2, 65, 120);
+  titleGlow.addColorStop(0, 'rgba(255,180,40,0.08)');
+  titleGlow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = titleGlow;
+  ctx.fillRect(0, 0, VIEW_W, 140);
+
+  // Título com sombra
   ctx.textAlign = 'center';
-  ctx.fillText('The Shadow of', VIEW_W/2, 60);
-  ctx.font = 'bold 22px monospace';
-  ctx.fillText('DROGHAN', VIEW_W/2, 85);
+  ctx.font = 'bold 12px monospace';
+  ctx.fillStyle = 'rgba(255,215,0,0.3)';
+  ctx.fillText('The Shadow of', VIEW_W/2, 48);
+  ctx.fillStyle = '#c8a84e';
+  ctx.fillText('The Shadow of', VIEW_W/2, 47);
 
-  // Opções
+  ctx.font = 'bold 22px monospace';
+  // Text shadow
+  ctx.fillStyle = 'rgba(180,100,20,0.4)';
+  ctx.fillText('DROGHAN', VIEW_W/2 + 2, 76);
+  // Gold gradient effect
+  const pulse = 0.85 + Math.sin(t * 1.5) * 0.15;
+  ctx.fillStyle = `rgba(255,215,0,${pulse})`;
+  ctx.fillText('DROGHAN', VIEW_W/2, 74);
+
+  // Linha decorativa sob o título
+  ctx.strokeStyle = 'rgba(255,215,0,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(VIEW_W/2 - 80, 84);
+  ctx.lineTo(VIEW_W/2 - 20, 84);
+  ctx.moveTo(VIEW_W/2 + 20, 84);
+  ctx.lineTo(VIEW_W/2 + 80, 84);
+  ctx.stroke();
+  ctx.fillStyle = '#ffd700';
+  ctx.fillRect(VIEW_W/2 - 2, 82, 4, 4);
+
+  // Opções de menu
   const options = [];
   const saves = getAllLocalSaves();
   const hasAnySave = Object.keys(saves).length > 0;
@@ -2292,18 +2490,16 @@ function renderMainMenu() {
   options.push('Novo Jogo');
   options.push('Importar Save');
 
-  ctx.font = '10px monospace';
-  const startY = 140;
+  const startY = 130;
   for (let i = 0; i < options.length; i++) {
-    const sel = i === menuState.cursor;
-    ctx.fillStyle = sel ? '#ffd700' : '#888';
-    ctx.fillText((sel ? '▶ ' : '  ') + options[i], VIEW_W/2, startY + i * 22);
+    drawMenuItem(options[i], VIEW_W/2, startY + i * 24, i === menuState.cursor, { width: 160 });
   }
 
-  // Cloud status
-  ctx.font = '7px monospace';
-  ctx.fillStyle = cloudReady ? '#44cc44' : '#666';
-  ctx.fillText(cloudReady ? '☁ Nuvem conectada' : '☁ Offline (local)', VIEW_W/2, VIEW_H - 10);
+  // Versão e cloud
+  ctx.font = '6px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = cloudReady ? '#338844' : '#444';
+  ctx.fillText(cloudReady ? 'Nuvem conectada' : 'Save local', VIEW_W/2, VIEW_H - 8);
   ctx.textAlign = 'left';
 }
 
@@ -2339,66 +2535,54 @@ function handleMainMenuInput() {
 function renderSlotSelect() {
   ctx.fillStyle = '#0a0a14';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('Selecionar Slot', VIEW_W/2, 30);
+
+  const panelW = VIEW_W - 40, panelH = VIEW_H - 30;
+  drawPanel(20, 10, panelW, panelH, { border: '#554433', corner: '#ffd700' });
+
+  drawTitle('Selecionar Slot', 34, { color: '#ffd700', font: 'bold 11px monospace' });
 
   const saves = getAllLocalSaves();
   for (let i = 0; i < 3; i++) {
     const sel = i === menuState.slotCursor;
     const data = saves[i];
-    const y = 55 + i * 85;
+    const y = 52 + i * 85;
+    const slotX = 36, slotW = panelW - 32, slotH = 72;
 
-    // Fundo do slot
-    ctx.fillStyle = sel ? '#222244' : '#111122';
-    ctx.fillRect(40, y, VIEW_W - 80, 75);
-    ctx.strokeStyle = sel ? '#ffd700' : '#333';
-    ctx.strokeRect(40, y, VIEW_W - 80, 75);
+    // Slot panel
+    ctx.fillStyle = sel ? 'rgba(255,215,0,0.04)' : 'rgba(0,0,0,0.3)';
+    ctx.fillRect(slotX, y, slotW, slotH);
+    ctx.strokeStyle = sel ? '#ffd700' : 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = sel ? 1.5 : 1;
+    ctx.strokeRect(slotX, y, slotW, slotH);
 
-    ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Slot ${i+1}`, 50, y + 15);
+    drawText(`Slot ${i+1}`, slotX + 10, y + 15, { color: sel ? '#ffd700' : '#aaa', font: '9px monospace' });
 
     if (data) {
-      ctx.fillStyle = '#ccc';
-      ctx.fillText(`${data.classKey ? data.classKey.charAt(0).toUpperCase() + data.classKey.slice(1) : 'Sem classe'} Lv.${data.level}`, 50, y + 30);
-      ctx.fillText(`Andar ${data.currentFloor}/${data.maxFloorReached}`, 50, y + 44);
+      drawText(`${data.classKey ? data.classKey.charAt(0).toUpperCase() + data.classKey.slice(1) : 'Sem classe'} Lv.${data.level}`, slotX + 10, y + 30, { color: '#ccc', font: '8px monospace' });
+      drawText(`Andar ${data.currentFloor}/${data.maxFloorReached}`, slotX + 10, y + 44, { color: '#999', font: '7px monospace' });
       const mins = Math.floor((data.tempoJogado||0)/60);
       const hrs = Math.floor(mins/60);
-      ctx.fillText(`Tempo: ${hrs}h${(mins%60).toString().padStart(2,'0')}m`, 50, y + 58);
-      ctx.fillText(`Mortes: ${data.deaths||0}`, 200, y + 44);
-      // Deletar
+      drawText(`Tempo: ${hrs}h${(mins%60).toString().padStart(2,'0')}m`, slotX + 10, y + 58, { color: '#888', font: '7px monospace' });
+      drawText(`Mortes: ${data.deaths||0}`, slotX + 160, y + 44, { color: '#cc8888', font: '7px monospace' });
       if (sel) {
-        ctx.fillStyle = '#cc4444';
-        ctx.textAlign = 'right';
-        ctx.fillText('[D] Apagar', VIEW_W - 50, y + 15);
-        ctx.textAlign = 'left';
+        drawText('[D] Apagar', slotX + slotW - 70, y + 15, { color: '#cc4444', font: '7px monospace' });
       }
     } else {
-      ctx.fillStyle = '#666';
-      ctx.fillText('Vazio — Novo Jogo', 50, y + 38);
+      drawText('Vazio \u2014 Novo Jogo', slotX + 10, y + 38, { color: '#555', font: '8px monospace' });
     }
   }
+  ctx.lineWidth = 1;
 
   // Confirmação de delete
   if (menuState.confirmDelete >= 0) {
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-    ctx.fillStyle = '#ff4444';
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(`Apagar Slot ${menuState.confirmDelete+1}?`, VIEW_W/2, VIEW_H/2 - 15);
-    ctx.fillStyle = '#ccc';
-    ctx.font = '8px monospace';
-    ctx.fillText('Enter = Confirmar | ESC = Cancelar', VIEW_W/2, VIEW_H/2 + 10);
+    drawPanel(VIEW_W/2 - 110, VIEW_H/2 - 30, 220, 60, { border: '#882222', corner: '#cc4444' });
+    drawText(`Apagar Slot ${menuState.confirmDelete+1}?`, VIEW_W/2, VIEW_H/2 - 8, { align: 'center', color: '#ff4444', font: 'bold 9px monospace' });
+    drawText('Enter = Confirmar | ESC = Cancelar', VIEW_W/2, VIEW_H/2 + 12, { align: 'center', color: '#aaa', font: '7px monospace' });
   }
 
-  ctx.fillStyle = '#666';
-  ctx.font = '7px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('ESC = Voltar', VIEW_W/2, VIEW_H - 10);
+  drawText('ESC = Voltar', VIEW_W/2, VIEW_H - 14, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -2445,28 +2629,33 @@ function handleSlotSelectInput() {
 function renderImportSave() {
   ctx.fillStyle = '#0a0a14';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('Importar Save', VIEW_W/2, 40);
-  ctx.fillStyle = '#ccc';
-  ctx.font = '8px monospace';
-  ctx.fillText('Cole o código base64 e pressione Enter', VIEW_W/2, 65);
-  ctx.fillText('ESC = Voltar', VIEW_W/2, VIEW_H - 20);
+
+  const px = 20, py = 20, pw = VIEW_W - 40, ph = VIEW_H - 40;
+  drawPanel(px, py, pw, ph, { border: '#554433', corner: '#ffd700' });
+
+  drawTitle('Importar Save', py + 26, { color: '#ffd700', font: 'bold 11px monospace' });
+  drawText('Cole o codigo base64 e pressione Enter', VIEW_W/2, py + 44, { align: 'center', color: '#999', font: '7px monospace' });
 
   // Textarea visual
-  ctx.fillStyle = '#111';
-  ctx.fillRect(30, 80, VIEW_W - 60, 180);
-  ctx.strokeStyle = '#444';
-  ctx.strokeRect(30, 80, VIEW_W - 60, 180);
-  ctx.fillStyle = '#aaa';
+  const txX = px + 10, txY = py + 56, txW = pw - 20, txH = ph - 90;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(txX, txY, txW, txH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.strokeRect(txX, txY, txW, txH);
+
   ctx.font = '7px monospace';
   ctx.textAlign = 'left';
   const preview = menuState.importText.length > 200 ? menuState.importText.substring(0,200)+'...' : menuState.importText;
   const lines = [];
   for (let i = 0; i < preview.length; i += 55) lines.push(preview.substring(i, i+55));
-  for (let i = 0; i < lines.length && i < 20; i++) ctx.fillText(lines[i], 35, 95 + i * 9);
-  if (!menuState.importText) { ctx.fillStyle = '#555'; ctx.fillText('Ctrl+V para colar...', 35, 95); }
+  for (let i = 0; i < lines.length && i < 20; i++) {
+    drawText(lines[i], txX + 5, txY + 12 + i * 9, { color: '#aaa', font: '7px monospace' });
+  }
+  if (!menuState.importText) {
+    drawText('Ctrl+V para colar...', txX + 5, txY + 12, { color: '#444', font: '7px monospace' });
+  }
+
+  drawText('ESC = Voltar', VIEW_W/2, py + ph - 14, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -2543,27 +2732,47 @@ const PAUSE_SFX_INDEX = 3;
 const PAUSE_MUSIC_INDEX = 4;
 
 function renderPauseMenuFull() {
-  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 14px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('PAUSADO', VIEW_W/2, 40);
+  const panelW = 260, panelH = 230;
+  const px = VIEW_W/2 - panelW/2, py = 20;
+  drawPanel(px, py, panelW, panelH, { border: '#554433', corner: '#ffd700' });
 
-  // Opções
+  drawTitle('PAUSADO', py + 28, { color: '#ffd700' });
+
   const pauseOpts = getPauseOptions();
-  ctx.font = '10px monospace';
   for (let i = 0; i < pauseOpts.length; i++) {
     const sel = i === pauseMenuCursor;
-    ctx.fillStyle = sel ? '#ffd700' : '#aaa';
-    ctx.fillText((sel ? '\u25B6 ' : '  ') + pauseOpts[i], VIEW_W/2, 80 + i * 20);
+    const optY = py + 55 + i * 20;
+    const isSFX = i === PAUSE_SFX_INDEX;
+    const isMusic = i === PAUSE_MUSIC_INDEX;
+
+    if (sel) {
+      ctx.fillStyle = 'rgba(255,215,0,0.06)';
+      ctx.fillRect(px + 10, optY - 10, panelW - 20, 18);
+      ctx.strokeStyle = 'rgba(255,215,0,0.15)';
+      ctx.strokeRect(px + 10, optY - 10, panelW - 20, 18);
+    }
+
+    // Volume sliders get bar visualization
+    if (isSFX || isMusic) {
+      const vol = isSFX ? sfxVolume : musicVolume;
+      const label = isSFX ? 'SFX' : 'Musica';
+      drawText(label, px + 30, optY, { color: sel ? '#ffd700' : '#aaa', font: '9px monospace' });
+      drawBar(px + 80, optY - 6, 100, 8, vol, sel ? '#ffd700' : '#888');
+      drawText(`${Math.round(vol * 100)}%`, px + 186, optY, { color: sel ? '#fff' : '#888', font: '7px monospace' });
+    } else {
+      ctx.font = '9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = sel ? '#ffd700' : '#aaa';
+      ctx.fillText((sel ? '\u25B6 ' : '  ') + pauseOpts[i], VIEW_W/2, optY);
+    }
   }
 
   // Info rápida
-  ctx.font = '7px monospace';
-  ctx.fillStyle = '#666';
-  ctx.fillText(`Slot ${currentSaveSlot+1} | ${cloudReady ? '☁ Nuvem' : '💾 Local'}`, VIEW_W/2, VIEW_H - 15);
+  ctx.textAlign = 'center';
+  drawText(`Slot ${currentSaveSlot+1} | ${cloudReady ? 'Nuvem' : 'Local'}`, VIEW_W/2, py + panelH - 12, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -2611,43 +2820,54 @@ function handlePauseMenuInput() {
 
 // Tela Stats
 function renderStatsScreen() {
-  ctx.fillStyle = 'rgba(0,0,0,0.85)';
+  ctx.fillStyle = 'rgba(0,0,0,0.88)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('Estatísticas', VIEW_W/2, 25);
 
-  ctx.font = '8px monospace';
-  ctx.textAlign = 'left';
-  const x1 = 40, x2 = 250;
-  let y = 50;
-  const line = (label, val) => { ctx.fillStyle = '#aaa'; ctx.fillText(label, x1, y); ctx.fillStyle = '#fff'; ctx.fillText(''+val, x2, y); y += 14; };
+  const px = 20, py = 10, pw = VIEW_W - 40, ph = VIEW_H - 20;
+  drawPanel(px, py, pw, ph, { border: '#554433', corner: '#ffd700' });
+
+  drawTitle('Estatisticas', py + 22, { color: '#ffd700', font: 'bold 11px monospace' });
+
+  const x1 = px + 20, x2 = px + 180;
+  let y = py + 42;
+  const attrColors = { FOR: '#cc4444', DES: '#44cc44', INT: '#4488ff', AGI: '#44cccc', VIT: '#cc44cc', SOR: '#cccc44' };
+
+  const line = (label, val, color) => {
+    drawText(label, x1, y, { color: '#999', font: '7px monospace' });
+    drawText(''+val, x2, y, { color: color || '#eee', font: '7px monospace' });
+    y += 13;
+  };
 
   line('Classe:', player.classKey ? player.classKey.charAt(0).toUpperCase() + player.classKey.slice(1) : 'Nenhuma');
-  line('Nível:', player.level);
+  line('Nivel:', player.level, '#ffd700');
   line('XP:', player.xp + '/' + getXpToNext());
-  line('HP:', player.hp + '/' + getMaxHp());
-  line('Ouro:', player.gold);
-  y += 5;
-  line('FOR:', player.FOR); line('DES:', player.DES); line('INT:', player.INT);
-  line('AGI:', player.AGI); line('VIT:', player.VIT); line('SOR:', player.SOR);
-  y += 5;
-  line('ATK Físico:', getAtkFis()); line('ATK Mágico:', getAtkMag()); line('DEF:', getDefense());
-  y += 5;
+  line('HP:', Math.round(player.hp) + '/' + Math.round(getMaxHp()), '#44cc44');
+  line('Ouro:', player.gold, '#ffd700');
+  y += 4;
+
+  // Atributos com barras visuais
+  const attrs = ['FOR','DES','INT','AGI','VIT','SOR'];
+  for (const attr of attrs) {
+    drawText(attr + ':', x1, y, { color: '#999', font: '7px monospace' });
+    drawText(''+player[attr], x1 + 35, y, { color: attrColors[attr], font: '7px monospace' });
+    drawBar(x1 + 55, y - 5, 50, 5, Math.min(player[attr] / 30, 1), attrColors[attr]);
+    y += 13;
+  }
+  y += 4;
+  line('ATK Fisico:', getAtkFis(), '#ff8844');
+  line('ATK Magico:', getAtkMag(), '#8888ff');
+  line('DEF:', Math.round(getDefense()), '#4488ff');
+  y += 4;
   line('Andar:', currentFloor + '/' + maxFloorReached);
-  line('Mortes:', player.deaths);
+  line('Mortes:', player.deaths, '#cc4444');
   line('Inimigos:', player.enemiesKilled);
   const bossCount = Object.keys(bossDefeated).filter(k => bossDefeated[k]).length;
-  line('Bosses Derrotados:', bossCount + '/5');
-  line('Ouro total:', player.ouroTotal);
+  line('Bosses:', bossCount + '/5', '#ff8844');
+  line('Ouro total:', player.ouroTotal, '#ffd700');
   const mins = Math.floor(player.tempoJogado/60);
   line('Tempo:', Math.floor(mins/60) + 'h' + (mins%60).toString().padStart(2,'0') + 'm');
 
-  ctx.fillStyle = '#666';
-  ctx.font = '7px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('ESC = Voltar', VIEW_W/2, VIEW_H - 10);
+  drawText('ESC = Voltar', VIEW_W/2, VIEW_H - 14, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 }
 
@@ -2655,31 +2875,28 @@ function renderStatsScreen() {
 function renderExportSave() {
   ctx.fillStyle = 'rgba(0,0,0,0.9)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-  ctx.fillStyle = '#ffd700';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('Exportar Save', VIEW_W/2, 30);
-  ctx.fillStyle = '#ccc';
-  ctx.font = '8px monospace';
-  ctx.fillText('Copie o código abaixo (Ctrl+C)', VIEW_W/2, 50);
 
-  ctx.fillStyle = '#111';
-  ctx.fillRect(20, 60, VIEW_W - 40, 200);
-  ctx.strokeStyle = '#444';
-  ctx.strokeRect(20, 60, VIEW_W - 40, 200);
+  const px = 20, py = 20, pw = VIEW_W - 40, ph = VIEW_H - 40;
+  drawPanel(px, py, pw, ph, { border: '#554433', corner: '#ffd700' });
 
-  ctx.fillStyle = '#aaa';
-  ctx.font = '6px monospace';
-  ctx.textAlign = 'left';
+  drawTitle('Exportar Save', py + 26, { color: '#ffd700', font: 'bold 11px monospace' });
+  drawText('Copie o codigo abaixo (Ctrl+C)', VIEW_W/2, py + 44, { align: 'center', color: '#999', font: '7px monospace' });
+
+  // Code box
+  const txX = px + 10, txY = py + 56, txW = pw - 20, txH = ph - 90;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(txX, txY, txW, txH);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.strokeRect(txX, txY, txW, txH);
+
   const code = menuState.exportCode || '';
   const lines = [];
-  for (let i = 0; i < code.length; i += 70) lines.push(code.substring(i, i+70));
-  for (let i = 0; i < Math.min(lines.length, 25); i++) ctx.fillText(lines[i], 25, 75 + i * 8);
+  for (let i = 0; i < code.length; i += 65) lines.push(code.substring(i, i+65));
+  for (let i = 0; i < Math.min(lines.length, 25); i++) {
+    drawText(lines[i], txX + 5, txY + 12 + i * 8, { color: '#aaa', font: '6px monospace' });
+  }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = '#666';
-  ctx.font = '7px monospace';
-  ctx.fillText('ESC = Voltar', VIEW_W/2, VIEW_H - 10);
+  drawText('ESC = Voltar', VIEW_W/2, py + ph - 14, { align: 'center', color: '#555', font: '7px monospace' });
   ctx.textAlign = 'left';
 
   // Auto-copy to clipboard

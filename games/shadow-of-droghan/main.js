@@ -269,9 +269,9 @@ function updateMinimapIfDirty() {
     mctx.fillRect(px-1, py-1, 3, 3);
   };
 
-  // Escadas
-  if (stairsDown && stairsDown.placed) mark(stairsDown.x, stairsDown.y, '#ffd700');
-  if (stairsUp) mark(stairsUp.x, stairsUp.y, '#c0c0c0');
+  // Escadas — removidas do minimapa por pedido do usuário
+  // if (stairsDown && stairsDown.placed) mark(stairsDown.x, stairsDown.y, '#ffd700');
+  // if (stairsUp) mark(stairsUp.x, stairsUp.y, '#c0c0c0');
 
   // NPCs
   for (const n of npcs) mark(Math.floor(n.x/TILE), Math.floor(n.y/TILE), '#4488ff');

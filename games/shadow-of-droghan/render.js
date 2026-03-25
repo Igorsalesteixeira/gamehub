@@ -64,15 +64,15 @@ function render() {
   renderParticlesLayer();
   renderFogOverlay();
 
-  // === LIGHTING SYSTEM ===
-  if (typeof renderLightMap === 'function') renderLightMap();
-  if (typeof applyLighting === 'function') applyLighting();
+  // === LIGHTING SYSTEM (desativado — muito escuro) ===
+  // if (typeof renderLightMap === 'function') renderLightMap();
+  // if (typeof applyLighting === 'function') applyLighting();
 
   // === AMBIENT PARTICLES (above lighting, below HUD) ===
   if (typeof renderAmbientParticles === 'function') renderAmbientParticles();
 
-  // === POST-PROCESSING ===
-  if (typeof renderVignette === 'function') renderVignette();
+  // === POST-PROCESSING (mantém apenas color grading sutil) ===
+  // if (typeof renderVignette === 'function') renderVignette();
   if (typeof renderColorGrading === 'function') renderColorGrading();
 
   ctx.restore();
@@ -1144,7 +1144,7 @@ function renderHUD() {
   ctx.fillStyle = '#fff';
   ctx.font = '7px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`${player.hp}/${getMaxHp()}`, pad+16, pad+22);
+  ctx.fillText(`${Math.round(player.hp)}/${Math.round(getMaxHp())}`, pad+16, pad+22);
 
   // GDD §13: Resource bar (só pós-A5)
   if (player.classKey) {
