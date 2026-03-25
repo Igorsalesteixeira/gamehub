@@ -265,7 +265,7 @@ function performAttack() {
     if (e.dead) continue;
     const edx = e.x - player.x, edy = e.y - player.y;
     const d = Math.sqrt(edx*edx + edy*edy);
-    if (d > TILE) continue;
+    if (d > TILE * 1.3) continue;
 
     const eAngle = Math.atan2(edy, edx);
     let diff = Math.abs(eAngle - angle);

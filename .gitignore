@@ -31,3 +31,6 @@ npm-debug.log*
 # Test results (Playwright)
 test-results/
 .playwright-artifacts-*/
+
+# Game assets (large binary files - downloaded separately)
+games/shadow-of-droghan/assets/
