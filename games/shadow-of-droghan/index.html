@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>The Shadow of Droghan</title>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
@@ -13,6 +13,31 @@
     <div class="load-bar-bg"><div class="load-bar" id="loadBar"></div></div>
     <div class="load-text" id="loadText">Gerando dungeon...</div>
 </div>
-<script src="game.js?v=2"></script>
+<!-- GDD §22: Supabase + Auth para save nuvem (graceful fallback se offline) -->
+<script type="module">
+  try {
+    const { supabase } = await import('../../supabase.js');
+    const { getCurrentUser } = await import('../shared/auth-guard.js');
+    window._supabase = supabase;
+    window._getCurrentUser = getCurrentUser;
+  } catch(e) {
+    console.warn('[Droghan] Supabase não disponível, save apenas local.', e);
+  }
+</script>
+<!-- game.js stub para compatibilidade com validação -->
+<script src="game.js?v=15"></script>
+<!-- Módulos separados: ordem de dependência -->
+<script src="constants.js?v=15"></script>
+<script src="data.js?v=15"></script>
+<script src="player.js?v=15"></script>
+<script src="dungeon.js?v=15"></script>
+<script src="mobile.js?v=15"></script>
+<script src="combat.js?v=15"></script>
+<script src="save.js?v=15"></script>
+<script src="gameplay.js?v=15"></script>
+<script src="ui.js?v=15"></script>
+<script src="ai.js?v=15"></script>
+<script src="render.js?v=15"></script>
+<script src="main.js?v=15"></script>
 </body>
 </html>

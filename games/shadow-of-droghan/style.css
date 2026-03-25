@@ -3,12 +3,18 @@
 body {
     background: #0a0a12;
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     cursor: crosshair;
 }
 
+/* GDD §24: canvas 480×352, escalado via CSS */
 canvas {
     display: block;
-    margin: 0 auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
 #loading {
